@@ -1,0 +1,16 @@
+# Спокойная игра: только штатные действия Оператора, ни одного кризисного воздействия.
+# Проверяет отсутствие ложных тревог: уровня critical быть не должно.
+# Время — секунды от старта игры.
+name: quiet
+description: "Штатная работа без событий (проверка отсутствия ложных срабатываний)"
+duration_s: 5400
+initial:
+  initial_soc_pct: 75
+  cloud_cover: 0.1
+events:
+  - { at: 60,   type: operator, action: start_device, device: cnc,     duration_s: 720,  note: "фрезеровка платы" }
+  - { at: 120,  type: operator, action: start_device, device: printer, duration_s: 1800, note: "печать корпуса" }
+  # Оператор сам включает вытяжку перед пайкой (регламент п. 9.1) и выключает после.
+  - { at: 1100, type: operator, action: set_vent, mode: low }
+  - { at: 1200, type: operator, action: start_device, device: solder, duration_s: 900, note: "пайка" }
+  - { at: 2150, type: operator, action: set_vent, mode: "off" }

@@ -1,0 +1,50 @@
+# Базовый сценарий: по одному событию каждого типа (прямое, скрытое, ложное,
+# каскадное, потеря связи, отказ исполнителя, неисправность устройства).
+# Время — секунды от старта игры. Что должна сделать система — в docs/ARCHITECTURE.md.
+name: basic
+description: "По одному событию каждого типа на фоне штатной работы Оператора"
+duration_s: 5400
+initial:
+  initial_soc_pct: 55
+  cloud_cover: 0.1
+events:
+  # --- штатная работа Оператора ---
+  - { at: 60,   type: operator, action: start_device, device: cnc,     duration_s: 720,  note: "фрезеровка платы" }
+  - { at: 120,  type: operator, action: start_device, device: printer, duration_s: 1800, note: "печать корпуса" }
+  - { at: 900,  type: operator, action: set_vent, mode: low }
+  - { at: 960,  type: operator, action: start_device, device: solder, duration_s: 900, note: "пайка" }
+  - { at: 2000, type: operator, action: set_vent, mode: "off" }
+
+  # --- ложный сигнал: один датчик CO2 показывает 5000 ppm, остальные в норме ---
+  - { at: 600,  type: false_signal, sensor: "co2_ppm.co2_b", value: 5000, duration_s: 40, note: "ложный скачок CO2" }
+
+  # --- скрытый дрейф: температура АКБ «ползёт» вверх на 0.8 °C/мин, физически ничего не меняется ---
+  - { at: 1000, type: hidden_drift, sensor: battery_temp_c, rate_per_min: 0.8, duration_s: 2400, note: "дрейф датчика АКБ" }
+
+  # --- прямое воздействие: генерация панелей падает в 3 раза ---
+  - { at: 1500, type: direct, target: pv, factor: 0.33, note: "генерация упала втрое" }
+
+  # --- каскад: вытяжка на максимум + пайка + рост нагрузки → АКБ садится быстрее ---
+  - at: 2400
+    type: cascade
+    note: "пайка требует вытяжку, вытяжка и нагрузка садят АКБ"
+    steps:
+      - { at: 0,  type: operator, action: set_vent, mode: high }
+      - { at: 10, type: operator, action: start_device, device: solder, duration_s: 600 }
+      - { at: 60, type: direct, target: load, extra_w: 600, duration_s: 1200, note: "доп. нагрузка" }
+
+  # --- потеря связи: телеметрия застывает на 25 с ---
+  - { at: 3000, type: comms_loss, duration_s: 25, mode: frozen }
+
+  # --- отказ исполнителя: вытяжка не реагирует на команды 15 минут ---
+  - { at: 3100, type: operator, action: set_vent, mode: "off" }
+  - { at: 3300, type: actuator_fail, target: vent, duration_s: 900, note: "вытяжка не реагирует" }
+  # Оператор «забыл» вытяжку и снова паяет: Штаб обязан потребовать вытяжку, но она не исполнит команду.
+  - { at: 3400, type: operator, action: start_device, device: solder, duration_s: 600, note: "пайка без вытяжки" }
+
+  # --- неисправность устройства: засор принтера ---
+  - { at: 3900, type: operator, action: start_device, device: printer, duration_s: 1200, note: "печать, вторая деталь" }
+  - { at: 4200, type: device_fault, device: printer, note: "засор печатающей головки" }
+
+  # --- прямое воздействие: в помещении стало больше людей → реальный рост CO2 на всех датчиках ---
+  - { at: 4300, type: direct, target: occupants, delta: 4, duration_s: 900, note: "посетители" }

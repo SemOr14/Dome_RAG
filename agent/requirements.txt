@@ -1,0 +1,6 @@
+# Зависимости агента (python main.py). Для разработки: pip install -e ".[dev]"
+pydantic>=2.5
+pyyaml>=6
+httpx>=0.27
+websockets>=12
+rich>=13

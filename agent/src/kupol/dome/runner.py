@@ -1,0 +1,477 @@
+"""Главный цикл агента: телеметрия → плейбуки → решения → Gate → проверка → лог.
+
+Один asyncio-цикл. Правила безопасности отрабатывают на каждой телеметрии и никогда не ждут модель.
+Состояние (память плейбуков, кулдауны, обработанные сообщения чата) сохраняется в файл: после
+перезапуска агент продолжает с того же места и не повторяет решения вслепую.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import subprocess
+import time
+import traceback
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any, Protocol
+
+from kupol.dome.agentlog import AgentLog
+from kupol.dome.catalog import Catalog
+from kupol.dome.checks import assess_co2, assess_energy, assess_printer
+from kupol.dome.client import DomeClient
+from kupol.dome.config import DomeConfig
+from kupol.dome.env import Settings
+from kupol.dome.gate import Cmd, Gate, GateResult
+from kupol.dome.playbooks.air import Co2Playbook, CondensatePlaybook
+from kupol.dome.playbooks.base import Ctx, Intent, Playbook
+from kupol.dome.playbooks.devices import AlarmPlaybook, ClockPlaybook, NetworkPlaybook, StalePlaybook
+from kupol.dome.playbooks.energy import EnergyPlaybook
+from kupol.dome.playbooks.lines import OvercurrentPlaybook, PhantomLinePlaybook
+from kupol.dome.playbooks.machines import ResumePlaybook, SmokePlaybook
+from kupol.dome.playbooks.production import PrinterPlaybook
+from kupol.dome.playbooks.tasks import TasksPlaybook, unanswered_operator_messages
+from kupol.dome.state import DomeState
+
+AGENT_NAME = "kupol-dome"
+STALE_TELEMETRY_S = 20.0
+STATE_SAVE_EVERY_S = 10.0
+CATALOG_RETRY_S = 30.0
+OPERATOR_TEXTS_KEEP_S = 1800.0
+
+
+class Advisor(Protocol):
+    """Необязательный советник (RAG + LLM): справка из базы знаний, гипотезы и ответы модели (только текст)."""
+
+    def references(self, query: str) -> list[dict[str, Any]]:
+        """Фрагменты базы знаний по запросу: ``[{"ref": ..., "text": ...}]``."""
+        ...
+
+    def diagnose(self, topic: str, context: dict[str, Any], ref: int | None = None) -> Any:
+        """Гипотеза модели по непонятной ситуации (``Diagnosis`` либо ``None``). Блокирующий вызов — в потоке."""
+        ...
+
+    def answer(self, question: str, context: dict[str, Any], ref: int | None = None) -> str | None:
+        """Ответ Оператору на свободный вопрос (``None`` — нет ответа). Блокирующий вызов — в потоке."""
+        ...
+
+
+def default_playbooks() -> list[Playbook]:
+    """Плейбуки в порядке приоритета безопасности."""
+    return [
+        SmokePlaybook(),
+        Co2Playbook(),
+        CondensatePlaybook(),
+        ResumePlaybook(),
+        TasksPlaybook(),
+        PrinterPlaybook(),
+        EnergyPlaybook(),
+        OvercurrentPlaybook(),
+        PhantomLinePlaybook(),
+        AlarmPlaybook(),
+        StalePlaybook(),
+        ClockPlaybook(),
+        NetworkPlaybook(),
+    ]
+
+
+def git_version() -> str:
+    """Короткий хеш коммита (для записи ``start``) либо ``unknown``."""
+    try:
+        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, timeout=3, check=False)
+        return out.stdout.strip() or "unknown"
+    except (OSError, subprocess.SubprocessError):
+        return "unknown"
+
+
+class Runner:
+    """Собирает компоненты и крутит цикл."""
+
+    def __init__(
+        self,
+        settings: Settings,
+        cfg: DomeConfig,
+        log: AgentLog,
+        client: DomeClient | None = None,
+        playbooks: list[Playbook] | None = None,
+        advisor: Advisor | None = None,
+        models: list[str] | None = None,
+        clock: Callable[[], float] = time.time,
+    ) -> None:
+        self.settings = settings
+        self.cfg = cfg
+        self.log = log
+        self.clock = clock
+        self.advisor = advisor
+        self.models = models or []
+        self.state = DomeState(stale_age_s=cfg.checks.stale.node_age_s)
+        self.client = client or DomeClient(settings.dome_url, settings.dome_key, cfg.runtime, on_event=self._on_client_event)
+        if client is not None:
+            client._on_event = self._on_client_event
+        self.catalog = Catalog()
+        self._catalog_msg: dict[str, Any] | None = None
+        self.gate = Gate(
+            cfg, self.state, lambda: self.catalog, log, self.client.control,
+            can_control=settings.can_control, dry_run=settings.dry_run, clock=clock, agent_name=AGENT_NAME,
+        )  # fmt: skip
+        self.gate.max_telemetry_age_s = STALE_TELEMETRY_S
+        self.playbooks = playbooks if playbooks is not None else default_playbooks()
+        self.mem: dict[str, dict[str, Any]] = {pb.name: {} for pb in self.playbooks}
+        self.last_decision: dict[str, float] = {}
+        self.seen_msgs: set[int] = set()
+        self.operator_log: list[tuple[float, str]] = []
+        self._chat_ready = False
+        self._last_observation = 0.0
+        self._last_anomalies: frozenset[str] = frozenset()
+        self._last_save = 0.0
+        self._last_catalog_try = 0.0
+        self._state_path = Path(cfg.runtime.state_file)
+        self.ticks = 0
+        self._stop = asyncio.Event()
+        self._bg: list[asyncio.Task[None]] = []
+        self._diagnosed: dict[str, float] = {}
+
+    # ------------------------------------------------------------------ жизненный цикл
+
+    def stop(self) -> None:
+        """Остановить цикл после текущего такта."""
+        self._stop.set()
+        self.client.stop()
+
+    async def run(self, max_ticks: int | None = None) -> None:
+        """Работать, пока не остановят (или пока не обработано ``max_ticks`` телеметрий — для тестов)."""
+        self._load_state()
+        self.log.write(
+            "start", agent=AGENT_NAME, version=git_version(), models=self.models,
+            config={
+                "dome_url": self.settings.dome_url, "dry_run": self.settings.dry_run, "allow_control": self.settings.allow_control,
+                "can_control": self.settings.can_control, "key_sources": self.settings.sources, "playbooks": [p.name for p in self.playbooks],
+            },
+        )  # fmt: skip
+        reason = "завершение работы"
+        task = asyncio.create_task(self.client.run())
+        try:
+            while not self._stop.is_set():
+                if not await self.client.wait_telemetry(timeout=5.0):
+                    await self._idle()
+                    continue
+                await self.tick()
+                if max_ticks is not None and self.ticks >= max_ticks:
+                    break
+        except (KeyboardInterrupt, asyncio.CancelledError):
+            reason = "остановка по сигналу"
+        except Exception as exc:  # noqa: BLE001 - причина остановки должна попасть в лог
+            reason = f"сбой: {exc!r}"
+            self.log.write("error", where="runner.run", error=repr(exc), traceback=traceback.format_exc()[-1500:])
+            raise
+        finally:
+            self.client.stop()
+            for bg in self._bg:
+                bg.cancel()
+            try:
+                await asyncio.wait_for(task, timeout=5)
+            except (asyncio.TimeoutError, asyncio.CancelledError, Exception):  # noqa: BLE001
+                task.cancel()
+            self._save_state(force=True)
+            self.log.write("stop", reason=reason, stats=self.gate.stats)
+            self.log.close()
+
+    # ------------------------------------------------------------------ события связи
+
+    def _on_client_event(self, event: str, details: dict[str, Any]) -> None:
+        if event == "catalog":
+            self.log.write("connection", event="connected", details={"catalog_nodes": details.get("nodes"), "success": details.get("success")})
+            return
+        if event in ("connected", "auth", "disconnected", "revoked"):
+            fields: dict[str, Any] = {"event": event, "details": {k: v for k, v in details.items() if k not in ("role", "team")}}
+            if event == "auth":
+                fields.update(role=details.get("role"), team=details.get("team"))
+            self.log.write("connection", **fields)
+
+    # ------------------------------------------------------------------ такт
+
+    async def tick(self) -> None:
+        """Обработать новую телеметрию."""
+        msg = self.client.telemetry
+        if not msg:
+            return
+        now = self.clock()
+        data = msg.get("data") or {}
+        self.state.update(data, str(msg.get("role") or self.client.role), now)
+        self.log.set_dome_time(data.get("game_time"))
+        self._refresh_catalog()
+        chat_new = self._collect_chat(now)
+        await self._ensure_catalog(now)
+        self.gate.check_pending()
+        intents: list[Intent] = []
+        if self.state.role == "team":
+            for pb in self.playbooks:
+                ctx = Ctx(self.state, self.cfg, self.gate, self.mem.setdefault(pb.name, {}), now, self._operator_texts, chat_new)
+                try:
+                    intents += pb.step(ctx)
+                except Exception as exc:  # noqa: BLE001 - сбой одного плейбука не должен остановить остальные
+                    self.log.write("error", where=f"playbook:{pb.name}", error=repr(exc), traceback=traceback.format_exc()[-1500:])
+        intents.sort(key=lambda i: i.priority)
+        for intent in intents:
+            await self.execute(intent, now)
+        self._diagnose_uncovered(now)
+        self._observe(now)
+        self._save_state()
+        self._bg = [t for t in self._bg if not t.done()]
+        self.ticks += 1
+
+    async def _idle(self) -> None:
+        """Нет телеметрии: раз в минуту отмечаем это в наблюдениях, ничего не решаем."""
+        now = self.clock()
+        if self.client.connected and now - self._last_observation >= self.cfg.runtime.observation_interval_s:
+            self._last_observation = now
+            self.log.write("observation", summary="телеметрия не приходит", metrics={"connected": True}, anomalies=["нет телеметрии"])
+
+    # ------------------------------------------------------------------ каталог и чат
+
+    def _refresh_catalog(self) -> None:
+        msg = self.client.catalog_message
+        if msg is not None and msg is not self._catalog_msg:
+            self._catalog_msg = msg
+            self.catalog = Catalog.from_response(msg)
+
+    async def _ensure_catalog(self, now: float) -> None:
+        if self.catalog or not self.client.connected or now - self._last_catalog_try < CATALOG_RETRY_S:
+            return
+        self._last_catalog_try = now
+        try:
+            self.client.catalog_message = await self.client.request("describe_nodes")
+            self._refresh_catalog()
+        except Exception as exc:  # noqa: BLE001
+            self.log.write("error", where="describe_nodes", error=repr(exc))
+
+    def _operator_texts(self, since: float) -> list[str]:
+        return [t for ts, t in self.operator_log if ts >= since]
+
+    def _collect_chat(self, now: float) -> list[dict[str, Any]]:
+        """Новые сообщения чата (в порядке прихода). После старта — ещё и неотвеченные из истории."""
+        new: list[dict[str, Any]] = []
+        if not self._chat_ready:
+            self._chat_ready = True
+            recent = self.state.get("meeting_01.recent_messages", []) or []
+            for m in unanswered_operator_messages([m for m in recent if isinstance(m, dict)]):
+                if self._take(m, now, history=True):
+                    new.append(m)
+        while not self.client.chat.empty():
+            m = self.client.chat.get_nowait().get("message") or {}
+            if self._take(m, now):
+                new.append(m)
+        self.operator_log = [(t, x) for t, x in self.operator_log if now - t <= OPERATOR_TEXTS_KEEP_S]
+        return new
+
+    def _take(self, m: dict[str, Any], now: float, history: bool = False) -> bool:
+        mid = m.get("id")
+        if not isinstance(mid, int) or mid in self.seen_msgs:
+            return False
+        self.seen_msgs.add(mid)
+        sender = m.get("sender") or {}
+        if sender.get("role") != "operator":
+            return False
+        text = str(m.get("text", ""))
+        self.operator_log.append((now, text))
+        self.log.write("message", direction="in", sender="operator", text=text, message_id=mid, from_history=history or None)
+        return True
+
+    # ------------------------------------------------------------------ решение → действие
+
+    async def execute(self, intent: Intent, now: float) -> None:
+        """Записать решение, выполнить шаги через Gate, при успехе — сообщить Оператору."""
+        cooldown = self.cfg.runtime.decision_cooldown_s if intent.cooldown_s is None else intent.cooldown_s
+        last = self.last_decision.get(intent.key)
+        if last is not None and now - last < cooldown:
+            return
+        self.last_decision[intent.key] = now
+        refs: list[dict[str, Any]] = []
+        if self.advisor is not None and intent.rag_query:
+            try:
+                refs = self.advisor.references(intent.rag_query)
+            except Exception as exc:  # noqa: BLE001
+                self.log.write("error", where="rag", error=repr(exc))
+        fields: dict[str, Any] = {
+            "situation": intent.situation, "cause": intent.cause, "confidence": intent.confidence, "evidence": intent.evidence,
+            "plan": intent.plan, "source": "mixed" if refs and intent.source == "rules" else intent.source, "priority": intent.priority,
+        }  # fmt: skip
+        if refs:
+            fields["rag_refs"] = [r["ref"] for r in refs]
+        decision = self.log.write("decision", **fields)
+        results: list[GateResult] = []
+        for step in intent.steps:
+            results.append(await self.gate.submit(Cmd(step.node, step.action, step.value, step.reason or intent.cause, decision, step.expect)))
+        if intent.llm_question and self.advisor is not None:
+            self._spawn(self._answer_operator(intent, decision))
+        elif intent.say and all(r.ok for r in results):
+            await self.say(intent.say, decision)
+
+    async def say(self, text: str, ref: int) -> GateResult:
+        """Сообщение Оператору: команда ``post_message`` через Gate и запись ``message``."""
+        text = text if len(text) <= 900 else text[:897] + "…"
+        res = await self.gate.submit(Cmd("meeting_01", "post_message", {"text": text, "to": "operator", "name": AGENT_NAME}, "сообщение Оператору", ref))
+        if res.ok:
+            self.log.write("message", ref=ref, direction="out", to="operator", text=text, dry_run=(res.status == "dry_run") or None)
+        return res
+
+    # ------------------------------------------------------------------ модель (только советы и текст)
+
+    def _spawn(self, coro: Any) -> None:
+        self._bg.append(asyncio.create_task(coro))
+
+    def context_summary(self) -> dict[str, Any]:
+        """Краткое состояние для запросов к модели."""
+        st = self.state
+        e = assess_energy(st, self.cfg.checks)
+        return {
+            "SOC_%": e.soc, "режим_инвертора": e.mode, "принтер": st.get("printer_3d_01.state"), "фрезер": st.get("cnc_01.state"),
+            "CO2_ppm": {s: st.num(f"{s}.co2_ppm") for s in self.cfg.checks.co2.sensors}, "замечания": self.anomalies()[:6],
+        }  # fmt: skip
+
+    async def _answer_operator(self, intent: Intent, decision: int) -> None:
+        """Ответ на свободный вопрос: модель в потоке; нет ответа — запасной текст правил."""
+        assert self.advisor is not None and intent.llm_question
+        loop = asyncio.get_running_loop()
+        try:
+            text = await loop.run_in_executor(None, self.advisor.answer, intent.llm_question, self.context_summary(), decision)
+        except Exception as exc:  # noqa: BLE001
+            self.log.write("error", where="advisor.answer", error=repr(exc), ref=decision)
+            text = None
+        final = text or intent.say
+        if final:
+            await self.say(final, decision)
+
+    def uncovered(self) -> dict[str, dict[str, Any]]:
+        """Ситуации, которые плейбуки не разбирают: тема → контекст (кандидаты на подсказку модели)."""
+        st = self.state
+        out: dict[str, dict[str, Any]] = {}
+        handled = {"IL_CO2", "IL_CONDENSATE", "IL_SMOKE", "IL_LOAD_SHED", "IL_OVERCURRENT"}
+        for il, body in (st.get("dome_automation_01.interlocks", {}) or {}).items():
+            if isinstance(body, dict) and body.get("state") == "TRIPPED" and il not in handled:
+                out[f"интерлок {il} сработал"] = {"интерлок": il, "данные": {k: v for k, v in body.items() if k != "title"}}
+        known_holds = {"BED_COLLISION", "FILAMENT_RUNOUT", "UNDERVOLTAGE"} | handled
+        for node in ("printer_3d_01", "cnc_01"):
+            reason = st.get(f"{node}.hold_reason")
+            if reason and reason not in known_holds and not str(reason).startswith("IL_"):
+                out[f"{node}: удержание {reason}"] = {"узел": node, "hold_reason": reason, "state": st.get(f"{node}.state")}
+        code = st.get("solar_inverter_01.error_code")
+        if code and code != "E09":
+            out[f"инвертор: ошибка {code}"] = {"код": code, "текст": st.get("solar_inverter_01.error_text"), "температура": st.get("solar_inverter_01.inverter_temp_c")}
+        return out
+
+    def _diagnose_uncovered(self, now: float) -> None:
+        if self.advisor is None or any(not t.done() for t in self._bg):
+            return
+        for topic, ctx in self.uncovered().items():
+            if now - self._diagnosed.get(topic, -1e9) < 900:
+                continue
+            self._diagnosed[topic] = now
+            self._spawn(self._diagnose(topic, ctx))
+            break
+
+    async def _diagnose(self, topic: str, context: dict[str, Any]) -> None:
+        assert self.advisor is not None
+        loop = asyncio.get_running_loop()
+        try:
+            result = await loop.run_in_executor(None, self.advisor.diagnose, topic, {**context, "состояние": self.context_summary()}, None)
+        except Exception as exc:  # noqa: BLE001
+            self.log.write("error", where="advisor.diagnose", error=repr(exc))
+            return
+        if result is None:
+            return
+        refs = self.advisor.references(topic)
+        fields: dict[str, Any] = {
+            "situation": result.situation or topic, "cause": result.cause, "confidence": result.confidence,
+            "evidence": [{"detail": topic, **{k: v for k, v in context.items() if k != "данные"}}],
+            "plan": result.plan, "source": "mixed" if refs else "llm", "priority": 4,
+        }  # fmt: skip
+        if refs:
+            fields["rag_refs"] = [r["ref"] for r in refs]
+        decision = self.log.write("decision", **fields)
+        if result.say and result.confidence >= 0.5:
+            await self.say(result.say, decision)
+
+    # ------------------------------------------------------------------ наблюдение
+
+    def anomalies(self) -> list[str]:
+        """Что агент считает необычным сейчас (для наблюдений и ответов Оператору)."""
+        st, cfg = self.state, self.cfg.checks
+        out: list[str] = []
+        a = assess_co2(st, cfg)
+        for s in sorted(a.suspects):
+            out.append(f"{s}.co2_ppm расходится с остальными ({a.values.get(s, 0):.0f} ppm)")
+        for s in sorted(a.untrusted):
+            out.append(f"{s}.co2_ppm помечен недостоверным")
+        for il, body in (st.get("dome_automation_01.interlocks", {}) or {}).items():
+            if isinstance(body, dict) and body.get("state") not in (None, "ARMED"):
+                out.append(f"интерлок {il}: {body.get('state')}")
+        for node in ("printer_3d_01", "cnc_01"):
+            if st.get(f"{node}.hold_reason"):
+                out.append(f"{node}: удержание {st.get(f'{node}.hold_reason')}")
+        p = assess_printer(st)
+        if p.webhook_lies:
+            out.append("printer_3d_01.webhook_state врёт (COMPLETED при печати)")
+        for n in st.frozen_nodes():
+            out.append(f"{n}: данные устарели")
+        if st.get("solar_inverter_01.error") is True:
+            out.append(f"инвертор: ошибка {st.get('solar_inverter_01.error_code')}")
+        return out
+
+    def _observe(self, now: float) -> None:
+        anomalies = self.anomalies()
+        self.mem.setdefault("tasks", {})["issues"] = anomalies[:3]
+        changed = frozenset(anomalies) != self._last_anomalies
+        if now - self._last_observation < self.cfg.runtime.observation_interval_s and not changed:
+            return
+        self._last_observation = now
+        self._last_anomalies = frozenset(anomalies)
+        st = self.state
+        e = assess_energy(st, self.cfg.checks)
+        co2 = {s: st.num(f"{s}.co2_ppm") for s in self.cfg.checks.co2.sensors}
+        metrics: dict[str, Any] = {
+            "soc_pct": e.soc, "inverter_mode": e.mode, "pv_w": e.pv_w, "load_w": e.load_w,
+            "printer": st.get("printer_3d_01.state"), "printer_progress": st.num("printer_3d_01.progress_pct"),
+            "cnc": st.get("cnc_01.state"), "cnc_progress": st.num("cnc_01.progress_pct"),
+            "co2_main": co2.get(str(st.get("dome_automation_01.primary_co2_sensor", ""))),
+            **{f"co2_{s[-2:]}": v for s, v in co2.items()}, "role": st.role,
+        }  # fmt: skip
+        summary = (
+            f"SOC {e.soc if e.soc is not None else '?'} %, {e.mode or '?'}; принтер {metrics['printer']}, фрезер {metrics['cnc']}; "
+            f"CO₂ {', '.join(f'{v:.0f}' if v is not None else '—' for v in co2.values())}"
+        )
+        self.log.write("observation", summary=summary, metrics=metrics, anomalies=anomalies)
+
+    # ------------------------------------------------------------------ сохранение состояния
+
+    def _save_state(self, force: bool = False) -> None:
+        now = self.clock()
+        if not force and now - self._last_save < STATE_SAVE_EVERY_S:
+            return
+        self._last_save = now
+        payload = {
+            "saved_at": now, "mem": self.mem, "last_decision": self.last_decision,
+            "seen_msgs": sorted(self.seen_msgs)[-200:], "operator_log": self.operator_log[-40:],
+            "failed_until": self.gate.export_failed(),
+        }  # fmt: skip
+        try:
+            self._state_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self._state_path.with_suffix(".tmp")
+            tmp.write_text(json.dumps(payload, ensure_ascii=False, default=str), encoding="utf-8")
+            tmp.replace(self._state_path)
+        except OSError as exc:
+            self.log.write("error", where="save_state", error=repr(exc))
+
+    def _load_state(self) -> None:
+        if not self._state_path.is_file():
+            return
+        try:
+            data = json.loads(self._state_path.read_text(encoding="utf-8"))
+            self.mem.update({k: v for k, v in (data.get("mem") or {}).items() if isinstance(v, dict)})
+            self.last_decision = {k: float(v) for k, v in (data.get("last_decision") or {}).items()}
+            self.seen_msgs = {int(x) for x in data.get("seen_msgs") or []}
+            self.operator_log = [(float(t), str(x)) for t, x in data.get("operator_log") or []]
+            self.gate.import_failed(data.get("failed_until") or {})
+            self.log.write("observation", summary="состояние восстановлено после перезапуска", metrics={"saved_at": data.get("saved_at")}, anomalies=[])
+        except (OSError, ValueError, TypeError) as exc:
+            self.log.write("error", where="load_state", error=repr(exc))

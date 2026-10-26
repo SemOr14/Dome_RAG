@@ -1,0 +1,30 @@
+{"t": 60.0, "ts": "2026-10-27T10:01:00+00:00", "kind": "operator", "text": "Оператор запустил cnc на 720 с", "device": "cnc"}
+{"t": 120.0, "ts": "2026-10-27T10:02:00+00:00", "kind": "operator", "text": "Оператор запустил printer на 1800 с", "device": "printer"}
+{"t": 600.0, "ts": "2026-10-27T10:10:00+00:00", "kind": "false_signal", "text": "false_signal: co2_ppm.co2_b=5000 ложный скачок CO2", "sensor": "co2_ppm.co2_b"}
+{"t": 779.0, "ts": "2026-10-27T10:12:59+00:00", "kind": "device_done", "text": "cnc: работа завершена", "device": "cnc"}
+{"t": 900.0, "ts": "2026-10-27T10:15:00+00:00", "kind": "operator", "text": "Оператор: вытяжка low"}
+{"t": 960.0, "ts": "2026-10-27T10:16:00+00:00", "kind": "operator", "text": "Оператор запустил solder на 900 с", "device": "solder"}
+{"t": 1000.0, "ts": "2026-10-27T10:16:40+00:00", "kind": "hidden_drift", "text": "hidden_drift: battery_temp_c +0.8/мин дрейф датчика АКБ", "sensor": "battery_temp_c"}
+{"t": 1500.0, "ts": "2026-10-27T10:25:00+00:00", "kind": "direct", "text": "direct: pv генерация упала втрое", "target": "pv"}
+{"t": 1859.0, "ts": "2026-10-27T10:30:59+00:00", "kind": "device_done", "text": "solder: работа завершена", "device": "solder"}
+{"t": 1919.0, "ts": "2026-10-27T10:31:59+00:00", "kind": "device_done", "text": "printer: работа завершена", "device": "printer"}
+{"t": 2000.0, "ts": "2026-10-27T10:33:20+00:00", "kind": "operator", "text": "Оператор: вытяжка off"}
+{"t": 2400.0, "ts": "2026-10-27T10:40:00+00:00", "kind": "operator", "text": "Оператор: вытяжка high"}
+{"t": 2400.0, "ts": "2026-10-27T10:40:00+00:00", "kind": "cascade", "text": "начало каскада из 3 шагов: пайка требует вытяжку, вытяжка и нагрузка садят АКБ"}
+{"t": 2410.0, "ts": "2026-10-27T10:40:10+00:00", "kind": "operator", "text": "Оператор запустил solder на 600 с", "device": "solder"}
+{"t": 2460.0, "ts": "2026-10-27T10:41:00+00:00", "kind": "direct", "text": "direct (cascade:8): load доп. нагрузка", "target": "load"}
+{"t": 3000.0, "ts": "2026-10-27T10:50:00+00:00", "kind": "comms_loss", "text": "comms_loss: 25 с (frozen) "}
+{"t": 3009.0, "ts": "2026-10-27T10:50:09+00:00", "kind": "device_done", "text": "solder: работа завершена", "device": "solder"}
+{"t": 3100.0, "ts": "2026-10-27T10:51:40+00:00", "kind": "operator", "text": "Оператор: вытяжка off"}
+{"t": 3300.0, "ts": "2026-10-27T10:55:00+00:00", "kind": "actuator_fail", "text": "actuator_fail: vent вытяжка не реагирует", "target": "vent"}
+{"t": 3400.0, "ts": "2026-10-27T10:56:40+00:00", "kind": "operator", "text": "Оператор запустил solder на 600 с", "device": "solder"}
+{"t": 3401.0, "ts": "2026-10-27T10:56:41+00:00", "kind": "command_accepted", "text": "принята vent_enable {'mode': 'low'}", "cmd_id": "cmd-03f73610"}
+{"t": 3404.0, "ts": "2026-10-27T10:56:44+00:00", "kind": "command_ignored", "text": "исполнитель vent не отреагировал на vent_enable", "cmd_id": "cmd-03f73610"}
+{"t": 3771.0, "ts": "2026-10-27T11:02:51+00:00", "kind": "command_accepted", "text": "принята vent_enable {'mode': 'low'}", "cmd_id": "cmd-82f1d5d6"}
+{"t": 3774.0, "ts": "2026-10-27T11:02:54+00:00", "kind": "command_ignored", "text": "исполнитель vent не отреагировал на vent_enable", "cmd_id": "cmd-82f1d5d6"}
+{"t": 3900.0, "ts": "2026-10-27T11:05:00+00:00", "kind": "operator", "text": "Оператор запустил printer на 1200 с", "device": "printer"}
+{"t": 3999.0, "ts": "2026-10-27T11:06:39+00:00", "kind": "device_done", "text": "solder: работа завершена", "device": "solder"}
+{"t": 4200.0, "ts": "2026-10-27T11:10:00+00:00", "kind": "device_fault", "text": "device_fault: printer засор печатающей головки", "device": "printer"}
+{"t": 4300.0, "ts": "2026-10-27T11:11:40+00:00", "kind": "direct", "text": "direct: occupants посетители", "target": "occupants"}
+{"t": 4957.0, "ts": "2026-10-27T11:22:37+00:00", "kind": "command_accepted", "text": "принята vent_enable {'mode': 'low'}", "cmd_id": "cmd-815bce3c"}
+{"t": 4960.0, "ts": "2026-10-27T11:22:40+00:00", "kind": "command_applied", "text": "исполнена vent_enable {'mode': 'low'}", "cmd_id": "cmd-815bce3c"}

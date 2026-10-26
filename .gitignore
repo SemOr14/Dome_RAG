@@ -15,3 +15,18 @@ __pycache__/
 agent_state.json
 state/
 logs/
+
+# Build, checks and local databases
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3

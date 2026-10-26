@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:kupol:event:1.0",
+  "title": "EventIn",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "run_id",
+    "source",
+    "channel",
+    "direction",
+    "event_type",
+    "payload"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0"
+    },
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "session_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 200
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "dome",
+        "agent",
+        "llm",
+        "operator",
+        "system",
+        "import"
+      ]
+    },
+    "channel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "inbound",
+        "outbound",
+        "internal"
+      ]
+    },
+    "event_type": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "request_id": {
+      "type": [
+        "string",
+        "integer",
+        "number",
+        "null"
+      ]
+    },
+    "node_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 200
+    },
+    "source_timestamp": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "payload": {},
+    "raw_text": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "metadata": {
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,150 @@
+# Конфигурация соревновательного рантайма (src/kupol/dome). Отдельно от config.yaml старого Штаба.
+# Значения опираются на Dome_RAG/01_API.md и базу знаний; пороги, отмеченные ASSUMPTION, уточнять по живым данным.
+
+runtime:
+  observation_interval_s: 45      # запись observation в лог (и при заметных изменениях)
+  request_timeout_s: 15
+  request_rate_per_s: 4.0         # требование организаторов: не больше 5 запросов/с
+  chat_limit: { max_messages: 4, window_s: 10 }   # сервер режет на 10 за 10 с
+  reconnect_min_s: 3
+  reconnect_max_s: 30
+  verify_timeout_s: 20            # сколько ждать эффекта команды в телеметрии (реальное время)
+  decision_cooldown_s: 60         # одинаковое решение (ключ) не повторяется чаще
+  state_file: state/agent_state.json
+
+# ---------------------------------------------------------------------------
+# Что агенту РАЗРЕШЕНО вообще пытаться делать: "узел": { действие: спецификация значения }.
+# Всё, чего тут нет (даже если есть в describe_nodes), Gate отклонит.
+# Спецификация: {} — значения нет; {enum: [...]}; {range: [min, max]}; {line: true} — номер линии 1..8
+# или {"line": n}; {object: [ключи]} — словарь с этими ключами; {any: true} — не проверять.
+# Никогда не добавлять: block_interlock, block_automation, manual_start_zone, lockdown, set_thresholds,
+# unlock_door, disable_* (регламент: аппаратные блокировки не отключаются).
+# ---------------------------------------------------------------------------
+policy:
+  allowed:
+    solar_inverter_01:
+      set_mode_hybrid: {}
+      set_mode_grid_only: {}
+      enable_mppt: {}
+      reset_error: {}
+      cancel_balancing: {}
+      set_fan: { enum: [AUTO, ON, OFF] }
+    solar_panels_01:
+      enable_mppt: { range: [1, 8] }
+      enable_all_mppt: {}
+      enable_mppt_1: {}
+    smart_panel_01:
+      line_on: { line: true }
+      line_off: { line: true }
+      reset_protection: { line: true }
+      reset_line_error: { line: true }
+    printer_3d_01:
+      home: {}
+      start_job: { any: true }
+      resume: {}
+    cnc_01:
+      home: {}
+      start_job: { any: true }
+      resume: {}
+    thermal_insulation_01:
+      set_lock: { object: [lock, locked] }
+      set_fan_pwm: { object: [fan, pwm] }
+    climate_sensor_02:
+      recalibrate: {}
+    climate_sensor_03:
+      recalibrate: {}
+    smoke_detector_01:
+      reset_alarm: {}
+    smoke_detector_02:
+      reset_alarm: {}
+    fume_extraction_01:
+      turn_on: {}
+      reset_alarm: {}
+    supply_ventilation_01:
+      turn_on: {}
+      reset_alarm: {}
+      set_speed: { range: [10, 100] }
+      set_mode: { enum: [RECIRCULATION, FRESH_AIR, MIXED] }
+    equipment_cooling_01:
+      turn_on: {}
+      reset_alarm: {}
+    water_pump_01:
+      turn_on: {}
+      reset_alarm: {}
+    wind_turbine_01:
+      turn_on: {}
+    dizel_1:
+      turn_on: {}
+      preheat: {}
+    edge_compute_01:
+      sync_time: {}
+      restart_service: { enum: [agent_runtime, telemetry_collector, vision_inference, api_gateway] }
+    dome_automation_01:
+      set_data_trust: { object: [node, param, trust] }
+      set_primary_sensor: { enum: [climate_sensor_01, climate_sensor_02, climate_sensor_03] }
+      reset_interlock: { enum: [IL_CO2, IL_CONDENSATE, IL_SMOKE, IL_OVERCURRENT, IL_LOAD_SHED, IL_STORM, IL_VOC_BOX] }
+      acknowledge: { any: true }
+    "*":
+      reconnect: {}                 # service_actions из describe_nodes
+    meeting_01:
+      post_message: { object: [text] }
+
+  # Анти-дребезг щитка: сервер блокирует линию на 5 мин после > 3 переключений за 2 мин.
+  line_switch_limit: { max_switches: 2, window_s: 120 }
+  # Повторять одну и ту же команду без проверки результата нельзя; после «нет эффекта» пауза:
+  no_effect_cooldown_s: 120
+  # resume: сколько попыток на одну причину удержания (сервер блокирует станок после 3 пустых).
+  resume_max_attempts: 1
+
+# ---------------------------------------------------------------------------
+# Сверки и пороги плейбуков.
+# ---------------------------------------------------------------------------
+checks:
+  co2:
+    sensors: [climate_sensor_01, climate_sensor_02, climate_sensor_03]
+    max_rate_ppm_s: 40            # быстрее физически не растёт (ASSUMPTION)
+    outlier_diff_ppm: 400         # один датчик выше остальных на столько — выброс
+    agree_diff_ppm: 250           # два датчика ближе друг к другу — согласны
+    high_ppm: 1500                # «высокий» CO2 для реакции
+    interlock_ppm: 2000           # порог IL_CO2 (справочно)
+    recovered_ppm: 1200           # станки возобновляем, когда согласованный CO2 ниже
+    trust_back_s: 600             # вернуть доверие датчику после такого согласия (реальные секунды)
+  condensate:
+    rh_interlock_pct: 90
+    dew_gap_c: 1.0
+  smoke:
+    false_evidence_needed: 2      # независимых свидетельств ложности, иначе считаем реальным
+    co_ok_ppm: 5
+    voc_ok_index: 150
+    obscuration_ok_pct: 3
+  printer:
+    cool_bed_c: 40                # стол остыл — деталь можно забирать
+  energy:
+    soc_to_grid_pct: 35           # ниже — GRID_ONLY (по журналу 14.10)
+    soc_to_hybrid_pct: 70         # выше при солнце — HYBRID
+    soc_critical_pct: 25          # порог IL_LOAD_SHED
+    mode_switch_gap_s: 600        # не переключать режим инвертора чаще
+    min_pv_for_hybrid_w: 300
+  phantom:
+    lines: [8]                    # резервная линия 8 (линия 7 — аварийное освещение, её не трогаем)
+    min_power_w: 20
+    confirm_s: 120
+  inverter:
+    reset_min_gap_s: 900          # между reset_error
+    reset_max_per_hour: 3
+    humidity_ok_pct: 80           # E09: ждём, пока туман сойдёт
+  stale:
+    node_age_s: 30                # возраст узла (по updated_at), после которого он «замёрз»
+  noise:
+    window_s: 120
+
+rag:
+  top_k: 4
+  chunk_chars: 900
+
+advisor:
+  enabled: true
+  model: deepseek-chat           # из списка организаторов: deepseek-chat, deepseek-reasoner
+  min_interval_s: 60              # не чаще вызывать модель по одной теме
+  max_calls_per_hour: 60
+  timeout_s: 20

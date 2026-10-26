@@ -1,0 +1,8 @@
+{"id": "gt1", "category": "false", "type": "false_signal", "field": "co2_ppm.co2_b", "t_start": 600.0, "t_end": 640.0, "source": "top", "note": "ложный скачок CO2", "value": 5000.0}
+{"id": "gt2", "category": "hidden", "type": "hidden_drift", "field": "battery_temp_c", "t_start": 1000.0, "t_end": 3400.0, "source": "top", "note": "дрейф датчика АКБ", "rate_per_min": 0.8}
+{"id": "gt3", "category": "real", "type": "direct", "field": "pv_power_w", "t_start": 1500.0, "t_end": null, "source": "top", "note": "генерация упала втрое", "target": "pv"}
+{"id": "gt4", "category": "real", "type": "direct", "field": "load_total_w", "t_start": 2460.0, "t_end": 3660.0, "source": "cascade:8", "note": "доп. нагрузка", "target": "load"}
+{"id": "gt5", "category": "real", "type": "comms_loss", "field": "comms_ok", "t_start": 3000.0, "t_end": 3025.0, "source": "top", "note": ""}
+{"id": "gt6", "category": "real", "type": "actuator_fail", "field": "vent", "t_start": 3300.0, "t_end": 4200.0, "source": "top", "note": "вытяжка не реагирует"}
+{"id": "gt7", "category": "real", "type": "device_fault", "field": "printer_status", "t_start": 4200.0, "t_end": null, "source": "top", "note": "засор печатающей головки"}
+{"id": "gt8", "category": "real", "type": "direct", "field": "co2_ppm.*", "t_start": 4300.0, "t_end": 5200.0, "source": "top", "note": "посетители", "target": "occupants"}

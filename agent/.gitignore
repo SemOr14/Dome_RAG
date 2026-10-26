@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Секреты и локальные настройки
+.env
+.claude/settings.local.json
+
+# Журналы и артефакты прогонов
+logs/
+
+# IDE
+.vscode/
+.idea/
+
+# Соревновательные данные: ключи и большой журнал купола (раздает организатор)
+Dome_RAG/Keys/
+Dome_RAG/Logs/
+state/
