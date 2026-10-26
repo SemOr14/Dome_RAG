@@ -1,0 +1,258 @@
+# Матрица «симптом → вероятные причины → безопасная проверка → действие».
+# Источник истины для Диагноста (few-shot в промпте и резервный сценарий).
+# Читаемая копия для людей: docs/SYMPTOM_MATRIX.md (согласованность проверяется тестом).
+# ASSUMPTION: вероятности — априорные оценки для каркаса; команда уточняет их по опыту игр.
+#
+# alert_kinds / fields (шаблоны fnmatch) — по каким тревогам строка подходит;
+# verdict_rules — по каким правилам сверки; supports — какие вердикты сверки
+# усиливают причину (real / false_signal / sensor_fault / unknown).
+- id: co2_single_spike
+  title: "Скачок CO2 на одном датчике"
+  alert_kinds: [jump, threshold, trend, rate_limit]
+  fields: ["co2_ppm.*"]
+  verdict_rules: [co2_outlier, co2_single_context, co2_pair_disagreement, rate_limit, pair_diff]
+  causes:
+    - { cause: "Ложный сигнал или сбой одного датчика CO2", probability: 0.70, supports: [false_signal, sensor_fault],
+        safe_check: "Сверить остальные датчики CO2, влажность, температуру и режим вытяжки; Оператор оценивает воздух и показания переносного газоанализатора, если он есть" }
+    - { cause: "Реальный локальный источник CO2 рядом с датчиком", probability: 0.20, supports: [real],
+        safe_check: "Оператор проверяет, не стоит ли человек или источник рядом с датчиком" }
+    - { cause: "Сбой связи или контроллера датчика", probability: 0.10, supports: [unknown],
+        safe_check: "Посмотреть, застыли ли остальные значения этого контроллера и растёт ли возраст данных" }
+  action: "Не включать вытяжку на полную мощность; наблюдать 1–2 минуты; ориентироваться на согласованные датчики"
+  needs_human: false
+
+- id: co2_high_consensus
+  title: "CO2 повышен на всех датчиках"
+  alert_kinds: [threshold, trend, time_to_threshold]
+  fields: ["co2_ppm.*"]
+  verdict_rules: [co2_consensus_high, co2_consensus_rise]
+  causes:
+    - { cause: "Реальное накопление CO2 (больше людей, вытяжка выключена или не работает)", probability: 0.80, supports: [real],
+        safe_check: "Проверить режим и реальную работу вытяжки, число людей в помещении" }
+    - { cause: "Общая ошибка калибровки датчиков", probability: 0.12, supports: [sensor_fault],
+        safe_check: "Сравнить с переносным прибором или самочувствием людей" }
+    - { cause: "Ложный сигнал", probability: 0.08, supports: [false_signal],
+        safe_check: "Убедиться, что рост плавный и на всех датчиках одновременно" }
+  action: "Включить вытяжку в режиме low; при отсутствии эффекта Оператору проветрить вручную; режим high — только с подтверждением человека"
+  needs_human: true
+
+- id: battery_temp_drift
+  title: "Рост температуры АКБ"
+  alert_kinds: [trend, threshold, jump]
+  fields: [battery_temp_c]
+  verdict_rules: [battery_temp_plausibility]
+  causes:
+    - { cause: "Дрейф или неисправность датчика температуры АКБ", probability: 0.55, supports: [sensor_fault, false_signal],
+        safe_check: "Сопоставить рост с током АКБ (P_pv−P_load) и напряжением; Оператор измеряет температуру бесконтактным термометром, не вскрывая корпус" }
+    - { cause: "Реальный перегрев АКБ (большой ток, плохое охлаждение)", probability: 0.35, supports: [real],
+        safe_check: "Проверить ток АКБ, вентиляцию отсека; Оператор оценивает нагрев корпуса дистанционно (видео, термометр)" }
+    - { cause: "Помеха или плохой контакт датчика", probability: 0.10, supports: [unknown],
+        safe_check: "Посмотреть, нет ли шума и скачков в ряду показаний" }
+  action: "Не отключать АКБ без подтверждения; при подтверждённом перегреве снизить нагрузку и уведомить ответственного за безопасность"
+  needs_human: true
+
+- id: pv_drop
+  title: "Падение генерации панелей"
+  alert_kinds: [jump, trend]
+  fields: [pv_power_w]
+  verdict_rules: [pv_drop]
+  causes:
+    - { cause: "Облачность или затенение панелей", probability: 0.50, supports: [real],
+        safe_check: "Сверить с изменением заряда АКБ; Оператор смотрит на освещённость и состояние панелей по видео" }
+    - { cause: "Отказ инвертора или цепи панелей", probability: 0.30, supports: [real],
+        safe_check: "Проверить напряжение АКБ и состояние инвертора в телеметрии, нет ли сообщений об ошибке" }
+    - { cause: "Ложное показание генерации", probability: 0.20, supports: [sensor_fault, false_signal, unknown],
+        safe_check: "Сверить энергобаланс: dE_bat/dt против P_pv−P_load" }
+  action: "Пересчитать запас времени t_left и перейти на энергосберегающий план операций"
+  needs_human: false
+
+- id: energy_low
+  title: "Мало энергии до минимального заряда"
+  alert_kinds: [energy_t_left, threshold]
+  fields: [battery_soc_pct, battery_voltage_v]
+  verdict_rules: []
+  causes:
+    - { cause: "Нагрузка превышает генерацию", probability: 0.70, supports: [real],
+        safe_check: "Сложить мощности включённых линий и сравнить с общей нагрузкой и генерацией" }
+    - { cause: "Неточный SoC (датчик врёт)", probability: 0.20, supports: [sensor_fault, false_signal],
+        safe_check: "Сверить SoC с напряжением АКБ и энергобалансом" }
+    - { cause: "Деградация или неисправность АКБ", probability: 0.10, supports: [unknown],
+        safe_check: "Посмотреть, как быстро падает напряжение при той же нагрузке" }
+  action: "Отложить прерываемые этапы и перейти в режим eco; неприрываемые этапы и вытяжку при пайке не отключать"
+  needs_human: true
+
+- id: comms_loss
+  title: "Потеря связи или застывшие данные"
+  alert_kinds: [comms_loss, stale]
+  fields: []
+  verdict_rules: []
+  causes:
+    - { cause: "Сбой канала связи с Комплексом", probability: 0.60, supports: [unknown],
+        safe_check: "Связаться с Оператором голосом, проверить другой штатный канал" }
+    - { cause: "Сбой контроллера или датчиков", probability: 0.30, supports: [unknown],
+        safe_check: "Смотреть, вернулись ли данные хотя бы по части полей" }
+    - { cause: "Перегрузка шины данных", probability: 0.10, supports: [unknown],
+        safe_check: "Снизить частоту опроса и повторить" }
+  action: "Не подавать команд по застывшим данным; работать по указаниям Оператора, пока связь не восстановится"
+  needs_human: true
+
+- id: actuator_no_effect
+  title: "Команда принята, но эффекта нет"
+  alert_kinds: [actuator_no_effect]
+  fields: []
+  verdict_rules: [cause_effect]
+  causes:
+    - { cause: "Отказ исполнителя (не реагирует на команды)", probability: 0.60, supports: [real],
+        safe_check: "Оператор проверяет работу устройства визуально или на слух (например, поток воздуха вытяжки)" }
+    - { cause: "Ложная телеметрия состояния исполнителя", probability: 0.25, supports: [sensor_fault, false_signal],
+        safe_check: "Сверить косвенные признаки (потребление линии, CO2/влажность)" }
+    - { cause: "Задержка исполнения дольше ожидаемой", probability: 0.15, supports: [unknown],
+        safe_check: "Подождать ещё один интервал проверки, не повторяя команду" }
+  action: "Если это вытяжка при пайке — остановить пайку и включить вентиляцию вручную; повторными командами не спамить"
+  needs_human: true
+
+- id: device_error
+  title: "Производственное устройство в состоянии ошибки"
+  alert_kinds: [device_error]
+  fields: []
+  verdict_rules: []
+  causes:
+    - { cause: "Засор или аварийный останов устройства", probability: 0.50, supports: [real],
+        safe_check: "Проверить мощность линии устройства; Оператор осматривает устройство, не перезапуская его" }
+    - { cause: "Потеря питания линии", probability: 0.20, supports: [real],
+        safe_check: "Посмотреть состояние линии щита и напряжение" }
+    - { cause: "Ложный статус устройства", probability: 0.30, supports: [sensor_fault, false_signal],
+        safe_check: "Сопоставить статус с потреблением линии и показаниями Оператора" }
+  action: "Передать Оператору указание осмотреть и устранить причину; перепланировать этапы без этого устройства"
+  needs_human: true
+
+- id: energy_balance_mismatch
+  title: "Не сходится энергобаланс (скрытая нагрузка или врущий датчик)"
+  alert_kinds: [cusum]
+  fields: [energy_balance]
+  verdict_rules: [energy_balance, device_status_vs_power, cusum]
+  causes:
+    - { cause: "Неучтённая нагрузка вне линий щита", probability: 0.40, supports: [real],
+        safe_check: "Оператор осматривает щит и розетки: не подключено ли что-то вне штатных линий; сложить мощности линий и сравнить с общей нагрузкой" }
+    - { cause: "Неточный или дрейфующий датчик SoC", probability: 0.30, supports: [sensor_fault, drift],
+        safe_check: "Сверить SoC с напряжением АКБ" }
+    - { cause: "Неверные показания нагрузки или генерации", probability: 0.30, supports: [sensor_fault, false_signal],
+        safe_check: "Сложить мощности линий и сравнить с общей нагрузкой" }
+  action: "Принимать энергетические решения консервативно, ориентируясь на худшее из показаний"
+  needs_human: false
+
+- id: vent_required_for_solder
+  title: "Пайка без включённой вытяжки"
+  alert_kinds: [safety_vent_required]
+  fields: []
+  verdict_rules: []
+  causes:
+    - { cause: "Вытяжка выключена при пайке (забыли или сбой режима)", probability: 0.80, supports: [real],
+        safe_check: "Оператор подтверждает, работает ли вытяжка (звук, поток воздуха)" }
+    - { cause: "Неверный режим вытяжки в телеметрии", probability: 0.20, supports: [sensor_fault, false_signal],
+        safe_check: "Сверить потребление линии вытяжки с режимом" }
+  action: "Включить вытяжку в режиме low (автоматически, код); пайку не продолжать без подтверждённой вытяжки (регламент п. 9.1)"
+  needs_human: false
+
+- id: frozen_value
+  title: "Значение датчика не меняется или пропал шум"
+  alert_kinds: [freeze, noise_loss]
+  fields: []
+  verdict_rules: [freeze, noise_loss]
+  causes:
+    - { cause: "Датчик завис", probability: 0.60, supports: [sensor_fault],
+        safe_check: "Сверить с другим источником той же величины" }
+    - { cause: "Канал данных по этому полю застыл", probability: 0.30, supports: [unknown],
+        safe_check: "Проверить, меняются ли соседние поля того же контроллера" }
+    - { cause: "Значение законно постоянно", probability: 0.10, supports: [real],
+        safe_check: "Убедиться, что физически величина должна меняться" }
+  action: "Не использовать значение для решений, пока оно не подтверждено вторым источником"
+  needs_human: false
+
+- id: pair_drift
+  title: "Расхождение или дрейф пары одноимённых датчиков"
+  alert_kinds: [pair_diff, cusum]
+  fields: ["co2_ppm.*", temp_c, temp_c_2, "*|*"]
+  verdict_rules: [pair_diff, cusum]
+  causes:
+    - { cause: "Дрейф или неисправность одного датчика пары", probability: 0.70, supports: [sensor_fault, drift, false_signal],
+        safe_check: "Запросить повторное измерение у соседнего датчика; Оператор сверяет показание по прибору" }
+    - { cause: "Реальная неоднородность среды в точках установки датчиков", probability: 0.20, supports: [real],
+        safe_check: "Сравнить расположение датчиков и режим вытяжки; смена режима должна менять обе величины" }
+    - { cause: "Помеха или плохой контакт в канале одного датчика", probability: 0.10, supports: [channel_fault, unknown],
+        safe_check: "Посмотреть шум и скачки в ряду показаний подозреваемого датчика" }
+  action: "Опираться на согласованные датчики; подозреваемый датчик исключить из решений до проверки"
+  needs_human: false
+
+- id: silent_print_fail
+  title: "Тихий брак: устройство running, потребление не по плану"
+  alert_kinds: [plan_vs_fact]
+  fields: [printer_status, cnc_status, solder_status]
+  verdict_rules: [plan_vs_fact]
+  causes:
+    - { cause: "Тихий брак: работа не идёт (деталь отклеилась, инструмент не нагружен)", probability: 0.60, supports: [real],
+        safe_check: "Оператор смотрит на деталь и устройство, не останавливая его; сверить по видео" }
+    - { cause: "Занижает датчик мощности линии", probability: 0.25, supports: [sensor_fault, channel_fault],
+        safe_check: "Сверить сумму линий с общей нагрузкой и изменением заряда АКБ" }
+    - { cause: "Штатный режим с малой нагрузкой (пауза в программе)", probability: 0.15, supports: [unknown],
+        safe_check: "Сверить текущий этап технологической карты с планом" }
+  action: "Передать Оператору указание осмотреть деталь; решение об остановке и перезапуске — за людьми"
+  needs_human: true
+
+- id: stale_timestamp
+  title: "Метка времени телеметрии не идёт или откатывается"
+  alert_kinds: [time_monotonic]
+  fields: []
+  verdict_rules: [time_monotonic]
+  causes:
+    - { cause: "Сбой часов или канала данных: значения обновляются, а метка времени — нет", probability: 0.55, supports: [channel_fault],
+        safe_check: "Сравнить метку времени со временем Штаба и с другим каналом данных" }
+    - { cause: "Контроллер завис и копирует прежние значения", probability: 0.30, supports: [sensor_fault, channel_fault],
+        safe_check: "Сверить значения с независимым источником; проверить возраст данных" }
+    - { cause: "Рассинхронизация часов между устройствами", probability: 0.15, supports: [unknown],
+        safe_check: "Посмотреть, откатывается ли время скачком или стоит на месте" }
+  action: "Не принимать решений по этим данным до подтверждения свежести другим каналом"
+  needs_human: true
+
+- id: delayed_actuator
+  title: "Исполнитель срабатывает с большой задержкой"
+  alert_kinds: [actuator_delayed]
+  fields: []
+  verdict_rules: []
+  causes:
+    - { cause: "Исполнитель запаздывает: команда выполнена, но с большой задержкой", probability: 0.60, supports: [channel_fault],
+        safe_check: "Сопоставить время команды и появление эффекта в состоянии и в мощности линии" }
+    - { cause: "Нестабильная связь с исполнителем (команды теряются и повторяются)", probability: 0.25, supports: [channel_fault, unknown],
+        safe_check: "Посмотреть, нет ли повторных срабатываний и потерь связи" }
+    - { cause: "Отказ исполнителя с последующим самовосстановлением", probability: 0.15, supports: [real],
+        safe_check: "Оператор проверяет работу исполнителя вручную" }
+  action: "Не считать отказом и не спамить повторными командами; учитывать задержку при проверке результата"
+  needs_human: false
+
+- id: thermal_idle
+  title: "Температура растёт при простое оборудования"
+  alert_kinds: []
+  fields: []
+  verdict_rules: [thermal_balance]
+  causes:
+    - { cause: "Скрытый источник тепла", probability: 0.50, supports: [real],
+        safe_check: "Оператор осматривает помещение на включённые приборы и нагрев; сверить оба датчика температуры" }
+    - { cause: "Дрейф датчика температуры", probability: 0.40, supports: [sensor_fault, drift],
+        safe_check: "Сравнить с соседним датчиком температуры и с термометром Оператора" }
+    - { cause: "Нагрев от окружения (солнце, соседнее помещение)", probability: 0.10, supports: [real],
+        safe_check: "Сопоставить рост с временем суток и освещённостью" }
+  action: "Проверить второй датчик и Оператора; не отключать оборудование без подтверждения причины"
+  needs_human: true
+
+- id: verdict_revised
+  title: "Вердикт пересмотрен"
+  alert_kinds: [verdict_revised]
+  fields: []
+  verdict_rules: []
+  causes:
+    - { cause: "Ранее «ложный» сигнал оказался реальным: пришли подтверждающие свидетельства", probability: 0.60, supports: [real],
+        safe_check: "Перепроверить событие независимыми источниками и пробой; не закрывать вердикт" }
+    - { cause: "Ранее «реальный» сигнал оказался ложным", probability: 0.40, supports: [false_signal, sensor_fault],
+        safe_check: "Сверить пересмотренный вердикт с показаниями соседних датчиков" }
+  action: "Принять пересмотр к сведению и перепроверить причины; прежние действия по старому вердикту оценить заново"
+  needs_human: true

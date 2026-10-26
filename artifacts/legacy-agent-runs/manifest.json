@@ -1,0 +1,180 @@
+{
+  "source": "local kupol_agent snapshot",
+  "date": "2026-10-26",
+  "files": [
+    {
+      "source": ".env.example",
+      "destination": "archive/legacy-agent/.env.example",
+      "sha256": "ccb8109ab087b158f4e3438cafed1626d1bc32ef48088749943b2d75c2121467",
+      "redacted": false
+    },
+    {
+      "source": ".gitignore",
+      "destination": "archive/legacy-agent/.gitignore",
+      "sha256": "47424df8bd404ac84c1f5fd6a8cb195cbf049e2ed6c0adc52cedd778d3aeb2c3",
+      "redacted": false
+    },
+    {
+      "source": "agent_log.py",
+      "destination": "archive/legacy-agent/agent_log.py",
+      "sha256": "7f20447ed1900d658b38604da3c12c57937fbce21a68fbeadcaa48b9e67f01ff",
+      "redacted": false
+    },
+    {
+      "source": "brain.py",
+      "destination": "archive/legacy-agent/brain.py",
+      "sha256": "778ef25a60a1d07e44a7d9f0df29d8d9b294a008ba97ceb4272d422791b63d98",
+      "redacted": false
+    },
+    {
+      "source": "config.py",
+      "destination": "archive/legacy-agent/config.py",
+      "sha256": "efb7b2a8f4bae0690d3cb4f173fadf59965dc7c170f27933f351d968c34a9103",
+      "redacted": false
+    },
+    {
+      "source": "dome.py",
+      "destination": "archive/legacy-agent/dome.py",
+      "sha256": "b45d643f4c7f800e42a5e14a5a43a048afe21b1275945f7174ebf6323deb71d8",
+      "redacted": false
+    },
+    {
+      "source": "llm.py",
+      "destination": "archive/legacy-agent/llm.py",
+      "sha256": "6605178ac5f564139763fa741ce8c827e43eef31d081a5b67d66b73ae8fb46ac",
+      "redacted": false
+    },
+    {
+      "source": "main.py",
+      "destination": "archive/legacy-agent/main.py",
+      "sha256": "d5fb89302af1956b7f2950ce354c480d1a704a1c71631ba62675ca24cb0edd9b",
+      "redacted": false
+    },
+    {
+      "source": "mock_dome.py",
+      "destination": "archive/legacy-agent/mock_dome.py",
+      "sha256": "1a1e281b39879ef0c9c605b64d641d7b7c7a80fd357ebae255547e0f80e05e62",
+      "redacted": false
+    },
+    {
+      "source": "model.py",
+      "destination": "archive/legacy-agent/model.py",
+      "sha256": "99686652aed3cfe022720a16f5cdf62583a6bb6488001a50754cb88ed098d33f",
+      "redacted": false
+    },
+    {
+      "source": "probe_dome.py",
+      "destination": "archive/legacy-agent/probe_dome.py",
+      "sha256": "b777e934fcb4258d37ea26624c8987d556088355e0708c1bac4f94dc497acb53",
+      "redacted": false
+    },
+    {
+      "source": "rag.py",
+      "destination": "archive/legacy-agent/rag.py",
+      "sha256": "3158fde82b684fcc08a45f7f87c1a2144133ae8d6fb974323959e8d960a76512",
+      "redacted": false
+    },
+    {
+      "source": "README.md",
+      "destination": "archive/legacy-agent/README.md",
+      "sha256": "6f9e14a0667cb2ee02b1c3239ff1959515765ac3afc4e3d32a9b79809c1be956",
+      "redacted": false
+    },
+    {
+      "source": "requirements.txt",
+      "destination": "archive/legacy-agent/requirements.txt",
+      "sha256": "5bd61f2966558487d15971b96306fa213afff61c4b65345a079684fe604160b7",
+      "redacted": false
+    },
+    {
+      "source": "rules.py",
+      "destination": "archive/legacy-agent/rules.py",
+      "sha256": "3d69f510e90dd61ef4e1c5c9a341403ee1a696117dd10119282d2c517a72a875",
+      "redacted": false
+    },
+    {
+      "source": "run.ps1",
+      "destination": "archive/legacy-agent/run.ps1",
+      "sha256": "e48aa6044aa3d65b9b1801dae27bee424536ce93fbeb744f7734f61128471344",
+      "redacted": false
+    },
+    {
+      "source": "selftest.py",
+      "destination": "archive/legacy-agent/selftest.py",
+      "sha256": "e23f5fe6dfbc702d550ea3c73e49a98fff6a8f4ac1b49f7cb7a271c8cba14958",
+      "redacted": false
+    },
+    {
+      "source": "logs/agent_20261026-135458.jsonl",
+      "destination": "artifacts/legacy-agent-runs/logs/agent_20261026-135458.jsonl",
+      "sha256": "be4a18c21f5ff30c684a0936aa3ad02936bba8859090b174d3d992d1114919ec",
+      "redacted": false
+    },
+    {
+      "source": "logs/agent_20261026-161916.jsonl",
+      "destination": "artifacts/legacy-agent-runs/logs/agent_20261026-161916.jsonl",
+      "sha256": "4086a183b5db87fda63801512ae60ef68a53feafb9d61bcfe8ac979575e8e4fd",
+      "redacted": false
+    },
+    {
+      "source": "logs/agent_llmtest.jsonl",
+      "destination": "artifacts/legacy-agent-runs/logs/agent_llmtest.jsonl",
+      "sha256": "8a093350b1962948940d8ff5dfadc96ea2af46c7e94596e33daefb2989b319d7",
+      "redacted": false
+    },
+    {
+      "source": "logs/agent_probe.jsonl",
+      "destination": "artifacts/legacy-agent-runs/logs/agent_probe.jsonl",
+      "sha256": "5fc1d9efd7cad8c5139d3f9e0024e10eda8c7fd2f58e58d95b312cf49be0653b",
+      "redacted": false
+    },
+    {
+      "source": "logs/agent_probe2.jsonl",
+      "destination": "artifacts/legacy-agent-runs/logs/agent_probe2.jsonl",
+      "sha256": "fc22fbe42e2e6c026ac2e0875733e74616c031c9f4bfb77d3f35bb8ee98bc077",
+      "redacted": false
+    },
+    {
+      "source": "logs/agent_probe3.jsonl",
+      "destination": "artifacts/legacy-agent-runs/logs/agent_probe3.jsonl",
+      "sha256": "6a007358a3497cd3a7d9009698359ccc770b2240bbaae55317107211f2be3f44",
+      "redacted": false
+    },
+    {
+      "source": "logs_dry/agent_20261026-135337.jsonl",
+      "destination": "artifacts/legacy-agent-runs/logs_dry/agent_20261026-135337.jsonl",
+      "sha256": "7b9adb9031d625e4844c361ffd6093d2147c1fbf4a9a80dbd9cf447e7f3d7824",
+      "redacted": false
+    },
+    {
+      "source": "logs_test/agent_20261026-133909.jsonl",
+      "destination": "artifacts/legacy-agent-runs/logs_test/agent_20261026-133909.jsonl",
+      "sha256": "214db5b5ec21ec1551da406fc37dc2d617d72809dbf9168691cb6ef302266637",
+      "redacted": false
+    },
+    {
+      "source": "logs_test2/agent_20261026-134116.jsonl",
+      "destination": "artifacts/legacy-agent-runs/logs_test2/agent_20261026-134116.jsonl",
+      "sha256": "97985bd2db11b358c78d0050170a4122b96994f0c6e46368d2f58e8f58164e73",
+      "redacted": false
+    },
+    {
+      "source": "logs_test3/agent_20261026-134331.jsonl",
+      "destination": "artifacts/legacy-agent-runs/logs_test3/agent_20261026-134331.jsonl",
+      "sha256": "936ff9409d422d3830a2e3ddd320e108697ee0ed9e4cbffb5712653846d4940e",
+      "redacted": false
+    },
+    {
+      "source": "logs_test4/agent_20261026-134414.jsonl",
+      "destination": "artifacts/legacy-agent-runs/logs_test4/agent_20261026-134414.jsonl",
+      "sha256": "6609845eaf15d0201a2e07cf2ee7b308b1a0b4a0ad1a0796bfe49c51f0a9ec75",
+      "redacted": false
+    },
+    {
+      "source": "state/agent_state.json",
+      "destination": "artifacts/legacy-agent-runs/state/agent_state.json",
+      "sha256": "70cddc9b9f5bd97f7dc90e4e8f15c4582a8fdbb9da3b62a23a38395bf59d3db5",
+      "redacted": false
+    }
+  ]
+}

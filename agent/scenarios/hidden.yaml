@@ -1,0 +1,40 @@
+# Скрытые события: по одному каждого типа дополнения к ТЗ на фоне штатной работы Оператора.
+# Ни одно из них не видно в значениях напрямую: ловятся невязками, парами датчиков, шумом,
+# метками времени и проверкой результата. Время — секунды от старта игры.
+name: hidden
+description: "Скрытые события: неучтённая нагрузка, дрейф пары, тихий брак, залипание, потеря шума, метка времени, задержка исполнителя"
+duration_s: 5400
+initial:
+  initial_soc_pct: 55
+  cloud_cover: 0.5
+events:
+  # --- штатная работа Оператора ---
+  - { at: 60,   type: operator, action: start_device, device: cnc,     duration_s: 720,  note: "фрезеровка" }
+  - { at: 120,  type: operator, action: start_device, device: printer, duration_s: 1800, note: "печать, деталь 1" }
+  - { at: 2000, type: operator, action: start_device, device: printer, duration_s: 1500, note: "печать, деталь 2" }
+  - { at: 4250, type: operator, action: set_vent, mode: "off" }
+  - { at: 4350, type: operator, action: start_device, device: solder, duration_s: 600, note: "пайка без вытяжки (Оператор забыл)" }
+
+  # --- скрытый дрейф датчика температуры АКБ: 1 °C/мин, критический порог 55 °C будет достигнут ---
+  - { at: 300,  type: hidden_drift, sensor: battery_temp_c, rate_per_min: 1.0, duration_s: 2400, note: "дрейф датчика АКБ" }
+
+  # --- неучтённая нагрузка 400 Вт: АКБ разряжается быстрее, чем следует из телеметрии ---
+  - { at: 900,  type: hidden_load, watts: 400, note: "неучтённая нагрузка" }
+
+  # --- медленный дрейф одного из двух датчиков температуры ---
+  - { at: 1500, type: sensor_drift_pair, sensor: temp_c_2, rate_per_min: 0.06, duration_s: 1500, note: "дрейф второго датчика температуры" }
+
+  # --- тихий брак: принтер running, деталь отклеилась, потребление 35 % ---
+  - { at: 2300, type: silent_print_fail, device: printer, duration_s: 600, note: "деталь отклеилась" }
+
+  # --- залипание датчика CO2 ---
+  - { at: 2900, type: frozen_sensor, sensor: "co2_ppm.co2_a", duration_s: 400, note: "залип CO2 a" }
+
+  # --- потеря шума датчика температуры ---
+  - { at: 3400, type: noise_loss, sensor: temp_c, noise_factor: 0.02, duration_s: 500, note: "пропал шум температуры" }
+
+  # --- метка времени перестала идти ---
+  - { at: 3900, type: stale_timestamp, mode: freeze, duration_s: 40, note: "метка времени застыла" }
+
+  # --- исполнитель вытяжки срабатывает с задержкой 40 с ---
+  - { at: 4300, type: delayed_actuator, target: vent, delay_s: 40, duration_s: 900, note: "вытяжка запаздывает" }

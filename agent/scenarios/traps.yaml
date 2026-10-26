@@ -1,0 +1,19 @@
+# Ловушки: ложный сигнал, который потом становится реальным (вердикт «ложный» нельзя закрывать
+# навсегда), и ложный сигнал, на который «естественная» реакция (вытяжка на максимум) вредна
+# при нехватке энергии (каскад). Энергии мало намеренно.
+name: traps
+description: "false_then_real и cascade_trap при нехватке энергии"
+duration_s: 5400
+initial:
+  initial_soc_pct: 42
+  cloud_cover: 0.5
+events:
+  - { at: 60,   type: operator, action: start_device, device: cnc,     duration_s: 900,  note: "фрезеровка" }
+  - { at: 90,   type: operator, action: start_device, device: printer, duration_s: 2400, note: "печать" }
+
+  # --- ложный CO2, через 2 минуты реальный рост (пайка) ---
+  - { at: 900,  type: false_then_real, sensor: "co2_ppm.co2_b", false_value: 5000, false_duration_s: 40, real_after_s: 120, real_ppm_s: 1.5, real_duration_s: 600, solder_s: 600, note: "ложный, затем реальный CO2" }
+  - { at: 1500, type: operator, action: set_vent, mode: "off" }
+
+  # --- ловушка каскада: ложный сигнал, вытяжка на максимум разрядила бы АКБ ---
+  - { at: 2700, type: cascade_trap, sensor: "co2_ppm.co2_c", value: 4500, duration_s: 90, window_s: 600, note: "ложный CO2 при нехватке энергии" }

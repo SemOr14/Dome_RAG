@@ -1,0 +1,27 @@
+{"t": 60.0, "ts": "2026-10-27T10:01:00+00:00", "kind": "operator", "text": "Оператор запустил cnc на 720 с", "device": "cnc"}
+{"t": 120.0, "ts": "2026-10-27T10:02:00+00:00", "kind": "operator", "text": "Оператор запустил printer на 1800 с", "device": "printer"}
+{"t": 500.0, "ts": "2026-10-27T10:08:20+00:00", "kind": "false_signal", "text": "false_signal: co2_ppm.co2_c=4200 ложный CO2", "sensor": "co2_ppm.co2_c"}
+{"t": 779.0, "ts": "2026-10-27T10:12:59+00:00", "kind": "device_done", "text": "cnc: работа завершена", "device": "cnc"}
+{"t": 800.0, "ts": "2026-10-27T10:13:20+00:00", "kind": "hidden_load", "text": "hidden_load: 300 Вт вне телеметрии неучтённая нагрузка", "watts": 300.0}
+{"t": 900.0, "ts": "2026-10-27T10:15:00+00:00", "kind": "operator", "text": "Оператор: вытяжка low"}
+{"t": 960.0, "ts": "2026-10-27T10:16:00+00:00", "kind": "operator", "text": "Оператор запустил solder на 900 с", "device": "solder"}
+{"t": 1300.0, "ts": "2026-10-27T10:21:40+00:00", "kind": "direct", "text": "direct: pv облачность", "target": "pv"}
+{"t": 1700.0, "ts": "2026-10-27T10:28:20+00:00", "kind": "sensor_drift_pair", "text": "sensor_drift_pair: temp_c_2 +0.08/мин дрейф второго датчика", "sensor": "temp_c_2"}
+{"t": 1859.0, "ts": "2026-10-27T10:30:59+00:00", "kind": "device_done", "text": "solder: работа завершена", "device": "solder"}
+{"t": 1919.0, "ts": "2026-10-27T10:31:59+00:00", "kind": "device_done", "text": "printer: работа завершена", "device": "printer"}
+{"t": 2000.0, "ts": "2026-10-27T10:33:20+00:00", "kind": "operator", "text": "Оператор: вытяжка off"}
+{"t": 2200.0, "ts": "2026-10-27T10:36:40+00:00", "kind": "operator", "text": "Оператор запустил printer на 800 с", "device": "printer"}
+{"t": 2300.0, "ts": "2026-10-27T10:38:20+00:00", "kind": "silent_print_fail", "text": "silent_print_fail: printer running, потребление 35% тихий брак", "device": "printer"}
+{"t": 2600.0, "ts": "2026-10-27T10:43:20+00:00", "kind": "device_fault", "text": "device_fault: cnc останов станка", "device": "cnc"}
+{"t": 2999.0, "ts": "2026-10-27T10:49:59+00:00", "kind": "device_done", "text": "printer: работа завершена", "device": "printer"}
+{"t": 3000.0, "ts": "2026-10-27T10:50:00+00:00", "kind": "comms_loss", "text": "comms_loss: 20 с (frozen) "}
+{"t": 3300.0, "ts": "2026-10-27T10:55:00+00:00", "kind": "frozen_sensor", "text": "frozen_sensor: humidity_pct залип залип датчик влажности", "sensor": "humidity_pct"}
+{"t": 3800.0, "ts": "2026-10-27T11:03:20+00:00", "kind": "false_then_real", "text": "ложный сигнал co2_ppm.co2_b, через 100 с реальный рост CO2 ложный, затем реальный"}
+{"t": 3800.0, "ts": "2026-10-27T11:03:20+00:00", "kind": "false_signal", "text": "false_signal (false_then_real:14): co2_ppm.co2_b=4800 ложный, затем реальный", "sensor": "co2_ppm.co2_b"}
+{"t": 3900.0, "ts": "2026-10-27T11:05:00+00:00", "kind": "operator", "text": "Оператор запустил solder на 500 с", "device": "solder"}
+{"t": 3900.0, "ts": "2026-10-27T11:05:00+00:00", "kind": "direct", "text": "direct (false_then_real:14:real): co2 ложный, затем реальный", "target": "co2"}
+{"t": 3901.0, "ts": "2026-10-27T11:05:01+00:00", "kind": "command_accepted", "text": "принята vent_enable {'mode': 'low'}", "cmd_id": "cmd-394a4943"}
+{"t": 3904.0, "ts": "2026-10-27T11:05:04+00:00", "kind": "command_applied", "text": "исполнена vent_enable {'mode': 'low'}", "cmd_id": "cmd-394a4943"}
+{"t": 4399.0, "ts": "2026-10-27T11:13:19+00:00", "kind": "device_done", "text": "solder: работа завершена", "device": "solder"}
+{"t": 4600.0, "ts": "2026-10-27T11:16:40+00:00", "kind": "actuator_fail", "text": "actuator_fail: vent вытяжка не реагирует", "target": "vent"}
+{"t": 4700.0, "ts": "2026-10-27T11:18:20+00:00", "kind": "delayed_actuator", "text": "delayed_actuator: humidifier задержка 30 с ", "target": "humidifier"}

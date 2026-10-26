@@ -1,0 +1,23 @@
+# Тяжёлый каскад на нехватке энергии: слабая генерация, запуск всего оборудования
+# сразу, затем ещё одно падение генерации и рост нагрузки. АКБ быстро идёт к минимуму;
+# энергопланировщик обязан показать малый t_left и предложить, что отложить.
+name: cascade_heavy
+description: "Нехватка энергии: каскад из нескольких вторичных эффектов"
+duration_s: 5400
+initial:
+  initial_soc_pct: 38
+  cloud_cover: 0.7
+events:
+  - { at: 30,  type: operator, action: start_device, device: cnc,     duration_s: 900,  note: "фрезеровка" }
+  - { at: 30,  type: operator, action: start_device, device: printer, duration_s: 2400, note: "печать" }
+  - { at: 300, type: operator, action: set_vent, mode: low }
+  - { at: 360, type: operator, action: start_device, device: solder, duration_s: 900, note: "пайка" }
+  - at: 900
+    type: cascade
+    note: "облачность густеет → вытяжка на максимум → доп. нагрузка → разряд АКБ"
+    steps:
+      - { at: 0,   type: direct, target: pv, factor: 0.5, note: "облачность" }
+      - { at: 30,  type: operator, action: set_vent, mode: high }
+      - { at: 60,  type: direct, target: load, extra_w: 500, duration_s: 1800, note: "инвертор греет, доп. нагрузка" }
+      - { at: 600, type: direct, target: pv, factor: 0.6, note: "ещё хуже" }
+  - { at: 2400, type: operator, action: start_device, device: solder, duration_s: 600, note: "вторая пайка" }

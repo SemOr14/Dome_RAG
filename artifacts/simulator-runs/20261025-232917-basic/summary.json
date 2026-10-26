@@ -1,0 +1,19 @@
+{
+  "elapsed_s": 5400.0,
+  "duration_s": 5400.0,
+  "llm_mode": "mock",
+  "llm_model": "deepseek-v4-flash",
+  "counters": {
+    "ticks": 5400,
+    "alerts_info": 0,
+    "alerts_warning": 19,
+    "alerts_critical": 4,
+    "verdicts": 5,
+    "recommendations": 98,
+    "agent_runs": 101,
+    "agent_fallbacks": 0,
+    "step_errors": 0,
+    "poll_errors": 0
+  },
+  "run_dir": "logs\\20261025-232917-basic"
+}

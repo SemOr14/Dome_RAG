@@ -1,0 +1,1498 @@
+{
+  "source_archive": "Kupol.zip",
+  "archive_sha256": "449e5131dd5a5778089106e41ceb8a684cb84e8b5b839d2b170d903a7315da88",
+  "import_date": "2026-10-26",
+  "files": [
+    {
+      "source": "Kupol/.env.example",
+      "bytes": 1492,
+      "sha256": "6da69bb3e0e8b8e4814557388e770d8c6a2ed2a87801df5bc31691386dfd173b",
+      "status": "imported",
+      "destination": "agent/.env.example"
+    },
+    {
+      "source": "Kupol/.gitattributes",
+      "bytes": 31,
+      "sha256": "ec2b82cfce21783d027aa0570aa47f4548e095bd06da406db797b29a0481cd9e",
+      "status": "imported",
+      "destination": "agent/.gitattributes"
+    },
+    {
+      "source": "Kupol/.gitignore",
+      "bytes": 498,
+      "sha256": "9adc82bb44db564daab98c01bdec0715b3e145e30c8e38f975d241110229d16e",
+      "status": "imported",
+      "destination": "agent/.gitignore"
+    },
+    {
+      "source": "Kupol/config.yaml",
+      "bytes": 26927,
+      "sha256": "70c08715965eea348c3695d26cc8afcb8c39caa8930365dcf509b0a14bba536c",
+      "status": "imported",
+      "destination": "agent/config.yaml"
+    },
+    {
+      "source": "Kupol/docs/ARCHITECTURE.md",
+      "bytes": 20366,
+      "sha256": "62fefdb9bc567a0aa4c5ca435b60bcb9c2441c0398312bdeca396867060331f9",
+      "status": "imported",
+      "destination": "agent/docs/ARCHITECTURE.md"
+    },
+    {
+      "source": "Kupol/docs/ASSUMPTIONS.md",
+      "bytes": 10295,
+      "sha256": "069889ec4ef043faa52f56e92a31ad633c42a52369830c825ebce00d49a404a8",
+      "status": "imported",
+      "destination": "agent/docs/ASSUMPTIONS.md"
+    },
+    {
+      "source": "Kupol/docs/BENCHMARK.md",
+      "bytes": 4785,
+      "sha256": "d073aa6d83d2a87e591a4362a26686da1853ba6df7b02bf54cfe04c1ea6f381d",
+      "status": "imported",
+      "destination": "agent/docs/BENCHMARK.md"
+    },
+    {
+      "source": "Kupol/docs/DECISIONS.md",
+      "bytes": 17247,
+      "sha256": "81f5ade6da43ef0de3885b857bc66c60109100a5ee2c3fc8a1a2dd918bad2751",
+      "status": "imported",
+      "destination": "agent/docs/DECISIONS.md"
+    },
+    {
+      "source": "Kupol/docs/DOME_RUNBOOK.md",
+      "bytes": 6566,
+      "sha256": "14034e0939cf2dff7e4b64261eff38c243cd472a902576bb300f24975bb9388a",
+      "status": "imported",
+      "destination": "agent/docs/DOME_RUNBOOK.md"
+    },
+    {
+      "source": "Kupol/docs/MORNING_CHECKLIST.md",
+      "bytes": 14366,
+      "sha256": "0e955c069f28cfdb71d0660aa37bed56316b6f387ced91fa1df60a7b25a5e9fc",
+      "status": "imported",
+      "destination": "agent/docs/MORNING_CHECKLIST.md"
+    },
+    {
+      "source": "Kupol/docs/SYMPTOM_MATRIX.md",
+      "bytes": 16086,
+      "sha256": "e043a634ebbac85937601fd308a03e1a3fb55982da76e0bb9bd662724e1c4c05",
+      "status": "imported",
+      "destination": "agent/docs/SYMPTOM_MATRIX.md"
+    },
+    {
+      "source": "Kupol/dome.yaml",
+      "bytes": 7407,
+      "sha256": "2e0567c5faa231aef523440db7f7a4bec365ee9af44952d76bbefae3ad9b0201",
+      "status": "imported",
+      "destination": "agent/dome.yaml"
+    },
+    {
+      "source": "Kupol/Dome_RAG/01_API.md",
+      "bytes": 57636,
+      "sha256": "1935fdb3e5afb546fb30b2f0a8f0207061229185e7deb75974ff6e2798fdb066",
+      "status": "shared_existing",
+      "destination": "01_API.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/02_Задание_и_оценка.md",
+      "bytes": 9549,
+      "sha256": "8f5b0223019b7a93545e534885d62c0e4ef529ec994165449a52dc4488b2578e",
+      "status": "shared_existing",
+      "destination": "02_Задание_и_оценка.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/03_Требования_к_агенту.md",
+      "bytes": 16675,
+      "sha256": "92d098e89118130f8c32e61400fafb05393eda69ebcf91c4036b9b85e8af9eed",
+      "status": "shared_existing",
+      "destination": "03_Требования_к_агенту.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/04_Как_создаётся_агент.md",
+      "bytes": 5936,
+      "sha256": "82256b23ce6a320a42483373e78b5d28d9e4db4e3c0bc82d67d239922baddb5b",
+      "status": "shared_existing",
+      "destination": "04_Как_создаётся_агент.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/dome_sandbox_nodes.md",
+      "bytes": 33100,
+      "sha256": "e3fe068109c79636179136be36d5e2751a2eac17145156a78b882c5755ac7214",
+      "status": "shared_existing",
+      "destination": "dome_sandbox_nodes.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/00_assistant.md",
+      "bytes": 29498,
+      "sha256": "ee0946a3624e2b9057eb25b234df712a3b78d15fe1827c84776bda6e973956a1",
+      "status": "shared_existing",
+      "destination": "knowledge/00_assistant.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/01_legend.md",
+      "bytes": 32793,
+      "sha256": "a4fd52a3ca50495f74b44274b5de2ada5228f8da03356d63269ba46c9e0115b5",
+      "status": "shared_existing",
+      "destination": "knowledge/01_legend.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/02_station.md",
+      "bytes": 43721,
+      "sha256": "9372482ef36c29f267f77994956446c929d0399438a3a65e72b392fbc3f9921c",
+      "status": "shared_existing",
+      "destination": "knowledge/02_station.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/03_energy.md",
+      "bytes": 74210,
+      "sha256": "f8e3fa0448fd60a6e867ae3a950bf69ae480827566dcfba951364397d7671421",
+      "status": "shared_existing",
+      "destination": "knowledge/03_energy.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/04_telemetry.md",
+      "bytes": 77633,
+      "sha256": "87585570ec60918c821725f160f8ebe11eb1c64ce516b9b3fa4d8e38ab44d550",
+      "status": "shared_existing",
+      "destination": "knowledge/04_telemetry.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/05_production.md",
+      "bytes": 75109,
+      "sha256": "df166d130f9a0105b5c695dd69e4a8dbe95acdfbc7a6e533d9aba4a7e77aac03",
+      "status": "shared_existing",
+      "destination": "knowledge/05_production.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/06_microclimate.md",
+      "bytes": 19302,
+      "sha256": "103028e4e9230f2d4af7af3e0a1cc3f9d6437861f37df860af3683166601e957",
+      "status": "shared_existing",
+      "destination": "knowledge/06_microclimate.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/07_rules.md",
+      "bytes": 28890,
+      "sha256": "7a8cc6ed95d125b3d9d5b5346fd24578a50fc4e3775a20cebdc72a9bf05deb0f",
+      "status": "shared_existing",
+      "destination": "knowledge/07_rules.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/08_safety.md",
+      "bytes": 19720,
+      "sha256": "173af38ed763a175aa8891cc790f73731919ce0809f8585c6285ba8383d0f400",
+      "status": "shared_existing",
+      "destination": "knowledge/08_safety.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/09_faults.md",
+      "bytes": 48216,
+      "sha256": "6bfe0461a2a5782ee2603e4b3aa28785b9e01a8a9dbbaaee03c3b29014d66d52",
+      "status": "shared_existing",
+      "destination": "knowledge/09_faults.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/10_procedures.md",
+      "bytes": 31298,
+      "sha256": "4050fcf6a26ef9e61749af8a482952c39a1f854a77396be495c322cdfab38914",
+      "status": "shared_existing",
+      "destination": "knowledge/10_procedures.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/11_reference.md",
+      "bytes": 34143,
+      "sha256": "cd4cb171401b499b9b58271f857e925f31392dc6ee9ec24fe328602e96f5a72d",
+      "status": "shared_existing",
+      "destination": "knowledge/11_reference.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/knowledge/12_history.md",
+      "bytes": 27741,
+      "sha256": "aeb8acfc270431e3147073967e497af4284c89c9170ea7390531befc6edbc272",
+      "status": "shared_existing",
+      "destination": "knowledge/12_history.md"
+    },
+    {
+      "source": "Kupol/Dome_RAG/Logs/2026-10-14/events.jsonl",
+      "bytes": 67171,
+      "sha256": "3580217ffb9f1a3c4cf87192bcad5afd6f9a069698d780f4d7f1cf05af3fa280",
+      "status": "shared_existing",
+      "destination": "Logs/2026-10-14/events.jsonl"
+    },
+    {
+      "source": "Kupol/Dome_RAG/Logs/2026-10-14/logbook.jsonl",
+      "bytes": 3280,
+      "sha256": "d7ec220c996a5cd6be613c9f15e91f40436a03a4ffb9e3c7d5970c04bcb78e46",
+      "status": "shared_existing",
+      "destination": "Logs/2026-10-14/logbook.jsonl"
+    },
+    {
+      "source": "Kupol/Dome_RAG/Logs/2026-10-14/telemetry.jsonl",
+      "bytes": 26222188,
+      "sha256": "69f4555e68c4d2c498941d682c949d9a42912cea6c5e85a23aaecf0d5435f59c",
+      "status": "shared_existing",
+      "destination": "Logs/2026-10-14/telemetry.jsonl"
+    },
+    {
+      "source": "Kupol/Dome_RAG/README.md",
+      "bytes": 10,
+      "sha256": "b9ab2301303f4d48e7020bf7da1a5424411499f4014481f47a9513dbb565563f",
+      "status": "superseded_by_shared_readme",
+      "destination": "README.md"
+    },
+    {
+      "source": "Kupol/logs/20261025-232917-basic/journal.csv",
+      "bytes": 124648,
+      "sha256": "7356a9391f176c889c6d738f867f7e3b289efc3561651ee6ef4c7c84abdb4734",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-232917-basic/journal.csv"
+    },
+    {
+      "source": "Kupol/logs/20261025-232917-basic/journal.jsonl",
+      "bytes": 943298,
+      "sha256": "60e66478540094e64608743d951305d42ccea5bf18884e568ae1efc726a208d7",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-232917-basic/journal.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261025-232917-basic/journal.md",
+      "bytes": 128281,
+      "sha256": "f585ad5acb6f90d9606cf7abefa8e7bd938678e33696527e16145d0de66beff6",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-232917-basic/journal.md"
+    },
+    {
+      "source": "Kupol/logs/20261025-232917-basic/meta.json",
+      "bytes": 167,
+      "sha256": "a406e73f0d73be1a4526fb6d23488adbb4dcb975f5e7f70239941cb26f5fd4f3",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-232917-basic/meta.json"
+    },
+    {
+      "source": "Kupol/logs/20261025-232917-basic/report.md",
+      "bytes": 40980,
+      "sha256": "7178d40b14b74c8830e470a6e24526c684efc4ea479a23d56827f1ba60d07f4c",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-232917-basic/report.md"
+    },
+    {
+      "source": "Kupol/logs/20261025-232917-basic/sim_events.jsonl",
+      "bytes": 7016,
+      "sha256": "7584d0b4fa56fa18b825b7b2bc5b28259cfdfdeb3e7e26d01f87703dcedc9ea2",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-232917-basic/sim_events.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261025-232917-basic/summary.json",
+      "bytes": 421,
+      "sha256": "c2c356e1acdbee8c498da525d33c84a105aa8c9b4726895234a5fcd3ff91ce4b",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-232917-basic/summary.json"
+    },
+    {
+      "source": "Kupol/logs/20261025-232917-basic/telemetry.jsonl",
+      "bytes": 4953369,
+      "sha256": "e29fabba49d796eba8570616f63fb53ee492c0d987350f6f89059ce05f2499dc",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-232917-basic/telemetry.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261025-233307-basic/journal.csv",
+      "bytes": 85158,
+      "sha256": "17cb605189d9f1546c1ec24b9ddde071de837e9649b4003b6b98bcda78740e45",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-233307-basic/journal.csv"
+    },
+    {
+      "source": "Kupol/logs/20261025-233307-basic/journal.jsonl",
+      "bytes": 560178,
+      "sha256": "42d05240a1f48e928492c0277266ecefaebe5584fcecd233cfa08e09b864348c",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-233307-basic/journal.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261025-233307-basic/journal.md",
+      "bytes": 87665,
+      "sha256": "c594e8a1b8a3ce8a84c2dc83042dab6f3fedf0eb0e8c7ec8fc403d21b14afc33",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-233307-basic/journal.md"
+    },
+    {
+      "source": "Kupol/logs/20261025-233307-basic/meta.json",
+      "bytes": 167,
+      "sha256": "a406e73f0d73be1a4526fb6d23488adbb4dcb975f5e7f70239941cb26f5fd4f3",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-233307-basic/meta.json"
+    },
+    {
+      "source": "Kupol/logs/20261025-233307-basic/report.md",
+      "bytes": 26629,
+      "sha256": "3403a9f7f1b1d043c34ef5d9de67a8b31de3c403f40e83bfae10ef1dc27c57ef",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-233307-basic/report.md"
+    },
+    {
+      "source": "Kupol/logs/20261025-233307-basic/sim_events.jsonl",
+      "bytes": 4587,
+      "sha256": "602c1938882f0ebe09be936d455abd00604661f69008098cd9a11b0021de82f3",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-233307-basic/sim_events.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261025-233307-basic/summary.json",
+      "bytes": 420,
+      "sha256": "15f4cb4eab71b43e02c859c994cc2fbdd2e7a3b344e167c303b70867fa4e5956",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-233307-basic/summary.json"
+    },
+    {
+      "source": "Kupol/logs/20261025-233307-basic/telemetry.jsonl",
+      "bytes": 4953369,
+      "sha256": "e29fabba49d796eba8570616f63fb53ee492c0d987350f6f89059ce05f2499dc",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261025-233307-basic/telemetry.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261026-013320-mixed/ground_truth.jsonl",
+      "bytes": 2289,
+      "sha256": "954820617b3b1eea4ef7548943a0fa6c0485933983ca990600ed704440a5ca80",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-013320-mixed/ground_truth.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261026-013320-mixed/journal.csv",
+      "bytes": 240743,
+      "sha256": "848a782e04da673135ee7a55ab14056a78d4cded1cad1153cefd1b6fa33f9c6c",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-013320-mixed/journal.csv"
+    },
+    {
+      "source": "Kupol/logs/20261026-013320-mixed/journal.jsonl",
+      "bytes": 2174023,
+      "sha256": "1f36f3f6ec6ce4b0ffe40e14fbc93353432c1e933fa2e0113c4fb81a309ed1dc",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-013320-mixed/journal.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261026-013320-mixed/journal.md",
+      "bytes": 247154,
+      "sha256": "46b53991f739837f89f1af3d6dcdb5c5b7b41f6a98e0087051e315e62e000c0e",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-013320-mixed/journal.md"
+    },
+    {
+      "source": "Kupol/logs/20261026-013320-mixed/meta.json",
+      "bytes": 191,
+      "sha256": "74c3c83e6d4f2223a8f0b28ff8d348b3978200dd9e9df12add9554ac4fce22c0",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-013320-mixed/meta.json"
+    },
+    {
+      "source": "Kupol/logs/20261026-013320-mixed/sim_events.jsonl",
+      "bytes": 4284,
+      "sha256": "9bd55928d63dda676460b47d74e9111e58b5b72e13a22fa02e1220504330404b",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-013320-mixed/sim_events.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261026-013320-mixed/summary.json",
+      "bytes": 587,
+      "sha256": "ff355d1bf435d7d0626881c303302ed13e97cf2958b9afe1393811e215d25211",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-013320-mixed/summary.json"
+    },
+    {
+      "source": "Kupol/logs/20261026-013320-mixed/telemetry.jsonl",
+      "bytes": 5113459,
+      "sha256": "b1ed0dbeb16c9d3f8becc6c2fc0dd28568a338ded6e9d1d32947a16330a88f1f",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-013320-mixed/telemetry.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261026-015926-basic/ground_truth.jsonl",
+      "bytes": 1488,
+      "sha256": "7281cd0f0798f778dc66887a2f2cb8a291e15f10200bb6fb50e3e5c20566d329",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-015926-basic/ground_truth.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261026-015926-basic/journal.csv",
+      "bytes": 199084,
+      "sha256": "2cca34eb5415e5f826fc8b9cb4c361c05f13a3187048284330825b071d1ce9d2",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-015926-basic/journal.csv"
+    },
+    {
+      "source": "Kupol/logs/20261026-015926-basic/journal.jsonl",
+      "bytes": 1457645,
+      "sha256": "ebd3228328c803a2fe56a4cf84e1211523cd55501deaca0af33e4e51982d76e2",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-015926-basic/journal.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261026-015926-basic/journal.md",
+      "bytes": 205293,
+      "sha256": "dd68cd788abc0f3a871457bb2424e058bf8b56b1647eae02696d7f8243e94773",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-015926-basic/journal.md"
+    },
+    {
+      "source": "Kupol/logs/20261026-015926-basic/meta.json",
+      "bytes": 191,
+      "sha256": "87fa91c4a8ff96447625b4850a75dcecd6a8499e140d8a832732a54eb74a1b24",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-015926-basic/meta.json"
+    },
+    {
+      "source": "Kupol/logs/20261026-015926-basic/sim_events.jsonl",
+      "bytes": 4587,
+      "sha256": "bfb7405ea3edafcbedda46c7c419adc9646ab9aee2d63d78a6b9e016182985cf",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-015926-basic/sim_events.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261026-015926-basic/summary.json",
+      "bytes": 587,
+      "sha256": "53cbc6db10e7b8ef830fc2f23e4fb1b0800f83edc82a052e060c6fe04217d250",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-015926-basic/summary.json"
+    },
+    {
+      "source": "Kupol/logs/20261026-015926-basic/telemetry.jsonl",
+      "bytes": 5111939,
+      "sha256": "b9d2d4186cadbd850b9aaa92e107e3bdd907af475221ba51fb3d8d59793c6f99",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-015926-basic/telemetry.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261026-072159-basic/journal.jsonl",
+      "bytes": 471562,
+      "sha256": "d320d4c1125e4bf9ffe13a85aea62367e3f30b614eda997363139c7ba51b6762",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-072159-basic/journal.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261026-072159-basic/telemetry.jsonl",
+      "bytes": 1884526,
+      "sha256": "147c8931481ca4abca1608c38cd34ef92548a43632032c028c4a01c59ea18b5f",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-072159-basic/telemetry.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261026-084216-basic/journal.jsonl",
+      "bytes": 687074,
+      "sha256": "a3e92b7cea55be628d1390b437b444259f11bc7344ada00ddcaf25ed7276bcb6",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-084216-basic/journal.jsonl"
+    },
+    {
+      "source": "Kupol/logs/20261026-084216-basic/telemetry.jsonl",
+      "bytes": 3254434,
+      "sha256": "27ab9d8a6f809fd08239ff057e9b398cc0d0c6b42b6081908d08a5791631cf5b",
+      "status": "imported",
+      "destination": "artifacts/simulator-runs/20261026-084216-basic/telemetry.jsonl"
+    },
+    {
+      "source": "Kupol/main.py",
+      "bytes": 543,
+      "sha256": "47729e585ee830d95efcb9389a813bc6315fe2bd627bc9ee5ff039ee051dbf33",
+      "status": "imported",
+      "destination": "agent/main.py"
+    },
+    {
+      "source": "Kupol/pyproject.toml",
+      "bytes": 1214,
+      "sha256": "ce27766a1adf16bd8483aabbf553f26a54f75c2962b912609bc5cb41b77eba4d",
+      "status": "imported",
+      "destination": "agent/pyproject.toml"
+    },
+    {
+      "source": "Kupol/README.md",
+      "bytes": 8233,
+      "sha256": "aea28f92f1f8b4b7dacd78eb0ddaefc8dcdf688fce174b152efeb29231eb6c7e",
+      "status": "imported",
+      "destination": "agent/README.md"
+    },
+    {
+      "source": "Kupol/requirements.txt",
+      "bytes": 175,
+      "sha256": "df0f133bb4e82127820f5e0d95d3c792e58984964007540bb60b59244fda3305",
+      "status": "imported",
+      "destination": "agent/requirements.txt"
+    },
+    {
+      "source": "Kupol/scenarios/basic.yaml",
+      "bytes": 3925,
+      "sha256": "68fa2f0208a74173a66a0ad0e41a452859a5a4993e02acf2be8a913eeaa88eec",
+      "status": "imported",
+      "destination": "agent/scenarios/basic.yaml"
+    },
+    {
+      "source": "Kupol/scenarios/cascade_heavy.yaml",
+      "bytes": 1742,
+      "sha256": "a4286768dceff11e251faf05db582b044746b40fdae18a391dd07f59daf9d97e",
+      "status": "imported",
+      "destination": "agent/scenarios/cascade_heavy.yaml"
+    },
+    {
+      "source": "Kupol/scenarios/hidden.yaml",
+      "bytes": 3318,
+      "sha256": "e29c19b6c6b540bccbd5f4a626296eaead6db72f0c013cc202a709a239ec7653",
+      "status": "imported",
+      "destination": "agent/scenarios/hidden.yaml"
+    },
+    {
+      "source": "Kupol/scenarios/mixed.yaml",
+      "bytes": 2202,
+      "sha256": "c7ef9b5c2550ffc90374857b5755164e78a56871e99d1b873cabf66ceaaa4754",
+      "status": "imported",
+      "destination": "agent/scenarios/mixed.yaml"
+    },
+    {
+      "source": "Kupol/scenarios/quiet.yaml",
+      "bytes": 1207,
+      "sha256": "bdecc61418862c34c564ec1e9c165092ec57bccf87ef861e621a60e0cf2dba52",
+      "status": "imported",
+      "destination": "agent/scenarios/quiet.yaml"
+    },
+    {
+      "source": "Kupol/scenarios/traps.yaml",
+      "bytes": 1551,
+      "sha256": "ab8bcb4df777bd4627dd9436bded43175afc1ca4436733a537f0e48863aa1ccd",
+      "status": "imported",
+      "destination": "agent/scenarios/traps.yaml"
+    },
+    {
+      "source": "Kupol/src/kupol/adapter/base.py",
+      "bytes": 4974,
+      "sha256": "894560ffbd32b96fd8450b171cac0edcda5bfde588b57792751c3c1f154dfe64",
+      "status": "imported",
+      "destination": "agent/src/kupol/adapter/base.py"
+    },
+    {
+      "source": "Kupol/src/kupol/adapter/real.py",
+      "bytes": 13954,
+      "sha256": "7d901c8cfd1a225fb48f61263f613c21daff9cd0beccbcbf3bde1f82f864fad3",
+      "status": "imported",
+      "destination": "agent/src/kupol/adapter/real.py"
+    },
+    {
+      "source": "Kupol/src/kupol/adapter/scenario.py",
+      "bytes": 16523,
+      "sha256": "a00e673099145c3acc071de314ec460b81db86f900f86e0e72883b21dc2040f7",
+      "status": "imported",
+      "destination": "agent/src/kupol/adapter/scenario.py"
+    },
+    {
+      "source": "Kupol/src/kupol/adapter/simulator.py",
+      "bytes": 41211,
+      "sha256": "ca11d35f4e4983015364bd4ae83077c5880bee71d2a5bcfb24f1acc64e2bffe9",
+      "status": "imported",
+      "destination": "agent/src/kupol/adapter/simulator.py"
+    },
+    {
+      "source": "Kupol/src/kupol/adapter/__init__.py",
+      "bytes": 190,
+      "sha256": "3fc78a9e06c8a9d0b3ec263af5d4ea3ecbd173e9fcb6818f659b735c58dbc06a",
+      "status": "imported",
+      "destination": "agent/src/kupol/adapter/__init__.py"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/base.py",
+      "bytes": 12624,
+      "sha256": "b43cc2e9986e1b0e3cdcefae5c99d8a892ff072b1ae3bc648f66ddb3217866e1",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/base.py"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/board.py",
+      "bytes": 11192,
+      "sha256": "8014b29227073de722c8f32d71a99c1b57256b124919fb279168ba252dd11802",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/board.py"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/diagnost.py",
+      "bytes": 20282,
+      "sha256": "c5255a2cb074cc4bbdf4e03b1af9c7014b524e6563d27740baa6a57b26b314dc",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/diagnost.py"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/energy_planner.py",
+      "bytes": 13373,
+      "sha256": "aec2157e3d276d06a01be3a07a8521a562feef582303fe1c6774d59fa6d80923",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/energy_planner.py"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/llm.py",
+      "bytes": 16938,
+      "sha256": "0dc76bb5ab0c3e6471e222f73259e318e543925e9e43073e84a0a73fc364a27b",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/llm.py"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/monitor.py",
+      "bytes": 17258,
+      "sha256": "5dc9becf99e4f7f3d1d5a7de9e4b8a9a0737aa70335522e4fd7c2ded6d58d3f6",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/monitor.py"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/diagnost.md",
+      "bytes": 9215,
+      "sha256": "2c0a0b232910ec62c045abb3edf6455028bf7c6daa274c46a701941241bbc269",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/diagnost.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/energy_planner.md",
+      "bytes": 3715,
+      "sha256": "20268c1a72163bdd968ca6a315c299186b158574eeeb37f1848cca0ece8f834e",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/energy_planner.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/examples/diagnost_01_direct_pv_drop.md",
+      "bytes": 2101,
+      "sha256": "8c3baeb353000ee3c73dd99cb7502d4c11a1d7aa1946a9971dd93a4ad27ee976",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/examples/diagnost_01_direct_pv_drop.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/examples/diagnost_02_direct_device_error.md",
+      "bytes": 1878,
+      "sha256": "827f07a0fb5c3318701c534c5ed8e25beecbb4d1e931870e036c70792ad907c2",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/examples/diagnost_02_direct_device_error.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/examples/diagnost_03_hidden_load.md",
+      "bytes": 2148,
+      "sha256": "0ccea933bda8a7a13778ca5c636b7ccd29208f975f2019355b2b976f35f87f1d",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/examples/diagnost_03_hidden_load.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/examples/diagnost_04_hidden_pair_drift.md",
+      "bytes": 2498,
+      "sha256": "a4669ae1a654dbd33324dfc5048acbd117b1e4e170752c346e1f5d05f6ad2c7c",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/examples/diagnost_04_hidden_pair_drift.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/examples/diagnost_05_hidden_silent_print_fail.md",
+      "bytes": 1969,
+      "sha256": "53edbc16673c08e6b438574e2b65e394ad79bcce2d8dc8aaa2b43b7c1702530f",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/examples/diagnost_05_hidden_silent_print_fail.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/examples/diagnost_06_hidden_frozen_sensor.md",
+      "bytes": 1747,
+      "sha256": "9eb8372ecd03d1fa8590e638f2cc6aa705286eda9b6bba793f69c87510d2964a",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/examples/diagnost_06_hidden_frozen_sensor.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/examples/diagnost_07_false_co2_spike.md",
+      "bytes": 2332,
+      "sha256": "c559de43171489ec83a65d14a4cc8cfc4ef3e5f3a756483b34e03fc3c2280dab",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/examples/diagnost_07_false_co2_spike.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/examples/diagnost_08_false_then_real.md",
+      "bytes": 1966,
+      "sha256": "3f9acce2f2335908d213024bb9a26738a258a22263544f04e73994631b519fb1",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/examples/diagnost_08_false_then_real.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/examples/diagnost_09_cascade_trap.md",
+      "bytes": 2333,
+      "sha256": "99c4d2869114746143a5473d801f45ad4e49e8eaddfc754af6329467cd38f572",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/examples/diagnost_09_cascade_trap.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/examples/diagnost_10_cascade_energy.md",
+      "bytes": 2014,
+      "sha256": "7f50f1b406b75d13928c781fce8fd7bb24e9635173a5ea9b535d36ce88378645",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/examples/diagnost_10_cascade_energy.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/examples/diagnost_11_hidden_stale_timestamp.md",
+      "bytes": 2040,
+      "sha256": "5927f9f56887abe2fef599d0a4252a4ab733c6738a324732a78f583fa25357cb",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/examples/diagnost_11_hidden_stale_timestamp.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/examples/diagnost_12_hidden_delayed_actuator.md",
+      "bytes": 1872,
+      "sha256": "f8e4944ba1b6f7aa9e691667294eb279f0cb9e2180b37d0289919c9538550641",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/examples/diagnost_12_hidden_delayed_actuator.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/prompts/monitor.md",
+      "bytes": 3987,
+      "sha256": "ea327461bb402dd1693016f8a6fad6fc724928d51e56b6c71570eb1d4610409b",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/prompts/monitor.md"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/symptoms.py",
+      "bytes": 8013,
+      "sha256": "f8c5257de380a55a8a5c37dfb74bb50ef017c18f5c452b03945e656b0f0dcd1d",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/symptoms.py"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/symptom_matrix.yaml",
+      "bytes": 22311,
+      "sha256": "2ab2edc8ca324c197167bff00e36bcbdb914317b9a91596fb8fadce758349de8",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/symptom_matrix.yaml"
+    },
+    {
+      "source": "Kupol/src/kupol/agents/__init__.py",
+      "bytes": 186,
+      "sha256": "3900f6623816e9a804ffdf82584b0e27e97e96aaa107062e17bfdec4d7a2a211",
+      "status": "imported",
+      "destination": "agent/src/kupol/agents/__init__.py"
+    },
+    {
+      "source": "Kupol/src/kupol/benchmark.py",
+      "bytes": 13491,
+      "sha256": "1da453aa9c66dd4dd367c4fd2da3625d0c0be0dd1675e1399c8ede9fd1f8c32e",
+      "status": "imported",
+      "destination": "agent/src/kupol/benchmark.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/baseline.py",
+      "bytes": 21590,
+      "sha256": "58c02e8d98198677405a9a7e4971ca92760ad227e2992697344d9fd4fb9148e9",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/baseline.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/charts.py",
+      "bytes": 6940,
+      "sha256": "51c370fc0ec4d4198af84279b731a93fcd2a4be841cc38127e2c5773e79fd297",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/charts.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/config.py",
+      "bytes": 34495,
+      "sha256": "83ee9c7ee65cd671eb5b4cae910b32d1f0b04e735c9993ec77274c5155d73392",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/config.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/crosscheck.py",
+      "bytes": 32231,
+      "sha256": "3439310bd1f41823894b936b107187053c8661066a31f513f8b38c59e443738d",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/crosscheck.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/detectors.py",
+      "bytes": 50909,
+      "sha256": "4ea4ddec8bfd28ee018de17e8915a0c94f966bcfb10bd0ef7e3b2b96a0d6085a",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/detectors.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/energy.py",
+      "bytes": 24956,
+      "sha256": "68b199580fe3c2fe6650642030a83cc8d2d1665d1d44b68a43f17c5d0dfa2702",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/energy.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/guard.py",
+      "bytes": 31250,
+      "sha256": "350be1d644d07401d090aa63f4df74bfc8f2090e65d24bb345574a1a12835e21",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/guard.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/journal.py",
+      "bytes": 14194,
+      "sha256": "278df9122a805d09ab600cda3aba31d58d93b6002bb233c9c88ed09e6da88dab",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/journal.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/metrics.py",
+      "bytes": 22477,
+      "sha256": "3d9671e0fbc9046a4267ed1619c135a0ced2b483bdd85f65bf9b38da6f7f23c0",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/metrics.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/models.py",
+      "bytes": 25804,
+      "sha256": "11786f259691a2bad6303e77a77ba0296b44ec6f8d8bea0ff15e59d14caabeb9",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/models.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/probes.py",
+      "bytes": 22346,
+      "sha256": "90987c62eaad4c1035555820ae676fe5f2e03fcc59a9ebb020e68f1ea4239cb8",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/probes.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/response.py",
+      "bytes": 10242,
+      "sha256": "366d5f3ffd21eb5aeeae8eccf907b78ba6818967b1c6cd2b7fdb4c913c0788aa",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/response.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/round.py",
+      "bytes": 6651,
+      "sha256": "64f4087e14f39573ceff89de93a3dd4b25229639f5e7c5e72272c622431213fc",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/round.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/state.py",
+      "bytes": 11480,
+      "sha256": "612557be1cf827b546b1a191764f9d4b23a1202f40896bb332f4db2c0c8111f8",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/state.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/verdicts.py",
+      "bytes": 34815,
+      "sha256": "65be9762bd3a89d4c5a3e460bcc0c54f665e702c7c2ea76d93bbafb3257defbf",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/verdicts.py"
+    },
+    {
+      "source": "Kupol/src/kupol/core/__init__.py",
+      "bytes": 197,
+      "sha256": "4e6735e771f344f7e90fea3250747585aa89c957ad0b44a44ce2b06b5b14ba02",
+      "status": "imported",
+      "destination": "agent/src/kupol/core/__init__.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/agentlog.py",
+      "bytes": 4374,
+      "sha256": "f3aec65ced558ff935b449ed89d8dafb32e917ba04b1d6e5089074505508d969",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/agentlog.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/app.py",
+      "bytes": 4423,
+      "sha256": "ff217082a57f0a11fec0c96d3e31319d2a46eff48c11ca3f955a2a075d9bd683",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/app.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/catalog.py",
+      "bytes": 3028,
+      "sha256": "bbe25c7c387f4ba60c875b3e19b9ce07703962eb7ea19bc3fbf134cbac214f2a",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/catalog.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/checks.py",
+      "bytes": 15071,
+      "sha256": "c3e71f167ba84bdbfa0a10fbb6d0754957fbffe1391efb2a7f6810d2480c4a0f",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/checks.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/client.py",
+      "bytes": 11177,
+      "sha256": "84ffe33bf29cf113bf67adb0c69270a67b426825999f1a64da117ab44f183721",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/client.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/config.py",
+      "bytes": 4727,
+      "sha256": "23a6a66c6af9d552372cbb12a3103f64088d3dea6066b35646b3f157e992e172",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/config.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/env.py",
+      "bytes": 4999,
+      "sha256": "7f3db9d2adf8a44f0f88357364dc91ba5e9680b90dfe725ea48438cdbb99c64c",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/env.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/gate.py",
+      "bytes": 25067,
+      "sha256": "cdc56cc4ba469fcad64e4f08cf2ca2ba57d342aeca6b203a783bf90d535ec0b3",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/gate.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/llm.py",
+      "bytes": 10049,
+      "sha256": "d5b6fedf2af121af6b00eab5d1d4903000b2e4b791ad30c5d48c7458ae36bba2",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/llm.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/playbooks/air.py",
+      "bytes": 15452,
+      "sha256": "891e1cb13b1cab545643453ff249b488a9a06fa0d4fedf13e92c2ef42f884e1e",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/playbooks/air.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/playbooks/base.py",
+      "bytes": 4866,
+      "sha256": "83a3079c9092c49a8e083bf2ecd359804f0b62c07da17f207fefb132567d6c06",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/playbooks/base.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/playbooks/devices.py",
+      "bytes": 11233,
+      "sha256": "8f5d54f1289c7fe70215dbd1a5bb95b252ef66971a90feb8c193d27cf77ccc26",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/playbooks/devices.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/playbooks/energy.py",
+      "bytes": 14473,
+      "sha256": "652dbd9ee2629705889738b7b987c4313b357b78e44ec052072f7e48688082d6",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/playbooks/energy.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/playbooks/lines.py",
+      "bytes": 7831,
+      "sha256": "d6045edf80fbddd0d83c460c40cc1f7ef367bdeb8ec51c7d2f9f31582e19db04",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/playbooks/lines.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/playbooks/machines.py",
+      "bytes": 14865,
+      "sha256": "607dcb48bdbae96b4ddc76c53e2f871896b2759d7eb3badb74629020b66d923d",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/playbooks/machines.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/playbooks/production.py",
+      "bytes": 7720,
+      "sha256": "8a57a08ccaec5ca590c662089bf0543b33a02924bf2d882ea7f9bd939a53b1a1",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/playbooks/production.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/playbooks/tasks.py",
+      "bytes": 20087,
+      "sha256": "c639ac313d71c7c9d01328b741b92554e4cb94b1d274e5f7a9ffa1eeff56292f",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/playbooks/tasks.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/playbooks/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/playbooks/__init__.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/rag.py",
+      "bytes": 7006,
+      "sha256": "c19a7ca6c996711da02875fe0728f2f86fac97ccb03d046bbb95c5469b090046",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/rag.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/runner.py",
+      "bytes": 25484,
+      "sha256": "e5f750870c3017375429ee7e9f5b9cabacca98cc66c81319a8dd8b57b850779f",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/runner.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/state.py",
+      "bytes": 8223,
+      "sha256": "142f324f73c35e75449da9cdb4da662a6bcde55c9a06d4f4ada67bf5f87ee04c",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/state.py"
+    },
+    {
+      "source": "Kupol/src/kupol/dome/__init__.py",
+      "bytes": 411,
+      "sha256": "fe214c4179899996dd33750ffad2a35886ca97541adf1eccf9ad3e8c559ec41a",
+      "status": "imported",
+      "destination": "agent/src/kupol/dome/__init__.py"
+    },
+    {
+      "source": "Kupol/src/kupol/engine.py",
+      "bytes": 52412,
+      "sha256": "cec9d36becdfd627ea1e1d465b69721d2d56d7e48d995f49a9fe124d2d75e6d6",
+      "status": "imported",
+      "destination": "agent/src/kupol/engine.py"
+    },
+    {
+      "source": "Kupol/src/kupol/main.py",
+      "bytes": 15723,
+      "sha256": "10b5c9b3532280da2480533b20326503b37c1754461c0ba90084cefbd11dcfea",
+      "status": "imported",
+      "destination": "agent/src/kupol/main.py"
+    },
+    {
+      "source": "Kupol/src/kupol/report.py",
+      "bytes": 19645,
+      "sha256": "dab8f05c0be9c71231a9975741d02eefeec718279434e3381646140717bfe5cd",
+      "status": "imported",
+      "destination": "agent/src/kupol/report.py"
+    },
+    {
+      "source": "Kupol/src/kupol/ui/charts.py",
+      "bytes": 17413,
+      "sha256": "66588632df9647786587ebe9b6e623d441aeae3b68f7f57aecc6cbe43bcc7347",
+      "status": "imported",
+      "destination": "agent/src/kupol/ui/charts.py"
+    },
+    {
+      "source": "Kupol/src/kupol/ui/dashboard.py",
+      "bytes": 27952,
+      "sha256": "d9cef24a77e1c1b90904b2364cfd3ba820514029c465d12429eb78c3071ea128",
+      "status": "imported",
+      "destination": "agent/src/kupol/ui/dashboard.py"
+    },
+    {
+      "source": "Kupol/src/kupol/ui/__init__.py",
+      "bytes": 67,
+      "sha256": "6a715027b4e804cf15780e0aaf2951d4a19544d0acbde6ef6c12bce200db140b",
+      "status": "imported",
+      "destination": "agent/src/kupol/ui/__init__.py"
+    },
+    {
+      "source": "Kupol/src/kupol/__init__.py",
+      "bytes": 484,
+      "sha256": "0612062a39064bd363b26e538b6c49bf0055768a9b05e38e764df30dc0b4dc6a",
+      "status": "imported",
+      "destination": "agent/src/kupol/__init__.py"
+    },
+    {
+      "source": "Kupol/src/kupol/__main__.py",
+      "bytes": 169,
+      "sha256": "65ca9b05256bda67f0b568651facfeadc793742a33fff9da69885587a3f6f98d",
+      "status": "imported",
+      "destination": "agent/src/kupol/__main__.py"
+    },
+    {
+      "source": "Kupol/tests/conftest.py",
+      "bytes": 1406,
+      "sha256": "9a52b81c27d668912a72285a67b69bb61bec2f1785f213ba4923ac23221c26e3",
+      "status": "imported",
+      "destination": "agent/tests/conftest.py"
+    },
+    {
+      "source": "Kupol/tests/dome_fake/server.py",
+      "bytes": 5870,
+      "sha256": "d0ec051b7b51def157160385b45cee81fe97be1f84cbb8c61dbd2ad3acddef87",
+      "status": "imported",
+      "destination": "agent/tests/dome_fake/server.py"
+    },
+    {
+      "source": "Kupol/tests/dome_fake/world.py",
+      "bytes": 13666,
+      "sha256": "00b309936fc3e455f568ed8e76a10d6484504557db9c2d5c40b7e0fec5e438fb",
+      "status": "imported",
+      "destination": "agent/tests/dome_fake/world.py"
+    },
+    {
+      "source": "Kupol/tests/dome_fake/__init__.py",
+      "bytes": 135,
+      "sha256": "221693d78a0e4f995ea8e22675facabfdbcd2aad7656cdf6c791bd09616d0571",
+      "status": "imported",
+      "destination": "agent/tests/dome_fake/__init__.py"
+    },
+    {
+      "source": "Kupol/tests/dome_helpers.py",
+      "bytes": 6329,
+      "sha256": "ca3cf63eb35b8c0ee3138e41eaafc9b07ce66f740a7385d71c79a38c40bc2882",
+      "status": "imported",
+      "destination": "agent/tests/dome_helpers.py"
+    },
+    {
+      "source": "Kupol/tests/fakes.py",
+      "bytes": 1178,
+      "sha256": "be781d810ccbcfb4f06188f9907a32a8c640490a24fd9c7d11921a1d04a72e47",
+      "status": "imported",
+      "destination": "agent/tests/fakes.py"
+    },
+    {
+      "source": "Kupol/tests/fixtures/dome_snapshots.json",
+      "bytes": 106758,
+      "sha256": "3ef9659b91e4a5732c29c315ccf743008c6f02a0a3180cb80c6b5b33bd7f7e2a",
+      "status": "imported",
+      "destination": "agent/tests/fixtures/dome_snapshots.json"
+    },
+    {
+      "source": "Kupol/tests/test_adapter_base.py",
+      "bytes": 1241,
+      "sha256": "eaa0b4aa2e5e6c7007001c30edcb51f4428898a92b8af20917df10657f8b9c9c",
+      "status": "imported",
+      "destination": "agent/tests/test_adapter_base.py"
+    },
+    {
+      "source": "Kupol/tests/test_agents.py",
+      "bytes": 20658,
+      "sha256": "28bb2f6f60c745e01947811be6b4f0921fac68b601f37a2ea27e87e59e477af8",
+      "status": "imported",
+      "destination": "agent/tests/test_agents.py"
+    },
+    {
+      "source": "Kupol/tests/test_baseline.py",
+      "bytes": 12338,
+      "sha256": "6ba0ef959e1f67570f49479b2f58f9a497deb73820951883b62da988ae0913b8",
+      "status": "imported",
+      "destination": "agent/tests/test_baseline.py"
+    },
+    {
+      "source": "Kupol/tests/test_board.py",
+      "bytes": 6845,
+      "sha256": "40d587fd73e63111443fc46bcf13d8acf85d2401c8c7aa588d91844a0dc5bade",
+      "status": "imported",
+      "destination": "agent/tests/test_board.py"
+    },
+    {
+      "source": "Kupol/tests/test_charts.py",
+      "bytes": 6070,
+      "sha256": "5fc6f58b2043d67451e0aed7a60ced0d9c07e5c77f2f4c66c3896b6d11f781ba",
+      "status": "imported",
+      "destination": "agent/tests/test_charts.py"
+    },
+    {
+      "source": "Kupol/tests/test_cli.py",
+      "bytes": 7958,
+      "sha256": "cc021b200459dbd6d77dfb91dabd9b3922ddd9671654610614291c630e8f18b7",
+      "status": "imported",
+      "destination": "agent/tests/test_cli.py"
+    },
+    {
+      "source": "Kupol/tests/test_config.py",
+      "bytes": 4309,
+      "sha256": "b482fe8b258af8621e37021ae59cca5421e52bf97bab6cd34107ca48386dd2a8",
+      "status": "imported",
+      "destination": "agent/tests/test_config.py"
+    },
+    {
+      "source": "Kupol/tests/test_crosscheck.py",
+      "bytes": 9791,
+      "sha256": "ce0e329bc124981b66f93fafa496899008e0948411deed3c21fe3d41dd81f9b7",
+      "status": "imported",
+      "destination": "agent/tests/test_crosscheck.py"
+    },
+    {
+      "source": "Kupol/tests/test_crosscheck_ext.py",
+      "bytes": 12320,
+      "sha256": "3ee871caea5a102f685a37c42402ab85cf45f788f9f33691c6557c2933a97056",
+      "status": "imported",
+      "destination": "agent/tests/test_crosscheck_ext.py"
+    },
+    {
+      "source": "Kupol/tests/test_dashboard.py",
+      "bytes": 15411,
+      "sha256": "148f6b539b94a18b21d5c73c2cb991e4523dade2552331e5bbf0d2cf837add8d",
+      "status": "imported",
+      "destination": "agent/tests/test_dashboard.py"
+    },
+    {
+      "source": "Kupol/tests/test_detectors.py",
+      "bytes": 13272,
+      "sha256": "67386e00e3a3f7dcb492bdeaf6e33c32423a7e050118c82d3d365bff648ebf1d",
+      "status": "imported",
+      "destination": "agent/tests/test_detectors.py"
+    },
+    {
+      "source": "Kupol/tests/test_detectors_ext.py",
+      "bytes": 20841,
+      "sha256": "9242e7b09e6ca9739c50167671cf0ebeac1353a880344de817858da415eab8f7",
+      "status": "imported",
+      "destination": "agent/tests/test_detectors_ext.py"
+    },
+    {
+      "source": "Kupol/tests/test_diagnost_ext.py",
+      "bytes": 11068,
+      "sha256": "8b8aed2a4e268caf49f3525bc8ce3f1f730b7763e2b82e3405b208ffb228939d",
+      "status": "imported",
+      "destination": "agent/tests/test_diagnost_ext.py"
+    },
+    {
+      "source": "Kupol/tests/test_dome_checks.py",
+      "bytes": 6533,
+      "sha256": "1e522e1eaeb0e20fc52505b67651809fb9a5fec37bf84b144e1a6f6c9c5423a5",
+      "status": "imported",
+      "destination": "agent/tests/test_dome_checks.py"
+    },
+    {
+      "source": "Kupol/tests/test_dome_client.py",
+      "bytes": 5805,
+      "sha256": "f1839d41a2fa7ace4410097febd3c0660fb81db8385ae70b67bc4dde19dc8fa4",
+      "status": "imported",
+      "destination": "agent/tests/test_dome_client.py"
+    },
+    {
+      "source": "Kupol/tests/test_dome_core.py",
+      "bytes": 6158,
+      "sha256": "60455267cc8e770ac7feb47a27aa8a29212cf4b0a48dfb3be91259864cd1389d",
+      "status": "imported",
+      "destination": "agent/tests/test_dome_core.py"
+    },
+    {
+      "source": "Kupol/tests/test_dome_gate.py",
+      "bytes": 13889,
+      "sha256": "4cb3e0506a77b08cd59737e7fe3ca19c069104d588375facc301069afe743c1d",
+      "status": "imported",
+      "destination": "agent/tests/test_dome_gate.py"
+    },
+    {
+      "source": "Kupol/tests/test_dome_llm.py",
+      "bytes": 6882,
+      "sha256": "f38b5a507a17857b58b94a221da259843acccc6bf87971dddc6b7cb89e490beb",
+      "status": "imported",
+      "destination": "agent/tests/test_dome_llm.py"
+    },
+    {
+      "source": "Kupol/tests/test_dome_playbooks_air.py",
+      "bytes": 9522,
+      "sha256": "32d75afa156eb16a31543dcf40c7f2062cff0d5ccb5a283a7b1b549e065d2c97",
+      "status": "imported",
+      "destination": "agent/tests/test_dome_playbooks_air.py"
+    },
+    {
+      "source": "Kupol/tests/test_dome_playbooks_ops.py",
+      "bytes": 10586,
+      "sha256": "aca52c8a64ded6c6c6cac206cc1cbe570d152062b4ac1f0edd954498b10f40d1",
+      "status": "imported",
+      "destination": "agent/tests/test_dome_playbooks_ops.py"
+    },
+    {
+      "source": "Kupol/tests/test_dome_rag.py",
+      "bytes": 2465,
+      "sha256": "48d6405fc5a779ce953d8ec054cb4f2719326025fa26587f14e9d2e4827e5cdb",
+      "status": "imported",
+      "destination": "agent/tests/test_dome_rag.py"
+    },
+    {
+      "source": "Kupol/tests/test_dome_scenarios.py",
+      "bytes": 16873,
+      "sha256": "73b757ab669f00b5acdc2c42a51244e3b0d714b931bb55aa739c297396efbf16",
+      "status": "imported",
+      "destination": "agent/tests/test_dome_scenarios.py"
+    },
+    {
+      "source": "Kupol/tests/test_dome_tasks.py",
+      "bytes": 7256,
+      "sha256": "ccf1d5a679c65fb6f9be46501b16bf2f54071871f4ddbdaf98112631de593a6f",
+      "status": "imported",
+      "destination": "agent/tests/test_dome_tasks.py"
+    },
+    {
+      "source": "Kupol/tests/test_energy.py",
+      "bytes": 14794,
+      "sha256": "a90718a645cdafaed3e9d1a273a88de5f04167fca904b554e08cba4327e5e05d",
+      "status": "imported",
+      "destination": "agent/tests/test_energy.py"
+    },
+    {
+      "source": "Kupol/tests/test_engine.py",
+      "bytes": 7075,
+      "sha256": "306e684259f5c1544d00572aa348b2f218109586a44f47b542eef2e3ab009163",
+      "status": "imported",
+      "destination": "agent/tests/test_engine.py"
+    },
+    {
+      "source": "Kupol/tests/test_guard.py",
+      "bytes": 15378,
+      "sha256": "73dd73da9f8128ce7b573cbb795da17622fe94f4b273a29543e10bea8c5380d8",
+      "status": "imported",
+      "destination": "agent/tests/test_guard.py"
+    },
+    {
+      "source": "Kupol/tests/test_integration.py",
+      "bytes": 18793,
+      "sha256": "46d6186201e26eb31088ba46161f1fbb49d2e518bd82665efdc39ab545470d76",
+      "status": "imported",
+      "destination": "agent/tests/test_integration.py"
+    },
+    {
+      "source": "Kupol/tests/test_journal.py",
+      "bytes": 5295,
+      "sha256": "3d22fbd79eb3ca3b00be88af7cd3dd3ca765ed3f1271844e1947377e1f88dff8",
+      "status": "imported",
+      "destination": "agent/tests/test_journal.py"
+    },
+    {
+      "source": "Kupol/tests/test_llm.py",
+      "bytes": 10236,
+      "sha256": "aacc18dfa0c21c5b78f44b6f2d95c4c179f2baa814f13b524d6fd5f1fdee4f01",
+      "status": "imported",
+      "destination": "agent/tests/test_llm.py"
+    },
+    {
+      "source": "Kupol/tests/test_metrics.py",
+      "bytes": 7863,
+      "sha256": "068d3c479b483b85b7407a0a12faeafd7a177443a26d5ed86092a1d534980bf1",
+      "status": "imported",
+      "destination": "agent/tests/test_metrics.py"
+    },
+    {
+      "source": "Kupol/tests/test_models.py",
+      "bytes": 8213,
+      "sha256": "00736428d25e7e5a2e48e4803144160ed12c8d67fbccc7cc795aec68959cb20d",
+      "status": "imported",
+      "destination": "agent/tests/test_models.py"
+    },
+    {
+      "source": "Kupol/tests/test_probes.py",
+      "bytes": 16849,
+      "sha256": "ade7b09b86d24ebcb3bbb929e2ae4f46570b9783c3bb28e8cc5d7c7206975cba",
+      "status": "imported",
+      "destination": "agent/tests/test_probes.py"
+    },
+    {
+      "source": "Kupol/tests/test_real_adapter.py",
+      "bytes": 4732,
+      "sha256": "2f1dd2ebd0ceb3caff516dc36861fbece95b622698bd6f8ff7a68a54d91e6d5d",
+      "status": "imported",
+      "destination": "agent/tests/test_real_adapter.py"
+    },
+    {
+      "source": "Kupol/tests/test_regression.py",
+      "bytes": 5258,
+      "sha256": "37c2e07e72a71aad8a9d165436380e9b0172b40364ba9a37b36874ba94a01e61",
+      "status": "imported",
+      "destination": "agent/tests/test_regression.py"
+    },
+    {
+      "source": "Kupol/tests/test_response.py",
+      "bytes": 18403,
+      "sha256": "cc6a23aa08530c76cef3971eaae45d2b9834b5dc17473e07a2c3666b3296f666",
+      "status": "imported",
+      "destination": "agent/tests/test_response.py"
+    },
+    {
+      "source": "Kupol/tests/test_scenarios.py",
+      "bytes": 19561,
+      "sha256": "7fe71e4c4793a751e030427f7dcf42e37328c81e6f7f04bdbdd690cfc0546d26",
+      "status": "imported",
+      "destination": "agent/tests/test_scenarios.py"
+    },
+    {
+      "source": "Kupol/tests/test_simulator.py",
+      "bytes": 8679,
+      "sha256": "71b8753fdad20b5b37f4832f0e9e8e089f44329e10f444a940029ff49c51423c",
+      "status": "imported",
+      "destination": "agent/tests/test_simulator.py"
+    },
+    {
+      "source": "Kupol/tests/test_smoke.py",
+      "bytes": 543,
+      "sha256": "ffd942003f584c8589f851c594ea43655f131150b208afa91c7ac0bfdafddf31",
+      "status": "imported",
+      "destination": "agent/tests/test_smoke.py"
+    },
+    {
+      "source": "Kupol/tests/test_state.py",
+      "bytes": 2778,
+      "sha256": "f6b2b9c0c2481874cca3daab59c6a6c715fba55050af5aa84b9a95441df0e1cc",
+      "status": "imported",
+      "destination": "agent/tests/test_state.py"
+    },
+    {
+      "source": "Kupol/tests/test_verdicts.py",
+      "bytes": 15709,
+      "sha256": "840f0b00c3fcbf5ca44861953f8d12a8206187483f0ab468aa230c798eaed2d7",
+      "status": "imported",
+      "destination": "agent/tests/test_verdicts.py"
+    },
+    {
+      "source": "Kupol/tests/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "imported",
+      "destination": "agent/tests/__init__.py"
+    },
+    {
+      "source": "Kupol/tools/check_agent_log.py",
+      "bytes": 4863,
+      "sha256": "d0f59f4bc6ff744158fb055dffe4b12df7de1c38435a8ad3a6a112f82dd4b291",
+      "status": "imported",
+      "destination": "agent/tools/check_agent_log.py"
+    },
+    {
+      "source": "Kupol/tools/probe_dome.py",
+      "bytes": 3546,
+      "sha256": "a891f8846e7a1911267cf23691d9dbd83a123141ffb659be5bca09f14362d6cc",
+      "status": "imported",
+      "destination": "agent/tools/probe_dome.py"
+    },
+    {
+      "source": "Kupol/tools/probe_llm.py",
+      "bytes": 1807,
+      "sha256": "d7677b21c881af4de42a96ef42df4c60876dfa8361a63cb9a113d42b611f6125",
+      "status": "imported",
+      "destination": "agent/tools/probe_llm.py"
+    },
+    {
+      "source": "Kupol/TZ_kupol.md",
+      "bytes": 34339,
+      "sha256": "9a0b9ecd141c343f8ea104519703daef0874ddcdc0209f9542d9e80e7888e69d",
+      "status": "imported",
+      "destination": "agent/TZ_kupol.md"
+    },
+    {
+      "source": "Kupol/TZ_kupol_addendum.md",
+      "bytes": 39960,
+      "sha256": "613eaeaa42b4035a7bf51124afa0595b0c57c1dd2cac7c5770dc8f17f080659e",
+      "status": "imported",
+      "destination": "agent/TZ_kupol_addendum.md"
+    },
+    {
+      "source": "Kupol/Регламент_Лига_автономных_систем_Купол.pdf",
+      "bytes": 201474,
+      "sha256": "958461d3b4f35d31e29ceb29b95ddc4d88065cceb6ca0d9bd210643e93e580a1",
+      "status": "imported",
+      "destination": "docs/reference/competition-regulations.pdf"
+    }
+  ],
+  "excluded_groups": {
+    ".git": 606,
+    ".mypy_cache": 18,
+    ".pytest_cache": 5,
+    ".venv": 13973,
+    "secrets": 1,
+    "__pycache__": 111,
+    "kupol.egg-info": 5
+  },
+  "summary": {
+    "agent": 151,
+    "shared_existing": 21,
+    "shared_readme": 1,
+    "artifacts": 36,
+    "docs": 1
+  },
+  "integration_adaptations": [
+    "agent/.env.example: shared DOME_RAG_DIR=..",
+    "agent/README.md: team repository navigation",
+    "agent/tests/test_dome_rag.py: shared corpus path"
+  ]
+}

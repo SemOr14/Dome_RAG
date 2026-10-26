@@ -1,0 +1,10 @@
+{
+  "mode": "simulate",
+  "scenario": "mixed",
+  "seed": 1,
+  "speed": 0.0,
+  "auto_approve": true,
+  "sim_operator": true,
+  "llm_mode": "mock",
+  "llm_model": "deepseek-v4-flash"
+}

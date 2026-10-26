@@ -1,0 +1,26 @@
+# Смесь реальных, ложных и скрытых событий на одной игре.
+name: mixed
+description: "Реальные, ложные и скрытые события вперемешку"
+duration_s: 5400
+initial:
+  initial_soc_pct: 60
+  cloud_cover: 0.3
+events:
+  - { at: 60,   type: operator, action: start_device, device: cnc,     duration_s: 720,  note: "фрезеровка" }
+  - { at: 120,  type: operator, action: start_device, device: printer, duration_s: 1800, note: "печать" }
+  - { at: 900,  type: operator, action: set_vent, mode: low }
+  - { at: 960,  type: operator, action: start_device, device: solder, duration_s: 900, note: "пайка" }
+  - { at: 2000, type: operator, action: set_vent, mode: "off" }
+  - { at: 2200, type: operator, action: start_device, device: printer, duration_s: 800, note: "вторая печать" }
+
+  - { at: 500,  type: false_signal, sensor: "co2_ppm.co2_c", value: 4200, duration_s: 30, note: "ложный CO2" }
+  - { at: 800,  type: hidden_load, watts: 300, duration_s: 1500, note: "неучтённая нагрузка" }
+  - { at: 1300, type: direct, target: pv, factor: 0.5, duration_s: 900, note: "облачность" }
+  - { at: 1700, type: sensor_drift_pair, sensor: temp_c_2, rate_per_min: 0.08, duration_s: 900, note: "дрейф второго датчика" }
+  - { at: 2300, type: silent_print_fail, device: printer, duration_s: 400, note: "тихий брак" }
+  - { at: 2600, type: device_fault, device: cnc, duration_s: 300, note: "останов станка" }
+  - { at: 3000, type: comms_loss, duration_s: 20, mode: frozen }
+  - { at: 3300, type: frozen_sensor, sensor: humidity_pct, duration_s: 300, note: "залип датчик влажности" }
+  - { at: 3800, type: false_then_real, sensor: "co2_ppm.co2_b", false_value: 4800, false_duration_s: 30, real_after_s: 100, real_ppm_s: 1.2, real_duration_s: 500, solder_s: 500, note: "ложный, затем реальный" }
+  - { at: 4600, type: actuator_fail, target: vent, duration_s: 400, note: "вытяжка не реагирует" }
+  - { at: 4700, type: delayed_actuator, target: humidifier, delay_s: 30, duration_s: 300 }

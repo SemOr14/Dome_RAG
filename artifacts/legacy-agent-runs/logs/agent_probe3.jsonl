@@ -1,0 +1,3 @@
+{"ts": "2026-10-26T13:54:37.835+03:00", "run_id": "probe3", "seq": 1, "kind": "connection", "event": "connected", "details": "ws://62.118.24.234:48765/ws"}
+{"ts": "2026-10-26T13:54:37.949+03:00", "run_id": "probe3", "seq": 2, "kind": "connection", "event": "auth", "role": "team", "team": 1}
+{"ts": "2026-10-26T13:54:38.075+03:00", "run_id": "probe3", "seq": 3, "kind": "action", "request": {"type": "query", "node_id": "meeting_01", "query": "read_messages", "params": {"limit": 20}}, "response": {"success": true, "error": null}}

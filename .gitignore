@@ -17,3 +17,23 @@ logs/
 
 # Ключи команды
 Keys/
+
+# Build, checks and local databases
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Historical corpus and deliberate archived runs must also be tracked on Windows.
+!/Logs/
+!/Logs/**
+!/artifacts/**

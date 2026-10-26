@@ -1,0 +1,6 @@
+{"ts": "2026-10-26T13:48:50.834+03:00", "run_id": "probe", "seq": 1, "kind": "connection", "event": "connected", "details": "ws://127.0.0.1:8765"}
+{"ts": "2026-10-26T13:48:50.834+03:00", "run_id": "probe", "seq": 2, "kind": "connection", "event": "auth", "role": "team", "team": 1}
+{"ts": "2026-10-26T13:53:05.130+03:00", "run_id": "probe", "seq": 1, "kind": "connection", "event": "connected", "details": "ws://62.118.24.234:48765/ws"}
+{"ts": "2026-10-26T13:53:05.335+03:00", "run_id": "probe", "seq": 2, "kind": "connection", "event": "auth", "role": "team", "team": 1}
+{"ts": "2026-10-26T16:19:08.886+03:00", "run_id": "probe", "seq": 1, "kind": "connection", "event": "connected", "details": "wss://janus-server.a.2na.am/"}
+{"ts": "2026-10-26T16:19:09.094+03:00", "run_id": "probe", "seq": 2, "kind": "connection", "event": "auth", "role": "team", "team": 1}

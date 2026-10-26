@@ -1,0 +1,5541 @@
+{
+"quiet": {
+"type": "telemetry",
+"timestamp": 1791925200.0,
+"role": "team",
+"data": {
+"nodes": {
+"solar_panels_01": {
+"online": true,
+"power_w": 0.0,
+"pv_voltage_v": 0.0,
+"pv_current_a": 0.0,
+"channels_count": 2,
+"mppt_channels_enabled": [
+true,
+true
+],
+"mppt_channel_power_w": [
+0.0,
+0.0
+],
+"mppt_1_enabled": true,
+"all_mppt_enabled": true,
+"active_mppt_count": 2,
+"cell_temp_c": 9.3,
+"soiling_loss_pct": 0.0,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"solar_inverter_01": {
+"online": true,
+"pv_voltage_v": 0.0,
+"pv_power_w": 44.1,
+"battery_voltage_v": 25.95,
+"battery_current_a": 1.7,
+"battery_power_w": 44.2,
+"battery_soc_pct": 39.97,
+"battery_capacity_kwh": 2.56,
+"load_power_w": 366.0,
+"output_voltage_v": 230.0,
+"output_limit_pct": 100.0,
+"grid_power_w": 366.0,
+"generator_power_w": 0.0,
+"ac_source": "GRID",
+"grid_state": "AVAILABLE",
+"grid_voltage_v": 229.6,
+"mode": "GRID_ONLY",
+"mppt_enabled": true,
+"mppt_state": "TRACKING",
+"battery_charge_blocked": false,
+"power_deficit_w": 0.0,
+"inverter_temp_c": 38.6,
+"fan_mode": "AUTO",
+"fan_state": "ON",
+"fan_current_a": 0.251,
+"error": false,
+"error_code": null,
+"error_text": null,
+"balancing_state": "IDLE",
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"battery_01": {
+"online": true,
+"soc_pct": 39.97,
+"voltage_v": 25.95,
+"current_a": 1.58,
+"power_w": 41.1,
+"nominal_capacity_ah": 100.0,
+"nominal_capacity_kwh": 2.56,
+"estimated_capacity_kwh": 2.559,
+"state": "CHARGING",
+"balancing_state": "IDLE",
+"cell_voltage_delta_mv": 65.4,
+"temperature_c": 14.39,
+"charge_allowed": true,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"wind_turbine_01": {
+"online": true,
+"wind_speed_ms": 6.97,
+"rpm": 431.0,
+"power_w": 51.4,
+"state": "ON",
+"available": true,
+"fault_code": null,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"dizel_1": {
+"online": true,
+"power_w": 0.0,
+"state": "OFF",
+"fault_code": null,
+"fault_reason": null,
+"start_attempts": 0,
+"preheat_state": "OFF",
+"engine_temp_c": 14.3,
+"fuel_consumption_l_h": 0.0,
+"runtime_h": 0.0,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"fuel_tank_01": {
+"online": true,
+"capacity_l": 200.0,
+"volume_l": 150.0,
+"level_pct": 75.0,
+"consumption_l_h": 0.0,
+"water_content_ppm": 298.986,
+"contamination_pct": 0.3,
+"fuel_quality": "GOOD",
+"fuel_temp_c": 11.1,
+"state": "NORMAL",
+"reserve_l": 150.0,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"smart_panel_01": {
+"online": true,
+"lines": [
+{
+"line": 1,
+"name": "Производственный отдел (рабочее место, вытяжка FabLab)",
+"rated_current_a": 16.0,
+"state": "ON",
+"voltage_v": 230.7,
+"current_a": 0.46,
+"power_w": 100.7,
+"leakage_ma": 1.31,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 2,
+"name": "Теплица ФабЛаб",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 230.7,
+"current_a": 0.102,
+"power_w": 22.4,
+"leakage_ma": 0.91,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 3,
+"name": "3D-принтер",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 230.7,
+"current_a": 0.037,
+"power_w": 8.0,
+"leakage_ma": 1.02,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 4,
+"name": "ЧПУ-фрезер",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 230.7,
+"current_a": 0.114,
+"power_w": 25.0,
+"leakage_ma": 2.74,
+"protection_state": "ARMED",
+"alarm": true,
+"alarm_code": "RCD_LEAKAGE",
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 5,
+"name": "Теплица Химлаб",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 230.7,
+"current_a": 0.07,
+"power_w": 15.3,
+"leakage_ma": 1.0,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 6,
+"name": "Обычное освещение",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 230.7,
+"current_a": 0.127,
+"power_w": 27.9,
+"leakage_ma": 0.43,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 7,
+"name": "Аварийное освещение",
+"rated_current_a": 6.0,
+"state": "OFF",
+"voltage_v": 0.0,
+"current_a": 0.0,
+"power_w": 0.0,
+"leakage_ma": 0.0,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 8,
+"name": "Резервная линия / фантомное потребление",
+"rated_current_a": 16.0,
+"state": "ON",
+"voltage_v": 230.7,
+"current_a": 0.238,
+"power_w": 52.2,
+"leakage_ma": 0.75,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+}
+],
+"bus_voltage_v": 230.7,
+"bus_powered": true,
+"total_power_w": 251.5,
+"total_current_a": 1.15,
+"lines_on_count": 7,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"printer_3d_01": {
+"online": true,
+"state": "COMPLETED",
+"paused": false,
+"nozzle_temp_c": 22.8,
+"nozzle_target_c": 0.0,
+"bed_temp_c": 21.4,
+"bed_target_c": 0.0,
+"file_name": "bracket_v2.gcode",
+"progress_pct": 100.0,
+"print_elapsed_s": 7200.0,
+"print_duration_s": 7200.0,
+"print_time_left_s": 0.0,
+"homed": true,
+"x_mm": 84.26,
+"y_mm": 139.79,
+"z_mm": 30.18,
+"speed_pct": 100.0,
+"files": [
+"bracket_v2.gcode",
+"cable_clip_x10.gcode",
+"fan_duct.gcode",
+"gear_m1_z24.gcode",
+"sensor_case.gcode",
+"valve_handle.gcode"
+],
+"last_gcode": null,
+"gcode_state": "OK",
+"gcode_error": null,
+"error_code": null,
+"webhook_state": "COMPLETED",
+"real_state": "COMPLETED",
+"power_w": 8.0,
+"heater_power_pct": 0.0,
+"bed_heater_power_pct": 0.0,
+"rotation_distance_x": 40.0,
+"filament_required_g": 24.0,
+"filament_used_g": 24.0,
+"part_defect": null,
+"hold_level": null,
+"hold_reason": null,
+"resume_attempts": 0,
+"lockout_remaining_s": 0.0,
+"bed_clear": true,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"cnc_01": {
+"online": true,
+"state": "IDLE",
+"paused": false,
+"x_mm": 68.84,
+"y_mm": 60.721,
+"z_mm": 5.0,
+"mpos_mm": [
+68.84,
+60.721,
+5.0
+],
+"wco_mm": [
+0.0,
+0.0,
+0.0
+],
+"last_probe": null,
+"spindle_rpm": 0.0,
+"spindle_target_rpm": 0.0,
+"file_name": "pcb_relay_driver.nc",
+"files": [
+"front_panel_engrave.nc",
+"pcb_power_board.nc",
+"pcb_relay_driver.nc",
+"pcb_sensor_hub.nc"
+],
+"progress_pct": 100.0,
+"job_elapsed_s": 5400.0,
+"job_duration_s": 5400.0,
+"job_time_left_s": 0.0,
+"homed": true,
+"alarm": false,
+"alarm_code": null,
+"error_code": null,
+"error_text": null,
+"last_gcode": null,
+"power_w": 25.0,
+"spindle_temp_c": 21.8,
+"quality_state": "OK",
+"part_defect": null,
+"hold_level": null,
+"hold_reason": null,
+"resume_attempts": 0,
+"lockout_remaining_s": 0.0,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"climate_sensor_01": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 20.64,
+"humidity_pct": 48.6,
+"co2_ppm": 725,
+"dew_point_c": 9.41,
+"sensor_state": "OK",
+"confidence": 0.976,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"air_quality_sensor_01": {
+"online": true,
+"zone": "FABLAB",
+"co_ppm": 0.5,
+"voc_index": 97,
+"chem_ppm": 0.0,
+"warming_up": false,
+"sensor_state": "OK",
+"confidence": 0.972,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"smoke_detector_01": {
+"online": true,
+"zone": "FABLAB",
+"smoke_detected": false,
+"obscuration_pct": 0.0,
+"alarm_state": "NORMAL",
+"false_alarm_suspected": false,
+"sensor_state": "OK",
+"confidence": 0.986,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"smoke_detector_02": {
+"online": true,
+"zone": "STORAGE",
+"smoke_detected": false,
+"obscuration_pct": 0.0,
+"alarm_state": "NORMAL",
+"false_alarm_suspected": false,
+"sensor_state": "DEGRADED",
+"confidence": 0.56,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"fume_extraction_01": {
+"online": true,
+"enabled": true,
+"power_w": 98.9,
+"fan_rpm": 2728,
+"airflow_pct": 98.9,
+"motor_state": "OK",
+"motor_temp_c": 55.5,
+"alarm": false,
+"alarm_code": null,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"weather_station_01": {
+"online": true,
+"temperature_c": 9.6,
+"humidity_pct": 85.1,
+"illuminance_lux": 0,
+"wind_speed_ms": 6.7,
+"wind_direction_deg": 54,
+"wind_direction": "NE",
+"pressure_hpa": 1009.6,
+"precipitation_mm_h": 0.0,
+"data_available": true,
+"sensor_state": "OK",
+"confidence": 0.967,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"seysmo_01": {
+"online": true,
+"quake_detected": false,
+"epicenter_distance_km": null,
+"amplitude_mm_s": 0.035,
+"estimated_magnitude": null,
+"threshold_mm_s": 0.5,
+"sensor_state": "OK",
+"confidence": 0.983,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"water_pump_01": {
+"online": true,
+"flow_l_min": 0.0,
+"pressure_bar": 3.3,
+"duty_cycle_pct": 0.8,
+"source_level_pct": 85.0,
+"motor_current_a": 0.0,
+"power_w": 0.0,
+"motor_temp_c": 14.2,
+"state": "ON",
+"running": false,
+"power_limit_pct": 100.0,
+"alarm": false,
+"alarm_code": null,
+"delivered_l_min": 0.273,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"water_tank_01": {
+"online": true,
+"capacity_l": 2000.0,
+"volume_l": 1416.1,
+"level_pct": 70.8,
+"water_temp_c": 14.9,
+"state": "NORMAL",
+"sensor_state": "OK",
+"confidence": 0.979,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"water_filter_01": {
+"online": true,
+"turbidity_ntu": 0.04,
+"ph": 7.22,
+"tds_ppm": 161.0,
+"residual_chlorine_mg_l": 0.69,
+"pressure_drop_bar": 0.32,
+"active_filter": "MAIN",
+"wear_pct": {
+"MAIN": 37.71586,
+"RESERVE": 5.0
+},
+"filter_state": "OK",
+"hours_to_replacement": 920.5,
+"system_state": "NORMAL",
+"warning_active": false,
+"source_turbidity_ntu": 0.5,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"fire_suppression_01": {
+"online": true,
+"pressure_bar": 6.02,
+"valves": {
+"FABLAB": "CLOSED",
+"LIVING": "CLOSED",
+"STORAGE": "CLOSED",
+"POWER_ROOM": "CLOSED"
+},
+"ready": true,
+"false_trigger_count": 0,
+"state": "READY",
+"active_zone": null,
+"automation_blocked": false,
+"alarm": false,
+"fault_code": null,
+"discharge_l_min": 0.0,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"access_control_01": {
+"online": true,
+"doors": {
+"MAIN_AIRLOCK": {
+"state": "CLOSED",
+"locked": true,
+"lock_battery_pct": 78.88
+},
+"FABLAB": {
+"state": "CLOSED",
+"locked": false,
+"lock_battery_pct": 87.68
+},
+"STORAGE": {
+"state": "CLOSED",
+"locked": false,
+"lock_battery_pct": 71.78
+},
+"SERVER_ROOM": {
+"state": "CLOSED",
+"locked": true,
+"lock_battery_pct": 75.58
+}
+},
+"passage_events": [
+{
+"t_h": 67.16,
+"door": "MAIN_AIRLOCK",
+"credential": "MED-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 67.22,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 67.29,
+"door": "FABLAB",
+"credential": "ENG-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 67.43,
+"door": "FABLAB",
+"credential": "OP-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 67.55,
+"door": "FABLAB",
+"credential": "SCI-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 67.62,
+"door": "FABLAB",
+"credential": "ENG-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 68.07,
+"door": "MAIN_AIRLOCK",
+"credential": "ENG-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 68.36,
+"door": "STORAGE",
+"credential": "MED-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 68.61,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-03",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 68.62,
+"door": "FABLAB",
+"credential": "ENG-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 68.84,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 68.87,
+"door": "FABLAB",
+"credential": "OP-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 69.01,
+"door": "MAIN_AIRLOCK",
+"credential": "ENG-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 69.19,
+"door": "FABLAB",
+"credential": "ENG-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 69.34,
+"door": "FABLAB",
+"credential": "ENG-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 69.49,
+"door": "STORAGE",
+"credential": "ENG-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 69.7,
+"door": "MAIN_AIRLOCK",
+"credential": "SCI-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 69.98,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 69.99,
+"door": "FABLAB",
+"credential": "OP-03",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 71.95,
+"door": "STORAGE",
+"credential": "OP-01",
+"direction": "IN",
+"result": "GRANTED"
+}
+],
+"system_state": "NORMAL",
+"alarm": false,
+"alarm_reason": null,
+"lockdown": false,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"radiation_sensor_01": {
+"online": true,
+"dose_rate_usv_h": 0.16,
+"counts_per_minute": 24,
+"event_type": "BACKGROUND",
+"alarm_state": "NORMAL",
+"warning_threshold": 0.3,
+"alarm_threshold": 1.0,
+"sensor_state": "OK",
+"confidence": 0.979,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"chem_sensor_01": {
+"online": true,
+"concentration_ppm": 0.093,
+"substance": "NONE",
+"alarm_state": "NORMAL",
+"warning_threshold": 5.0,
+"alarm_threshold": 20.0,
+"sensor_state": "OK",
+"confidence": 0.976,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"material_inventory_01": {
+"online": true,
+"filament_g": 768.0,
+"filament_pct": 76.8,
+"spool_capacity_g": 1000.0,
+"spare_spools": 3,
+"cnc_blanks_count": 30,
+"consumables_pct": 85.0,
+"low_stock_warnings": [],
+"sensor_state": "OK",
+"confidence": 0.991,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"equipment_cooling_01": {
+"online": true,
+"coolant_temp_c": 21.8,
+"coolant_flow_l_min": 4.14,
+"pump_power_w": 20.5,
+"heat_exchanger_temp_c": 21.1,
+"speed_pct": 70.0,
+"state": "ON",
+"alarm": false,
+"alarm_code": null,
+"bleeding": false,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"supply_ventilation_01": {
+"online": true,
+"airflow_m3_h": 240.4,
+"fresh_air_m3_h": 120.2,
+"supply_temp_c": 19.2,
+"supply_humidity_pct": 57.2,
+"filter_clog_pct": 12.0,
+"filter_state": "OK",
+"power_w": 16.9,
+"speed_pct": 35.0,
+"mode": "MIXED",
+"state": "ON",
+"alarm": false,
+"alarm_code": null,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"dome_sealing_01": {
+"online": true,
+"valve_positions_pct": [
+100.0,
+100.0,
+100.0,
+100.0
+],
+"valve_targets_pct": [
+100.0,
+100.0,
+100.0,
+100.0
+],
+"pressure_diff_pa": 1.1,
+"leak_rate_pct": 7.99791,
+"leak_detected": false,
+"state": "OPEN",
+"sealed_zone": null,
+"seal_ready": true,
+"fault_code": null,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"climate_sensor_02": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 21.73,
+"humidity_pct": 50.0,
+"co2_ppm": 753,
+"dew_point_c": 10.85,
+"reading_delay_s": 900.0,
+"drift_temp_c": 1.157,
+"drift_humidity_pct": 1.13,
+"drift_co2_ppm": 18.7,
+"sensor_state": "OK",
+"confidence": 0.736,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"climate_sensor_03": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 22.01,
+"humidity_pct": 50.4,
+"co2_ppm": 765,
+"dew_point_c": 11.22,
+"reading_delay_s": 1800.0,
+"drift_temp_c": 1.176,
+"drift_humidity_pct": 2.25,
+"drift_co2_ppm": 37.5,
+"sensor_state": "OK",
+"confidence": 0.742,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"radio_01": {
+"online": true,
+"frequency_mhz": 433.5,
+"protocol": "FSK",
+"bitrate_kbps": 1.69,
+"noise_level_dbm": -120.9,
+"snr_db": 11.8,
+"signal_quality_pct": 58.8,
+"reception": true,
+"state": "RECEIVING",
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"backup_comms_01": {
+"online": true,
+"active_channel": "SATELLITE",
+"protocol": "IRIDIUM_SBD",
+"traffic_priority": "NORMAL",
+"available": true,
+"latency_ms": 1017.0,
+"signal_quality_pct": 73.3,
+"bitrate_kbps": 34.36,
+"state": "AVAILABLE",
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"edge_compute_01": {
+"online": true,
+"cpu_load_pct": 30.1,
+"gpu_load_pct": 57.2,
+"free_memory_pct": 72.0,
+"temperature_c": 52.6,
+"services": {
+"agent_runtime": "RUNNING",
+"telemetry_collector": "RUNNING",
+"vision_inference": "RUNNING",
+"api_gateway": "RUNNING"
+},
+"state": "ONLINE",
+"load_limit_pct": 100.0,
+"uptime_h": 0.0,
+"clock_offset_s": 0.0,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"network_link_01": {
+"online": true,
+"active_path": "MAIN",
+"link_state": "UP",
+"link_flaps": 0,
+"rx_power_dbm": -8.81,
+"reserve_link_state": "UP",
+"packet_loss_pct": 0.0,
+"panel_link_state": "UP",
+"patchcord_replacing": false,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"thermal_insulation_01": {
+"online": true,
+"fans_pwm": [
+128,
+128,
+128,
+128,
+128,
+128
+],
+"fans_rpm": [
+1525,
+1514,
+1512,
+1480,
+1500,
+1512
+],
+"doors": [
+"CLOSED",
+"CLOSED"
+],
+"temperature_c": [
+22.66,
+22.93,
+20.57
+],
+"pressure_pa": [
+100993.1,
+100992.5,
+100988.6
+],
+"humidity_pct": [
+45,
+45,
+50
+],
+"voc_index": [
+15,
+102
+],
+"dust_adc": 182,
+"dust_voltage_v": 0.89,
+"locks": [
+"LOCKED",
+"LOCKED"
+],
+"vacuum_on": false,
+"poll_interval_ms": 500,
+"crc_errors": 1725,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"thermal_insulation_02": {
+"online": true,
+"fans_pwm": [
+128,
+128
+],
+"fans_rpm": [
+1535,
+1485
+],
+"doors": [
+"CLOSED",
+"CLOSED"
+],
+"temperature_c": [
+22.04,
+20.51
+],
+"pressure_pa": [
+100993.0,
+100988.5
+],
+"humidity_pct": [
+51,
+48
+],
+"gas_adc": [
+169,
+122
+],
+"gas_voltage_v": [
+0.826,
+0.596
+],
+"lock": "LOCKED",
+"relay_fan_level": 0,
+"updated_at": 1791925200.0,
+"status": "OK"
+},
+"dome_automation_01": {
+"online": true,
+"mode": "AUTO",
+"interlocks": {
+"IL_CO2": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "CO₂ > 2000 ppm"
+},
+"IL_CONDENSATE": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 1,
+"reason": null,
+"title": "Конденсат: RH > 90 % или T − Tросы < 1 °C",
+"tripped_at_s": 153660.0,
+"paused": []
+},
+"IL_SMOKE": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Дым в зоне",
+"zones": {}
+},
+"IL_LOAD_SHED": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Сброс нагрузки: SOC < 25 % / автономность < 1 ч / дефицит"
+},
+"IL_STORM": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Штормовой режим: ветер > 20 м/с"
+},
+"IL_OVERVOLT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перенапряжение линии > 245 В",
+"lines_pending": {}
+},
+"IL_INV_OVERLOAD": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перегрузка инвертора (E07)"
+},
+"IL_HEAT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перегрев инвертора > 75 °C"
+},
+"IL_OVERCURRENT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 2,
+"reason": null,
+"title": "Ток линии > 90 % уставки",
+"lines_pending": {},
+"shed_lines": [
+1
+],
+"tripped_at_s": 101520.0
+}
+},
+"data_trust": {},
+"events": [
+{
+"event_id": "AUT-0001",
+"t": 1791710784.0,
+"t_s": 1584.0,
+"interlock": "IL_OVERCURRENT",
+"type": "TRIP",
+"message": "Ток линии 1 выше 90 % уставки: линия отключена",
+"acknowledged": false,
+"line": 1
+},
+{
+"event_id": "AUT-0002",
+"t": 1791810720.0,
+"t_s": 101520.0,
+"interlock": "IL_OVERCURRENT",
+"type": "TRIP",
+"message": "Ток линии 1 выше 90 % уставки: линия отключена",
+"acknowledged": false,
+"line": 1
+},
+{
+"event_id": "AUT-0003",
+"t": 1791862860.0,
+"t_s": 153660.0,
+"interlock": "IL_CONDENSATE",
+"type": "TRIP",
+"message": "Риск конденсата (RH 99.0): ЧПУ на паузе",
+"acknowledged": false,
+"paused": []
+},
+{
+"event_id": "AUT-0004",
+"t": 1791863400.0,
+"t_s": 154200.0,
+"interlock": "IL_CONDENSATE",
+"type": "CLEAR",
+"message": "Условие снято, интерлок перевзведён",
+"acknowledged": false
+}
+],
+"primary_co2_sensor": "climate_sensor_01",
+"ventilation_auto": true,
+"diesel_autostart": true,
+"line_current_limits_a": {
+"1": 2.5
+},
+"autonomy_forecast_h": null,
+"updated_at": 1791925200.0,
+"status": "OK"
+}
+},
+"game_time": {
+"day": 3,
+"hour": 0.0
+}
+}
+},
+"co2_pending": {
+"type": "telemetry",
+"timestamp": 1791971460.0,
+"role": "team",
+"data": {
+"nodes": {
+"solar_panels_01": {
+"online": true,
+"power_w": 1048.6,
+"pv_voltage_v": 68.34,
+"pv_current_a": 15.34,
+"channels_count": 2,
+"mppt_channels_enabled": [
+true,
+true
+],
+"mppt_channel_power_w": [
+526.5,
+522.1
+],
+"mppt_1_enabled": true,
+"all_mppt_enabled": true,
+"active_mppt_count": 2,
+"cell_temp_c": 40.3,
+"soiling_loss_pct": 0.0,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"solar_inverter_01": {
+"online": true,
+"pv_voltage_v": 71.69,
+"pv_power_w": 1016.3,
+"battery_voltage_v": 26.36,
+"battery_current_a": -1.11,
+"battery_power_w": -29.2,
+"battery_soc_pct": 89.72,
+"battery_capacity_kwh": 2.56,
+"load_power_w": 1045.5,
+"output_voltage_v": 229.9,
+"output_limit_pct": 100.0,
+"grid_power_w": 0.0,
+"generator_power_w": 0.0,
+"ac_source": "GRID",
+"grid_state": "AVAILABLE",
+"grid_voltage_v": 233.2,
+"mode": "HYBRID",
+"mppt_enabled": true,
+"mppt_state": "TRACKING",
+"battery_charge_blocked": false,
+"power_deficit_w": 0.0,
+"inverter_temp_c": 49.5,
+"fan_mode": "AUTO",
+"fan_state": "ON",
+"fan_current_a": 0.311,
+"error": false,
+"error_code": null,
+"error_text": null,
+"balancing_state": "IDLE",
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"battery_01": {
+"online": true,
+"soc_pct": 89.72,
+"voltage_v": 26.35,
+"current_a": -1.34,
+"power_w": -35.2,
+"nominal_capacity_ah": 100.0,
+"nominal_capacity_kwh": 2.56,
+"estimated_capacity_kwh": 2.559,
+"state": "DISCHARGING",
+"balancing_state": "IDLE",
+"cell_voltage_delta_mv": 92.5,
+"temperature_c": 15.39,
+"charge_allowed": true,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"wind_turbine_01": {
+"online": true,
+"wind_speed_ms": 4.66,
+"rpm": 273.0,
+"power_w": 3.8,
+"state": "ON",
+"available": true,
+"fault_code": null,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"dizel_1": {
+"online": true,
+"power_w": 0.0,
+"state": "OFF",
+"fault_code": null,
+"fault_reason": null,
+"start_attempts": 0,
+"preheat_state": "OFF",
+"engine_temp_c": 17.5,
+"fuel_consumption_l_h": 0.0,
+"runtime_h": 0.0,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"fuel_tank_01": {
+"online": true,
+"capacity_l": 200.0,
+"volume_l": 150.0,
+"level_pct": 74.9,
+"consumption_l_h": 0.0,
+"water_content_ppm": 347.971,
+"contamination_pct": 0.3,
+"fuel_quality": "GOOD",
+"fuel_temp_c": 12.5,
+"state": "NORMAL",
+"reserve_l": 150.0,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"smart_panel_01": {
+"online": true,
+"lines": [
+{
+"line": 1,
+"name": "Производственный отдел (рабочее место, вытяжка FabLab)",
+"rated_current_a": 16.0,
+"state": "ON",
+"voltage_v": 231.7,
+"current_a": 0.997,
+"power_w": 219.5,
+"leakage_ma": 0.81,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 2,
+"name": "Теплица ФабЛаб",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 231.7,
+"current_a": 0.087,
+"power_w": 19.1,
+"leakage_ma": 0.91,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 3,
+"name": "3D-принтер",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 231.7,
+"current_a": 0.545,
+"power_w": 120.0,
+"leakage_ma": 0.74,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 4,
+"name": "ЧПУ-фрезер",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 231.7,
+"current_a": 1.43,
+"power_w": 314.7,
+"leakage_ma": 3.23,
+"protection_state": "ARMED",
+"alarm": true,
+"alarm_code": "RCD_LEAKAGE",
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 5,
+"name": "Теплица Химлаб",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 231.7,
+"current_a": 0.062,
+"power_w": 13.7,
+"leakage_ma": 0.49,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 6,
+"name": "Обычное освещение",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 231.7,
+"current_a": 0.246,
+"power_w": 54.2,
+"leakage_ma": 0.82,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 7,
+"name": "Аварийное освещение",
+"rated_current_a": 6.0,
+"state": "OFF",
+"voltage_v": 0.0,
+"current_a": 0.0,
+"power_w": 0.0,
+"leakage_ma": 0.0,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 8,
+"name": "Резервная линия / фантомное потребление",
+"rated_current_a": 16.0,
+"state": "ON",
+"voltage_v": 231.7,
+"current_a": 0.0,
+"power_w": 0.0,
+"leakage_ma": 2.75,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+}
+],
+"bus_voltage_v": 231.7,
+"bus_powered": true,
+"total_power_w": 741.2,
+"total_current_a": 3.37,
+"lines_on_count": 7,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"printer_3d_01": {
+"online": true,
+"state": "PRINTING",
+"paused": false,
+"nozzle_temp_c": 210.5,
+"nozzle_target_c": 210.0,
+"bed_temp_c": 61.0,
+"bed_target_c": 60.0,
+"file_name": "sensor_case.gcode",
+"progress_pct": 82.2,
+"print_elapsed_s": 11840.0,
+"print_duration_s": 14400.0,
+"print_time_left_s": 2560.0,
+"homed": true,
+"x_mm": 147.98,
+"y_mm": 95.6,
+"z_mm": 24.87,
+"speed_pct": 100.0,
+"files": [
+"bracket_v2.gcode",
+"cable_clip_x10.gcode",
+"fan_duct.gcode",
+"gear_m1_z24.gcode",
+"sensor_case.gcode",
+"valve_handle.gcode"
+],
+"last_gcode": null,
+"gcode_state": "OK",
+"gcode_error": null,
+"error_code": null,
+"webhook_state": "PRINTING",
+"real_state": "PRINTING",
+"power_w": 123.8,
+"heater_power_pct": 26.8,
+"bed_heater_power_pct": 25.2,
+"rotation_distance_x": 40.0,
+"filament_required_g": 48.0,
+"filament_used_g": 29.6,
+"part_defect": null,
+"hold_level": null,
+"hold_reason": null,
+"resume_attempts": 0,
+"lockout_remaining_s": 0.0,
+"bed_clear": true,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"cnc_01": {
+"online": true,
+"state": "RUNNING",
+"paused": false,
+"x_mm": 16.955,
+"y_mm": 51.414,
+"z_mm": -1.6,
+"mpos_mm": [
+16.955,
+51.414,
+-1.6
+],
+"wco_mm": [
+0.0,
+0.0,
+0.0
+],
+"last_probe": null,
+"spindle_rpm": 9967.0,
+"spindle_target_rpm": 10000.0,
+"file_name": "pcb_sensor_hub.nc",
+"files": [
+"front_panel_engrave.nc",
+"pcb_power_board.nc",
+"pcb_relay_driver.nc",
+"pcb_sensor_hub.nc"
+],
+"progress_pct": 41.5,
+"job_elapsed_s": 1196.0,
+"job_duration_s": 2880.0,
+"job_time_left_s": 1684.0,
+"homed": true,
+"alarm": false,
+"alarm_code": null,
+"error_code": null,
+"error_text": null,
+"last_gcode": null,
+"power_w": 315.0,
+"spindle_temp_c": 28.7,
+"quality_state": "OK",
+"part_defect": null,
+"hold_level": null,
+"hold_reason": null,
+"resume_attempts": 0,
+"lockout_remaining_s": 0.0,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"climate_sensor_01": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 19.89,
+"humidity_pct": 45.5,
+"co2_ppm": 2983,
+"dew_point_c": 7.78,
+"sensor_state": "OK",
+"confidence": 0.967,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"air_quality_sensor_01": {
+"online": true,
+"zone": "FABLAB",
+"co_ppm": 0.95,
+"voc_index": 95,
+"chem_ppm": 0.0,
+"warming_up": false,
+"sensor_state": "OK",
+"confidence": 0.94,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"smoke_detector_01": {
+"online": true,
+"zone": "FABLAB",
+"smoke_detected": false,
+"obscuration_pct": 0.46,
+"alarm_state": "NORMAL",
+"false_alarm_suspected": false,
+"sensor_state": "OK",
+"confidence": 0.967,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"smoke_detector_02": {
+"online": true,
+"zone": "STORAGE",
+"smoke_detected": false,
+"obscuration_pct": 0.31,
+"alarm_state": "NORMAL",
+"false_alarm_suspected": false,
+"sensor_state": "OK",
+"confidence": 0.971,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"fume_extraction_01": {
+"online": true,
+"enabled": true,
+"power_w": 99.7,
+"fan_rpm": 2739,
+"airflow_pct": 98.9,
+"motor_state": "OK",
+"motor_temp_c": 58.0,
+"alarm": false,
+"alarm_code": null,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"weather_station_01": {
+"online": true,
+"temperature_c": 11.8,
+"humidity_pct": 58.2,
+"illuminance_lux": 104997,
+"wind_speed_ms": 4.2,
+"wind_direction_deg": 63,
+"wind_direction": "NE",
+"pressure_hpa": 1005.7,
+"precipitation_mm_h": 0.0,
+"data_available": true,
+"sensor_state": "OK",
+"confidence": 0.967,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"seysmo_01": {
+"online": true,
+"quake_detected": false,
+"epicenter_distance_km": null,
+"amplitude_mm_s": 0.0357,
+"estimated_magnitude": null,
+"threshold_mm_s": 0.5,
+"sensor_state": "OK",
+"confidence": 0.973,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"water_pump_01": {
+"online": true,
+"flow_l_min": 0.0,
+"pressure_bar": 2.5,
+"duty_cycle_pct": 0.7,
+"source_level_pct": 85.0,
+"motor_current_a": 0.0,
+"power_w": 0.0,
+"motor_temp_c": 13.1,
+"state": "ON",
+"running": false,
+"power_limit_pct": 100.0,
+"alarm": false,
+"alarm_code": null,
+"delivered_l_min": 0.253,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"water_tank_01": {
+"online": true,
+"capacity_l": 2000.0,
+"volume_l": 1430.6,
+"level_pct": 71.5,
+"water_temp_c": 18.8,
+"state": "NORMAL",
+"sensor_state": "OK",
+"confidence": 0.97,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"water_filter_01": {
+"online": true,
+"turbidity_ntu": 0.25,
+"ph": 7.15,
+"tds_ppm": 163.0,
+"residual_chlorine_mg_l": 0.52,
+"pressure_drop_bar": 0.33,
+"active_filter": "MAIN",
+"wear_pct": {
+"MAIN": 38.1011,
+"RESERVE": 5.0
+},
+"filter_state": "OK",
+"hours_to_replacement": 1042.1,
+"system_state": "NORMAL",
+"warning_active": false,
+"source_turbidity_ntu": 3.82,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"fire_suppression_01": {
+"online": true,
+"pressure_bar": 6.12,
+"valves": {
+"FABLAB": "CLOSED",
+"LIVING": "CLOSED",
+"STORAGE": "CLOSED",
+"POWER_ROOM": "CLOSED"
+},
+"ready": true,
+"false_trigger_count": 0,
+"state": "READY",
+"active_zone": null,
+"automation_blocked": false,
+"alarm": false,
+"fault_code": null,
+"discharge_l_min": 0.0,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"access_control_01": {
+"online": true,
+"doors": {
+"MAIN_AIRLOCK": {
+"state": "CLOSED",
+"locked": true,
+"lock_battery_pct": 78.53305
+},
+"FABLAB": {
+"state": "CLOSED",
+"locked": false,
+"lock_battery_pct": 87.33305
+},
+"STORAGE": {
+"state": "CLOSED",
+"locked": false,
+"lock_battery_pct": 71.43305
+},
+"SERVER_ROOM": {
+"state": "CLOSED",
+"locked": true,
+"lock_battery_pct": 75.23305
+}
+},
+"passage_events": [
+{
+"t_h": 82.2,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.29,
+"door": "MAIN_AIRLOCK",
+"credential": "MED-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.29,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.43,
+"door": "MAIN_AIRLOCK",
+"credential": "SCI-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 82.46,
+"door": "FABLAB",
+"credential": "SCI-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.51,
+"door": "FABLAB",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.8,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.17,
+"door": "MAIN_AIRLOCK",
+"credential": "MED-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.19,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 83.22,
+"door": "FABLAB",
+"credential": "OP-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 83.25,
+"door": "MAIN_AIRLOCK",
+"credential": "SCI-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.62,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.64,
+"door": "FABLAB",
+"credential": "SCI-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.64,
+"door": "MAIN_AIRLOCK",
+"credential": "ENG-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 83.77,
+"door": "STORAGE",
+"credential": "SCI-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.96,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 84.37,
+"door": "FABLAB",
+"credential": "OP-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 84.49,
+"door": "FABLAB",
+"credential": "ENG-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 84.67,
+"door": "FABLAB",
+"credential": "OP-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 84.8,
+"door": "MAIN_AIRLOCK",
+"credential": "ENG-02",
+"direction": "IN",
+"result": "GRANTED"
+}
+],
+"system_state": "NORMAL",
+"alarm": false,
+"alarm_reason": null,
+"lockdown": false,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"radiation_sensor_01": {
+"online": true,
+"dose_rate_usv_h": 0.14,
+"counts_per_minute": 21,
+"event_type": "BACKGROUND",
+"alarm_state": "NORMAL",
+"warning_threshold": 0.3,
+"alarm_threshold": 1.0,
+"sensor_state": "OK",
+"confidence": 0.968,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"chem_sensor_01": {
+"online": true,
+"concentration_ppm": 0.0,
+"substance": "NONE",
+"alarm_state": "NORMAL",
+"warning_threshold": 5.0,
+"alarm_threshold": 20.0,
+"sensor_state": "OK",
+"confidence": 0.959,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"material_inventory_01": {
+"online": true,
+"filament_g": 719.0,
+"filament_pct": 71.9,
+"spool_capacity_g": 1000.0,
+"spare_spools": 3,
+"cnc_blanks_count": 30,
+"consumables_pct": 84.8,
+"low_stock_warnings": [],
+"sensor_state": "OK",
+"confidence": 0.984,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"equipment_cooling_01": {
+"online": true,
+"coolant_temp_c": 25.3,
+"coolant_flow_l_min": 4.23,
+"pump_power_w": 21.7,
+"heat_exchanger_temp_c": 23.1,
+"speed_pct": 70.0,
+"state": "ON",
+"alarm": false,
+"alarm_code": null,
+"bleeding": false,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"supply_ventilation_01": {
+"online": true,
+"airflow_m3_h": 603.6,
+"fresh_air_m3_h": 301.8,
+"supply_temp_c": 18.8,
+"supply_humidity_pct": 46.7,
+"filter_clog_pct": 12.0,
+"filter_state": "OK",
+"power_w": 191.5,
+"speed_pct": 100.0,
+"mode": "MIXED",
+"state": "ON",
+"alarm": false,
+"alarm_code": null,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"dome_sealing_01": {
+"online": true,
+"valve_positions_pct": [
+100.0,
+100.0,
+100.0,
+100.0
+],
+"valve_targets_pct": [
+100.0,
+100.0,
+100.0,
+100.0
+],
+"pressure_diff_pa": 1.7,
+"leak_rate_pct": 9.07032,
+"leak_detected": false,
+"state": "OPEN",
+"sealed_zone": null,
+"seal_ready": true,
+"fault_code": null,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"climate_sensor_02": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 20.74,
+"humidity_pct": 45.3,
+"co2_ppm": 778,
+"dew_point_c": 8.47,
+"reading_delay_s": 900.0,
+"drift_temp_c": 1.168,
+"drift_humidity_pct": 1.37,
+"drift_co2_ppm": 22.8,
+"sensor_state": "OK",
+"confidence": 0.713,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"climate_sensor_03": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 21.12,
+"humidity_pct": 50.0,
+"co2_ppm": 800,
+"dew_point_c": 10.29,
+"reading_delay_s": 1800.0,
+"drift_temp_c": 1.352,
+"drift_humidity_pct": 2.73,
+"drift_co2_ppm": 45.5,
+"sensor_state": "OK",
+"confidence": 0.686,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"radio_01": {
+"online": true,
+"frequency_mhz": 433.5,
+"protocol": "FSK",
+"bitrate_kbps": 8.14,
+"noise_level_dbm": -122.5,
+"snr_db": 18.5,
+"signal_quality_pct": 92.4,
+"reception": true,
+"state": "RECEIVING",
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"backup_comms_01": {
+"online": true,
+"active_channel": "SATELLITE",
+"protocol": "IRIDIUM_SBD",
+"traffic_priority": "NORMAL",
+"available": true,
+"latency_ms": 662.0,
+"signal_quality_pct": 100.0,
+"bitrate_kbps": 64.0,
+"state": "AVAILABLE",
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"edge_compute_01": {
+"online": true,
+"cpu_load_pct": 52.0,
+"gpu_load_pct": 50.1,
+"free_memory_pct": 52.5,
+"temperature_c": 68.9,
+"services": {
+"agent_runtime": "RUNNING",
+"telemetry_collector": "RUNNING",
+"vision_inference": "RUNNING",
+"api_gateway": "RUNNING"
+},
+"state": "ONLINE",
+"load_limit_pct": 100.0,
+"uptime_h": 0.0,
+"clock_offset_s": 0.0,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"network_link_01": {
+"online": true,
+"active_path": "MAIN",
+"link_state": "UP",
+"link_flaps": 0,
+"rx_power_dbm": -9.33,
+"reserve_link_state": "UP",
+"packet_loss_pct": 0.0,
+"panel_link_state": "UP",
+"patchcord_replacing": false,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"thermal_insulation_01": {
+"online": true,
+"fans_pwm": [
+128,
+128,
+128,
+128,
+128,
+128
+],
+"fans_rpm": [
+1512,
+1501,
+1506,
+1512,
+1500,
+1479
+],
+"doors": [
+"CLOSED",
+"CLOSED"
+],
+"temperature_c": [
+21.86,
+22.08,
+19.76
+],
+"pressure_pa": [
+100547.7,
+100547.6,
+100543.4
+],
+"humidity_pct": [
+38,
+39,
+46
+],
+"voc_index": [
+9,
+94
+],
+"dust_adc": 195,
+"dust_voltage_v": 0.953,
+"locks": [
+"LOCKED",
+"LOCKED"
+],
+"vacuum_on": false,
+"poll_interval_ms": 500,
+"crc_errors": 1725,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"thermal_insulation_02": {
+"online": true,
+"fans_pwm": [
+128,
+128
+],
+"fans_rpm": [
+1507,
+1504
+],
+"doors": [
+"CLOSED",
+"CLOSED"
+],
+"temperature_c": [
+20.53,
+19.81
+],
+"pressure_pa": [
+100545.9,
+100542.0
+],
+"humidity_pct": [
+32,
+46
+],
+"gas_adc": [
+175,
+116
+],
+"gas_voltage_v": [
+0.855,
+0.567
+],
+"lock": "LOCKED",
+"relay_fan_level": 0,
+"updated_at": 1791971460.0,
+"status": "OK"
+},
+"dome_automation_01": {
+"online": true,
+"mode": "AUTO",
+"interlocks": {
+"IL_CO2": {
+"state": "ARMED",
+"pending_s": 56.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "CO₂ > 2000 ppm",
+"state_detail": "PENDING"
+},
+"IL_CONDENSATE": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 1,
+"reason": null,
+"title": "Конденсат: RH > 90 % или T − Tросы < 1 °C",
+"tripped_at_s": 153660.0,
+"paused": []
+},
+"IL_SMOKE": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Дым в зоне",
+"zones": {}
+},
+"IL_LOAD_SHED": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Сброс нагрузки: SOC < 25 % / автономность < 1 ч / дефицит"
+},
+"IL_STORM": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Штормовой режим: ветер > 20 м/с"
+},
+"IL_OVERVOLT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перенапряжение линии > 245 В",
+"lines_pending": {}
+},
+"IL_INV_OVERLOAD": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перегрузка инвертора (E07)"
+},
+"IL_HEAT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перегрев инвертора > 75 °C"
+},
+"IL_OVERCURRENT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 2,
+"reason": null,
+"title": "Ток линии > 90 % уставки",
+"lines_pending": {},
+"shed_lines": [
+1
+],
+"tripped_at_s": 101520.0
+}
+},
+"data_trust": {},
+"events": [
+{
+"event_id": "AUT-0001",
+"t": 1791710784.0,
+"t_s": 1584.0,
+"interlock": "IL_OVERCURRENT",
+"type": "TRIP",
+"message": "Ток линии 1 выше 90 % уставки: линия отключена",
+"acknowledged": false,
+"line": 1
+},
+{
+"event_id": "AUT-0002",
+"t": 1791810720.0,
+"t_s": 101520.0,
+"interlock": "IL_OVERCURRENT",
+"type": "TRIP",
+"message": "Ток линии 1 выше 90 % уставки: линия отключена",
+"acknowledged": false,
+"line": 1
+},
+{
+"event_id": "AUT-0003",
+"t": 1791862860.0,
+"t_s": 153660.0,
+"interlock": "IL_CONDENSATE",
+"type": "TRIP",
+"message": "Риск конденсата (RH 99.0): ЧПУ на паузе",
+"acknowledged": false,
+"paused": []
+},
+{
+"event_id": "AUT-0004",
+"t": 1791863400.0,
+"t_s": 154200.0,
+"interlock": "IL_CONDENSATE",
+"type": "CLEAR",
+"message": "Условие снято, интерлок перевзведён",
+"acknowledged": false
+}
+],
+"primary_co2_sensor": "climate_sensor_01",
+"ventilation_auto": true,
+"diesel_autostart": true,
+"line_current_limits_a": {
+"1": 2.5
+},
+"autonomy_forecast_h": null,
+"updated_at": 1791971460.0,
+"status": "OK"
+}
+},
+"game_time": {
+"day": 3,
+"hour": 12.85
+}
+}
+},
+"co2_tripped": {
+"type": "telemetry",
+"timestamp": 1791971520.0,
+"role": "team",
+"data": {
+"nodes": {
+"solar_panels_01": {
+"online": true,
+"power_w": 1042.8,
+"pv_voltage_v": 67.96,
+"pv_current_a": 15.34,
+"channels_count": 2,
+"mppt_channels_enabled": [
+true,
+true
+],
+"mppt_channel_power_w": [
+524.0,
+518.8
+],
+"mppt_1_enabled": true,
+"all_mppt_enabled": true,
+"active_mppt_count": 2,
+"cell_temp_c": 39.7,
+"soiling_loss_pct": 0.0,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"solar_inverter_01": {
+"online": true,
+"pv_voltage_v": 71.77,
+"pv_power_w": 992.5,
+"battery_voltage_v": 26.67,
+"battery_current_a": 9.03,
+"battery_power_w": 240.7,
+"battery_soc_pct": 89.84,
+"battery_capacity_kwh": 2.56,
+"load_power_w": 754.2,
+"output_voltage_v": 231.9,
+"output_limit_pct": 100.0,
+"grid_power_w": 0.0,
+"generator_power_w": 0.0,
+"ac_source": "GRID",
+"grid_state": "AVAILABLE",
+"grid_voltage_v": 229.0,
+"mode": "HYBRID",
+"mppt_enabled": true,
+"mppt_state": "TRACKING",
+"battery_charge_blocked": false,
+"power_deficit_w": 0.0,
+"inverter_temp_c": 49.6,
+"fan_mode": "AUTO",
+"fan_state": "ON",
+"fan_current_a": 0.319,
+"error": false,
+"error_code": null,
+"error_text": null,
+"balancing_state": "IDLE",
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"battery_01": {
+"online": true,
+"soc_pct": 89.83,
+"voltage_v": 26.69,
+"current_a": 9.76,
+"power_w": 260.5,
+"nominal_capacity_ah": 100.0,
+"nominal_capacity_kwh": 2.56,
+"estimated_capacity_kwh": 2.559,
+"state": "CHARGING",
+"balancing_state": "IDLE",
+"cell_voltage_delta_mv": 94.0,
+"temperature_c": 15.13,
+"charge_allowed": true,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"wind_turbine_01": {
+"online": true,
+"wind_speed_ms": 4.4,
+"rpm": 300.0,
+"power_w": 2.3,
+"state": "ON",
+"available": true,
+"fault_code": null,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"dizel_1": {
+"online": true,
+"power_w": 0.0,
+"state": "OFF",
+"fault_code": null,
+"fault_reason": null,
+"start_attempts": 0,
+"preheat_state": "OFF",
+"engine_temp_c": 16.8,
+"fuel_consumption_l_h": 0.0,
+"runtime_h": 0.0,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"fuel_tank_01": {
+"online": true,
+"capacity_l": 200.0,
+"volume_l": 150.0,
+"level_pct": 75.0,
+"consumption_l_h": 0.0,
+"water_content_ppm": 347.971,
+"contamination_pct": 0.3,
+"fuel_quality": "GOOD",
+"fuel_temp_c": 12.2,
+"state": "NORMAL",
+"reserve_l": 150.0,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"smart_panel_01": {
+"online": true,
+"lines": [
+{
+"line": 1,
+"name": "Производственный отдел (рабочее место, вытяжка FabLab)",
+"rated_current_a": 16.0,
+"state": "ON",
+"voltage_v": 232.2,
+"current_a": 0.996,
+"power_w": 219.8,
+"leakage_ma": 1.26,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 2,
+"name": "Теплица ФабЛаб",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 232.2,
+"current_a": 0.088,
+"power_w": 19.4,
+"leakage_ma": 0.53,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 3,
+"name": "3D-принтер",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 232.2,
+"current_a": 0.517,
+"power_w": 114.0,
+"leakage_ma": 0.42,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 4,
+"name": "ЧПУ-фрезер",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 232.2,
+"current_a": 0.113,
+"power_w": 25.0,
+"leakage_ma": 3.15,
+"protection_state": "ARMED",
+"alarm": true,
+"alarm_code": "RCD_LEAKAGE",
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 5,
+"name": "Теплица Химлаб",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 232.2,
+"current_a": 0.062,
+"power_w": 13.6,
+"leakage_ma": 0.85,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 6,
+"name": "Обычное освещение",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 232.2,
+"current_a": 0.248,
+"power_w": 54.8,
+"leakage_ma": 0.91,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 7,
+"name": "Аварийное освещение",
+"rated_current_a": 6.0,
+"state": "OFF",
+"voltage_v": 0.0,
+"current_a": 0.0,
+"power_w": 0.0,
+"leakage_ma": 0.0,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 8,
+"name": "Резервная линия / фантомное потребление",
+"rated_current_a": 16.0,
+"state": "ON",
+"voltage_v": 232.2,
+"current_a": 0.0,
+"power_w": 0.0,
+"leakage_ma": 2.95,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+}
+],
+"bus_voltage_v": 232.2,
+"bus_powered": true,
+"total_power_w": 446.6,
+"total_current_a": 2.02,
+"lines_on_count": 7,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"printer_3d_01": {
+"online": true,
+"state": "PAUSED",
+"paused": true,
+"nozzle_temp_c": 186.9,
+"nozzle_target_c": 170.0,
+"bed_temp_c": 60.5,
+"bed_target_c": 60.0,
+"file_name": "sensor_case.gcode",
+"progress_pct": 82.2,
+"print_elapsed_s": 11844.0,
+"print_duration_s": 14400.0,
+"print_time_left_s": 2556.0,
+"homed": true,
+"x_mm": 148.73,
+"y_mm": 83.27,
+"z_mm": 24.88,
+"speed_pct": 100.0,
+"files": [
+"bracket_v2.gcode",
+"cable_clip_x10.gcode",
+"fan_duct.gcode",
+"gear_m1_z24.gcode",
+"sensor_case.gcode",
+"valve_handle.gcode"
+],
+"last_gcode": null,
+"gcode_state": "OK",
+"gcode_error": null,
+"error_code": null,
+"webhook_state": "PAUSED",
+"real_state": "PAUSED",
+"power_w": 117.4,
+"heater_power_pct": 29.6,
+"bed_heater_power_pct": 23.0,
+"rotation_distance_x": 40.0,
+"filament_required_g": 48.0,
+"filament_used_g": 29.61,
+"part_defect": null,
+"hold_level": "WARNING",
+"hold_reason": "IL_CO2",
+"resume_attempts": 0,
+"lockout_remaining_s": 0.0,
+"bed_clear": true,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"cnc_01": {
+"online": true,
+"state": "PAUSED",
+"paused": true,
+"x_mm": 18.18,
+"y_mm": 52.922,
+"z_mm": 5.0,
+"mpos_mm": [
+18.18,
+52.922,
+5.0
+],
+"wco_mm": [
+0.0,
+0.0,
+0.0
+],
+"last_probe": null,
+"spindle_rpm": 0.0,
+"spindle_target_rpm": 0.0,
+"file_name": "pcb_sensor_hub.nc",
+"files": [
+"front_panel_engrave.nc",
+"pcb_power_board.nc",
+"pcb_relay_driver.nc",
+"pcb_sensor_hub.nc"
+],
+"progress_pct": 41.7,
+"job_elapsed_s": 1200.0,
+"job_duration_s": 2880.0,
+"job_time_left_s": 1680.0,
+"homed": true,
+"alarm": false,
+"alarm_code": null,
+"error_code": null,
+"error_text": null,
+"last_gcode": null,
+"power_w": 25.0,
+"spindle_temp_c": 27.3,
+"quality_state": "OK",
+"part_defect": null,
+"hold_level": "WARNING",
+"hold_reason": "IL_CO2",
+"resume_attempts": 0,
+"lockout_remaining_s": 0.0,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"climate_sensor_01": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 19.83,
+"humidity_pct": 44.5,
+"co2_ppm": 3038,
+"dew_point_c": 7.38,
+"sensor_state": "OK",
+"confidence": 0.973,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"air_quality_sensor_01": {
+"online": true,
+"zone": "FABLAB",
+"co_ppm": 0.46,
+"voc_index": 80,
+"chem_ppm": 0.0,
+"warming_up": false,
+"sensor_state": "OK",
+"confidence": 0.962,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"smoke_detector_01": {
+"online": true,
+"zone": "FABLAB",
+"smoke_detected": false,
+"obscuration_pct": 0.0,
+"alarm_state": "NORMAL",
+"false_alarm_suspected": false,
+"sensor_state": "OK",
+"confidence": 0.965,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"smoke_detector_02": {
+"online": true,
+"zone": "STORAGE",
+"smoke_detected": false,
+"obscuration_pct": 0.0,
+"alarm_state": "NORMAL",
+"false_alarm_suspected": false,
+"sensor_state": "OK",
+"confidence": 0.962,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"fume_extraction_01": {
+"online": true,
+"enabled": true,
+"power_w": 99.3,
+"fan_rpm": 2727,
+"airflow_pct": 98.9,
+"motor_state": "OK",
+"motor_temp_c": 57.0,
+"alarm": false,
+"alarm_code": null,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"weather_station_01": {
+"online": true,
+"temperature_c": 11.5,
+"humidity_pct": 60.2,
+"illuminance_lux": 104210,
+"wind_speed_ms": 4.6,
+"wind_direction_deg": 68,
+"wind_direction": "E",
+"pressure_hpa": 1005.5,
+"precipitation_mm_h": 0.0,
+"data_available": true,
+"sensor_state": "OK",
+"confidence": 0.97,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"seysmo_01": {
+"online": true,
+"quake_detected": false,
+"epicenter_distance_km": null,
+"amplitude_mm_s": 0.0295,
+"estimated_magnitude": null,
+"threshold_mm_s": 0.5,
+"sensor_state": "OK",
+"confidence": 0.967,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"water_pump_01": {
+"online": true,
+"flow_l_min": 0.0,
+"pressure_bar": 2.84,
+"duty_cycle_pct": 0.8,
+"source_level_pct": 85.0,
+"motor_current_a": 0.0,
+"power_w": 0.0,
+"motor_temp_c": 11.8,
+"state": "ON",
+"running": false,
+"power_limit_pct": 100.0,
+"alarm": false,
+"alarm_code": null,
+"delivered_l_min": 0.267,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"water_tank_01": {
+"online": true,
+"capacity_l": 2000.0,
+"volume_l": 1430.1,
+"level_pct": 71.5,
+"water_temp_c": 18.9,
+"state": "NORMAL",
+"sensor_state": "OK",
+"confidence": 0.965,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"water_filter_01": {
+"online": true,
+"turbidity_ntu": 0.25,
+"ph": 7.29,
+"tds_ppm": 159.0,
+"residual_chlorine_mg_l": 0.51,
+"pressure_drop_bar": 0.32,
+"active_filter": "MAIN",
+"wear_pct": {
+"MAIN": 38.10185,
+"RESERVE": 5.0
+},
+"filter_state": "OK",
+"hours_to_replacement": 998.0,
+"system_state": "NORMAL",
+"warning_active": false,
+"source_turbidity_ntu": 3.91,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"fire_suppression_01": {
+"online": true,
+"pressure_bar": 6.06,
+"valves": {
+"FABLAB": "CLOSED",
+"LIVING": "CLOSED",
+"STORAGE": "CLOSED",
+"POWER_ROOM": "CLOSED"
+},
+"ready": true,
+"false_trigger_count": 0,
+"state": "READY",
+"active_zone": null,
+"automation_blocked": false,
+"alarm": false,
+"fault_code": null,
+"discharge_l_min": 0.0,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"access_control_01": {
+"online": true,
+"doors": {
+"MAIN_AIRLOCK": {
+"state": "CLOSED",
+"locked": true,
+"lock_battery_pct": 78.5326
+},
+"FABLAB": {
+"state": "CLOSED",
+"locked": false,
+"lock_battery_pct": 87.3326
+},
+"STORAGE": {
+"state": "CLOSED",
+"locked": false,
+"lock_battery_pct": 71.4326
+},
+"SERVER_ROOM": {
+"state": "CLOSED",
+"locked": true,
+"lock_battery_pct": 75.2326
+}
+},
+"passage_events": [
+{
+"t_h": 82.2,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.29,
+"door": "MAIN_AIRLOCK",
+"credential": "MED-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.29,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.43,
+"door": "MAIN_AIRLOCK",
+"credential": "SCI-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 82.46,
+"door": "FABLAB",
+"credential": "SCI-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.51,
+"door": "FABLAB",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.8,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.17,
+"door": "MAIN_AIRLOCK",
+"credential": "MED-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.19,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 83.22,
+"door": "FABLAB",
+"credential": "OP-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 83.25,
+"door": "MAIN_AIRLOCK",
+"credential": "SCI-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.62,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.64,
+"door": "FABLAB",
+"credential": "SCI-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.64,
+"door": "MAIN_AIRLOCK",
+"credential": "ENG-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 83.77,
+"door": "STORAGE",
+"credential": "SCI-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.96,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 84.37,
+"door": "FABLAB",
+"credential": "OP-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 84.49,
+"door": "FABLAB",
+"credential": "ENG-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 84.67,
+"door": "FABLAB",
+"credential": "OP-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 84.8,
+"door": "MAIN_AIRLOCK",
+"credential": "ENG-02",
+"direction": "IN",
+"result": "GRANTED"
+}
+],
+"system_state": "NORMAL",
+"alarm": false,
+"alarm_reason": null,
+"lockdown": false,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"radiation_sensor_01": {
+"online": true,
+"dose_rate_usv_h": 0.147,
+"counts_per_minute": 22,
+"event_type": "BACKGROUND",
+"alarm_state": "NORMAL",
+"warning_threshold": 0.3,
+"alarm_threshold": 1.0,
+"sensor_state": "OK",
+"confidence": 0.987,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"chem_sensor_01": {
+"online": true,
+"concentration_ppm": 0.016,
+"substance": "NONE",
+"alarm_state": "NORMAL",
+"warning_threshold": 5.0,
+"alarm_threshold": 20.0,
+"sensor_state": "OK",
+"confidence": 0.972,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"material_inventory_01": {
+"online": true,
+"filament_g": 724.0,
+"filament_pct": 72.4,
+"spool_capacity_g": 1000.0,
+"spare_spools": 3,
+"cnc_blanks_count": 30,
+"consumables_pct": 85.2,
+"low_stock_warnings": [],
+"sensor_state": "OK",
+"confidence": 0.973,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"equipment_cooling_01": {
+"online": true,
+"coolant_temp_c": 25.1,
+"coolant_flow_l_min": 4.16,
+"pump_power_w": 20.2,
+"heat_exchanger_temp_c": 23.0,
+"speed_pct": 70.0,
+"state": "ON",
+"alarm": false,
+"alarm_code": null,
+"bleeding": false,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"supply_ventilation_01": {
+"online": true,
+"airflow_m3_h": 597.9,
+"fresh_air_m3_h": 597.9,
+"supply_temp_c": 17.7,
+"supply_humidity_pct": 46.8,
+"filter_clog_pct": 12.0,
+"filter_state": "OK",
+"power_w": 191.5,
+"speed_pct": 100.0,
+"mode": "FRESH_AIR",
+"state": "ON",
+"alarm": false,
+"alarm_code": null,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"dome_sealing_01": {
+"online": true,
+"valve_positions_pct": [
+100.0,
+100.0,
+100.0,
+100.0
+],
+"valve_targets_pct": [
+100.0,
+100.0,
+100.0,
+100.0
+],
+"pressure_diff_pa": -0.4,
+"leak_rate_pct": 9.07176,
+"leak_detected": false,
+"state": "OPEN",
+"sealed_zone": null,
+"seal_ready": true,
+"fault_code": null,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"climate_sensor_02": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 21.02,
+"humidity_pct": 46.5,
+"co2_ppm": 774,
+"dew_point_c": 9.11,
+"reading_delay_s": 900.0,
+"drift_temp_c": 1.164,
+"drift_humidity_pct": 1.37,
+"drift_co2_ppm": 22.8,
+"sensor_state": "OK",
+"confidence": 0.728,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"climate_sensor_03": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 21.14,
+"humidity_pct": 49.2,
+"co2_ppm": 791,
+"dew_point_c": 10.06,
+"reading_delay_s": 1800.0,
+"drift_temp_c": 1.343,
+"drift_humidity_pct": 2.73,
+"drift_co2_ppm": 45.5,
+"sensor_state": "OK",
+"confidence": 0.677,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"radio_01": {
+"online": true,
+"frequency_mhz": 433.5,
+"protocol": "FSK",
+"bitrate_kbps": 7.15,
+"noise_level_dbm": -121.3,
+"snr_db": 17.4,
+"signal_quality_pct": 87.2,
+"reception": true,
+"state": "RECEIVING",
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"backup_comms_01": {
+"online": true,
+"active_channel": "SATELLITE",
+"protocol": "IRIDIUM_SBD",
+"traffic_priority": "NORMAL",
+"available": true,
+"latency_ms": 676.0,
+"signal_quality_pct": 100.0,
+"bitrate_kbps": 64.0,
+"state": "AVAILABLE",
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"edge_compute_01": {
+"online": true,
+"cpu_load_pct": 53.0,
+"gpu_load_pct": 51.9,
+"free_memory_pct": 53.9,
+"temperature_c": 68.9,
+"services": {
+"agent_runtime": "RUNNING",
+"telemetry_collector": "RUNNING",
+"vision_inference": "RUNNING",
+"api_gateway": "RUNNING"
+},
+"state": "ONLINE",
+"load_limit_pct": 100.0,
+"uptime_h": 0.0,
+"clock_offset_s": 0.0,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"network_link_01": {
+"online": true,
+"active_path": "MAIN",
+"link_state": "UP",
+"link_flaps": 0,
+"rx_power_dbm": -9.48,
+"reserve_link_state": "UP",
+"packet_loss_pct": 0.0,
+"panel_link_state": "UP",
+"patchcord_replacing": false,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"thermal_insulation_01": {
+"online": true,
+"fans_pwm": [
+128,
+128,
+128,
+128,
+128,
+128
+],
+"fans_rpm": [
+1500,
+1502,
+1510,
+1510,
+1523,
+1499
+],
+"doors": [
+"CLOSED",
+"CLOSED"
+],
+"temperature_c": [
+21.66,
+21.89,
+19.75
+],
+"pressure_pa": [
+100548.0,
+100549.7,
+100545.6
+],
+"humidity_pct": [
+40,
+39,
+45
+],
+"voc_index": [
+12,
+92
+],
+"dust_adc": 207,
+"dust_voltage_v": 1.012,
+"locks": [
+"LOCKED",
+"LOCKED"
+],
+"vacuum_on": false,
+"poll_interval_ms": 500,
+"crc_errors": 1725,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"thermal_insulation_02": {
+"online": true,
+"fans_pwm": [
+128,
+128
+],
+"fans_rpm": [
+1517,
+1502
+],
+"doors": [
+"CLOSED",
+"CLOSED"
+],
+"temperature_c": [
+20.6,
+19.72
+],
+"pressure_pa": [
+100547.7,
+100546.2
+],
+"humidity_pct": [
+34,
+46
+],
+"gas_adc": [
+165,
+120
+],
+"gas_voltage_v": [
+0.806,
+0.587
+],
+"lock": "LOCKED",
+"relay_fan_level": 0,
+"updated_at": 1791971520.0,
+"status": "OK"
+},
+"dome_automation_01": {
+"online": true,
+"mode": "AUTO",
+"interlocks": {
+"IL_CO2": {
+"state": "TRIPPED",
+"pending_s": 116.0,
+"blocked_remaining_s": 0.0,
+"trips": 1,
+"reason": null,
+"title": "CO₂ > 2000 ppm",
+"state_detail": "PENDING",
+"tripped_at_s": 262264.0,
+"prev_vent": {
+"mode": "MIXED",
+"speed_pct": 100.0
+},
+"paused": [
+"printer_3d_01",
+"cnc_01"
+]
+},
+"IL_CONDENSATE": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 1,
+"reason": null,
+"title": "Конденсат: RH > 90 % или T − Tросы < 1 °C",
+"tripped_at_s": 153660.0,
+"paused": []
+},
+"IL_SMOKE": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Дым в зоне",
+"zones": {}
+},
+"IL_LOAD_SHED": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Сброс нагрузки: SOC < 25 % / автономность < 1 ч / дефицит"
+},
+"IL_STORM": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Штормовой режим: ветер > 20 м/с"
+},
+"IL_OVERVOLT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перенапряжение линии > 245 В",
+"lines_pending": {}
+},
+"IL_INV_OVERLOAD": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перегрузка инвертора (E07)"
+},
+"IL_HEAT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перегрев инвертора > 75 °C"
+},
+"IL_OVERCURRENT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 2,
+"reason": null,
+"title": "Ток линии > 90 % уставки",
+"lines_pending": {},
+"shed_lines": [
+1
+],
+"tripped_at_s": 101520.0
+}
+},
+"data_trust": {},
+"events": [
+{
+"event_id": "AUT-0001",
+"t": 1791710784.0,
+"t_s": 1584.0,
+"interlock": "IL_OVERCURRENT",
+"type": "TRIP",
+"message": "Ток линии 1 выше 90 % уставки: линия отключена",
+"acknowledged": false,
+"line": 1
+},
+{
+"event_id": "AUT-0002",
+"t": 1791810720.0,
+"t_s": 101520.0,
+"interlock": "IL_OVERCURRENT",
+"type": "TRIP",
+"message": "Ток линии 1 выше 90 % уставки: линия отключена",
+"acknowledged": false,
+"line": 1
+},
+{
+"event_id": "AUT-0003",
+"t": 1791862860.0,
+"t_s": 153660.0,
+"interlock": "IL_CONDENSATE",
+"type": "TRIP",
+"message": "Риск конденсата (RH 99.0): ЧПУ на паузе",
+"acknowledged": false,
+"paused": []
+},
+{
+"event_id": "AUT-0004",
+"t": 1791863400.0,
+"t_s": 154200.0,
+"interlock": "IL_CONDENSATE",
+"type": "CLEAR",
+"message": "Условие снято, интерлок перевзведён",
+"acknowledged": false
+},
+{
+"event_id": "AUT-0005",
+"t": 1791971464.0,
+"t_s": 262264.0,
+"interlock": "IL_CO2",
+"type": "TRIP",
+"message": "CO₂ 3043 ppm (climate_sensor_01): станки на паузе, приток 100 %",
+"acknowledged": false,
+"paused": [
+"printer_3d_01",
+"cnc_01"
+]
+}
+],
+"primary_co2_sensor": "climate_sensor_01",
+"ventilation_auto": true,
+"diesel_autostart": true,
+"line_current_limits_a": {
+"1": 2.5
+},
+"autonomy_forecast_h": null,
+"updated_at": 1791971520.0,
+"status": "OK"
+}
+},
+"game_time": {
+"day": 3,
+"hour": 12.866666666666667
+}
+}
+},
+"co2_after": {
+"type": "telemetry",
+"timestamp": 1791971760.0,
+"role": "team",
+"data": {
+"nodes": {
+"solar_panels_01": {
+"online": true,
+"power_w": 996.1,
+"pv_voltage_v": 68.36,
+"pv_current_a": 14.57,
+"channels_count": 2,
+"mppt_channels_enabled": [
+true,
+true
+],
+"mppt_channel_power_w": [
+502.2,
+493.9
+],
+"mppt_1_enabled": true,
+"all_mppt_enabled": true,
+"active_mppt_count": 2,
+"cell_temp_c": 38.8,
+"soiling_loss_pct": 0.0,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"solar_inverter_01": {
+"online": true,
+"pv_voltage_v": 71.62,
+"pv_power_w": 976.4,
+"battery_voltage_v": 26.54,
+"battery_current_a": 4.19,
+"battery_power_w": 111.2,
+"battery_soc_pct": 90.22,
+"battery_capacity_kwh": 2.56,
+"load_power_w": 865.7,
+"output_voltage_v": 229.1,
+"output_limit_pct": 100.0,
+"grid_power_w": 0.0,
+"generator_power_w": 0.0,
+"ac_source": "GRID",
+"grid_state": "AVAILABLE",
+"grid_voltage_v": 229.3,
+"mode": "HYBRID",
+"mppt_enabled": true,
+"mppt_state": "TRACKING",
+"battery_charge_blocked": false,
+"power_deficit_w": 0.0,
+"inverter_temp_c": 49.6,
+"fan_mode": "AUTO",
+"fan_state": "ON",
+"fan_current_a": 0.318,
+"error": false,
+"error_code": null,
+"error_text": null,
+"balancing_state": "IDLE",
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"battery_01": {
+"online": true,
+"soc_pct": 90.21,
+"voltage_v": 26.52,
+"current_a": 3.39,
+"power_w": 89.9,
+"nominal_capacity_ah": 100.0,
+"nominal_capacity_kwh": 2.56,
+"estimated_capacity_kwh": 2.559,
+"state": "CHARGING",
+"balancing_state": "IDLE",
+"cell_voltage_delta_mv": 96.1,
+"temperature_c": 15.01,
+"charge_allowed": true,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"wind_turbine_01": {
+"online": true,
+"wind_speed_ms": 4.86,
+"rpm": 296.0,
+"power_w": 5.2,
+"state": "ON",
+"available": true,
+"fault_code": null,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"dizel_1": {
+"online": true,
+"power_w": 0.0,
+"state": "OFF",
+"fault_code": null,
+"fault_reason": null,
+"start_attempts": 0,
+"preheat_state": "OFF",
+"engine_temp_c": 14.8,
+"fuel_consumption_l_h": 0.0,
+"runtime_h": 0.0,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"fuel_tank_01": {
+"online": true,
+"capacity_l": 200.0,
+"volume_l": 150.0,
+"level_pct": 75.1,
+"consumption_l_h": 0.0,
+"water_content_ppm": 347.971,
+"contamination_pct": 0.3,
+"fuel_quality": "GOOD",
+"fuel_temp_c": 11.2,
+"state": "NORMAL",
+"reserve_l": 150.0,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"smart_panel_01": {
+"online": true,
+"lines": [
+{
+"line": 1,
+"name": "Производственный отдел (рабочее место, вытяжка FabLab)",
+"rated_current_a": 16.0,
+"state": "ON",
+"voltage_v": 228.2,
+"current_a": 1.025,
+"power_w": 222.2,
+"leakage_ma": 1.0,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 2,
+"name": "Теплица ФабЛаб",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 228.2,
+"current_a": 0.092,
+"power_w": 20.0,
+"leakage_ma": 0.82,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 3,
+"name": "3D-принтер",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 228.2,
+"current_a": 0.555,
+"power_w": 120.4,
+"leakage_ma": 0.94,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 4,
+"name": "ЧПУ-фрезер",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 228.2,
+"current_a": 1.45,
+"power_w": 314.3,
+"leakage_ma": 2.94,
+"protection_state": "ARMED",
+"alarm": true,
+"alarm_code": "RCD_LEAKAGE",
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 5,
+"name": "Теплица Химлаб",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 228.2,
+"current_a": 0.06,
+"power_w": 12.9,
+"leakage_ma": 1.02,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 6,
+"name": "Обычное освещение",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 228.2,
+"current_a": 0.194,
+"power_w": 42.0,
+"leakage_ma": 0.92,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 7,
+"name": "Аварийное освещение",
+"rated_current_a": 6.0,
+"state": "OFF",
+"voltage_v": 0.0,
+"current_a": 0.0,
+"power_w": 0.0,
+"leakage_ma": 0.0,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 8,
+"name": "Резервная линия / фантомное потребление",
+"rated_current_a": 16.0,
+"state": "ON",
+"voltage_v": 228.2,
+"current_a": 0.0,
+"power_w": 0.0,
+"leakage_ma": 2.65,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+}
+],
+"bus_voltage_v": 228.2,
+"bus_powered": true,
+"total_power_w": 731.8,
+"total_current_a": 3.38,
+"lines_on_count": 7,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"printer_3d_01": {
+"online": true,
+"state": "PRINTING",
+"paused": false,
+"nozzle_temp_c": 210.0,
+"nozzle_target_c": 210.0,
+"bed_temp_c": 61.2,
+"bed_target_c": 60.0,
+"file_name": "sensor_case.gcode",
+"progress_pct": 83.7,
+"print_elapsed_s": 12048.0,
+"print_duration_s": 14400.0,
+"print_time_left_s": 2352.0,
+"homed": true,
+"x_mm": 92.6,
+"y_mm": 93.41,
+"z_mm": 25.3,
+"speed_pct": 100.0,
+"files": [
+"bracket_v2.gcode",
+"cable_clip_x10.gcode",
+"fan_duct.gcode",
+"gear_m1_z24.gcode",
+"sensor_case.gcode",
+"valve_handle.gcode"
+],
+"last_gcode": null,
+"gcode_state": "OK",
+"gcode_error": null,
+"error_code": null,
+"webhook_state": "PRINTING",
+"real_state": "PRINTING",
+"power_w": 120.3,
+"heater_power_pct": 28.4,
+"bed_heater_power_pct": 24.0,
+"rotation_distance_x": 40.0,
+"filament_required_g": 48.0,
+"filament_used_g": 30.12,
+"part_defect": null,
+"hold_level": null,
+"hold_reason": null,
+"resume_attempts": 0,
+"lockout_remaining_s": 0.0,
+"bed_clear": true,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"cnc_01": {
+"online": true,
+"state": "RUNNING",
+"paused": false,
+"x_mm": 93.757,
+"y_mm": 13.296,
+"z_mm": -1.6,
+"mpos_mm": [
+93.757,
+13.296,
+-1.6
+],
+"wco_mm": [
+0.0,
+0.0,
+0.0
+],
+"last_probe": null,
+"spindle_rpm": 10049.0,
+"spindle_target_rpm": 10000.0,
+"file_name": "pcb_sensor_hub.nc",
+"files": [
+"front_panel_engrave.nc",
+"pcb_power_board.nc",
+"pcb_relay_driver.nc",
+"pcb_sensor_hub.nc"
+],
+"progress_pct": 49.2,
+"job_elapsed_s": 1416.0,
+"job_duration_s": 2880.0,
+"job_time_left_s": 1464.0,
+"homed": true,
+"alarm": false,
+"alarm_code": null,
+"error_code": null,
+"error_text": null,
+"last_gcode": null,
+"power_w": 314.9,
+"spindle_temp_c": 29.6,
+"quality_state": "OK",
+"part_defect": null,
+"hold_level": null,
+"hold_reason": null,
+"resume_attempts": 0,
+"lockout_remaining_s": 0.0,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"climate_sensor_01": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 19.91,
+"humidity_pct": 45.1,
+"co2_ppm": 3032,
+"dew_point_c": 7.64,
+"sensor_state": "OK",
+"confidence": 0.979,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"air_quality_sensor_01": {
+"online": true,
+"zone": "FABLAB",
+"co_ppm": 0.5,
+"voc_index": 93,
+"chem_ppm": 0.0,
+"warming_up": false,
+"sensor_state": "OK",
+"confidence": 0.961,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"smoke_detector_01": {
+"online": true,
+"zone": "FABLAB",
+"smoke_detected": false,
+"obscuration_pct": 0.0,
+"alarm_state": "NORMAL",
+"false_alarm_suspected": false,
+"sensor_state": "OK",
+"confidence": 0.972,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"smoke_detector_02": {
+"online": true,
+"zone": "STORAGE",
+"smoke_detected": false,
+"obscuration_pct": 0.34,
+"alarm_state": "NORMAL",
+"false_alarm_suspected": false,
+"sensor_state": "OK",
+"confidence": 0.964,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"fume_extraction_01": {
+"online": true,
+"enabled": true,
+"power_w": 100.6,
+"fan_rpm": 2766,
+"airflow_pct": 98.9,
+"motor_state": "OK",
+"motor_temp_c": 54.9,
+"alarm": false,
+"alarm_code": null,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"weather_station_01": {
+"online": true,
+"temperature_c": 11.9,
+"humidity_pct": 58.0,
+"illuminance_lux": 102950,
+"wind_speed_ms": 4.6,
+"wind_direction_deg": 49,
+"wind_direction": "NE",
+"pressure_hpa": 1005.4,
+"precipitation_mm_h": 0.0,
+"data_available": true,
+"sensor_state": "OK",
+"confidence": 0.964,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"seysmo_01": {
+"online": true,
+"quake_detected": false,
+"epicenter_distance_km": null,
+"amplitude_mm_s": 0.0398,
+"estimated_magnitude": null,
+"threshold_mm_s": 0.5,
+"sensor_state": "OK",
+"confidence": 0.967,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"water_pump_01": {
+"online": true,
+"flow_l_min": 0.0,
+"pressure_bar": 2.34,
+"duty_cycle_pct": 0.7,
+"source_level_pct": 85.0,
+"motor_current_a": 0.0,
+"power_w": 0.0,
+"motor_temp_c": 8.6,
+"state": "ON",
+"running": false,
+"power_limit_pct": 100.0,
+"alarm": false,
+"alarm_code": null,
+"delivered_l_min": 0.247,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"water_tank_01": {
+"online": true,
+"capacity_l": 2000.0,
+"volume_l": 1433.5,
+"level_pct": 71.7,
+"water_temp_c": 19.5,
+"state": "NORMAL",
+"sensor_state": "OK",
+"confidence": 0.967,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"water_filter_01": {
+"online": true,
+"turbidity_ntu": 0.24,
+"ph": 7.17,
+"tds_ppm": 166.0,
+"residual_chlorine_mg_l": 0.4,
+"pressure_drop_bar": 0.32,
+"active_filter": "MAIN",
+"wear_pct": {
+"MAIN": 38.10484,
+"RESERVE": 5.0
+},
+"filter_state": "OK",
+"hours_to_replacement": 1001.8,
+"system_state": "NORMAL",
+"warning_active": false,
+"source_turbidity_ntu": 3.83,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"fire_suppression_01": {
+"online": true,
+"pressure_bar": 5.95,
+"valves": {
+"FABLAB": "CLOSED",
+"LIVING": "CLOSED",
+"STORAGE": "CLOSED",
+"POWER_ROOM": "CLOSED"
+},
+"ready": true,
+"false_trigger_count": 0,
+"state": "READY",
+"active_zone": null,
+"automation_blocked": false,
+"alarm": false,
+"fault_code": null,
+"discharge_l_min": 0.0,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"access_control_01": {
+"online": true,
+"doors": {
+"MAIN_AIRLOCK": {
+"state": "CLOSED",
+"locked": true,
+"lock_battery_pct": 78.5308
+},
+"FABLAB": {
+"state": "CLOSED",
+"locked": false,
+"lock_battery_pct": 87.3308
+},
+"STORAGE": {
+"state": "CLOSED",
+"locked": false,
+"lock_battery_pct": 71.4308
+},
+"SERVER_ROOM": {
+"state": "CLOSED",
+"locked": true,
+"lock_battery_pct": 75.2308
+}
+},
+"passage_events": [
+{
+"t_h": 82.2,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.29,
+"door": "MAIN_AIRLOCK",
+"credential": "MED-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.29,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.43,
+"door": "MAIN_AIRLOCK",
+"credential": "SCI-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 82.46,
+"door": "FABLAB",
+"credential": "SCI-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.51,
+"door": "FABLAB",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.8,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.17,
+"door": "MAIN_AIRLOCK",
+"credential": "MED-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.19,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 83.22,
+"door": "FABLAB",
+"credential": "OP-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 83.25,
+"door": "MAIN_AIRLOCK",
+"credential": "SCI-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.62,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.64,
+"door": "FABLAB",
+"credential": "SCI-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.64,
+"door": "MAIN_AIRLOCK",
+"credential": "ENG-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 83.77,
+"door": "STORAGE",
+"credential": "SCI-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 83.96,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 84.37,
+"door": "FABLAB",
+"credential": "OP-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 84.49,
+"door": "FABLAB",
+"credential": "ENG-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 84.67,
+"door": "FABLAB",
+"credential": "OP-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 84.8,
+"door": "MAIN_AIRLOCK",
+"credential": "ENG-02",
+"direction": "IN",
+"result": "GRANTED"
+}
+],
+"system_state": "NORMAL",
+"alarm": false,
+"alarm_reason": null,
+"lockdown": false,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"radiation_sensor_01": {
+"online": true,
+"dose_rate_usv_h": 0.147,
+"counts_per_minute": 22,
+"event_type": "BACKGROUND",
+"alarm_state": "NORMAL",
+"warning_threshold": 0.3,
+"alarm_threshold": 1.0,
+"sensor_state": "OK",
+"confidence": 0.961,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"chem_sensor_01": {
+"online": true,
+"concentration_ppm": 0.101,
+"substance": "NONE",
+"alarm_state": "NORMAL",
+"warning_threshold": 5.0,
+"alarm_threshold": 20.0,
+"sensor_state": "OK",
+"confidence": 0.978,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"material_inventory_01": {
+"online": true,
+"filament_g": 725.0,
+"filament_pct": 72.5,
+"spool_capacity_g": 1000.0,
+"spare_spools": 3,
+"cnc_blanks_count": 30,
+"consumables_pct": 85.0,
+"low_stock_warnings": [],
+"sensor_state": "OK",
+"confidence": 0.963,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"equipment_cooling_01": {
+"online": true,
+"coolant_temp_c": 25.6,
+"coolant_flow_l_min": 4.1,
+"pump_power_w": 21.4,
+"heat_exchanger_temp_c": 23.1,
+"speed_pct": 70.0,
+"state": "ON",
+"alarm": false,
+"alarm_code": null,
+"bleeding": false,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"supply_ventilation_01": {
+"online": true,
+"airflow_m3_h": 268.9,
+"fresh_air_m3_h": 134.5,
+"supply_temp_c": 18.7,
+"supply_humidity_pct": 46.3,
+"filter_clog_pct": 12.0,
+"filter_state": "OK",
+"power_w": 22.0,
+"speed_pct": 45.0,
+"mode": "MIXED",
+"state": "ON",
+"alarm": false,
+"alarm_code": null,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"dome_sealing_01": {
+"online": true,
+"valve_positions_pct": [
+100.0,
+100.0,
+100.0,
+100.0
+],
+"valve_targets_pct": [
+100.0,
+100.0,
+100.0,
+100.0
+],
+"pressure_diff_pa": 1.0,
+"leak_rate_pct": 9.07763,
+"leak_detected": false,
+"state": "OPEN",
+"sealed_zone": null,
+"seal_ready": true,
+"fault_code": null,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"climate_sensor_02": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 21.0,
+"humidity_pct": 48.3,
+"co2_ppm": 762,
+"dew_point_c": 9.66,
+"reading_delay_s": 900.0,
+"drift_temp_c": 1.19,
+"drift_humidity_pct": 1.37,
+"drift_co2_ppm": 22.8,
+"sensor_state": "OK",
+"confidence": 0.729,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"climate_sensor_03": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 21.15,
+"humidity_pct": 48.5,
+"co2_ppm": 796,
+"dew_point_c": 9.86,
+"reading_delay_s": 1800.0,
+"drift_temp_c": 1.358,
+"drift_humidity_pct": 2.74,
+"drift_co2_ppm": 45.6,
+"sensor_state": "OK",
+"confidence": 0.67,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"radio_01": {
+"online": true,
+"frequency_mhz": 433.5,
+"protocol": "FSK",
+"bitrate_kbps": 5.42,
+"noise_level_dbm": -118.9,
+"snr_db": 15.6,
+"signal_quality_pct": 78.2,
+"reception": true,
+"state": "RECEIVING",
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"backup_comms_01": {
+"online": true,
+"active_channel": "SATELLITE",
+"protocol": "IRIDIUM_SBD",
+"traffic_priority": "NORMAL",
+"available": true,
+"latency_ms": 714.0,
+"signal_quality_pct": 96.5,
+"bitrate_kbps": 59.63,
+"state": "AVAILABLE",
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"edge_compute_01": {
+"online": true,
+"cpu_load_pct": 54.6,
+"gpu_load_pct": 45.5,
+"free_memory_pct": 51.6,
+"temperature_c": 67.1,
+"services": {
+"agent_runtime": "RUNNING",
+"telemetry_collector": "RUNNING",
+"vision_inference": "RUNNING",
+"api_gateway": "RUNNING"
+},
+"state": "ONLINE",
+"load_limit_pct": 100.0,
+"uptime_h": 0.0,
+"clock_offset_s": 0.0,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"network_link_01": {
+"online": true,
+"active_path": "MAIN",
+"link_state": "UP",
+"link_flaps": 0,
+"rx_power_dbm": -9.45,
+"reserve_link_state": "UP",
+"packet_loss_pct": 0.0,
+"panel_link_state": "UP",
+"patchcord_replacing": false,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"thermal_insulation_01": {
+"online": true,
+"fans_pwm": [
+128,
+128,
+128,
+128,
+128,
+128
+],
+"fans_rpm": [
+1499,
+1496,
+1490,
+1510,
+1516,
+1519
+],
+"doors": [
+"CLOSED",
+"CLOSED"
+],
+"temperature_c": [
+21.65,
+21.9,
+19.75
+],
+"pressure_pa": [
+100501.0,
+100500.9,
+100498.6
+],
+"humidity_pct": [
+36,
+36,
+45
+],
+"voc_index": [
+18,
+94
+],
+"dust_adc": 154,
+"dust_voltage_v": 0.753,
+"locks": [
+"LOCKED",
+"LOCKED"
+],
+"vacuum_on": false,
+"poll_interval_ms": 500,
+"crc_errors": 1725,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"thermal_insulation_02": {
+"online": true,
+"fans_pwm": [
+128,
+128
+],
+"fans_rpm": [
+1516,
+1502
+],
+"doors": [
+"CLOSED",
+"CLOSED"
+],
+"temperature_c": [
+21.03,
+19.73
+],
+"pressure_pa": [
+100499.9,
+100496.7
+],
+"humidity_pct": [
+37,
+46
+],
+"gas_adc": [
+167,
+121
+],
+"gas_voltage_v": [
+0.816,
+0.591
+],
+"lock": "LOCKED",
+"relay_fan_level": 0,
+"updated_at": 1791971760.0,
+"status": "OK"
+},
+"dome_automation_01": {
+"online": true,
+"mode": "AUTO",
+"interlocks": {
+"IL_CO2": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 1,
+"reason": null,
+"title": "CO₂ > 2000 ppm",
+"tripped_at_s": 262264.0
+},
+"IL_CONDENSATE": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 1,
+"reason": null,
+"title": "Конденсат: RH > 90 % или T − Tросы < 1 °C",
+"tripped_at_s": 153660.0,
+"paused": []
+},
+"IL_SMOKE": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Дым в зоне",
+"zones": {}
+},
+"IL_LOAD_SHED": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Сброс нагрузки: SOC < 25 % / автономность < 1 ч / дефицит"
+},
+"IL_STORM": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Штормовой режим: ветер > 20 м/с"
+},
+"IL_OVERVOLT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перенапряжение линии > 245 В",
+"lines_pending": {}
+},
+"IL_INV_OVERLOAD": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перегрузка инвертора (E07)"
+},
+"IL_HEAT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перегрев инвертора > 75 °C"
+},
+"IL_OVERCURRENT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 2,
+"reason": null,
+"title": "Ток линии > 90 % уставки",
+"lines_pending": {},
+"shed_lines": [
+1
+],
+"tripped_at_s": 101520.0
+}
+},
+"data_trust": {
+"climate_sensor_01.co2_ppm": "UNRELIABLE"
+},
+"events": [
+{
+"event_id": "AUT-0001",
+"t": 1791710784.0,
+"t_s": 1584.0,
+"interlock": "IL_OVERCURRENT",
+"type": "TRIP",
+"message": "Ток линии 1 выше 90 % уставки: линия отключена",
+"acknowledged": false,
+"line": 1
+},
+{
+"event_id": "AUT-0002",
+"t": 1791810720.0,
+"t_s": 101520.0,
+"interlock": "IL_OVERCURRENT",
+"type": "TRIP",
+"message": "Ток линии 1 выше 90 % уставки: линия отключена",
+"acknowledged": false,
+"line": 1
+},
+{
+"event_id": "AUT-0003",
+"t": 1791862860.0,
+"t_s": 153660.0,
+"interlock": "IL_CONDENSATE",
+"type": "TRIP",
+"message": "Риск конденсата (RH 99.0): ЧПУ на паузе",
+"acknowledged": false,
+"paused": []
+},
+{
+"event_id": "AUT-0004",
+"t": 1791863400.0,
+"t_s": 154200.0,
+"interlock": "IL_CONDENSATE",
+"type": "CLEAR",
+"message": "Условие снято, интерлок перевзведён",
+"acknowledged": false
+},
+{
+"event_id": "AUT-0005",
+"t": 1791971464.0,
+"t_s": 262264.0,
+"interlock": "IL_CO2",
+"type": "TRIP",
+"message": "CO₂ 3043 ppm (climate_sensor_01): станки на паузе, приток 100 %",
+"acknowledged": false,
+"paused": [
+"printer_3d_01",
+"cnc_01"
+]
+},
+{
+"event_id": "AUT-0006",
+"t": 1791971540.0,
+"t_s": 262340.0,
+"interlock": "IL_CO2",
+"type": "RELEASE",
+"message": "Интерлок снят агентом, линии возвращены: []",
+"acknowledged": false
+}
+],
+"primary_co2_sensor": "climate_sensor_02",
+"ventilation_auto": true,
+"diesel_autostart": true,
+"line_current_limits_a": {
+"1": 2.5
+},
+"autonomy_forecast_h": null,
+"updated_at": 1791971760.0,
+"status": "OK"
+}
+},
+"game_time": {
+"day": 3,
+"hour": 12.933333333333334
+}
+}
+},
+"printer_done": {
+"type": "telemetry",
+"timestamp": 1791964380.0,
+"role": "team",
+"data": {
+"nodes": {
+"solar_panels_01": {
+"online": true,
+"power_w": 933.9,
+"pv_voltage_v": 69.78,
+"pv_current_a": 13.38,
+"channels_count": 2,
+"mppt_channels_enabled": [
+true,
+true
+],
+"mppt_channel_power_w": [
+470.7,
+463.2
+],
+"mppt_1_enabled": true,
+"all_mppt_enabled": true,
+"active_mppt_count": 2,
+"cell_temp_c": 35.2,
+"soiling_loss_pct": 0.0,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"solar_inverter_01": {
+"online": true,
+"pv_voltage_v": 72.21,
+"pv_power_w": 941.9,
+"battery_voltage_v": 27.06,
+"battery_current_a": 36.26,
+"battery_power_w": 981.3,
+"battery_soc_pct": 47.35,
+"battery_capacity_kwh": 2.56,
+"load_power_w": 1116.9,
+"output_voltage_v": 231.6,
+"output_limit_pct": 100.0,
+"grid_power_w": 1116.9,
+"generator_power_w": 0.0,
+"ac_source": "GRID",
+"grid_state": "AVAILABLE",
+"grid_voltage_v": 233.4,
+"mode": "GRID_ONLY",
+"mppt_enabled": true,
+"mppt_state": "TRACKING",
+"battery_charge_blocked": false,
+"power_deficit_w": 0.0,
+"inverter_temp_c": 56.9,
+"fan_mode": "AUTO",
+"fan_state": "ON",
+"fan_current_a": 0.312,
+"error": false,
+"error_code": null,
+"error_text": null,
+"balancing_state": "IDLE",
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"battery_01": {
+"online": true,
+"soc_pct": 47.31,
+"voltage_v": 27.1,
+"current_a": 36.07,
+"power_w": 977.5,
+"nominal_capacity_ah": 100.0,
+"nominal_capacity_kwh": 2.56,
+"estimated_capacity_kwh": 2.559,
+"state": "CHARGING",
+"balancing_state": "IDLE",
+"cell_voltage_delta_mv": 80.1,
+"temperature_c": 13.23,
+"charge_allowed": true,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"wind_turbine_01": {
+"online": true,
+"wind_speed_ms": 6.37,
+"rpm": 446.0,
+"power_w": 31.5,
+"state": "ON",
+"available": true,
+"fault_code": null,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"dizel_1": {
+"online": true,
+"power_w": 0.0,
+"state": "OFF",
+"fault_code": null,
+"fault_reason": null,
+"start_attempts": 0,
+"preheat_state": "OFF",
+"engine_temp_c": 11.1,
+"fuel_consumption_l_h": 0.0,
+"runtime_h": 0.0,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"fuel_tank_01": {
+"online": true,
+"capacity_l": 200.0,
+"volume_l": 150.0,
+"level_pct": 74.9,
+"consumption_l_h": 0.0,
+"water_content_ppm": 340.435,
+"contamination_pct": 0.3,
+"fuel_quality": "GOOD",
+"fuel_temp_c": 8.5,
+"state": "NORMAL",
+"reserve_l": 150.0,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"smart_panel_01": {
+"online": true,
+"lines": [
+{
+"line": 1,
+"name": "Производственный отдел (рабочее место, вытяжка FabLab)",
+"rated_current_a": 16.0,
+"state": "ON",
+"voltage_v": 227.8,
+"current_a": 2.031,
+"power_w": 439.5,
+"leakage_ma": 1.42,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 2,
+"name": "Теплица ФабЛаб",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 227.8,
+"current_a": 0.083,
+"power_w": 18.0,
+"leakage_ma": 0.56,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 3,
+"name": "3D-принтер",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 227.8,
+"current_a": 0.65,
+"power_w": 140.7,
+"leakage_ma": 1.08,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 4,
+"name": "ЧПУ-фрезер",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 227.8,
+"current_a": 1.454,
+"power_w": 314.7,
+"leakage_ma": 3.0,
+"protection_state": "ARMED",
+"alarm": true,
+"alarm_code": "RCD_LEAKAGE",
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 5,
+"name": "Теплица Химлаб",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 227.8,
+"current_a": 0.066,
+"power_w": 14.3,
+"leakage_ma": 0.71,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 6,
+"name": "Обычное освещение",
+"rated_current_a": 10.0,
+"state": "ON",
+"voltage_v": 227.8,
+"current_a": 0.378,
+"power_w": 81.8,
+"leakage_ma": 1.07,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 7,
+"name": "Аварийное освещение",
+"rated_current_a": 6.0,
+"state": "OFF",
+"voltage_v": 0.0,
+"current_a": 0.0,
+"power_w": 0.0,
+"leakage_ma": 0.0,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+},
+{
+"line": 8,
+"name": "Резервная линия / фантомное потребление",
+"rated_current_a": 16.0,
+"state": "ON",
+"voltage_v": 227.8,
+"current_a": 0.0,
+"power_w": 0.0,
+"leakage_ma": 2.9,
+"protection_state": "ARMED",
+"alarm": false,
+"alarm_code": null,
+"lockout_remaining_s": 0.0,
+"lockout_reason": null
+}
+],
+"bus_voltage_v": 227.8,
+"bus_powered": true,
+"total_power_w": 1009.1,
+"total_current_a": 4.66,
+"lines_on_count": 7,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"printer_3d_01": {
+"online": true,
+"state": "PRINTING",
+"paused": false,
+"nozzle_temp_c": 211.1,
+"nozzle_target_c": 210.0,
+"bed_temp_c": 60.6,
+"bed_target_c": 60.0,
+"file_name": "sensor_case.gcode",
+"progress_pct": 33.1,
+"print_elapsed_s": 4760.0,
+"print_duration_s": 14400.0,
+"print_time_left_s": 9640.0,
+"homed": true,
+"x_mm": 149.52,
+"y_mm": 137.51,
+"z_mm": 10.12,
+"speed_pct": 100.0,
+"files": [
+"bracket_v2.gcode",
+"cable_clip_x10.gcode",
+"fan_duct.gcode",
+"gear_m1_z24.gcode",
+"sensor_case.gcode",
+"valve_handle.gcode"
+],
+"last_gcode": null,
+"gcode_state": "OK",
+"gcode_error": null,
+"error_code": null,
+"webhook_state": "COMPLETED",
+"real_state": "PRINTING",
+"power_w": 123.5,
+"heater_power_pct": 30.4,
+"bed_heater_power_pct": 24.7,
+"rotation_distance_x": 40.0,
+"filament_required_g": 48.0,
+"filament_used_g": 11.9,
+"part_defect": null,
+"hold_level": null,
+"hold_reason": null,
+"resume_attempts": 0,
+"lockout_remaining_s": 0.0,
+"bed_clear": true,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"cnc_01": {
+"online": true,
+"state": "RUNNING",
+"paused": false,
+"x_mm": 94.965,
+"y_mm": 24.118,
+"z_mm": -1.6,
+"mpos_mm": [
+94.965,
+24.118,
+-1.6
+],
+"wco_mm": [
+0.0,
+0.0,
+0.0
+],
+"last_probe": null,
+"spindle_rpm": 10022.0,
+"spindle_target_rpm": 10000.0,
+"file_name": "pcb_power_board.nc",
+"files": [
+"front_panel_engrave.nc",
+"pcb_power_board.nc",
+"pcb_relay_driver.nc",
+"pcb_sensor_hub.nc"
+],
+"progress_pct": 92.7,
+"job_elapsed_s": 4004.0,
+"job_duration_s": 4320.0,
+"job_time_left_s": 316.0,
+"homed": true,
+"alarm": false,
+"alarm_code": null,
+"error_code": null,
+"error_text": null,
+"last_gcode": null,
+"power_w": 315.6,
+"spindle_temp_c": 30.1,
+"quality_state": "OK",
+"part_defect": null,
+"hold_level": null,
+"hold_reason": null,
+"resume_attempts": 0,
+"lockout_remaining_s": 0.0,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"climate_sensor_01": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 19.51,
+"humidity_pct": 48.2,
+"co2_ppm": 794,
+"dew_point_c": 8.26,
+"sensor_state": "OK",
+"confidence": 0.968,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"air_quality_sensor_01": {
+"online": true,
+"zone": "FABLAB",
+"co_ppm": 0.47,
+"voc_index": 180,
+"chem_ppm": 0.0,
+"warming_up": false,
+"sensor_state": "OK",
+"confidence": 0.975,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"smoke_detector_01": {
+"online": true,
+"zone": "FABLAB",
+"smoke_detected": false,
+"obscuration_pct": 0.0,
+"alarm_state": "NORMAL",
+"false_alarm_suspected": false,
+"sensor_state": "OK",
+"confidence": 0.966,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"smoke_detector_02": {
+"online": true,
+"zone": "STORAGE",
+"smoke_detected": false,
+"obscuration_pct": 0.23,
+"alarm_state": "NORMAL",
+"false_alarm_suspected": false,
+"sensor_state": "OK",
+"confidence": 0.966,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"fume_extraction_01": {
+"online": true,
+"enabled": true,
+"power_w": 101.2,
+"fan_rpm": 2743,
+"airflow_pct": 98.9,
+"motor_state": "OK",
+"motor_temp_c": 56.0,
+"alarm": false,
+"alarm_code": null,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"weather_station_01": {
+"online": true,
+"temperature_c": 10.3,
+"humidity_pct": 66.4,
+"illuminance_lux": 90662,
+"wind_speed_ms": 6.6,
+"wind_direction_deg": 52,
+"wind_direction": "NE",
+"pressure_hpa": 1008.4,
+"precipitation_mm_h": 0.0,
+"data_available": true,
+"sensor_state": "OK",
+"confidence": 0.951,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"seysmo_01": {
+"online": true,
+"quake_detected": false,
+"epicenter_distance_km": null,
+"amplitude_mm_s": 0.04,
+"estimated_magnitude": null,
+"threshold_mm_s": 0.5,
+"sensor_state": "OK",
+"confidence": 0.977,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"water_pump_01": {
+"online": true,
+"flow_l_min": 0.0,
+"pressure_bar": 3.45,
+"duty_cycle_pct": 0.8,
+"source_level_pct": 85.0,
+"motor_current_a": 0.0,
+"power_w": 0.0,
+"motor_temp_c": 4.2,
+"state": "ON",
+"running": false,
+"power_limit_pct": 100.0,
+"alarm": false,
+"alarm_code": null,
+"delivered_l_min": 0.269,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"water_tank_01": {
+"online": true,
+"capacity_l": 2000.0,
+"volume_l": 1420.7,
+"level_pct": 71.0,
+"water_temp_c": 15.6,
+"state": "NORMAL",
+"sensor_state": "OK",
+"confidence": 0.985,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"water_filter_01": {
+"online": true,
+"turbidity_ntu": 0.26,
+"ph": 7.18,
+"tds_ppm": 169.0,
+"residual_chlorine_mg_l": 0.64,
+"pressure_drop_bar": 0.31,
+"active_filter": "MAIN",
+"wear_pct": {
+"MAIN": 38.02275,
+"RESERVE": 5.0
+},
+"filter_state": "OK",
+"hours_to_replacement": 938.2,
+"system_state": "NORMAL",
+"warning_active": false,
+"source_turbidity_ntu": 3.85,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"fire_suppression_01": {
+"online": true,
+"pressure_bar": 5.95,
+"valves": {
+"FABLAB": "CLOSED",
+"LIVING": "CLOSED",
+"STORAGE": "CLOSED",
+"POWER_ROOM": "CLOSED"
+},
+"ready": true,
+"false_trigger_count": 0,
+"state": "READY",
+"active_zone": null,
+"automation_blocked": false,
+"alarm": false,
+"fault_code": null,
+"discharge_l_min": 0.0,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"access_control_01": {
+"online": true,
+"doors": {
+"MAIN_AIRLOCK": {
+"state": "CLOSED",
+"locked": true,
+"lock_battery_pct": 78.58615
+},
+"FABLAB": {
+"state": "CLOSED",
+"locked": false,
+"lock_battery_pct": 87.38615
+},
+"STORAGE": {
+"state": "CLOSED",
+"locked": false,
+"lock_battery_pct": 71.48615
+},
+"SERVER_ROOM": {
+"state": "CLOSED",
+"locked": true,
+"lock_battery_pct": 75.28615
+}
+},
+"passage_events": [
+{
+"t_h": 80.42,
+"door": "STORAGE",
+"credential": "ENG-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 80.64,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 80.66,
+"door": "MAIN_AIRLOCK",
+"credential": "SCI-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 80.68,
+"door": "FABLAB",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 80.95,
+"door": "MAIN_AIRLOCK",
+"credential": "SCI-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 81.09,
+"door": "FABLAB",
+"credential": "MED-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 81.27,
+"door": "FABLAB",
+"credential": "SCI-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 81.63,
+"door": "STORAGE",
+"credential": "ENG-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 81.65,
+"door": "FABLAB",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 81.71,
+"door": "FABLAB",
+"credential": "OP-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 81.89,
+"door": "FABLAB",
+"credential": "SCI-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 81.98,
+"door": "MAIN_AIRLOCK",
+"credential": "ENG-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 82.0,
+"door": "FABLAB",
+"credential": "ENG-01",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 82.2,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.29,
+"door": "MAIN_AIRLOCK",
+"credential": "MED-01",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.29,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.43,
+"door": "MAIN_AIRLOCK",
+"credential": "SCI-02",
+"direction": "OUT",
+"result": "GRANTED"
+},
+{
+"t_h": 82.46,
+"door": "FABLAB",
+"credential": "SCI-02",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.51,
+"door": "FABLAB",
+"credential": "OP-03",
+"direction": "IN",
+"result": "GRANTED"
+},
+{
+"t_h": 82.8,
+"door": "MAIN_AIRLOCK",
+"credential": "OP-02",
+"direction": "IN",
+"result": "GRANTED"
+}
+],
+"system_state": "NORMAL",
+"alarm": false,
+"alarm_reason": null,
+"lockdown": false,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"radiation_sensor_01": {
+"online": true,
+"dose_rate_usv_h": 0.133,
+"counts_per_minute": 20,
+"event_type": "BACKGROUND",
+"alarm_state": "NORMAL",
+"warning_threshold": 0.3,
+"alarm_threshold": 1.0,
+"sensor_state": "OK",
+"confidence": 0.951,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"chem_sensor_01": {
+"online": true,
+"concentration_ppm": 0.0,
+"substance": "NONE",
+"alarm_state": "NORMAL",
+"warning_threshold": 5.0,
+"alarm_threshold": 20.0,
+"sensor_state": "OK",
+"confidence": 0.956,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"material_inventory_01": {
+"online": true,
+"filament_g": 745.0,
+"filament_pct": 74.5,
+"spool_capacity_g": 1000.0,
+"spare_spools": 3,
+"cnc_blanks_count": 30,
+"consumables_pct": 84.9,
+"low_stock_warnings": [],
+"sensor_state": "OK",
+"confidence": 0.967,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"equipment_cooling_01": {
+"online": true,
+"coolant_temp_c": 26.5,
+"coolant_flow_l_min": 4.12,
+"pump_power_w": 20.8,
+"heat_exchanger_temp_c": 23.7,
+"speed_pct": 70.0,
+"state": "ON",
+"alarm": false,
+"alarm_code": null,
+"bleeding": false,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"supply_ventilation_01": {
+"online": true,
+"airflow_m3_h": 304.1,
+"fresh_air_m3_h": 152.1,
+"supply_temp_c": 18.2,
+"supply_humidity_pct": 51.5,
+"filter_clog_pct": 12.0,
+"filter_state": "OK",
+"power_w": 28.3,
+"speed_pct": 55.0,
+"mode": "MIXED",
+"state": "ON",
+"alarm": false,
+"alarm_code": null,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"dome_sealing_01": {
+"online": true,
+"valve_positions_pct": [
+100.0,
+100.0,
+100.0,
+100.0
+],
+"valve_targets_pct": [
+100.0,
+100.0,
+100.0,
+100.0
+],
+"pressure_diff_pa": 0.7,
+"leak_rate_pct": 8.906,
+"leak_detected": false,
+"state": "OPEN",
+"sealed_zone": null,
+"seal_ready": true,
+"fault_code": null,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"climate_sensor_02": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 20.48,
+"humidity_pct": 49.9,
+"co2_ppm": 789,
+"dew_point_c": 9.67,
+"reading_delay_s": 900.0,
+"drift_temp_c": 1.099,
+"drift_humidity_pct": 1.33,
+"drift_co2_ppm": 22.2,
+"sensor_state": "OK",
+"confidence": 0.739,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"climate_sensor_03": {
+"online": true,
+"zone": "FABLAB",
+"temperature_c": 20.52,
+"humidity_pct": 51.4,
+"co2_ppm": 801,
+"dew_point_c": 10.15,
+"reading_delay_s": 1800.0,
+"drift_temp_c": 1.313,
+"drift_humidity_pct": 2.66,
+"drift_co2_ppm": 44.3,
+"sensor_state": "OK",
+"confidence": 0.692,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"radio_01": {
+"online": true,
+"frequency_mhz": 433.5,
+"protocol": "FSK",
+"bitrate_kbps": 4.51,
+"noise_level_dbm": -118.1,
+"snr_db": 14.7,
+"signal_quality_pct": 73.5,
+"reception": true,
+"state": "RECEIVING",
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"backup_comms_01": {
+"online": true,
+"active_channel": "SATELLITE",
+"protocol": "IRIDIUM_SBD",
+"traffic_priority": "NORMAL",
+"available": true,
+"latency_ms": 752.0,
+"signal_quality_pct": 94.3,
+"bitrate_kbps": 56.86,
+"state": "AVAILABLE",
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"edge_compute_01": {
+"online": true,
+"cpu_load_pct": 50.0,
+"gpu_load_pct": 51.8,
+"free_memory_pct": 57.8,
+"temperature_c": 61.5,
+"services": {
+"agent_runtime": "RUNNING",
+"telemetry_collector": "RUNNING",
+"vision_inference": "RUNNING",
+"api_gateway": "RUNNING"
+},
+"state": "ONLINE",
+"load_limit_pct": 100.0,
+"uptime_h": 0.0,
+"clock_offset_s": 0.0,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"network_link_01": {
+"online": true,
+"active_path": "MAIN",
+"link_state": "UP",
+"link_flaps": 0,
+"rx_power_dbm": -9.43,
+"reserve_link_state": "UP",
+"packet_loss_pct": 0.0,
+"panel_link_state": "UP",
+"patchcord_replacing": false,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"thermal_insulation_01": {
+"online": true,
+"fans_pwm": [
+128,
+128,
+128,
+128,
+128,
+128
+],
+"fans_rpm": [
+1496,
+1506,
+1518,
+1508,
+1507,
+1499
+],
+"doors": [
+"CLOSED",
+"CLOSED"
+],
+"temperature_c": [
+22.19,
+22.55,
+19.37
+],
+"pressure_pa": [
+100912.2,
+100911.1,
+100907.9
+],
+"humidity_pct": [
+41,
+42,
+47
+],
+"voc_index": [
+67,
+190
+],
+"dust_adc": 210,
+"dust_voltage_v": 1.026,
+"locks": [
+"LOCKED",
+"LOCKED"
+],
+"vacuum_on": false,
+"poll_interval_ms": 500,
+"crc_errors": 1725,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"thermal_insulation_02": {
+"online": true,
+"fans_pwm": [
+128,
+128
+],
+"fans_rpm": [
+1509,
+1513
+],
+"doors": [
+"CLOSED",
+"CLOSED"
+],
+"temperature_c": [
+19.92,
+19.42
+],
+"pressure_pa": [
+100910.4,
+100906.4
+],
+"humidity_pct": [
+60,
+47
+],
+"gas_adc": [
+142,
+121
+],
+"gas_voltage_v": [
+0.694,
+0.591
+],
+"lock": "LOCKED",
+"relay_fan_level": 0,
+"updated_at": 1791964380.0,
+"status": "OK"
+},
+"dome_automation_01": {
+"online": true,
+"mode": "AUTO",
+"interlocks": {
+"IL_CO2": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "CO₂ > 2000 ppm"
+},
+"IL_CONDENSATE": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 1,
+"reason": null,
+"title": "Конденсат: RH > 90 % или T − Tросы < 1 °C",
+"tripped_at_s": 153660.0,
+"paused": []
+},
+"IL_SMOKE": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Дым в зоне",
+"zones": {}
+},
+"IL_LOAD_SHED": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Сброс нагрузки: SOC < 25 % / автономность < 1 ч / дефицит"
+},
+"IL_STORM": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Штормовой режим: ветер > 20 м/с"
+},
+"IL_OVERVOLT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перенапряжение линии > 245 В",
+"lines_pending": {}
+},
+"IL_INV_OVERLOAD": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перегрузка инвертора (E07)"
+},
+"IL_HEAT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 0,
+"reason": null,
+"title": "Перегрев инвертора > 75 °C"
+},
+"IL_OVERCURRENT": {
+"state": "ARMED",
+"pending_s": 0.0,
+"blocked_remaining_s": 0.0,
+"trips": 2,
+"reason": null,
+"title": "Ток линии > 90 % уставки",
+"lines_pending": {},
+"shed_lines": [
+1
+],
+"tripped_at_s": 101520.0
+}
+},
+"data_trust": {},
+"events": [
+{
+"event_id": "AUT-0001",
+"t": 1791710784.0,
+"t_s": 1584.0,
+"interlock": "IL_OVERCURRENT",
+"type": "TRIP",
+"message": "Ток линии 1 выше 90 % уставки: линия отключена",
+"acknowledged": false,
+"line": 1
+},
+{
+"event_id": "AUT-0002",
+"t": 1791810720.0,
+"t_s": 101520.0,
+"interlock": "IL_OVERCURRENT",
+"type": "TRIP",
+"message": "Ток линии 1 выше 90 % уставки: линия отключена",
+"acknowledged": false,
+"line": 1
+},
+{
+"event_id": "AUT-0003",
+"t": 1791862860.0,
+"t_s": 153660.0,
+"interlock": "IL_CONDENSATE",
+"type": "TRIP",
+"message": "Риск конденсата (RH 99.0): ЧПУ на паузе",
+"acknowledged": false,
+"paused": []
+},
+{
+"event_id": "AUT-0004",
+"t": 1791863400.0,
+"t_s": 154200.0,
+"interlock": "IL_CONDENSATE",
+"type": "CLEAR",
+"message": "Условие снято, интерлок перевзведён",
+"acknowledged": false
+}
+],
+"primary_co2_sensor": "climate_sensor_01",
+"ventilation_auto": true,
+"diesel_autostart": true,
+"line_current_limits_a": {
+"1": 2.5
+},
+"autonomy_forecast_h": null,
+"updated_at": 1791964380.0,
+"status": "OK"
+}
+},
+"game_time": {
+"day": 3,
+"hour": 10.883333333333333
+}
+}
+}
+}

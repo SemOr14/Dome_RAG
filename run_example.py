@@ -11,7 +11,7 @@ import argparse
 import json
 import sys
 
-from agent import DomeLLMAgent, Settings
+from llm_agent import DomeLLMAgent, Settings
 
 TRIGGERS = {
     "co2_false_alarm": "IL_CO2 сработал, принтер и фрезер встали на удержание. Разберись и верни производство в работу.",
@@ -27,14 +27,19 @@ def main() -> int:
     p.add_argument("--trigger", help="повод для анализа (по умолчанию — из сценария)")
     p.add_argument("--dry-run", action="store_true", help="только собрать и показать промпт")
     p.add_argument("--model", help="переопределить LLM_MODEL")
+    p.add_argument("--source", choices=["auto", "files", "data-api"], default="auto",
+                   help="откуда данные: файлы data/ или сервис БД (auto — БД, если задан DATA_API_URL)")
     p.add_argument("--record", action="store_true", help="дописать решение в журнал решений")
     args = p.parse_args()
 
     settings = Settings.from_env()
     if args.model:
         settings.model = args.model
-    snapshot = settings.data_dir / "samples" / "scenarios" / f"{args.scenario}.json"
-    agent = DomeLLMAgent.from_files(settings, snapshot_file=snapshot)
+    if args.source == "data-api" or (args.source == "auto" and settings.data_api_url):
+        agent = DomeLLMAgent.from_data_api(settings)
+    else:
+        snapshot = settings.data_dir / "samples" / "scenarios" / f"{args.scenario}.json"
+        agent = DomeLLMAgent.from_files(settings, snapshot_file=snapshot)
     trigger = args.trigger or TRIGGERS[args.scenario]
 
     prompt = agent.build_prompt(trigger)

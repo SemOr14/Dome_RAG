@@ -1,0 +1,442 @@
+# Конфигурация Штаба «Купол».
+#
+# ВСЁ, что утром придётся менять под реальный Комплекс, находится здесь.
+# Значения ниже — ASSUMPTION (выдуманы для симулятора), см. docs/ASSUMPTIONS.md.
+# Конфиг проверяется при старте (pydantic): ошибка остановит запуск ДО начала игры.
+# Имена полей телеметрии — «плоские» (Telemetry.flat): co2_ppm.<датчик>, lines.<линия>.power_w.
+# ВНИМАНИЕ (YAML 1.1): слова off/on/yes/no без кавычек читаются как true/false.
+# Режим «off» всегда пишите в кавычках: "off".
+
+game:
+  duration_min: 90          # контрольное время игры (регламент п. 6.6, уточняется перед стартом)
+  tick_s: 1.0               # период опроса телеметрии, с
+  history_minutes: 15       # глубина истории в памяти (State)
+  alert_dedup_s: 60         # повтор одной и той же тревоги не чаще, с
+
+# ---------------------------------------------------------------------------
+# Пороги детекторов по полям. Ключ — имя поля или шаблон (co2_ppm.*).
+# warn_*/crit_*  — пороги (тревога warning/critical);
+# max_jump / max_jump_rel — скачок между соседними снимками (абсолютный / в долях);
+# trend_window_min + max_slope_per_min — тренд (скрытый дрейф), ед./мин;
+# freeze_s — «замерзание»: значение не менялось дольше N секунд
+# (freeze_ignore_ge — не считать замерзанием значения не ниже порога, напр. SoC=100%).
+# Реальные датчики могут быть квантованы (значение меняется редко): freeze_s
+# УТРОМ подобрать по реальным данным, иначе будут ложные тревоги.
+# ---------------------------------------------------------------------------
+thresholds:
+  battery_soc_pct:
+    warn_low: 35
+    crit_low: 25
+    max_jump: 5
+    freeze_s: 600
+    freeze_ignore_ge: 99.5     # полный заряд законно держится неизменным
+  battery_voltage_v:
+    warn_low: 46.5
+    crit_low: 45.5
+    max_jump: 2.0
+    freeze_s: 180
+  battery_temp_c:
+    warn_high: 40
+    crit_high: 55
+    max_jump: 5
+    trend_window_min: 5
+    max_slope_per_min: 0.25
+    freeze_s: 240
+  pv_power_w:
+    max_jump_rel: 0.4
+    rel_floor: 100
+    freeze_s: 120
+  load_total_w:
+    max_jump: 1200
+    freeze_s: 120
+  temp_c:
+    warn_high: 28
+    crit_high: 33
+    warn_low: 15
+    crit_low: 10
+    max_jump: 3
+    trend_window_min: 3
+    max_slope_per_min: 0.6
+    freeze_s: 180
+  humidity_pct:
+    warn_low: 30
+    crit_low: 20
+    warn_high: 70
+    crit_high: 80
+    max_jump: 10
+    freeze_s: 180
+  temp_c_2:
+    warn_high: 28
+    crit_high: 33
+    warn_low: 15
+    crit_low: 10
+    max_jump: 3
+  "co2_ppm.*":
+    warn_high: 1000
+    crit_high: 2000
+    max_jump: 400
+    trend_window_min: 3
+    max_slope_per_min: 150
+    freeze_s: 120
+
+detectors:
+  stale_warn_s: 5           # возраст данных → warning
+  stale_crit_s: 15          # возраст данных → critical
+  comms_loss_s: 10          # без связи/свежих данных дольше → потеря связи
+  # --- расширенные детекторы (дополнение к ТЗ). Все значения — ASSUMPTION. ---
+  # CUSUM применяется ТОЛЬКО к разности пар датчиков и к невязке энергобаланса (в сигмах baseline).
+  # ASSUMPTION: порог 14σ (в образце ТЗ 5σ): при опросе 1 раз в секунду порог 5σ даёт десятки ложных срабатываний за игру.
+  cusum: { tolerance_sigma: 0.5, threshold_sigma: 14, outlier_sigma: 8 }
+  # Прогноз времени до критического порога: сам по себе поднимает реакцию не выше prepare.
+  time_to_threshold: { horizon_s: 900, min_r2: 0.7, window_min: 5, min_points: 60 }
+  # Разность пар одноимённых датчиков. Поля — плоские имена телеметрии.
+  # max_abs_diff — жёсткий предел (действует всегда, и пока baseline не набран).
+  pair_diff:
+    groups:
+      - [co2_ppm.co2_a, co2_ppm.co2_b, co2_ppm.co2_c]
+      - [temp_c, temp_c_2]
+    corridor_k: 4
+    max_abs_diff: { co2_ppm: 150, temp_c: 2.0 }
+    max_diff_slope_per_min: { co2_ppm: 20, temp_c: 0.2 }
+    slope_window_min: 3
+    confirm_ticks: 3          # нарушение должно держаться столько тактов подряд
+  # Потеря шума: σ окна ниже доли baseline-шума. Рост шума аномалией не считается.
+  noise_loss: { min_noise_ratio: 0.1, window_s: 60 }
+  # Залипание: значение не меняется (размах ≤ freeze_flat_ratio·σ) дольше N секунд. Ключ — поле или группа.
+  freeze_s: { co2_ppm: 60, temp_c: 120, temp_c_2: 120, humidity_pct: 120 }
+  freeze_flat_ratio: 0.5
+  # Физический предел скорости изменения (единиц в секунду). Быстрее — проблема датчика/канала, не среды.
+  max_rate_per_s: { co2_ppm: 40, temp_c: 0.3, temp_c_2: 0.3, humidity_pct: 2.0, battery_soc_pct: 0.3, battery_temp_c: 0.5, battery_voltage_v: 1.0 }
+  rate_noise_k: 3           # допуск на шум датчика при оценке скорости: + k·√2·σ
+  ts_bad_ticks: 3           # подряд плохих меток времени (откат/повтор) → тревога
+
+# ---------------------------------------------------------------------------
+# Энергосистема.
+# ---------------------------------------------------------------------------
+energy:
+  battery_capacity_wh: 4000   # ёмкость АКБ, Вт·ч
+  soc_min_pct: 20             # минимальный допустимый заряд
+  inverter_limit_w: 3000      # предел инвертора, Вт
+  t_left_warn_min: 30         # запас времени до soc_min → warning
+  t_left_crit_min: 12         # запас времени до soc_min → critical
+  deficit_info_w: 400         # разряд АКБ мощнее этого → информационная тревога energy_deficit
+  start_margin: 1.15          # запас энергии при проверке «можно ли начать операцию»
+  eco_saving_fraction: 0.5    # ASSUMPTION: eco-режим экономит эту долю мощности освещения и розеток
+  charge_efficiency: 0.97     # ASSUMPTION: КПД заряда АКБ (для ожидаемой невязки баланса)
+  discharge_efficiency: 0.97  # ASSUMPTION: КПД разряда
+  balance_bias_w: 0           # ASSUMPTION: постоянное смещение баланса (собственное потребление BMS)
+  avg_window_s: 60            # окно усреднения P_pv и P_load для расчёта t_left
+
+# Мощности оборудования и привязка статусов устройств к линиям щита.
+equipment:
+  lines:
+    cnc:        { nominal_w: 600, description: "станок с ЧПУ" }
+    printer:    { nominal_w: 250, description: "3D-принтер" }
+    solder:     { nominal_w: 150, description: "паяльная станция" }
+    measuring:  { nominal_w: 50,  description: "измерительные приборы" }
+    vent:       { nominal_w: 180, description: "вытяжная вентиляция" }
+    humidifier: { nominal_w: 80,  description: "увлажнитель" }
+    lighting:   { nominal_w: 100, description: "освещение" }
+    aux:        { nominal_w: 80,  description: "вспомогательные розетки (некритичная нагрузка)" }
+  device_lines:
+    cnc_status: cnc
+    printer_status: printer
+    solder_status: solder
+  vent_power_w:       { "off": 0, low: 60, high: 180, auto: 60 }
+  humidifier_power_w: { "off": 0, low: 40, high: 80, auto: 40 }
+
+# ---------------------------------------------------------------------------
+# Технологическая карта изделия (печатная плата и корпус).
+# power_w — мощность этапа поверх базовой нагрузки; needs_vent — нужна вытяжка
+# (пайка: обязательно, регламент п. 9.1); interruptible — можно ли прерывать.
+# ---------------------------------------------------------------------------
+process:
+  vent_mode_for_vent_ops: low
+  operations:
+    - { name: "Фрезеровка платы",   duration_min: 12, power_w: 600, interruptible: false, needs_vent: false, device_line: cnc }
+    - { name: "Печать корпуса",     duration_min: 30, power_w: 250, interruptible: false, needs_vent: false, device_line: printer }
+    - { name: "Пайка компонентов",  duration_min: 15, power_w: 150, interruptible: true,  needs_vent: true,  device_line: solder, depends_on: ["Фрезеровка платы"] }
+    - { name: "Измерения и тесты",  duration_min: 10, power_w: 50,  interruptible: true,  needs_vent: false, device_line: measuring, depends_on: ["Пайка компонентов"] }
+    - { name: "Сборка в корпус",    duration_min: 8,  power_w: 0,   interruptible: true,  needs_vent: false, depends_on: ["Измерения и тесты", "Печать корпуса"] }
+
+# ---------------------------------------------------------------------------
+# Предохранитель команд (core/guard.py).
+# forbidden — подстроки (без регистра) в имени ИЛИ значениях аргументов команды:
+#   любая такая команда отклоняется ПЕРВОЙ проверкой (регламент п. 9.2, 12.1).
+# commands — белый список. class: auto — агент может сам; needs_human — только
+#   после подтверждения человека. Всё, что вне списка или диапазона, не уйдёт в адаптер.
+# verify — как убедиться, что команда подействовала (иначе тревога actuator_no_effect).
+# Имена команд и аргументов условны (ASSUMPTION): утром сверить с реальным API.
+# ---------------------------------------------------------------------------
+guard:
+  verify_timeout_s: 10
+  pending_ttl_s: 300
+  late_effect_window_s: 120      # запоздалый эффект (delayed_actuator) ещё засчитывается в течение этого времени
+  default_rate_limit: { max_commands: 3, window_s: 60 }
+  forbidden:
+    - interlock
+    - блокиров
+    - bypass
+    - override
+    - disable_safety
+    - safety_off
+    - estop
+    - emergency
+  commands:
+    # Вытяжку агент может только ВКЛЮЧИТЬ в щадящем режиме (безопасность: пайка требует вытяжки).
+    vent_enable:
+      class: auto
+      executor: vent
+      description: "включить вытяжку в режиме low/auto (не полная мощность)"
+      args:
+        mode: { type: enum, values: [low, auto] }
+      verify: { path: vent_mode, equals_arg: mode }
+      power_path: lines.vent.power_w
+    # Любой режим вытяжки, включая off и high, — только с подтверждением человека.
+    set_vent_mode:
+      class: needs_human
+      executor: vent
+      description: "установить любой режим вытяжки"
+      args:
+        mode: { type: enum, values: ["off", low, high, auto] }
+      verify: { path: vent_mode, equals_arg: mode }
+      power_path: lines.vent.power_w
+      costly: true              # вытяжка на максимум при нехватке энергии может вызвать каскад
+    set_humidifier_mode:
+      class: auto               # малорискованный режим: агент может сам
+      executor: humidifier
+      description: "режим увлажнителя"
+      args:
+        mode: { type: enum, values: ["off", low, high, auto] }
+      verify: { path: humidifier_mode, equals_arg: mode }
+      power_path: lines.humidifier.power_w
+    set_line:
+      class: needs_human        # отключение линий меняет нагрузку: решает человек
+      executor: "line:{line}"
+      description: "включить/отключить разрешённую линию щита"
+      args:
+        line: { type: enum, values: [lighting, aux] }
+        enabled: { type: bool }
+      verify: { path: "lines.{line}.on", equals_arg: enabled }
+      power_path: "lines.{line}.power_w"
+      costly: true              # отключение линий — дорогое действие (правило двух)
+    set_power_mode:
+      class: needs_human
+      executor: power
+      description: "режим энергосистемы eco/normal"
+      args:
+        mode: { type: enum, values: [eco, normal] }
+      verify: { path: power_mode, equals_arg: mode }
+
+# ---------------------------------------------------------------------------
+# Сверка источников (core/crosscheck.py).
+# ---------------------------------------------------------------------------
+crosscheck:
+  co2_sensor_max_diff_ppm: 300   # датчик CO2 отличается от остальных больше чем на это → подозрение
+  co2_false_jump_ppm: 1000       # скачок CO2 за один такт, типичный для ложного сигнала
+  co2_high_ppm: 1500             # «высокий» CO2 для контекстных правил (один датчик)
+  temp_normal_max_c: 30
+  humidity_normal_range: [25, 75]
+  balance_window_s: 120          # окно сверки баланса: d(E_акб)/dt против P_pv - P_load
+  balance_eps_w: 200             # допуск расхождения, Вт (реальный SoC шумнее: подбирать утром)
+  balance_confirm_s: 45          # расхождение должно держаться столько секунд
+  device_running_min_w: 30       # статус running при потреблении ниже этого → несоответствие
+  device_idle_max_w: 40          # статус idle при потреблении выше этого → несоответствие
+  device_confirm_s: 20
+  plan_vs_fact_min_ratio: 0.6    # running, а потребление ниже этой доли номинала → тихий брак
+  plan_vs_fact_confirm_s: 30
+  plan_vs_fact_ramp_s: 15        # после старта устройству даём выйти на режим
+  thermal_idle_slope_per_min: 0.15  # рост температуры при простое оборудования подозрителен
+  thermal_window_min: 3
+  co2_rise_ppm_per_min: 30       # согласованный рост на всех датчиках CO2 быстрее этого — реальный рост (раньше порога)
+  co2_rise_window_min: 2
+  cause_effect_window_s: 30      # ждём отклика в нескольких каналах после команды
+  cause_effect_min_delta_w: 20   # ожидаемое изменение мощности линии после команды
+  battery_temp_slope_per_kw: 0.3 # правдоподобный рост T АКБ, °C/мин на кВт тока; быстрее → дрейф датчика
+  pv_drop_ratio: 0.6             # генерация < 60% прежней — «падение»
+
+# ---------------------------------------------------------------------------
+# LLM. В игре только DeepSeek (регламент п. 10.6); допустимые модели — allowed_models.
+# mode: mock (офлайн-заглушки, ключ не нужен) | dev (реальная модель) | competition
+# (реальная модель + запрет любой другой модели). Ключ — в .env (DEEPSEEK_API_KEY).
+# ---------------------------------------------------------------------------
+llm:
+  mode: mock
+  model: deepseek-chat              # список моделей организаторов: deepseek-chat, deepseek-reasoner
+  allowed_models: [deepseek-chat, deepseek-reasoner, deepseek-v4-flash]
+  base_url: https://api.deepseek.com  # ASSUMPTION
+  api_key_env: DEEPSEEK_API_KEY
+  timeout_s: 20
+  temperature: 0.2
+  max_tokens: 900
+
+agents:
+  min_interval_s: 30                # не чаще вызывать LLM одним агентом
+  intervals: { diagnost: 90 }       # индивидуальные интервалы, с (перекрывают min_interval_s)
+  recommendation_ttl_s: 600
+  plan_interval_s: 300              # плановое обновление плана операций, если тревог нет
+  enabled: { monitor: true, diagnost: true, energy_planner: true }
+
+paths:
+  logs_dir: logs
+
+# ---------------------------------------------------------------------------
+# Параметры симулятора (на реальном Комплексе не используются).
+# ---------------------------------------------------------------------------
+simulator:
+  pv_peak_w: 2000
+  cloud_cover: 0.1
+  initial_soc_pct: 80
+  occupants: 1
+  actuator_delay_s: 3
+  actuator_fail_prob: 0.0
+
+# ---------------------------------------------------------------------------
+# Реальный адаптер (adapter/real.py). Все значения — ASSUMPTION, утром заменить
+# (см. docs/MORNING_CHECKLIST.md). Протокол может оказаться MQTT/WebSocket —
+# тогда меняется сам real.py, а этот раздел подгоняется под него.
+# ---------------------------------------------------------------------------
+real:
+  base_url: "http://kupol.local/api"
+  timeout_s: 3
+  retries: 2
+  telemetry_path: /telemetry
+  history_path: /history
+  command_path: /command
+  token_env: KUPOL_API_TOKEN
+
+# ---------------------------------------------------------------------------
+# Калибровка на начальном отрезке игры. Калибруются ТОЛЬКО величины, не зависящие от режима
+# оборудования: шум датчика, разность пары датчиков, шум невязки энергобаланса.
+# Абсолютные уровни и пороги CO2/температуры/влажности/мощности НЕ калибруются.
+# ---------------------------------------------------------------------------
+baseline:
+  window_s: 300             # начальный отрезок (п. 6.5 регламента фиксирует исходное состояние)
+  update_rate: 0.01         # скользящее обновление оценок (только вне тревог)
+  subwindow_s: 30           # подокно: шум считается после вычитания линейного тренда
+  residual_window_s: 60     # окно невязки энергобаланса
+  balance_sigma_floor_w: 25 # σ невязки не опускается ниже (иначе CUSUM слишком чувствителен)
+  min_subwindows: 3
+  sigma_safety: 1.25        # запас на оценку σ невязки по малой выборке (меньше ложных срабатываний CUSUM)
+  min_residuals: 3
+  outlier_ratio: 3          # при обновлении отбрасываются оценки шума, отличающиеся более чем в 3 раза
+  noise_fields: ["co2_ppm.*", temp_c, temp_c_2, humidity_pct, battery_temp_c, battery_voltage_v]
+
+# ---------------------------------------------------------------------------
+# Вердикты: накопление свидетельств. p(real) = 1/(1+exp(-(bias + scale·Σ ±w·затухание))).
+# ---------------------------------------------------------------------------
+verdicts:
+  recheck_after_s: 60       # автоматическая перепроверка вердикта
+  watch_after_false_s: 300  # вердикт «ложный» остаётся под наблюдением ещё столько секунд
+  aggregation: { bias: 0.0, scale: 2.5 }   # ASSUMPTION: scale 2.5 (в образце ТЗ 1.0): одного сильного свидетельства хватает на ~0.9
+  real_above: 0.6
+  false_below: 0.4
+  evidence_half_life_s: 180 # старые свидетельства теряют вес (иначе «ложный» не пересмотреть)
+  max_confidence: 0.99      # потолок уверенности
+  weights:                  # вес свидетельства по правилу (ASSUMPTION)
+    co2_outlier: 0.9
+    co2_single_context: 0.6
+    co2_pair_disagreement: 0.2
+    co2_consensus_high: 0.8
+    co2_consensus_rise: 0.6
+    energy_balance: 0.6
+    battery_temp_plausibility: 0.7
+    device_status_vs_power: 0.5
+    pv_drop: 0.8
+    rate_limit: 0.7
+    pair_diff: 0.6
+    cusum: 0.6
+    noise_loss: 0.6
+    freeze: 0.6
+    time_monotonic: 0.7
+    thermal_balance: 0.6
+    plan_vs_fact: 0.7
+    cause_effect: 0.7
+    context_work: 0.2       # контекст работ: лишь чуть повышает «реальный», тревогу не заглушает
+    probe: 0.8
+    operator: 0.9
+    video: 0.8
+
+# ---------------------------------------------------------------------------
+# Политика реакции (core/response.py) и защита от каскада (core/guard.py).
+# ---------------------------------------------------------------------------
+response:
+  prepare_confidence: 0.5
+  reversible_confidence: 0.75
+  full_confidence: 0.9
+  min_sources_full: 2
+  require_two_sources_for: [costly]      # правило двух
+  safety_override_events: [smoke, solder_overheat, operator_stop]
+  cascade_min_t_left_min: 20             # после дорогого действия запас энергии не должен быть меньше
+  max_level_by_alert: { info: observe, warning: act_reversible, critical: act_full }
+
+# ---------------------------------------------------------------------------
+# Безопасные пробы (core/probes.py). Любая проба с командой идёт через Guard.
+# ---------------------------------------------------------------------------
+probes:
+  max_per_10min: 3
+  energy_budget_wh: 5
+  min_gap_s: 60
+  catalog:
+    - id: recheck_neighbor
+      description: "Запросить повторное измерение у соседних датчиков той же величины"
+      cost_wh: 0
+      cost_s: 5
+      risk: none
+      duration_s: 5
+      applies_to: ["co2_ppm.*", "temp_c", "temp_c_2"]
+      evaluator: neighbors_agree
+      info_gain: 0.5
+      expected_if_real: "соседние датчики показывают то же направление и значение"
+      expected_if_false: "соседние датчики остаются в норме, расходится только один"
+    - id: vent_min_30s
+      description: "Включить вытяжку на минимальный режим на 30 с и сравнить отклик датчиков CO2"
+      cost_wh: 0.5
+      cost_s: 30
+      risk: low
+      duration_s: 30
+      applies_to: ["co2_ppm.*"]
+      evaluator: vent_response
+      info_gain: 0.7
+      command: { name: vent_enable, args: { mode: low } }
+      expected_if_real: "CO2 на всех датчиках снижается или перестаёт расти"
+      expected_if_false: "подозрительный датчик не реагирует, остальные не меняются"
+    - id: operator_check_indicator
+      description: "Попросить Оператора посмотреть на индикатор или показание прибора"
+      cost_wh: 0
+      cost_s: 60
+      risk: none
+      duration_s: 60
+      applies_to: ["*"]
+      evaluator: operator_report
+      info_gain: 0.9
+      human_action: "Проверьте индикатор/прибор и сообщите значение"
+      expected_if_real: "Оператор подтверждает показание"
+      expected_if_false: "Оператор видит нормальное значение"
+    - id: video_check
+      description: "Сверить видео: виден ли признак события (дым, брак, индикатор)"
+      cost_wh: 0
+      cost_s: 30
+      risk: none
+      duration_s: 30
+      applies_to: ["lines.*", "*_status"]
+      evaluator: operator_report
+      info_gain: 0.8
+      human_action: "Посмотрите видео по участку и сообщите, виден ли признак события"
+      expected_if_real: "на видео виден признак события"
+      expected_if_false: "на видео всё в норме"
+
+# ---------------------------------------------------------------------------
+# «Обход»: чек-лист сверки пар источников по таймеру (панель Штаба).
+# ---------------------------------------------------------------------------
+round:
+  interval_s: 420
+  pairs:
+    - [co2_ppm.co2_a, co2_ppm.co2_b]
+    - [temp_c, temp_c_2]
+    - [energy_balance]
+    - [cnc_status, cnc_power]
+    - [printer_status, printer_power]
+
+quality:
+  max_quiet_warnings_per_hour: 1     # допустимая частота ложных warning на сценарии quiet
