@@ -6,8 +6,8 @@
   "datasets": {
     "design_cases": {
       "cases": 31,
-      "hit_rate_at_5": 0.967741935483871,
-      "mean_reciprocal_rank": 0.967741935483871,
+      "hit_rate_at_5": 1.0,
+      "mean_reciprocal_rank": 1.0,
       "cases_detail": [
         {
           "id": "E01",
@@ -67,7 +67,7 @@
             "F30",
             "F17",
             "F16",
-            "S07"
+            "S06"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -80,6 +80,7 @@
           ],
           "retrieved_ids": [
             "S05",
+            "F03",
             "F28",
             "F19"
           ],
@@ -176,8 +177,8 @@
             "S11",
             "F12",
             "F13",
-            "F05",
-            "S18"
+            "S18",
+            "F24"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -269,7 +270,7 @@
             "F31",
             "F19",
             "F17",
-            "F07"
+            "F03"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -283,9 +284,9 @@
           "retrieved_ids": [
             "S18",
             "S09",
-            "F05",
             "S11",
-            "F24"
+            "F24",
+            "F03"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -331,9 +332,9 @@
           "retrieved_ids": [
             "S21",
             "F03",
+            "F05",
             "F18",
-            "F15",
-            "F05"
+            "F15"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -472,9 +473,8 @@
           "retrieved_ids": [
             "F09",
             "F08",
-            "F22",
             "F05",
-            "S23"
+            "S08"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -486,21 +486,21 @@
             "F03"
           ],
           "retrieved_ids": [
-            "F21",
+            "F03",
             "F24",
             "S05",
             "S09",
-            "F22"
+            "S21"
           ],
-          "hit_at_5": false,
-          "reciprocal_rank": 0
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
         }
       ]
     },
     "paraphrases": {
       "cases": 20,
-      "hit_rate_at_5": 0.9,
-      "mean_reciprocal_rank": 0.7541666666666667,
+      "hit_rate_at_5": 1.0,
+      "mean_reciprocal_rank": 0.8541666666666666,
       "cases_detail": [
         {
           "id": "P01",
@@ -590,14 +590,14 @@
             "S06"
           ],
           "retrieved_ids": [
+            "S06",
             "S16",
             "F32",
             "S15",
-            "S07",
-            "S04"
+            "S07"
           ],
-          "hit_at_5": false,
-          "reciprocal_rank": 0
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
         },
         {
           "id": "P07",
@@ -624,14 +624,14 @@
             "S09"
           ],
           "retrieved_ids": [
-            "F03",
+            "S09",
             "S22",
-            "S18",
-            "F24",
-            "S17"
+            "F03",
+            "F04",
+            "S18"
           ],
-          "hit_at_5": false,
-          "reciprocal_rank": 0
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
         },
         {
           "id": "P09",
@@ -660,8 +660,8 @@
           ],
           "retrieved_ids": [
             "F13",
-            "F05",
             "S11",
+            "F05",
             "S18",
             "F12"
           ],
@@ -759,7 +759,7 @@
             "S09",
             "S21",
             "F20",
-            "F09"
+            "F23"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -806,8 +806,8 @@
             "F29",
             "S22",
             "F31",
-            "F27",
-            "F01"
+            "F05",
+            "F27"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -824,7 +824,7 @@
             "F19",
             "S17",
             "F07",
-            "F18"
+            "F21"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 0.5

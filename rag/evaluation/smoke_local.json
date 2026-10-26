@@ -109,7 +109,7 @@
   "summary": "Сверить state, real_state, progress_pct, изменение z_mm, актуальность данных и физические сведения при необходимости. Один webhook не подтверждает завершение: 14 октября была продолжающаяся печать при webhook COMPLETED.",
   "context_budget": {
     "max_chars": 30000,
-    "used_chars": 8205,
+    "used_chars": 8226,
     "unit": "characters_not_tokens"
   },
   "semantic": {
