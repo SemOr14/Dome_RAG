@@ -13,6 +13,8 @@
 from __future__ import annotations
 
 import time
+import asyncio
+from uuid import uuid4
 from collections import deque
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
@@ -20,7 +22,8 @@ from typing import Any, Literal
 
 from kupol.dome.agentlog import AgentLog
 from kupol.dome.catalog import Catalog
-from kupol.dome.client import DomeError
+from kupol.dome.client import DomeError, PolicyRejected
+from kupol.dome.control import SEND_GUARD, COMMAND_ACTOR
 from kupol.dome.config import DomeConfig
 from kupol.dome.evidence import finite_number, measurement_usable
 from kupol.dome.state import DomeState
@@ -31,7 +34,7 @@ MACHINES = ("printer_3d_01", "cnc_01")
 LINE_ACTIONS = ("line_on", "line_off")
 CLIMATE_PARAMS = ("co2_ppm", "humidity_pct", "dew_point_c", "temperature_c")
 
-GateStatus = Literal["sent", "dry_run", "rejected", "failed"]
+GateStatus = Literal["sent", "dry_run", "rejected", "failed", "ambiguous"]
 SendFn = Callable[[str, str, Any], Awaitable[dict[str, Any]]]
 
 
@@ -75,7 +78,10 @@ class Cmd:
     reason: str = ""
     ref: int | None = None  # seq записи decision
     expect: Expect | None = None
-    confirmed: bool = False  # человек подтвердил ручную команду: только роль и каталог, без политики и защитных правил
+    confirmed: bool = False  # подтверждение не отменяет ни одной проверки
+    actor: str = 'algorithm'
+    policy_epoch: int | None = None
+    operation_id: str | None = None
 
     @property
     def key(self) -> str:
@@ -205,6 +211,8 @@ class Gate:
         self._clock = clock
         self.agent_name = agent_name
         self.pending: list[Pending] = []
+        self.policy = None
+        self._dispatch_locks: dict[str, asyncio.Lock] = {}
         self.max_telemetry_age_s: float | None = None  # команды не отправляем, если телеметрия старше (None — не проверять)
         self._line_switches: dict[int, deque[float]] = {}
         self._chat_times: deque[float] = deque()
@@ -262,6 +270,14 @@ class Gate:
         return self._resume_attempts.get(f"{node_id}:{reason}", 0)
 
     async def submit(self, cmd: Cmd) -> GateResult:
+        if self.policy is not None and cmd.policy_epoch is None:
+            cmd.policy_epoch = self.policy.policy_epoch
+        cmd.operation_id = cmd.operation_id or str(uuid4())
+        lock = self._dispatch_locks.setdefault(cmd.node_id, asyncio.Lock())
+        async with lock:
+            return await self._submit(cmd)
+
+    async def _submit(self, cmd: Cmd) -> GateResult:
         """Проверить и (если разрешено) отправить команду."""
         canonical = self._catalog().resolve(cmd.node_id, cmd.action)
         if canonical is not None:
@@ -291,7 +307,16 @@ class Gate:
             self.pending = [p for p in self.pending if p.action_seq != seq]
             return self._reject(cmd, "не удалось сохранить намерение: управление приостановлено")
         try:
-            response = await self._send(cmd.node_id, canonical, cmd.value)
+            guard_token = SEND_GUARD.set(lambda: self._transport_reason(cmd))
+            actor_token = COMMAND_ACTOR.set(cmd.actor)
+            try:
+                response = await self._send(cmd.node_id, canonical, cmd.value)
+            finally:
+                SEND_GUARD.reset(guard_token)
+                COMMAND_ACTOR.reset(actor_token)
+        except PolicyRejected as exc:
+            self.pending = [p for p in self.pending if p.cmd is not cmd]
+            return self._reject(cmd, str(exc))
         except DomeError as exc:
             self.stats["failed"] += 1
             seq = self._log.write("action", ref=cmd.ref, request=request, response={"success": False, "error": str(exc)}, reason=cmd.reason)
@@ -300,7 +325,7 @@ class Gate:
             for p in self.pending:
                 if p.cmd is cmd:
                     p.action_seq = seq
-            return GateResult("failed", str(exc), None, seq)
+            return GateResult("ambiguous", str(exc), None, seq)
         ok = bool(response.get("success"))
         seq = self._log.write(
             "action", ref=cmd.ref, request=request,
@@ -372,11 +397,15 @@ class Gate:
         return req
 
     def _reject_reason(self, cmd: Cmd) -> str | None:
+        if self.policy is not None:
+            bad = self.policy.reject(cmd.actor, cmd.policy_epoch, cmd.node_id, cmd.action)
+            if bad:
+                return bad
         if cmd.ref is None:
             return "команда без решения (нет ref на decision)"
         if self._state.role != "team":
             return f"роль соединения '{self._state.role}': управление недоступно"
-        if not cmd.confirmed and self.max_telemetry_age_s is not None and self._state.wall and self._clock() - self._state.wall > self.max_telemetry_age_s:
+        if self.max_telemetry_age_s is not None and (not self._state.wall or self._clock() - self._state.wall > self.max_telemetry_age_s):
             return f"телеметрия устарела (> {self.max_telemetry_age_s:g} с): решаем по неизвестному состоянию нельзя"
         catalog = self._catalog()
         if not catalog:
@@ -386,8 +415,6 @@ class Gate:
             if catalog.is_operator_only(cmd.node_id, cmd.action):
                 return "физическое действие Оператора: агент может только попросить"
             return f"действие '{cmd.action}' недоступно узлу {cmd.node_id} по describe_nodes"
-        if cmd.confirmed:
-            return None  # ответственность за команду на человеке, подтвердившем её в панели
         allowed = self._cfg.policy.allowed
         spec = (allowed.get(cmd.node_id) or {}).get(canonical)
         if spec is None:
@@ -410,6 +437,18 @@ class Gate:
             if bad:
                 return bad
         return self._state_reason(cmd, canonical)
+
+    def _transport_reason(self, cmd: Cmd) -> str | None:
+        """Recheck after limiter wait, immediately before writing to the socket."""
+        if self.policy is not None:
+            bad = self.policy.reject(cmd.actor, cmd.policy_epoch, cmd.node_id, cmd.action)
+            if bad:
+                return bad
+        if self._state.role != 'team' or self._catalog().resolve(cmd.node_id, cmd.action) is None:
+            return 'Права или каталог изменились перед отправкой'
+        if self.max_telemetry_age_s is not None and (not self._state.wall or self._clock() - self._state.wall > self.max_telemetry_age_s):
+            return 'Телеметрия устарела перед отправкой'
+        return self._state_reason(cmd, cmd.action)
 
     def _chat_reason(self, cmd: Cmd) -> str | None:
         value = cmd.value if isinstance(cmd.value, dict) else {}

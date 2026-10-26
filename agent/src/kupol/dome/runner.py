@@ -24,6 +24,7 @@ from kupol.dome.catalog import Catalog
 from kupol.dome.checks import assess_co2, assess_energy, assess_printer
 from kupol.dome.client import DomeClient
 from kupol.dome.config import DomeConfig
+from kupol.dome.control import ControlPolicy
 from kupol.dome.datalog import DataApiRecorder
 from kupol.dome.env import Settings
 from kupol.dome.expects import expect_for
@@ -113,6 +114,7 @@ class Runner:
         clock: Callable[[], float] = time.time,
         recorder: DataApiRecorder | None = None,
         brain: LlmBrain | Callable[[Runner], LlmBrain] | None = None,  # None — только плейбуки
+        policy: ControlPolicy | None = None,
     ) -> None:
         self.settings = settings
         self.cfg = cfg
@@ -136,7 +138,8 @@ class Runner:
         if brain is not None and not hasattr(brain, "step"):
             brain = brain(self)  # фабрике нужны состояние, клиент и рекордер этого рантайма
         self.brain = brain
-        self.llm_enabled = True  # панель может временно отдать решения плейбукам
+        self.policy = policy or ControlPolicy.from_env()
+        self.client.policy = self.policy
         self.manual = ManualControls(recorder) if recorder is not None else None  # команды Оператора из БД
         self._manual_task: asyncio.Task[Any] | None = None
         self.manual_done: set[str] = set()  # исполненные намерения: прямой вызов и опрос очереди не дублируют команду
@@ -150,6 +153,7 @@ class Runner:
             can_control=settings.can_control, dry_run=settings.dry_run, clock=clock, agent_name=AGENT_NAME,
         )  # fmt: skip
         self.gate.max_telemetry_age_s = STALE_TELEMETRY_S
+        self.gate.policy = self.policy
         self.playbooks = playbooks if playbooks is not None else default_playbooks()
         self.mem: dict[str, dict[str, Any]] = {pb.name: {} for pb in self.playbooks}
         self.last_decision: dict[str, float] = {}
@@ -169,6 +173,23 @@ class Runner:
         self.gate.checkpoint = lambda: (not self.recorder or not self.recorder.storage_error) and self._save_state(force=True)
 
     # ------------------------------------------------------------------ жизненный цикл
+
+    @property
+    def llm_enabled(self):
+        return self.policy.agent_mode != 'off'
+
+    @llm_enabled.setter
+    def llm_enabled(self, enabled):
+        self.set_mode('autonomous' if enabled else 'off', True)
+
+    def set_mode(self, mode, algorithms):
+        self.policy.change(mode, algorithms)
+        self._plans.clear()
+        if self.brain is not None and self.brain.task is not None:
+            self.brain.task.cancel()
+            self.brain.dispatcher.busy = False
+            self.brain.dispatcher.pending.clear()
+        return self.policy.public()
 
     def stop(self) -> None:
         """Остановить цикл после текущего такта."""
@@ -252,7 +273,7 @@ class Runner:
             if plan is None:
                 continue
             intent, decision, remaining, session = plan
-            if pending.verified and session == self.client.session_id and self.state.role == "team":
+            if pending.verified and session == self.client.session_id and self.state.role == "team" and self.policy.algorithms_enabled:
                 await self._advance_plan(intent, decision, remaining)
             else:
                 self.log.write("observation", ref=decision, summary="план прерван; требуется новое решение",
@@ -265,7 +286,7 @@ class Runner:
         if self.state.role == "team" and use_llm:
             assert self.brain is not None
             self.brain.step(chat_new, lambda intent: self.execute(intent, self.clock()))
-        elif self.state.role == "team":
+        elif self.state.role == "team" and self.policy.algorithms_enabled:
             if self.brain is not None:
                 self.brain.mark_seen(chat_new + list(self.state.get("meeting_01.recent_messages", []) or []))
             for pb in self.playbooks:
@@ -277,7 +298,7 @@ class Runner:
         intents.sort(key=lambda i: i.priority)
         for intent in intents:
             await self.execute(intent, now)
-        if not use_llm:  # модель-основа сама разбирает непокрытые ситуации
+        if not use_llm and self.llm_enabled:  # модель-основа сама разбирает непокрытые ситуации
             self._diagnose_uncovered(now)
         self._observe(now)
         self._save_state()
@@ -347,6 +368,13 @@ class Runner:
 
     async def execute(self, intent: Intent, now: float) -> None:
         """Записать решение, выполнить шаги через Gate, при успехе — сообщить Оператору."""
+        actor = 'agent' if intent.source in ('llm', 'mixed') else 'algorithm'
+        epoch = self.policy.policy_epoch
+        if self.policy.reject(actor, epoch, '', ''):
+            if actor == 'agent' and self.policy.agent_mode == 'recommendation':
+                self.log.write('decision', situation=intent.situation, cause=intent.cause, evidence=intent.evidence,
+                               source='llm', plan=intent.plan, proposed_only=True, policy_epoch=epoch)
+            return
         cooldown = self.cfg.runtime.decision_cooldown_s if intent.cooldown_s is None else intent.cooldown_s
         last = self.last_decision.get(intent.key)
         if last is not None and now - last < cooldown:
@@ -371,7 +399,8 @@ class Runner:
         """Advance only after a verified effect. Every next command re-enters Gate."""
         results: list[GateResult] = []
         for index, step in enumerate(steps):
-            results.append(await self.gate.submit(Cmd(step.node, step.action, step.value, step.reason or intent.cause, decision, step.expect)))
+            results.append(await self.gate.submit(Cmd(step.node, step.action, step.value, step.reason or intent.cause, decision, step.expect,
+                actor='agent' if intent.source in ('llm', 'mixed') else 'algorithm', policy_epoch=self.policy.policy_epoch)))
             if not results[-1].ok or (results[-1].status == "sent" and step.expect is not None):
                 # A plan is a hypothesis. Re-plan from fresh telemetry after each effect;
                 # never execute its dependent tail after rejection or just an ACK.
@@ -441,8 +470,9 @@ class Runner:
             plan=[f"{label} через Gate" + (" (подтверждено человеком)" if meta.get("confirmed") is True else "")], source="operator", priority=1, intent_event_id=ev["event_id"], operator=meta.get("operator"),
         )  # fmt: skip
         confirmed = meta.get("confirmed") is True
-        reason = "ручная команда Оператора" + (" (подтверждена: без политики агента и защитных правил Gate)" if confirmed else "")
-        res = await self.gate.submit(Cmd(node, action, value, reason, decision, expect_for(node, action, value), confirmed=confirmed))
+        reason = 'ручная команда Оператора; все проверки Gate сохраняются'
+        res = await self.gate.submit(Cmd(node, action, value, reason, decision, expect_for(node, action, value), confirmed=confirmed,
+            actor='operator', policy_epoch=meta.get('policy_epoch', -1), operation_id=ev['event_id']))
         self._dispatch_event(item, res.status, res.reason, decision=decision, result=res)
         return res
 
