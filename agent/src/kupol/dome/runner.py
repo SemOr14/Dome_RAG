@@ -130,8 +130,10 @@ class Runner:
         if brain is not None and not hasattr(brain, "step"):
             brain = brain(self)  # фабрике нужны состояние, клиент и рекордер этого рантайма
         self.brain = brain
+        self.llm_enabled = True  # панель может временно отдать решения плейбукам
         self.manual = ManualControls(recorder) if recorder is not None else None  # команды Оператора из БД
         self._manual_task: asyncio.Task[Any] | None = None
+        self.manual_done: set[str] = set()  # исполненные намерения: прямой вызов и опрос очереди не дублируют команду
         if brain is not None:
             db_sink = log.sink
             log.sink = lambda kind, rec: (db_sink and db_sink(kind, rec), brain.on_log(kind, rec))  # журнал для промпта
@@ -239,7 +241,7 @@ class Runner:
         self.gate.check_pending()
         await self._manual_step()  # ручные команды Оператора — раньше автоматических решений
         intents: list[Intent] = []
-        use_llm = self.brain is not None and self.brain.healthy
+        use_llm = self.brain is not None and self.llm_enabled and self.brain.healthy
         if self.state.role == "team" and use_llm:
             assert self.brain is not None
             self.brain.step(chat_new, lambda intent: self.execute(intent, self.clock()))
@@ -376,13 +378,20 @@ class Runner:
             for item in stale:
                 self._dispatch_event(item, "skipped", f"команда старше {self.manual.max_age_s:.0f} с: состояние могло измениться, не исполнена")
             for item in fresh:
-                await self.manual_command(item)
+                if item["event"]["event_id"] not in self.manual_done:
+                    await self.manual_command(item)
         if self._manual_task is None:
             self._manual_task = asyncio.create_task(asyncio.to_thread(self.manual.poll))
 
-    async def manual_command(self, item: dict[str, Any]) -> GateResult:
-        """Ручная команда Оператора: решение ``source=operator`` → Gate (те же правила) → Купол → проверка эффекта."""
+    async def manual_command(self, item: dict[str, Any]) -> GateResult | None:
+        """Ручная команда Оператора: решение ``source=operator`` → Gate (те же правила) → Купол → проверка эффекта.
+
+        LLM не участвует. Вызывается из опроса очереди или напрямую панелью; повторно намерение не исполняется (``None``).
+        """
         ev = item["event"]
+        if ev["event_id"] in self.manual_done:
+            return None
+        self.manual_done.add(ev["event_id"])
         p, meta = ev["payload"], ev.get("metadata") or {}
         node, action, value = str(p.get("node_id")), str(p.get("action")), p.get("value")
         label = f"{node}.{action}" + (f"({json.dumps(value, ensure_ascii=False, default=str)})" if value is not None else "")

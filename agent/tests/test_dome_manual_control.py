@@ -96,4 +96,9 @@ def test_operator_command_goes_through_gate_to_dome(tmp_path: Path) -> None:
                 ver = [v for v in h.records("verification") if v["expected"].startswith("dome_automation_01.primary_co2_sensor")]
                 assert ver and ver[0]["ok"]
 
+                # Прямой вызов (панель) после опроса очереди не исполняет намерение повторно
+                assert h.runner is not None
+                assert await h.runner.manual_command({"event": ok["event"], "validation": ok["validation"]}) is None
+                assert len(h.sent()) == 1
+
     run(scenario())

@@ -15,6 +15,7 @@
     <button data-page="charts">∿ <span>Графики</span></button>
     <button data-page="commands">⇄ <span>Управление</span></button>
     <button data-page="agent">◇ <span>LLM-агент</span></button>
+    <button data-page="chat">✉ <span>Чат с Оператором</span></button>
     <button data-page="database">▤ <span>База данных</span></button>
   </nav>
   <div class="aside-bottom">
@@ -64,11 +65,18 @@
     <section id="page-agent" class="page hidden">
       <div class="panel"><div class="panel-heading"><h2>Текущий агент · llm layer</h2><span class="badge">DEEPSEEK</span></div>
         <label>Задача или наблюдение<textarea id="trigger" rows="3">Оцени актуальную телеметрию, объясни отклонения и предложи проверяемые действия.</textarea></label>
-        <div class="form-row"><button id="buildPrompt" class="secondary">Показать промпт</button><button id="askAgent">Запросить решение</button><span class="muted tiny">Решение не исполняется автоматически</span></div>
+        <div class="form-row"><button id="buildPrompt" class="secondary">Показать промпт</button><button id="askAgent">Запросить решение</button><span class="muted tiny">Разовый запрос: решение записывается, команды не исполняются</span></div>
         <details id="promptDetails"><summary>Промпт и структурированный результат</summary><pre id="llmOutput">Пока нет запроса.</pre></details>
-        <div class="auto-row"><label class="checkbox"><input id="autoAnalysis" type="checkbox">Периодический анализ без отправки команд</label><label>Интервал, с<input id="autoInterval" type="number" min="30" max="3600" value="60"></label><button id="applyAuto" class="secondary">Применить</button></div>
+        <div class="auto-row"><label class="checkbox"><input id="autoAnalysis" type="checkbox">Автономные решения LLM-агента (иначе — плейбуки); команды идут через Gate</label><input id="autoInterval" type="hidden" value="60"><button id="applyAuto" class="secondary">Применить</button></div>
       </div>
-      <div class="section-heading"><h2>Решения и предложения агента</h2><span class="muted">Исполнение только по отдельному действию пользователя</span></div><div id="decisions"></div>
+      <div class="section-heading"><h2>Решения и предложения агента</h2><span class="muted">Автономные решения агент исполняет сам; кнопка — ручное подтверждение разового решения</span></div><div id="decisions"></div>
+    </section>
+    <section id="page-chat" class="page hidden">
+      <div class="panel"><div class="panel-heading"><h2>meeting_01 · чат с Оператором Купола</h2><span class="badge">CHAT</span></div>
+        <div id="chatLog" class="chat-log"></div>
+        <form id="chatForm" class="form-row"><label class="grow">Сообщение<textarea id="chatText" rows="2" maxlength="1000" placeholder="Коротко и по делу: Оператор читает все сообщения"></textarea></label><label>Кому<input id="chatTo" value="operator" maxlength="64"></label><button id="chatSend">Отправить</button></form>
+        <p class="tiny muted">Сообщение уходит как ручная команда <code>meeting_01.post_message</code>: проверка сервера, Gate агента (лимит частоты чата), отправка по соединению агента. В режиме «только чтение» не отправляется.</p>
+      </div>
     </section>
     <section id="page-database" class="page hidden">
       <div class="panel"><div class="panel-heading"><h2>Журнал событий</h2><button id="export" class="secondary">Скачать страницу JSON ↓</button></div>

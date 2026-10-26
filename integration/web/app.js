@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pretty = value => JSON.stringify(value, null, 2);
 const date = value => value ? new Date(value).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—';
-const labels = {overview:'Обзор системы', charts:'Графики телеметрии', commands:'Управление', agent:'LLM-агент', database:'База данных'};
+const labels = {overview:'Обзор системы', charts:'Графики телеметрии', commands:'Управление', agent:'LLM-агент', chat:'Чат с Оператором', database:'База данных'};
 const state = {page:'overview', runtime:{}, run:'', overview:null, charts:[], dbCursor:0, dbNext:0, dbItems:[], busy:false, commandOperation:null};
 $('token').value = sessionStorage.getItem('dome-api-token') || '';
 
@@ -74,7 +74,8 @@ async function refresh() {
     renderOverview(data); renderControls(data); renderDecisions(data); updateSelectors(data);
     if(state.page==='charts') await refreshCharts();
     $('lastRefresh').textContent='Обновлено '+new Date().toLocaleTimeString('ru-RU');
-    $('runtimeDetails').innerHTML=`<p class="tiny muted">Run: <code>${esc(runtime.run_id)}</code><br>Session: <code>${esc(runtime.session_id||'не создана')}</code><br>Роль: ${esc(runtime.role||'не авторизован')}<br>LLM: ${runtime.llm_configured?'ключ настроен':'ключ не настроен'}</p>`;
+    $('runtimeDetails').innerHTML=`<p class="tiny muted">Run: <code>${esc(runtime.run_id)}</code><br>Session: <code>${esc(runtime.session_id||'не создана')}</code><br>Роль: ${esc(runtime.role||'не авторизован')}<br>LLM: ${runtime.llm_configured?'ключ настроен':'ключ не настроен'}<br>Решения: ${esc(runtime.brain||'агент не запущен')}</p>`;
+    if(state.page==='chat') await loadChat();
   } catch(error) { $('apiState').textContent='API недоступен'; toast(error.message,true); }
   finally {state.busy=false;}
 }
@@ -95,7 +96,7 @@ function renderOverview(data) {
 function renderControls(data) {
   $('controls').innerHTML=data.controls.length?`<table><thead><tr><th>Время / автор</th><th>Узел / действие</th><th>Проверка БД</th><th>Отправка / Gate</th><th>Ответ Купола</th></tr></thead><tbody>${data.controls.map(c=>{
     const e=c.event,p=e.payload||{};
-    const result=data.events.find(x=>x.event_type==='command_result'&&x.payload?.intent_event_id===e.event_id)?.payload;
+    const result=data.events.find(x=>x.event_type==='control_dispatch'&&x.payload?.intent_event_id===e.event_id)?.payload;
     return `<tr><td>${date(e.ingested_at)}<br>${badge(e.source)}</td><td><code>${esc(p.node_id)}<br>${esc(p.action)}</code><div class="muted">${esc(JSON.stringify(p.value))}</div><small>${esc(e.direction)}</small></td><td>${badge(c.validation.status)}<div class="muted">${esc(c.validation.reasons.join(', '))}</div></td><td>${result?badge(result.status):e.direction==='outbound'?'Исходящий запрос':'Намерение'}<div class="muted">${esc(result?.reason||'')}</div></td><td>${badge(c.upstream_status)}<div class="muted">Эффект — в verification</div></td></tr>`;
   }).join('')}</tbody></table>`:empty('Управляющие воздействия ещё не записаны.');
 }
@@ -171,6 +172,15 @@ async function loadEvents(reset=true) {
   $('dbEvents').innerHTML=result.items.length?`<table><thead><tr><th>ID / время</th><th>Источник</th><th>Тип</th><th>Узел / запрос</th><th>event_id</th></tr></thead><tbody>${result.items.map((e,i)=>`<tr class="clickable db-row" data-index="${i}"><td>${e.id}<br>${date(e.ingested_at)}</td><td>${esc(e.source)}<br><span class="muted">${esc(e.direction)}</span></td><td>${esc(e.event_type)}</td><td>${esc(e.node_id||'—')}<br><code>${esc(JSON.stringify(e.request_id))}</code></td><td><code>${esc(e.event_id)}</code></td></tr>`).join('')}</tbody></table>`:empty('Событий по выбранным фильтрам нет.');
   document.querySelectorAll('.db-row').forEach(row=>row.onclick=()=>{$('dbDetail').textContent=pretty(result.items[Number(row.dataset.index)]);});
 }
+async function loadChat() {
+  const result=await api('/control/chat?'+params({run_id:state.run}));
+  const log=$('chatLog'),bottom=log.scrollHeight-log.scrollTop-log.clientHeight<40;
+  log.innerHTML=result.items.length?result.items.map(m=>{const role=m.sender?.role,own=role==='team';
+    const who=role==='operator'?'Оператор':own?(m.sender?.name||'наша команда'):`${role||'?'} ${m.sender?.team??''}`;
+    const when=typeof m.time==='number'?new Date(m.time*1000).toLocaleTimeString('ru-RU'):date(m.time);
+    return `<div class="chat-msg ${own?'own':''} ${m.not_sent?'not-sent':''}"><small>${esc(who)}${m.to?' → '+esc(m.to):''} · ${esc(when)}${m.not_sent?' · не отправлено (только чтение)':''}</small>${esc(m.text)}</div>`;}).join(''):empty('Сообщений пока нет. Чат появится после подключения агента к Куполу.');
+  if(bottom)log.scrollTop=log.scrollHeight;
+}
 async function loadAudit() {
   const result=await api('/v1/http-exchanges?limit=100');
   $('audits').innerHTML=result.items.length?`<table><thead><tr><th>ID</th><th>Время</th><th>Метод</th><th>Путь</th><th>Статус</th></tr></thead><tbody>${result.items.map(e=>`<tr class="clickable audit-row" data-id="${e.id}"><td>${e.id}</td><td>${date(e.started_at)}</td><td>${esc(e.method)}</td><td>${esc(e.path)}</td><td>${e.status}</td></tr>`).join('')}</tbody></table>`:empty('Запросов пока нет.');
@@ -184,7 +194,15 @@ document.querySelectorAll('nav button').forEach(button=>button.onclick=()=>{
   $('heading').textContent=$('pageName').textContent=labels[state.page];
   if(state.page==='charts')refreshCharts().catch(e=>toast(e.message,true));
   if(state.page==='database')loadEvents().catch(e=>toast(e.message,true));
+  if(state.page==='chat')loadChat().catch(e=>toast(e.message,true));
 });
+$('chatForm').onsubmit=event=>{event.preventDefault();action($('chatSend'),async()=>{
+  if(!isActive())throw new Error('Выбран другой запуск');
+  const text=$('chatText').value.trim();if(!text)return;
+  const result=await api('/control/chat',{method:'POST',body:{operation_id:crypto.randomUUID(),text,to:$('chatTo').value.trim()||'operator'}});
+  if(['sent','dry_run'].includes(result.status))$('chatText').value='';
+  toast(`Сообщение: ${result.status}. ${result.reason||''}`,!['sent','dry_run'].includes(result.status));await loadChat();
+});};
 $('login').onclick=()=>{sessionStorage.setItem('dome-api-token',$('token').value);refresh();};
 $('refresh').onclick=()=>refresh();
 $('runSelect').onchange=async()=>{state.run=$('runSelect').value;state.charts=[];await refresh();if(state.page==='database')loadEvents().catch(e=>toast(e.message,true));};

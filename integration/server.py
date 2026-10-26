@@ -41,6 +41,13 @@ class ExecuteIn(BaseModel):
     action_index: int = Field(ge=0, le=1000)
 
 
+class ChatIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    operation_id: UUID
+    text: str = Field(min_length=1, max_length=1000)
+    to: str = Field(default="operator", max_length=64)
+
+
 class AutoIn(BaseModel):
     enabled: bool
     interval_s: int = Field(default=60, ge=30, le=3600)
@@ -66,7 +73,7 @@ def create_app(db_path=None, token=None):
     async def lifespan(_app):
         yield
         # Shutdown must close the owned client even if the user did not click Disconnect.
-        if hub.client or hub.auto_task:
+        if hub.task and not hub.task.done():
             await hub.disconnect()
 
     app.router.lifespan_context = lifespan
@@ -110,7 +117,18 @@ def create_app(db_path=None, token=None):
         return await hub.command(
             **body.model_dump(exclude={"operation_id"}),
             operation_id=str(body.operation_id),
-            actor="operator",
+        )
+
+    @app.get("/control/chat")
+    def chat(run_id: str | None = None):
+        return hub.chat(run_id or hub.run_id)
+
+    @app.post("/control/chat")
+    async def chat_send(body: ChatIn):
+        # Сообщение человека — та же ручная команда meeting_01.post_message: сервер, Gate, лимиты чата
+        return await hub.command(
+            operation_id=str(body.operation_id), node_id="meeting_01", action="post_message",
+            value={"text": body.text, "to": body.to or "operator", "name": "Штаб"}, reason="сообщение из веб-панели",
         )
 
     @app.post("/control/prompt")
@@ -150,7 +168,6 @@ def create_app(db_path=None, token=None):
             node_id=action["node_id"],
             action=action["action"],
             value=action.get("value"),
-            actor="agent",
             reason=decision["payload"].get("summary", "Решение LLM"),
             decision_event_id=str(event_id),
         )
