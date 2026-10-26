@@ -232,7 +232,8 @@ class DomeClient:
 
     # ------------------------------------------------------------------ запросы
 
-    async def request(self, type_: str, timeout: float | None = None, **fields: Any) -> dict[str, Any]:
+    async def request(self, type_: str, timeout: float | None = None, *, request_id: str | None = None,
+                      **fields: Any) -> dict[str, Any]:
         """Отправить запрос и дождаться ответа с тем же ``request_id``.
 
         Raises:
@@ -242,7 +243,9 @@ class DomeClient:
         ws = self._ws
         if ws is None:
             raise NotConnected("нет соединения с куполом")
-        rid = str(next(self._ids))
+        rid = request_id if request_id is not None else str(next(self._ids))
+        if rid in self._pending:
+            raise DomeError("request_id уже ожидает ответ в этой сессии")
         fut: asyncio.Future[dict[str, Any]] = asyncio.get_running_loop().create_future()
         self._pending[rid] = fut
         try:
@@ -261,12 +264,13 @@ class DomeClient:
         finally:
             self._pending.pop(rid, None)
 
-    async def control(self, node_id: str, action: str, value: Any = None) -> dict[str, Any]:
+    async def control(self, node_id: str, action: str, value: Any = None, *,
+                      request_id: str | None = None) -> dict[str, Any]:
         """Отправить ``control``. Вызывается только из ``Gate``."""
         fields: dict[str, Any] = {"node_id": node_id, "action": action}
         if value is not None:
             fields["value"] = value
-        return await self.request("control", **fields)
+        return await self.request("control", request_id=request_id, **fields)
 
     async def query(self, node_id: str, query: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         """Запрос данных узла (чтение)."""
@@ -283,3 +287,4 @@ class DomeClient:
 
 
 SendHook = Callable[[str, str, Any], Awaitable[dict[str, Any]]]
+

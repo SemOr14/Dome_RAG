@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Купол · Центр управления</title>
+  <link rel="stylesheet" href="/ui/style.css">
+  <script src="/ui/app.js" defer></script>
+</head>
+<body>
+<aside>
+  <a class="brand" href="/ui/"><span class="brand-mark">К</span><span>КУПОЛ<small>ЦЕНТР УПРАВЛЕНИЯ</small></span></a>
+  <div class="aside-label">РАБОЧЕЕ ПРОСТРАНСТВО</div>
+  <nav aria-label="Разделы">
+    <button data-page="overview" class="active">◈ <span>Обзор системы</span></button>
+    <button data-page="charts">∿ <span>Графики</span></button>
+    <button data-page="commands">⇄ <span>Управление</span></button>
+    <button data-page="agent">◇ <span>LLM-агент</span></button>
+    <button data-page="database">▤ <span>База данных</span></button>
+  </nav>
+  <div class="aside-bottom">
+    <label>Запуск<select id="runSelect" aria-label="Запуск"></select></label>
+    <label>Токен сервиса<input id="token" type="password" autocomplete="off" placeholder="Если настроен на сервере"></label>
+    <button id="login" class="secondary full">Подключить API</button>
+    <div id="apiState" class="muted tiny">Ожидание API</div>
+    <span class="version">INTEGRATION / LOCAL · v1</span>
+  </div>
+</aside>
+<div class="workspace">
+  <header>
+    <div class="breadcrumb">СИСТЕМА <span>/</span> <span id="pageName">Обзор системы</span></div>
+    <div class="header-actions"><span id="modeBadge" class="badge">ТОЛЬКО ЧТЕНИЕ</span><span id="connectionBadge" class="badge muted">НЕТ СОЕДИНЕНИЯ</span><button id="refresh" class="secondary" title="Обновить">Обновить ↻</button></div>
+  </header>
+  <main>
+    <div class="page-heading"><div><div class="eyebrow">ТЕЛЕМЕТРИЯ · ДЕЙСТВИЯ · РЕШЕНИЯ</div><h1 id="heading">Обзор системы</h1><p id="subtitle">Состояние узлов и последние события выбранного запуска.</p></div><div class="connection-actions"><button id="connect">Подключить Купол</button><button id="disconnect" class="secondary">Отключить</button></div></div>
+    <div id="notice" class="notice">База создаётся пустой. Подключение и команды не запускаются автоматически.</div>
+    <section id="page-overview" class="page">
+      <div class="metrics" id="metrics"></div>
+      <div class="section-heading"><h2>Узлы Купола</h2><span id="observationTime" class="muted"></span></div>
+      <div id="nodes" class="node-grid"></div>
+      <div class="section-heading"><h2>Последние события</h2><span class="muted">Агент и человек · полный журнал в базе</span></div>
+      <div id="timeline" class="panel"></div>
+    </section>
+    <section id="page-charts" class="page hidden">
+      <div class="panel form-row"><label>Узел<select id="chartNode"></select></label><label class="grow">Параметр<select id="chartField"></select></label><button id="addChart">Добавить график</button></div>
+      <p class="muted tiny">Последние 240 снимков. Пропуски и null показаны разрывами. Ось времени — получение сервером, исходная метка доступна при наведении.</p>
+      <div id="charts" class="chart-grid"></div>
+    </section>
+    <section id="page-commands" class="page hidden">
+      <div class="two-col"><form id="commandForm" class="panel">
+        <div class="panel-heading"><h2>Команда человека</h2><span class="badge">OPERATOR</span></div>
+        <label>Узел<select id="commandNode" required></select></label>
+        <label>Действие<select id="commandAction" required></select></label>
+        <div id="operatorActions" class="muted tiny"></div>
+        <label>Значение · JSON<textarea id="commandValue" rows="4" placeholder='8 или {"line":8}. Пусто — без значения.'></textarea></label>
+        <label>Причина<input id="commandReason" maxlength="2000" value="Команда человека из веб-панели"></label>
+        <label class="checkbox"><input id="confirmControl" type="checkbox">Подтверждаю проверку и отправку этой команды, если разрешён живой режим</label>
+        <button id="sendCommand" class="full">Проверить и выполнить</button>
+        <p class="tiny muted">Сначала запись попытки в БД, затем проверка БД и Gate. В режиме «только чтение» отправки нет. Физические действия Оператора через API не исполняются.</p>
+        <pre id="commandResult" class="hidden"></pre>
+      </form><div class="panel"><h2>Цепочка воздействия</h2><div class="steps"><div><b>01</b><span>Намерение<small>Автор, параметры и причина</small></span></div><div><b>02</b><span>Проверки<small>Права, параметры, состояние, Gate</small></span></div><div><b>03</b><span>Ответ Купола<small>Принято / отклонено / ожидается</small></span></div><div><b>04</b><span>Проверка эффекта<small>Отдельное событие verification</small></span></div></div><p class="muted">Принятие команды сервером ещё не подтверждает её выполнение.</p><div id="runtimeDetails"></div></div></div>
+      <div class="section-heading"><h2>Действия человека и агента</h2><span class="muted">Локальный допуск и ответ сервера — отдельно</span></div>
+      <div id="controls" class="panel table-wrap"></div>
+    </section>
+    <section id="page-agent" class="page hidden">
+      <div class="panel"><div class="panel-heading"><h2>Текущий агент · llm layer</h2><span class="badge">DEEPSEEK</span></div>
+        <label>Задача или наблюдение<textarea id="trigger" rows="3">Оцени актуальную телеметрию, объясни отклонения и предложи проверяемые действия.</textarea></label>
+        <div class="form-row"><button id="buildPrompt" class="secondary">Показать промпт</button><button id="askAgent">Запросить решение</button><span class="muted tiny">Решение не исполняется автоматически</span></div>
+        <details id="promptDetails"><summary>Промпт и структурированный результат</summary><pre id="llmOutput">Пока нет запроса.</pre></details>
+        <div class="auto-row"><label class="checkbox"><input id="autoAnalysis" type="checkbox">Периодический анализ без отправки команд</label><label>Интервал, с<input id="autoInterval" type="number" min="30" max="3600" value="60"></label><button id="applyAuto" class="secondary">Применить</button></div>
+      </div>
+      <div class="section-heading"><h2>Решения и предложения агента</h2><span class="muted">Исполнение только по отдельному действию пользователя</span></div><div id="decisions"></div>
+    </section>
+    <section id="page-database" class="page hidden">
+      <div class="panel"><div class="panel-heading"><h2>Журнал событий</h2><button id="export" class="secondary">Скачать страницу JSON ↓</button></div>
+        <form id="dbFilters" class="form-row wrap"><label>Тип<input id="dbType" placeholder="telemetry, decision, control…"></label><label>Источник<select id="dbSource"><option value="">Все</option><option>agent</option><option>operator</option><option>dome</option><option>llm</option><option>system</option><option>import</option></select></label><label>Узел<input id="dbNode" placeholder="node_id"></label><button>Показать</button><button id="dbNext" type="button" class="secondary">Следующая страница →</button></form>
+        <div id="dbEvents" class="table-wrap"></div>
+        <div class="form-row"><label class="grow">Найти по event_id<input id="findEvent" placeholder="UUID события"></label><button id="find" class="secondary">Найти</button></div>
+        <pre id="dbDetail">Выберите запись, чтобы увидеть полный JSON.</pre>
+      </div>
+      <div class="section-heading"><h2>HTTP-аудит</h2><button id="loadAudit" class="secondary">Загрузить журнал API</button></div><div id="audits" class="panel table-wrap"></div><pre id="auditDetail" class="hidden"></pre>
+    </section>
+  </main>
+  <footer><span>Купол / интеграционный контур</span><span id="lastRefresh">Данные ещё не получены</span></footer>
+</div>
+<div id="toast" role="status" class="toast hidden"></div>
+</body>
+</html>

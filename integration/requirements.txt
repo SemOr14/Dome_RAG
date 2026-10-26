@@ -1,0 +1,3 @@
+-r ../services/data_api/requirements.txt
+-r ../requirements.txt
+websockets>=13,<16
