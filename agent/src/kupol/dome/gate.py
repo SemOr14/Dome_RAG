@@ -31,6 +31,7 @@ LINE_ACTIONS = ("line_on", "line_off")
 CLIMATE_PARAMS = ("co2_ppm", "humidity_pct", "dew_point_c", "temperature_c")
 
 GateStatus = Literal["sent", "dry_run", "rejected", "failed"]
+AGENT_CONTROL_OFF = "управление агента выключено: только рекомендация"
 SendFn = Callable[[str, str, Any], Awaitable[dict[str, Any]]]
 
 
@@ -75,6 +76,7 @@ class Cmd:
     ref: int | None = None  # seq записи decision
     expect: Expect | None = None
     confirmed: bool = False  # человек подтвердил ручную команду: только роль и каталог, без политики и защитных правил
+    actor: str = "agent"  # agent | operator: при выключенном управлении агента его команды не отправляются
 
     @property
     def key(self) -> str:
@@ -179,6 +181,7 @@ class Gate:
         self._send = send
         self.can_control = can_control and not dry_run
         self.dry_run = dry_run
+        self.agent_control = True  # False: команды агента — только в лог (чат и команды Оператора отправляются)
         self._clock = clock
         self.agent_name = agent_name
         self.pending: list[Pending] = []
@@ -227,6 +230,13 @@ class Gate:
                 dry_run=True, reason=cmd.reason,
             )
             return GateResult("dry_run", "в сеть не отправлено", None, seq)
+        if not self.agent_control and cmd.actor == "agent" and cmd.node_id != "meeting_01":
+            self.stats["dry_run"] += 1
+            seq = self._log.write(
+                "action", ref=cmd.ref, request=request, response={"success": None, "skipped": AGENT_CONTROL_OFF},
+                dry_run=True, reason=cmd.reason,
+            )  # fmt: skip
+            return GateResult("dry_run", AGENT_CONTROL_OFF, None, seq)
         try:
             response = await self._send(cmd.node_id, canonical, cmd.value)
         except DomeError as exc:

@@ -260,3 +260,29 @@ def test_feed_turns_dome_rejection_and_timeout_into_triggers(tmp_path):
             {"id": 3, "sender": {"role": "operator"}, "text": "Что с фрезером?"}]
         clock.t += 11
         assert d.tick() == []
+
+
+def test_gate_action_trigger_only_for_dome_refusal_and_no_answer():
+    from llm_agent.triggers import gate_action_trigger
+
+    base = {"run_id": "r", "seq": 7, "ref": 6, "request": {"type": "control", "node_id": "cnc_01", "action": "resume"}}
+    refused = gate_action_trigger({**base, "response": {"success": False, "error": "interlock IL_CO2 is TRIPPED"}})
+    assert refused.kind == "command" and "отклонил" in refused.text and "IL_CO2" in refused.text
+    timeout = gate_action_trigger({**base, "response": {"success": False, "error": "control: нет ответа за 15 с"}})
+    assert "не подтвердил" in timeout.text and "неизвестен" in timeout.text and timeout.key != refused.key
+    assert gate_action_trigger({**base, "response": {"success": True}}) is None
+    assert gate_action_trigger({**base, "rejected": True, "response": {"success": False, "error": "Gate: политика"}}) is None
+    assert gate_action_trigger({**base, "dry_run": True, "response": {"success": None}}) is None
+
+
+def test_gate_verification_trigger_no_effect_and_timeout_resolution():
+    from llm_agent.triggers import gate_verification_trigger
+
+    action = {"seq": 7, "request": {"node_id": "cnc_01", "action": "resume"}}
+    bad = {"run_id": "r", "ref": 7, "ok": False, "expected": "cnc_01 работает", "observed": "state = PAUSED", "waited_s": 20}
+    trig = gate_verification_trigger(bad, action, timed_out=False, cooldown_s=120)
+    assert trig.kind == "command" and "cnc_01.resume" in trig.text and "PAUSED" in trig.text and "120 с" in trig.text
+    good = {**bad, "ok": True, "observed": "state = RUNNING"}
+    assert gate_verification_trigger(good, action, timed_out=False, cooldown_s=120) is None  # обычный успех — не повод
+    done = gate_verification_trigger(good, action, timed_out=True, cooldown_s=120)
+    assert done.kind == "verification" and "подтверждён" in done.text and "не нужно" in done.text

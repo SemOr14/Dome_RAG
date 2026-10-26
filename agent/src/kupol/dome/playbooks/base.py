@@ -49,6 +49,7 @@ class Intent:
     source: str = "rules"  # rules | llm | rag | mixed (поле source записи decision)
     rag_refs: list[str] = field(default_factory=list)  # источники RAG, на которые опирается решение модели
     say_always: bool = False  # ответ на требование Оператора: отправить и при отказе части шагов (с пояснением)
+    refused: list[str] = field(default_factory=list)  # действия, отклонённые до Gate (LLM-слой, сервер БД), с причинами
 
     @classmethod
     def from_evidence(cls, evidence: list[Ev], **kw: Any) -> Intent:

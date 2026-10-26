@@ -22,7 +22,7 @@ from kupol.dome.agentlog import AgentLog
 from kupol.dome.config import load_dome_config
 from kupol.dome.datalog import DataApiRecorder
 from kupol.dome.env import load_settings
-from kupol.dome.runner import Runner
+from kupol.dome.runner import AGENT_NAME, Runner
 
 from llm_agent import DomeLLMAgent
 from llm_agent.config import Settings as LLMSettings
@@ -36,6 +36,8 @@ class Hub:
     def __init__(self, store):
         self.store = store
         self.settings = load_settings(root=ROOT)
+        # Панель по умолчанию запускает агента советником: его команды в лог, сообщения и команды Оператора уходят
+        self.settings.agent_control = os.getenv("AGENT_CONTROL", "0").strip().lower() in ("1", "true", "yes", "on")
         self.run_id = os.getenv("DATA_API_RUN_ID") or "web-" + uuid4().hex
         self.runner: Runner | None = None
         self.task: asyncio.Task | None = None
@@ -71,6 +73,7 @@ class Hub:
             "control_enabled": self.settings.can_control,
             "last_error": self.last_error,
             "auto_analysis": bool(runner and brain is not None and runner.llm_enabled),
+            "agent_control": runner.gate.agent_control if runner else self.settings.agent_control,
             "review_s": brain.settings.trigger_review_s if brain else LLMSettings.from_env().trigger_review_s,
             "brain": mode,
             "llm_configured": bool(self.settings.deepseek_key or LLMSettings.from_env().deepseek_api_key),
@@ -205,7 +208,9 @@ class Hub:
                                       "not_sent": True})
         for m in seen.values():
             sender = m.get("sender") or {}
-            who = {"operator": "operator", "team": "agent"}.get(sender.get("role"), "other")
+            # Роль team у всех клиентов с ключом команды; наш агент — только под своим именем
+            role = sender.get("role")
+            who = "operator" if role == "operator" else "agent" if role == "team" and sender.get("name") == AGENT_NAME else "other"
             t = m.get("time")
             items.append({"from": who, "via": "dome_chat", "id": m["id"], "to": m.get("to"), "text": m.get("text"),
                           "name": sender.get("name"), "team": sender.get("team"),
@@ -247,6 +252,14 @@ class Hub:
                     api.http.close()
 
             return await asyncio.to_thread(work)
+
+    def set_agent_control(self, enabled):
+        """Управление Куполом командами агента; выключено — агент только советует (чат и команды Оператора уходят)."""
+        self.settings.agent_control = enabled
+        if self.runner:
+            self.runner.gate.agent_control = enabled
+        self.emit("agent_control", {"enabled": enabled})
+        return self.status()
 
     async def set_auto(self, enabled, interval=60):
         """Автономные решения LLM-агента (выключено — плейбуки) и интервал планового обзора, с."""

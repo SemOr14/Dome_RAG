@@ -71,7 +71,7 @@
         <label>Задача или наблюдение<textarea id="trigger" rows="3">Оцени актуальную телеметрию, объясни отклонения и предложи проверяемые действия.</textarea></label>
         <div class="form-row"><button id="buildPrompt" class="secondary">Показать промпт</button><button id="askAgent">Запросить решение</button><span class="muted tiny">Разовый запрос: решение записывается, команды не исполняются</span></div>
         <details id="promptDetails"><summary>Промпт и структурированный результат</summary><pre id="llmOutput">Пока нет запроса.</pre></details>
-        <div class="auto-row"><label class="checkbox"><input id="autoAnalysis" type="checkbox">Автономные решения LLM-агента (иначе — плейбуки); команды идут через Gate</label><label>Плановый обзор, с<input id="autoInterval" type="number" min="30" max="3600" value="120"></label><button id="applyAuto" class="secondary">Применить</button></div>
+        <div class="auto-row"><label class="checkbox"><input id="agentControl" type="checkbox">Агент управляет Куполом (иначе — только сообщения и рекомендации; ваши команды уходят всегда)</label><button id="applyAgentControl" class="secondary">Применить</button></div><div class="auto-row"><label class="checkbox"><input id="autoAnalysis" type="checkbox">Автономные решения LLM-агента (иначе — плейбуки); команды идут через Gate</label><label>Плановый обзор, с<input id="autoInterval" type="number" min="30" max="3600" value="120"></label><button id="applyAuto" class="secondary">Применить</button></div>
       </div>
       <div class="section-heading"><h2>Решения и предложения агента</h2><span class="muted">Автономные решения агент исполняет сам; кнопка — ручное подтверждение разового решения</span></div><div id="decisions"></div>
     </section>

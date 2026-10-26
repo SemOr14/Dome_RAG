@@ -48,6 +48,10 @@ class ChatIn(BaseModel):
     text: str = Field(min_length=1, max_length=2000)
 
 
+class ToggleIn(BaseModel):
+    enabled: bool
+
+
 class AutoIn(BaseModel):
     enabled: bool
     interval_s: int = Field(default=60, ge=30, le=3600)
@@ -135,6 +139,10 @@ def create_app(db_path=None, token=None):
     @app.post("/control/decide")
     async def decide(body: AnalysisIn):
         return await hub.analyze(body.trigger)
+
+    @app.post("/control/agent-control")
+    def agent_control(body: ToggleIn):
+        return hub.set_agent_control(body.enabled)
 
     @app.post("/control/auto")
     async def auto(body: AutoIn):

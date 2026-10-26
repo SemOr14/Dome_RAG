@@ -71,6 +71,8 @@ async function refresh() {
     $('askAgent').disabled=!runtime.llm_configured || !isActive();
     $('buildPrompt').disabled=!isActive();
     $('autoAnalysis').checked=runtime.auto_analysis;
+    if(document.activeElement!==$('agentControl'))$('agentControl').checked=!!runtime.agent_control;
+    if(runtime.control_enabled&&!runtime.agent_control)$('modeBadge').textContent='АГЕНТ СОВЕТУЕТ';
     if(document.activeElement!==$('autoInterval')&&runtime.review_s)$('autoInterval').value=Math.round(runtime.review_s);
     renderOverview(data); renderControls(data); renderDecisions(data); updateSelectors(data);
     if(state.page==='charts') await refreshCharts();
@@ -263,6 +265,11 @@ for(const [id,path] of [['buildPrompt','prompt'],['askAgent','decide']])$(id).on
   const result=await api('/control/'+path,{method:'POST',body:{trigger:$('trigger').value}});
   $('llmOutput').textContent=pretty(result);$('promptDetails').open=true;
   await refresh();
+});
+$('applyAgentControl').onclick=()=>action($('applyAgentControl'),async()=>{
+  const on=$('agentControl').checked;
+  if(on&&!confirm('Разрешить агенту отправлять команды в Купол?'))return;
+  await api('/control/agent-control',{method:'POST',body:{enabled:on}});toast(on?'Агент управляет Куполом':'Агент только советует');await refresh();
 });
 $('applyAuto').onclick=()=>action($('applyAuto'),async()=>{await api('/control/auto',{method:'POST',body:{enabled:$('autoAnalysis').checked,interval_s:Number($('autoInterval').value)}});await refresh();});
 $('dbFilters').onsubmit=event=>{event.preventDefault();loadEvents().catch(e=>toast(e.message,true));};

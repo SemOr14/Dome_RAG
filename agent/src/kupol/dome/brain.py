@@ -36,6 +36,10 @@ FAILURES_TO_FALLBACK = 3  # сбоев модели подряд, после к�
 FALLBACK_S = 300.0
 SEVERITY_PRIORITY = {"critical": 1, "warning": 3, "info": 5}
 JOURNAL_KINDS = ("decision", "action", "verification", "message")
+ADVISORY = (
+    "\n\nРежим: управление агента выключено — твои команды в Купол не отправятся. Предлагай действия как обычно "
+    "(они записываются), а в operator_message пиши Оператору рекомендацию, что сделать вручную через панель."
+)
 
 try:
     import llm_agent  # noqa: F401
@@ -47,7 +51,7 @@ from llm_agent import Settings as LlmSettings  # noqa: E402
 from llm_agent.agent import make_retriever  # noqa: E402
 from llm_agent.context.catalog import NodeCatalog  # noqa: E402
 from llm_agent.dispatcher import Dispatcher, Fired  # noqa: E402
-from llm_agent.triggers import Trigger  # noqa: E402
+from llm_agent.triggers import Trigger, gate_action_trigger, gate_verification_trigger  # noqa: E402
 from llm_agent.schemas import AgentResponse, LLMCallInfo, ProposedAction  # noqa: E402
 from llm_agent.storage.data_api import ApiControlChecker, DataApiClient, journal_record  # noqa: E402
 
@@ -163,14 +167,12 @@ def to_intent(response: AgentResponse, fired: Fired) -> Intent:
         say = None  # сообщение не прошло проверку LLM-слоя (длина, пустота)
     refused = [f"{v.action.node_id}.{v.action.action} — {'; '.join(v.reasons)}" for v in response.verdicts
                if not v.accepted and v.action.node_id != "meeting_01"]
-    if say and refused:  # модель пишет «делаю», а команда не прошла проверку: Оператор должен это видеть
-        say = f"{say} Не выполнено: {'; '.join(refused)}."
     return Intent(
         key=f"llm:{response.decision_id}", situation=d.situation, cause=d.cause or "не установлена", confidence=d.confidence,
         evidence=[e.model_dump(exclude_none=True) for e in d.evidence] or [{"trigger": t.text[:300]} for t in fired.triggers],
         plan=plan or ["наблюдать"], steps=steps, say=say, priority=SEVERITY_PRIORITY.get(d.severity, 5),
         cooldown_s=0.0, source="mixed" if d.rag_refs else "llm", rag_refs=list(d.rag_refs),
-        say_always=any(t.kind == "operator" for t in fired.triggers),
+        say_always=any(t.kind == "operator" for t in fired.triggers), refused=refused,
     )  # fmt: skip
 
 
@@ -214,6 +216,10 @@ class LlmBrain:
         self.failures = 0
         self.down_until = 0.0
         self.calls = 0
+        self.agent_control: Callable[[], bool] = lambda: True  # рантайм подставляет флаг Gate
+        self.no_effect_cooldown_s = 120.0  # рантайм подставляет policy.no_effect_cooldown_s
+        self._actions: dict[int, dict[str, Any]] = {}  # seq записи action → запись (для поводов по verification)
+        self._timed_out: set[int] = set()
 
     @property
     def model(self) -> str:
@@ -234,6 +240,20 @@ class LlmBrain:
 
     def on_log(self, kind: str, rec: dict[str, Any]) -> None:
         self.journal.on_log(kind, rec)
+        if kind == "action" and isinstance(rec.get("seq"), int):
+            self._actions[rec["seq"]] = rec
+            if len(self._actions) > 500:
+                self._actions.pop(next(iter(self._actions)))
+            if (trig := gate_action_trigger(rec)) is not None:  # отказ Купола или нет ответа — модель оценивает сразу
+                if "|timeout|" in trig.key:
+                    self._timed_out.add(rec["seq"])
+                self.dispatcher.submit(trig)
+        elif kind == "verification":
+            ref = rec.get("ref")
+            trig = gate_verification_trigger(rec, self._actions.get(ref), ref in self._timed_out, self.no_effect_cooldown_s)
+            self._timed_out.discard(ref)
+            if trig is not None:  # нет эффекта или итог после таймаута — по факту проверки Gate
+                self.dispatcher.submit(trig)
 
     def operator_request(self, text: str, event_id: str | None = None) -> None:
         """Требование Оператора из веб-панели: срочный повод для модели, ответ — рекомендация Оператору."""
@@ -258,6 +278,9 @@ class LlmBrain:
 
     async def _call(self, fired: Fired, execute: Execute) -> None:
         started = time.monotonic()
+        advisory = not self.agent_control()
+        if advisory:
+            fired.text += ADVISORY
         try:
             response = await asyncio.to_thread(self.dispatcher.decide, fired)
         except Exception as exc:  # noqa: BLE001 - сбой модели — это «нет решения», не остановка агента
@@ -265,6 +288,9 @@ class LlmBrain:
                                                                     error=repr(exc)[:300],
                                                                     latency_ms=int((time.monotonic() - started) * 1000)))
         self.dispatcher.finish(fired, response)
+        # Таймер проверки модели не нужен: каждую отправленную команду проверяет Gate по телеметрии, а отказ, таймаут,
+        # отсутствие эффекта и итог после таймаута приходят поводами из on_log. Таймер срабатывал раньше Gate.
+        self.dispatcher.checks = [c for c in self.dispatcher.checks if c.decision_id != response.decision_id]
         self.calls += 1
         info = response.llm_call
         self.log.write(
