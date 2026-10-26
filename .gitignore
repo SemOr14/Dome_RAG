@@ -30,3 +30,8 @@ dist/
 *.db-shm
 *.sqlite
 *.sqlite3
+
+# Historical corpus and deliberate archived runs must also be tracked on Windows.
+!/Logs/
+!/Logs/**
+!/artifacts/**
