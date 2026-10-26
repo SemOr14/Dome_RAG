@@ -42,7 +42,7 @@ python run_example.py --scenario co2_false_alarm    # также bed_occupied, e
 | Граф влияний узлов | [data/influence_graph.yaml](data/influence_graph.yaml) | В промпт попадает подграф вокруг узлов с аномалиями (глубину задаёт `PROMPT_GRAPH_DEPTH`) |
 | Каталог узлов | [data/catalog_static.json](data/catalog_static.json) | Запасной вариант на случай, если нет `describe_nodes` |
 | Телеметрия, журнал решений | `data/samples/` | Пока файловые заглушки ([agent/storage/file_store.py](agent/storage/file_store.py)). Для БД нужно реализовать протоколы из [agent/storage/base.py](agent/storage/base.py) |
-| RAG (примеры ситуаций, FAQ) | `data/rag/*.md`, `data/rag/*.jsonl` | Сейчас работает заглушка с BM25 ([agent/rag/keyword.py](agent/rag/keyword.py)). Для векторного поиска нужно реализовать `Retriever.search` из [agent/rag/base.py](agent/rag/base.py) |
+| RAG (примеры ситуаций, FAQ) | [rag/](rag/README.md) | Агент берёт согласованные FAQ и карточки ситуаций RAG Купола вместе с конфликтами источников ([agent/rag/dome.py](agent/rag/dome.py)). Без ONNX-модели (`rag/setup.ps1`) поиск идёт только по BM25. Если индекса нет, используется запасной BM25 по `data/rag/`. Выбор задаёт `RAG_BACKEND` |
 
 Использование в коде:
 

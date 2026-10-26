@@ -51,6 +51,9 @@ class Settings:
     journal_limit: int = 15
     rag_k: int = 3
     graph_depth: int = 1
+    rag_backend: str = "auto"  # auto | dome | keyword | none
+    rag_dir: Path = field(default_factory=lambda: ROOT / "rag")
+    rag_semantic: bool = True
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -70,6 +73,9 @@ class Settings:
             journal_limit=int(os.getenv("PROMPT_JOURNAL_LIMIT", "15")),
             rag_k=int(os.getenv("PROMPT_RAG_K", "3")),
             graph_depth=int(os.getenv("PROMPT_GRAPH_DEPTH", "1")),
+            rag_backend=os.getenv("RAG_BACKEND", "auto").lower(),
+            rag_dir=_path("RAG_DIR", "rag"),
+            rag_semantic=os.getenv("RAG_SEMANTIC", "1").lower() not in ("0", "false", "no"),
         )
 
     def public(self) -> dict:
@@ -79,5 +85,6 @@ class Settings:
             "timeout_s": self.timeout_s, "max_retries": self.max_retries,
             "prompt_dir": str(self.prompt_dir), "data_dir": str(self.data_dir),
             "journal_limit": self.journal_limit, "rag_k": self.rag_k, "graph_depth": self.graph_depth,
+            "rag_backend": self.rag_backend, "rag_dir": str(self.rag_dir), "rag_semantic": self.rag_semantic,
             "api_key_set": bool(self.deepseek_api_key),
         }

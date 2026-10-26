@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 
 from pydantic import ValidationError
 
@@ -13,6 +14,7 @@ from .context.graph import InfluenceGraph
 from .llm_client import DeepSeekClient
 from .prompt_builder import BuiltPrompt, PromptBuilder
 from .rag.base import NullRetriever, Retriever
+from .rag.dome import DomeRagRetriever
 from .rag.keyword import KeywordRetriever
 from .schemas import AgentDecision, AgentResponse, LLMCallInfo, ProposedAction
 from .storage.base import CatalogRepo, DecisionJournalRepo, TelemetryRepo
@@ -29,6 +31,24 @@ def parse_decision(text: str) -> AgentDecision:
     if start == -1 or end == -1:
         raise ValueError("в ответе нет JSON-объекта")
     return AgentDecision.model_validate(json.loads(cleaned[start:end + 1]))
+
+
+def make_retriever(settings: Settings) -> Retriever:
+    """RAG Купола из rag/; если его нет или индекс не собирается — запасной BM25 по data/rag/."""
+    backend = settings.rag_backend
+    if backend in ("auto", "dome") and (settings.rag_dir / "index" / "metadata.json").is_file():
+        try:
+            return DomeRagRetriever(settings.rag_dir, semantic=settings.rag_semantic)
+        except (ImportError, OSError, ValueError, KeyError) as exc:
+            if backend == "dome":
+                raise
+            print(f"RAG Купола недоступен ({type(exc).__name__}: {exc}), используется data/rag", file=sys.stderr)
+    elif backend == "dome":
+        raise FileNotFoundError(f"нет индекса RAG: {settings.rag_dir / 'index'}")
+    keyword_dir = settings.data_dir / "rag"
+    if backend in ("auto", "keyword") and keyword_dir.is_dir():
+        return KeywordRetriever(keyword_dir)
+    return NullRetriever()
 
 
 class DomeLLMAgent:
@@ -49,13 +69,12 @@ class DomeLLMAgent:
     def from_files(cls, settings: Settings, snapshot_file=None, journal_file=None) -> "DomeLLMAgent":
         """Сборка на файловых заглушках из data/ (пока нет БД)."""
         data = settings.data_dir
-        rag_dir = data / "rag"
         return cls(
             settings,
             telemetry=FileTelemetryRepo(snapshot_file or data / "samples" / "telemetry_latest.json"),
             journal=FileDecisionJournalRepo(journal_file or data / "samples" / "decision_journal.jsonl"),
             catalog_repo=FileCatalogRepo(data / "catalog_static.json"),
-            retriever=KeywordRetriever(rag_dir) if rag_dir.is_dir() else NullRetriever())
+            retriever=make_retriever(settings))
 
     @property
     def llm(self) -> DeepSeekClient:
