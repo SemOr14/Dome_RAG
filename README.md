@@ -21,7 +21,8 @@
 без подключения к оборудованию, профиль competition, API history и рекомендательный ИИ.
 [Инструкция, режимы, ограничения API и проверки](integration/README.md),
 [общий контракт](contracts/production-control-v1.md),
-[отчёт реализации](docs/production-safety-report.md). RAG и соседние рабочие ветки не сливаются автоматически.
+[отчёт реализации](docs/production-safety-report.md),
+[фактический маршрут, алгоритмы и сравнение с веткой агента](docs/Dome_changes_and_routing_27-10-2026.md). RAG и соседние рабочие ветки не сливаются автоматически.
 
 ## Начало работы
 
