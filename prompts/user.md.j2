@@ -1,0 +1,56 @@
+{#- Пользовательская часть промпта: живой контекст купола. Секции можно переставлять, удалять и
+    добавлять. Доступно: trigger, game_time, telemetry, anomalies, catalog, graph_edges, journal,
+    rag_docs, dome_time. Фильтр tojson сериализует данные компактно. -#}
+# Повод для анализа
+{{ trigger }}
+
+Часы купола: {{ dome_time or "неизвестно" }}
+
+# Замеченные аномалии (эвристики агента, могут быть неполными)
+{% if anomalies %}
+{% for a in anomalies %}
+- {{ a.node }}{% if a.param %}.{{ a.param }}{% endif %} = {{ a.value | tojson }} — {{ a.note }}
+{% endfor %}
+{% else %}
+- не обнаружено
+{% endif %}
+
+# Телеметрия (ключевые поля по узлам)
+```json
+{{ telemetry | tojson }}
+```
+
+# Каталог узлов и права
+Формат: node_id | система | controls (агент) | operator_controls (только Оператор)
+{% for n in catalog %}
+- {{ n.node_id }} | {{ n.system }} | {{ n.controls | join(", ") or "только чтение" }}{% if n.operator_controls %} | Оператор: {{ n.operator_controls | join(", ") }}{% endif %}{% if n.notes %} | {{ n.notes }}{% endif %}
+
+{% endfor %}
+
+# Граф влияний (подграф вокруг затронутых узлов)
+{% for e in graph_edges %}
+- {{ e }}
+{% endfor %}
+
+# Журнал решений агента и действий человека (последние записи, по времени)
+{% if journal %}
+{% for j in journal %}
+- [{{ j.get("dome_time") or j.get("ts") }}] {{ j.get("actor", "?") }}{% if j.get("kind") %}/{{ j.kind }}{% endif %}:{% if j.get("text") %} {{ j.text }}{% endif %}{% if j.get("node_id") %} {{ j.node_id }}.{{ j.get("action") }}({{ j.get("value") | tojson }}){% endif %}{% if j.get("success") is not none %} success={{ j.success | tojson }}{% endif %}{% if j.get("outcome") %} → {{ j.outcome }}{% endif %}
+
+{% endfor %}
+{% else %}
+- записей нет
+{% endif %}
+
+# Похожие ситуации и FAQ из базы знаний
+{% if rag_docs %}
+{% for d in rag_docs %}
+## [{{ d.id }}] {{ d.title }}
+{{ d.text }}
+
+{% endfor %}
+{% else %}
+- ничего не найдено
+{% endif %}
+
+Проанализируй ситуацию и верни JSON строго по формату.

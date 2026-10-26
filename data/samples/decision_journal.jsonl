@@ -1,0 +1,6 @@
+{"ts": "2026-10-24T13:31:10+03:00", "dome_time": "13:40", "actor": "operator", "kind": "message", "text": "Задание на смену: напечатать корпус housing.gcode и отфрезеровать плату pcb_power_board.nc"}
+{"ts": "2026-10-24T13:31:40+03:00", "dome_time": "13:41", "actor": "agent", "kind": "decision", "text": "Стол свободен, станки в IDLE — запускаю оба задания", "source": "rules"}
+{"ts": "2026-10-24T13:31:41+03:00", "dome_time": "13:41", "actor": "agent", "kind": "action", "node_id": "printer_3d_01", "action": "start_job", "value": "housing.gcode", "success": true, "outcome": "state=PRINTING через 6 с"}
+{"ts": "2026-10-24T13:31:43+03:00", "dome_time": "13:41", "actor": "agent", "kind": "action", "node_id": "cnc_01", "action": "start_job", "value": "pcb_power_board.nc", "success": true, "outcome": "state=RUNNING, spindle_rpm=10000"}
+{"ts": "2026-10-24T13:52:05+03:00", "dome_time": "14:22", "actor": "operator", "kind": "action", "node_id": "smart_panel_01", "action": "set_workstation", "value": "SOLDERING", "success": true, "text": "Оператор начал пайку на рабочем месте"}
+{"ts": "2026-10-24T14:01:30+03:00", "dome_time": "14:28", "actor": "agent", "kind": "observation", "text": "IL_CO2 TRIPPED: climate_sensor_01=3012 ppm, climate_sensor_02=781, climate_sensor_03=790; оба станка PAUSED, hold_reason=IL_CO2"}

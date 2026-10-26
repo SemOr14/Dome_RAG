@@ -2,7 +2,6 @@
 .env
 .env.*
 !.env.example
-Keys/
 
 # Временные файлы Python и редакторов
 __pycache__/
@@ -15,3 +14,6 @@ __pycache__/
 agent_state.json
 state/
 logs/
+
+# Ключи команды
+Keys/

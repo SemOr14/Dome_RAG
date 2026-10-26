@@ -1,0 +1,114 @@
+# Граф влияний узлов купола. Составлен вручную по 01_API.md (§7, §8, таблица интерлоков)
+# и журналам смен. Редактируется свободно: агент читает файл при каждом запуске.
+#
+# Вершины — node_id из каталога и виртуальные элементы:
+#   line:N        — линия N щитка smart_panel_01
+#   IL_*          — интерлок dome_automation_01
+#   workstation   — рабочее место Оператора (пайка/монтаж)
+#   dc_bus        — шина инвертора ~230 В
+# relation:
+#   powers    — питает (без источника цель обесточена, online=false)
+#   feeds     — поставляет ресурс (топливо, воду, материал, охлаждение)
+#   measures  — источник данных для цели (ложные данные → ложная реакция цели)
+#   trips     — интерлок отключает цель
+#   holds     — интерлок ставит станок на удержание
+#   controls  — меняет режим цели
+#   contains  — цель физически внутри источника
+#   degrades  — ухудшение источника ухудшает цель
+
+edges:
+  # --- Энергия ---
+  - {from: solar_panels_01, to: solar_inverter_01, relation: powers, effect: "PV-генерация; туман/влажность → ошибка изоляции E09, генерации нет"}
+  - {from: wind_turbine_01, to: solar_inverter_01, relation: powers, effect: "доп. генерация; при шторме выключается IL_STORM"}
+  - {from: battery_01, to: solar_inverter_01, relation: powers, effect: "SOC < 25 % → IL_LOAD_SHED"}
+  - {from: solar_inverter_01, to: battery_01, relation: feeds, effect: "заряд АКБ (battery_charge_blocked блокирует)"}
+  - {from: dizel_1, to: solar_inverter_01, relation: powers, effect: "резервная генерация, автозапуск при IL_LOAD_SHED"}
+  - {from: fuel_tank_01, to: dizel_1, relation: feeds, effect: "топливо; вода/загрязнение → отказ запуска"}
+  - {from: solar_inverter_01, to: dc_bus, relation: powers, effect: "выход ~230 В; output_limit_pct, перегрузка → E07"}
+  - {from: dc_bus, to: smart_panel_01, relation: powers, effect: "bus_powered=false → обесточены все линии"}
+
+  # --- Линии щитка ---
+  - {from: smart_panel_01, to: "line:1", relation: powers}
+  - {from: smart_panel_01, to: "line:2", relation: powers}
+  - {from: smart_panel_01, to: "line:3", relation: powers}
+  - {from: smart_panel_01, to: "line:4", relation: powers}
+  - {from: smart_panel_01, to: "line:5", relation: powers}
+  - {from: smart_panel_01, to: "line:6", relation: powers}
+  - {from: smart_panel_01, to: "line:7", relation: powers}
+  - {from: smart_panel_01, to: "line:8", relation: powers}
+  - {from: "line:1", to: workstation, relation: powers, effect: "рабочее место пайки/монтажа"}
+  - {from: "line:1", to: fume_extraction_01, relation: powers, effect: "вытяжка без отдельного реле: выкл L1 = нет вытяжки"}
+  - {from: "line:2", to: thermal_insulation_01, relation: powers, effect: "вентиляторы, замки, датчики бокса ФабЛаб"}
+  - {from: "line:3", to: printer_3d_01, relation: powers, effect: "обесточивание прерывает печать"}
+  - {from: "line:4", to: cnc_01, relation: powers}
+  - {from: "line:5", to: thermal_insulation_02, relation: powers}
+  - {from: "line:6", to: climate_sensor_01, relation: degrades, effect: "мигание освещения даёт наводки на датчики климата (журнал 14.10)"}
+  - {from: "line:6", to: climate_sensor_02, relation: degrades, effect: "наводки от силовой линии освещения"}
+  - {from: "line:8", to: smart_panel_01, relation: degrades, effect: "фантомная нагрузка на пустой линии = окисленный/влажный клеммник"}
+
+  # --- Производство ---
+  - {from: thermal_insulation_01, to: printer_3d_01, relation: contains, effect: "замок бокса → Оператор снимает деталь → bed_clear=true; не открывать во время печати"}
+  - {from: material_inventory_01, to: printer_3d_01, relation: feeds, effect: "филамент; конец → FILAMENT_RUNOUT"}
+  - {from: material_inventory_01, to: cnc_01, relation: feeds, effect: "заготовки плат"}
+  - {from: equipment_cooling_01, to: cnc_01, relation: feeds, effect: "охлаждение шпинделя"}
+  - {from: equipment_cooling_01, to: printer_3d_01, relation: feeds}
+  - {from: fume_extraction_01, to: workstation, relation: controls, effect: "пайка без вытяжки — нарушение безопасности"}
+
+  # --- Климат и воздух ---
+  - {from: supply_ventilation_01, to: climate_sensor_01, relation: controls, effect: "приток снижает CO2/влажность; авария FAN_MOTOR → реальный рост CO2 на всех датчиках"}
+  - {from: supply_ventilation_01, to: climate_sensor_02, relation: controls}
+  - {from: supply_ventilation_01, to: climate_sensor_03, relation: controls}
+  - {from: dome_sealing_01, to: supply_ventilation_01, relation: controls, effect: "закрытые клапаны ограничивают свежий воздух"}
+  - {from: weather_station_01, to: supply_ventilation_01, relation: degrades, effect: "влажность/температура снаружи → точка росы внутри"}
+
+  # --- Источники данных интерлоков ---
+  - {from: climate_sensor_01, to: IL_CO2, relation: measures, effect: "основной датчик CO2 по умолчанию (primary_co2_sensor)"}
+  - {from: climate_sensor_02, to: IL_CO2, relation: measures, effect: "используется, если назначен основным; задержка reading_delay_s"}
+  - {from: climate_sensor_03, to: IL_CO2, relation: measures, effect: "используется, если назначен основным; задержка reading_delay_s"}
+  - {from: climate_sensor_01, to: IL_CONDENSATE, relation: measures, effect: "RH > 90 % или T − Tросы < 1 °C"}
+  - {from: smoke_detector_01, to: IL_SMOKE, relation: measures, effect: "зона FABLAB"}
+  - {from: smoke_detector_02, to: IL_SMOKE, relation: measures, effect: "зона STORAGE"}
+  - {from: battery_01, to: IL_LOAD_SHED, relation: measures, effect: "SOC < 25 %"}
+  - {from: solar_inverter_01, to: IL_LOAD_SHED, relation: measures, effect: "power_deficit_w, прогноз автономности"}
+  - {from: solar_inverter_01, to: IL_INV_OVERLOAD, relation: measures, effect: "ошибка E07 120 с"}
+  - {from: solar_inverter_01, to: IL_HEAT, relation: measures, effect: "inverter_temp_c > 75 °C 120 с"}
+  - {from: weather_station_01, to: IL_STORM, relation: measures, effect: "ветер > 20 м/с 30 с"}
+  - {from: smart_panel_01, to: IL_OVERVOLT, relation: measures, effect: "напряжение линии > 245 В 120 с"}
+  - {from: smart_panel_01, to: IL_OVERCURRENT, relation: measures, effect: "ток линии > 90 % уставки 120 с"}
+
+  # --- Действия интерлоков ---
+  - {from: IL_CO2, to: printer_3d_01, relation: holds, effect: "hold_reason=IL_CO2"}
+  - {from: IL_CO2, to: cnc_01, relation: holds, effect: "hold_reason=IL_CO2"}
+  - {from: IL_CO2, to: supply_ventilation_01, relation: controls, effect: "приток 100 %"}
+  - {from: IL_CONDENSATE, to: cnc_01, relation: holds}
+  - {from: IL_SMOKE, to: printer_3d_01, relation: holds, effect: "зона FABLAB"}
+  - {from: IL_SMOKE, to: cnc_01, relation: holds}
+  - {from: IL_SMOKE, to: "line:1", relation: trips, effect: "выкл. рабочего места и вытяжки"}
+  - {from: IL_SMOKE, to: fire_suppression_01, relation: controls, effect: "через 60 с без квитирования — пуск тушения зоны"}
+  - {from: IL_LOAD_SHED, to: "line:8", relation: trips, effect: "1-я очередь"}
+  - {from: IL_LOAD_SHED, to: "line:1", relation: trips, effect: "2-я очередь"}
+  - {from: IL_LOAD_SHED, to: "line:3", relation: trips, effect: "3-я очередь — принтер"}
+  - {from: IL_LOAD_SHED, to: "line:4", relation: trips, effect: "3-я очередь — ЧПУ"}
+  - {from: IL_LOAD_SHED, to: dizel_1, relation: controls, effect: "автозапуск, если diesel_autostart=true"}
+  - {from: IL_STORM, to: wind_turbine_01, relation: trips}
+  - {from: IL_STORM, to: dome_sealing_01, relation: controls, effect: "клапаны закрыты"}
+  - {from: IL_STORM, to: supply_ventilation_01, relation: controls, effect: "режим RECIRCULATION"}
+  - {from: IL_OVERVOLT, to: smart_panel_01, relation: trips, effect: "отключение линии с перенапряжением"}
+  - {from: IL_INV_OVERLOAD, to: "line:8", relation: trips}
+  - {from: IL_INV_OVERLOAD, to: "line:1", relation: trips}
+  - {from: IL_HEAT, to: "line:1", relation: trips}
+  - {from: IL_OVERCURRENT, to: smart_panel_01, relation: trips, effect: "отключение перегруженной линии"}
+
+  # --- Связь и вычисления ---
+  - {from: network_link_01, to: dome_automation_01, relation: degrades, effect: "потеря канала → status=UNKNOWN у узлов, команды отклоняются"}
+  - {from: network_link_01, to: smart_panel_01, relation: degrades, effect: "panel_link_state: щиток без связи — данные заморожены"}
+  - {from: backup_comms_01, to: network_link_01, relation: controls, effect: "резервный канал при деградации основного"}
+  - {from: edge_compute_01, to: dome_automation_01, relation: degrades, effect: "рассинхрон часов (clock_offset_s) искажает updated_at"}
+
+  # --- Вода ---
+  - {from: water_pump_01, to: water_filter_01, relation: feeds}
+  - {from: water_filter_01, to: water_tank_01, relation: feeds}
+
+  # --- Безопасность ---
+  - {from: fire_suppression_01, to: workstation, relation: degrades, effect: "пуск тушения в FABLAB останавливает работу Оператора"}
+  - {from: access_control_01, to: workstation, relation: controls, effect: "lockdown блокирует двери FABLAB"}

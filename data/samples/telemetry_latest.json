@@ -1,0 +1,689 @@
+{
+ "timestamp": 1791916543.2,
+ "game_time": {
+  "day": 1,
+  "hour": 14.5
+ },
+ "nodes": {
+  "solar_panels_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "power_w": 612,
+   "pv_voltage_v": 96.4,
+   "pv_current_a": 6.3,
+   "active_mppt_count": 2,
+   "cell_temp_c": 31.0,
+   "soiling_loss_pct": 3.1
+  },
+  "solar_inverter_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "pv_power_w": 598,
+   "battery_soc_pct": 71.0,
+   "load_power_w": 1180,
+   "grid_power_w": 0,
+   "ac_source": "BATTERY+PV",
+   "grid_state": "AVAILABLE",
+   "mode": "HYBRID",
+   "power_deficit_w": 0,
+   "inverter_temp_c": 46.0,
+   "error": false,
+   "error_code": null,
+   "error_text": null,
+   "battery_charge_blocked": false
+  },
+  "battery_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "soc_pct": 71.0,
+   "voltage_v": 51.8,
+   "current_a": -11.2,
+   "power_w": -580,
+   "state": "DISCHARGING",
+   "temperature_c": 24.0,
+   "cell_voltage_delta_mv": 18,
+   "charge_allowed": true
+  },
+  "wind_turbine_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "wind_speed_ms": 4.6,
+   "rpm": 180,
+   "power_w": 24,
+   "state": "ON",
+   "fault_code": null
+  },
+  "dizel_1": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "power_w": 0,
+   "state": "OFF",
+   "fault_code": null,
+   "fault_reason": null,
+   "start_attempts": 0,
+   "preheat_state": "OFF",
+   "engine_temp_c": 12.0
+  },
+  "fuel_tank_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "level_pct": 74.9,
+   "volume_l": 149.8,
+   "water_content_ppm": 40,
+   "fuel_quality": "GOOD",
+   "reserve_l": 20
+  },
+  "smart_panel_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "lines": [
+    {
+     "line": 1,
+     "name": "Производство + вытяжка",
+     "rated_current_a": 16,
+     "state": "ON",
+     "voltage_v": 229.5,
+     "current_a": 1.6,
+     "power_w": 367.2,
+     "leakage_ma": 0.4,
+     "protection_state": "ARMED",
+     "alarm": false,
+     "alarm_code": null,
+     "lockout_remaining_s": 0,
+     "lockout_reason": null
+    },
+    {
+     "line": 2,
+     "name": "Теплица ФабЛаб",
+     "rated_current_a": 10,
+     "state": "ON",
+     "voltage_v": 229.5,
+     "current_a": 0.4,
+     "power_w": 91.8,
+     "leakage_ma": 0.4,
+     "protection_state": "ARMED",
+     "alarm": false,
+     "alarm_code": null,
+     "lockout_remaining_s": 0,
+     "lockout_reason": null
+    },
+    {
+     "line": 3,
+     "name": "3D-принтер",
+     "rated_current_a": 10,
+     "state": "ON",
+     "voltage_v": 229.5,
+     "current_a": 1.1,
+     "power_w": 252.5,
+     "leakage_ma": 0.4,
+     "protection_state": "ARMED",
+     "alarm": false,
+     "alarm_code": null,
+     "lockout_remaining_s": 0,
+     "lockout_reason": null
+    },
+    {
+     "line": 4,
+     "name": "ЧПУ-фрезер",
+     "rated_current_a": 10,
+     "state": "ON",
+     "voltage_v": 229.5,
+     "current_a": 0.9,
+     "power_w": 206.6,
+     "leakage_ma": 0.4,
+     "protection_state": "ARMED",
+     "alarm": false,
+     "alarm_code": null,
+     "lockout_remaining_s": 0,
+     "lockout_reason": null
+    },
+    {
+     "line": 5,
+     "name": "Теплица Химлаб",
+     "rated_current_a": 10,
+     "state": "ON",
+     "voltage_v": 229.5,
+     "current_a": 0.3,
+     "power_w": 68.8,
+     "leakage_ma": 0.4,
+     "protection_state": "ARMED",
+     "alarm": false,
+     "alarm_code": null,
+     "lockout_remaining_s": 0,
+     "lockout_reason": null
+    },
+    {
+     "line": 6,
+     "name": "Освещение",
+     "rated_current_a": 10,
+     "state": "ON",
+     "voltage_v": 229.5,
+     "current_a": 0.5,
+     "power_w": 114.8,
+     "leakage_ma": 0.4,
+     "protection_state": "ARMED",
+     "alarm": false,
+     "alarm_code": null,
+     "lockout_remaining_s": 0,
+     "lockout_reason": null
+    },
+    {
+     "line": 7,
+     "name": "Аварийное освещение",
+     "rated_current_a": 6,
+     "state": "OFF",
+     "voltage_v": 0.0,
+     "current_a": 0.0,
+     "power_w": 0.0,
+     "leakage_ma": 0.4,
+     "protection_state": "ARMED",
+     "alarm": false,
+     "alarm_code": null,
+     "lockout_remaining_s": 0,
+     "lockout_reason": null
+    },
+    {
+     "line": 8,
+     "name": "Резерв",
+     "rated_current_a": 16,
+     "state": "OFF",
+     "voltage_v": 0.0,
+     "current_a": 0.0,
+     "power_w": 0.0,
+     "leakage_ma": 0.4,
+     "protection_state": "ARMED",
+     "alarm": false,
+     "alarm_code": null,
+     "lockout_remaining_s": 0,
+     "lockout_reason": null
+    }
+   ],
+   "bus_voltage_v": 229.5,
+   "bus_powered": true,
+   "total_power_w": 1101.6,
+   "lines_on_count": 6
+  },
+  "printer_3d_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "state": "PAUSED",
+   "paused": true,
+   "progress_pct": 41.2,
+   "z_mm": 18.4,
+   "file_name": "housing.gcode",
+   "files": [
+    {
+     "name": "housing.gcode"
+    },
+    {
+     "name": "gear.gcode"
+    }
+   ],
+   "hold_level": "WARNING",
+   "hold_reason": "IL_CO2",
+   "resume_attempts": 0,
+   "lockout_remaining_s": 0,
+   "bed_clear": false,
+   "webhook_state": "PAUSED",
+   "part_defect": false
+  },
+  "cnc_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "state": "PAUSED",
+   "paused": true,
+   "progress_pct": 63.0,
+   "file_name": "pcb_power_board.nc",
+   "files": [
+    {
+     "name": "pcb_power_board.nc"
+    },
+    {
+     "name": "pcb_sensor_hub.nc"
+    }
+   ],
+   "spindle_rpm": 0,
+   "hold_level": "WARNING",
+   "hold_reason": "IL_CO2",
+   "resume_attempts": 0,
+   "lockout_remaining_s": 0,
+   "alarm_code": null,
+   "last_probe": {
+    "x_mm": 5,
+    "y_mm": 5,
+    "z_mm": -12.3,
+    "success": true
+   }
+  },
+  "material_inventory_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "filament_g": 640,
+   "filament_pct": 64,
+   "spare_spools": 1,
+   "cnc_blanks_count": 4,
+   "low_stock_warnings": []
+  },
+  "equipment_cooling_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "coolant_temp_c": 24.5,
+   "coolant_flow_l_min": 2.1,
+   "state": "ON",
+   "alarm": false,
+   "alarm_code": null
+  },
+  "thermal_insulation_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "temperature_c": [
+    28.1,
+    27.6,
+    19.0
+   ],
+   "humidity_pct": [
+    38,
+    39,
+    45
+   ],
+   "voc_index": [
+    110,
+    95
+   ],
+   "dust_adc": 210,
+   "doors": [
+    "CLOSED",
+    "CLOSED"
+   ],
+   "locks": [
+    "LOCKED",
+    "LOCKED"
+   ],
+   "fans_pwm": [
+    120,
+    120,
+    120,
+    120,
+    140,
+    140
+   ],
+   "fans_rpm": [
+    1480,
+    1495,
+    1470,
+    1500,
+    1720,
+    1700
+   ],
+   "crc_errors": 0
+  },
+  "thermal_insulation_02": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "temperature_c": [
+    22.4,
+    19.0
+   ],
+   "humidity_pct": [
+    41,
+    45
+   ],
+   "gas_adc": [
+    312,
+    298
+   ],
+   "gas_voltage_v": [
+    1.01,
+    0.96
+   ],
+   "doors": [
+    "CLOSED",
+    "CLOSED"
+   ],
+   "lock": "LOCKED",
+   "relay_fan_level": 3
+  },
+  "climate_sensor_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "zone": "FABLAB",
+   "temperature_c": 24.1,
+   "humidity_pct": 41,
+   "co2_ppm": 3012,
+   "dew_point_c": 10.3,
+   "sensor_state": "OK",
+   "confidence": 0.9
+  },
+  "climate_sensor_02": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "zone": "FABLAB",
+   "temperature_c": 24.3,
+   "humidity_pct": 40,
+   "co2_ppm": 781,
+   "dew_point_c": 10.1,
+   "reading_delay_s": 900,
+   "drift_co2_ppm": 6,
+   "sensor_state": "OK",
+   "confidence": 0.85
+  },
+  "climate_sensor_03": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "zone": "FABLAB",
+   "temperature_c": 24.0,
+   "humidity_pct": 41,
+   "co2_ppm": 790,
+   "dew_point_c": 10.2,
+   "reading_delay_s": 1800,
+   "drift_co2_ppm": 4,
+   "sensor_state": "OK",
+   "confidence": 0.85
+  },
+  "air_quality_sensor_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "zone": "FABLAB",
+   "co_ppm": 1.2,
+   "voc_index": 104,
+   "chem_ppm": 0.3,
+   "warming_up": false
+  },
+  "fume_extraction_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "enabled": true,
+   "power_w": 85,
+   "fan_rpm": 2350,
+   "airflow_pct": 92,
+   "motor_state": "RUNNING",
+   "motor_temp_c": 41,
+   "alarm": false,
+   "alarm_code": null
+  },
+  "supply_ventilation_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "airflow_m3_h": 420,
+   "fresh_air_m3_h": 380,
+   "filter_clog_pct": 22,
+   "filter_state": "OK",
+   "speed_pct": 100,
+   "mode": "FRESH_AIR",
+   "state": "ON",
+   "alarm": false,
+   "alarm_code": null
+  },
+  "dome_sealing_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "pressure_diff_pa": 12,
+   "leak_rate_pct": 0.4,
+   "leak_detected": false,
+   "state": "OPEN",
+   "sealed_zone": null,
+   "fault_code": null
+  },
+  "smoke_detector_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "zone": "FABLAB",
+   "smoke_detected": false,
+   "obscuration_pct": 0.1,
+   "alarm_state": "NORMAL",
+   "false_alarm_suspected": false
+  },
+  "smoke_detector_02": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "zone": "STORAGE",
+   "smoke_detected": false,
+   "obscuration_pct": 0.0,
+   "alarm_state": "NORMAL",
+   "false_alarm_suspected": false
+  },
+  "fire_suppression_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "ready": true,
+   "state": "STANDBY",
+   "active_zone": null,
+   "automation_blocked": false,
+   "alarm": false,
+   "pressure_bar": 42
+  },
+  "access_control_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "system_state": "NORMAL",
+   "alarm": false,
+   "alarm_reason": null,
+   "lockdown": false
+  },
+  "radiation_sensor_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "dose_rate_usv_h": 0.12,
+   "alarm_state": "NORMAL"
+  },
+  "chem_sensor_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "concentration_ppm": 0.4,
+   "substance": "NONE",
+   "alarm_state": "NORMAL"
+  },
+  "weather_station_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "temperature_c": 17.2,
+   "humidity_pct": 48,
+   "illuminance_lux": 42000,
+   "wind_speed_ms": 4.6,
+   "precipitation_mm_h": 0,
+   "data_available": true
+  },
+  "seysmo_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "quake_detected": false,
+   "amplitude_mm_s": 0.02,
+   "estimated_magnitude": null
+  },
+  "water_pump_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "state": "ON",
+   "running": true,
+   "flow_l_min": 11.5,
+   "pressure_bar": 2.4,
+   "source_level_pct": 68,
+   "motor_temp_c": 38,
+   "alarm": false,
+   "alarm_code": null
+  },
+  "water_tank_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "level_pct": 63,
+   "volume_l": 1260,
+   "state": "OK"
+  },
+  "water_filter_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "turbidity_ntu": 0.4,
+   "pressure_drop_bar": 0.3,
+   "active_filter": "MAIN",
+   "wear_pct": 37,
+   "filter_state": "OK",
+   "warning_active": false
+  },
+  "network_link_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "active_path": "MAIN",
+   "link_state": "UP",
+   "link_flaps": 0,
+   "rx_power_dbm": -18.5,
+   "reserve_link_state": "STANDBY",
+   "packet_loss_pct": 0.1,
+   "panel_link_state": "UP"
+  },
+  "radio_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "snr_db": 14,
+   "signal_quality_pct": 81,
+   "reception": "GOOD",
+   "state": "ON"
+  },
+  "backup_comms_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "active_channel": "LORA",
+   "available": true,
+   "latency_ms": 850,
+   "signal_quality_pct": 74,
+   "state": "STANDBY"
+  },
+  "edge_compute_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "cpu_load_pct": 34,
+   "temperature_c": 52,
+   "services": {
+    "agent_runtime": "RUNNING",
+    "telemetry_collector": "RUNNING"
+   },
+   "state": "OK",
+   "clock_offset_s": 0.2
+  },
+  "dome_automation_01": {
+   "online": true,
+   "status": "OK",
+   "updated_at": 1791916543.2,
+   "mode": "AUTO",
+   "primary_co2_sensor": "climate_sensor_01",
+   "ventilation_auto": true,
+   "diesel_autostart": true,
+   "autonomy_forecast_h": 9.5,
+   "interlocks": {
+    "IL_CO2": {
+     "state": "TRIPPED",
+     "pending_s": 0,
+     "blocked_remaining_s": 0,
+     "trips": 1,
+     "title": "CO2 выше 2000 ppm"
+    },
+    "IL_CONDENSATE": {
+     "state": "ARMED",
+     "pending_s": 0,
+     "blocked_remaining_s": 0,
+     "trips": 0,
+     "title": "Конденсат"
+    },
+    "IL_SMOKE": {
+     "state": "ARMED",
+     "pending_s": 0,
+     "blocked_remaining_s": 0,
+     "trips": 0,
+     "title": "Дым"
+    },
+    "IL_LOAD_SHED": {
+     "state": "ARMED",
+     "pending_s": 0,
+     "blocked_remaining_s": 0,
+     "trips": 0,
+     "title": "Сброс нагрузки"
+    },
+    "IL_STORM": {
+     "state": "ARMED",
+     "pending_s": 0,
+     "blocked_remaining_s": 0,
+     "trips": 0,
+     "title": "Шторм"
+    },
+    "IL_OVERVOLT": {
+     "state": "ARMED",
+     "pending_s": 0,
+     "blocked_remaining_s": 0,
+     "trips": 0,
+     "title": "Перенапряжение"
+    },
+    "IL_INV_OVERLOAD": {
+     "state": "ARMED",
+     "pending_s": 0,
+     "blocked_remaining_s": 0,
+     "trips": 0,
+     "title": "Перегрузка инвертора"
+    },
+    "IL_HEAT": {
+     "state": "ARMED",
+     "pending_s": 0,
+     "blocked_remaining_s": 0,
+     "trips": 0,
+     "title": "Перегрев инвертора"
+    },
+    "IL_OVERCURRENT": {
+     "state": "ARMED",
+     "pending_s": 0,
+     "blocked_remaining_s": 0,
+     "trips": 0,
+     "title": "Перегрузка линии"
+    }
+   },
+   "data_trust": {},
+   "events": [
+    {
+     "event_id": "AUT-0007",
+     "interlock": "IL_CO2",
+     "type": "TRIP",
+     "message": "CO2 основного датчика 3012 ppm > 2000 ppm 60 с: удержание станков, приток 100 %",
+     "acknowledged": false
+    }
+   ]
+  },
+  "meeting_01": {
+   "online": true,
+   "message_count": 3,
+   "last_message_id": 3,
+   "recent_messages": []
+  }
+ }
+}
