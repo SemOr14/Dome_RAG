@@ -10,6 +10,9 @@ class RouteResult:
     intents: list = field(default_factory=list)
     covered_nodes: set = field(default_factory=set)
     summary: list = field(default_factory=list)
+    failures: list = field(default_factory=list)
+    successful_playbooks: set = field(default_factory=set)
+    handled_message_ids: set = field(default_factory=set)
 
 
 def route_playbooks(runner, now, chat_new):
@@ -21,13 +24,15 @@ def route_playbooks(runner, now, chat_new):
         if not runner.policy.algorithms_enabled:
             continue
         ctx = Ctx(runner.state, runner.cfg, runner.gate, runner.mem.setdefault(pb.name, {}),
-                  now, runner._operator_texts, chat_new)
+                  now, runner._operator_texts, chat_new, result.handled_message_ids)
         try:
             intents = pb.step(ctx)
         except Exception as exc:
             runner.log.write('error', where='playbook:' + pb.name, error=repr(exc), traceback=traceback.format_exc()[-1000:])
             result.summary.append({'playbook': pb.name, 'status': 'failed', 'reason': type(exc).__name__})
+            result.failures.append({'playbook': pb.name, 'error': type(exc).__name__})
             continue
+        result.successful_playbooks.add(pb.name)
         for intent in intents:
             nodes = {e.get('node') for e in intent.evidence if e.get('node')}
             nodes |= {s.node for s in intent.steps}

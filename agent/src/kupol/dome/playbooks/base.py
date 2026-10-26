@@ -68,6 +68,7 @@ class Ctx:
     now: float  # Unix-время
     operator_texts: Callable[[float], list[str]] = field(default=lambda since: [])  # сообщения Оператора за период (с)
     chat_new: list[dict[str, Any]] = field(default_factory=list)  # новые сообщения чата (meeting_message.message)
+    handled_message_ids: set[int] = field(default_factory=set)
 
 
 class Playbook:

@@ -17,6 +17,7 @@ import time
 import traceback
 from collections.abc import Callable
 from pathlib import Path
+from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any, Protocol
 
 from kupol.dome.agentlog import AgentLog
@@ -45,7 +46,7 @@ from kupol.dome.playbooks.energy import EnergyPlaybook
 from kupol.dome.playbooks.lines import OvercurrentPlaybook, PhantomLinePlaybook
 from kupol.dome.playbooks.machines import ResumePlaybook, SmokePlaybook
 from kupol.dome.playbooks.production import PrinterPlaybook
-from kupol.dome.playbooks.tasks import TasksPlaybook, unanswered_operator_messages
+from kupol.dome.playbooks.tasks import TasksPlaybook
 from kupol.dome.state import DomeState
 
 if TYPE_CHECKING:  # LLM-слой нужен только в режиме AGENT_BRAIN=llm
@@ -166,6 +167,7 @@ class Runner:
         self.seen_msgs: set[int] = set()
         self.operator_log: list[tuple[float, str]] = []
         self._chat_ready = False
+        self._history_message_ids = set()
         self._last_observation = 0.0
         self._last_anomalies: frozenset[str] = frozenset()
         self._last_save = 0.0
@@ -180,6 +182,9 @@ class Runner:
         self.incidents = IncidentCenter(lambda kind, payload, **kw: self.recorder.event(kind, payload, **kw) if self.recorder else None)
         self.printer_supervisor = PrinterSupervisor(self, self.incidents)
         self._incident_delivery = None
+        if self.brain is not None:
+            self.brain.on_human = self._human_review
+            self.brain.no_effect_cooldown_s = cfg.policy.no_effect_cooldown_s
 
     # ------------------------------------------------------------------ жизненный цикл
 
@@ -284,6 +289,12 @@ class Runner:
         completed = self.gate.check_pending()
         for pending in completed:
             self.printer_supervisor.verification(pending)
+            if pending.verified:
+                self.incidents.resolve('action:' + pending.cmd.node_id + ':' + pending.cmd.action)
+            elif self.brain is None:
+                self._human_review(SimpleNamespace(key='no_effect', nodes={pending.cmd.node_id},
+                    text='Фактический эффект команды не подтверждён', meta={'node_id': pending.cmd.node_id,
+                    'action': pending.cmd.action, 'action_seq': pending.action_seq}))
         for pending in completed:
             plan = self._plans.pop(pending.action_seq, None)
             if plan is None:
@@ -299,6 +310,15 @@ class Runner:
         await self._manual_step()  # ручные команды Оператора — раньше автоматических решений
         classify_live(self.state, self.cfg, self.incidents, now)
         route = route_playbooks(self, now, chat_new)
+        for failure in route.failures:
+            if self.brain is not None and hasattr(self.brain, 'playbook_failed'):
+                self.brain.playbook_failed(failure['playbook'], failure['error'])
+            else:
+                self._human_review(SimpleNamespace(key='playbook:' + failure['playbook'], nodes=set(),
+                    text=f"Ошибка алгоритма {failure['playbook']}: {failure['error']}", meta=failure))
+        if self.brain is not None and hasattr(self.brain, 'playbook_recovered'):
+            for name in route.successful_playbooks:
+                self.brain.playbook_recovered(name)
         intents = []
         for intent in route.intents:
             # Printer resume has exactly one owner: the 12-second supervisor.
@@ -318,7 +338,8 @@ class Runner:
                     if any(s.action == 'resume' and self.state.get(f'{s.node}.file_name') != job_files.get(s.node) for s in intent.steps):
                         return
                     await self.execute(intent, self.clock())
-            self.brain.step(chat_new, current_result, covered_nodes=route.covered_nodes, algorithm_summary=route.summary)
+            self.brain.step(chat_new, current_result, covered_nodes=route.covered_nodes, algorithm_summary=route.summary,
+                handled_operator_ids=route.handled_message_ids | self._history_message_ids)
         elif self.brain is not None:
             self.brain.mark_seen(chat_new)
         if self._incident_delivery is None or self._incident_delivery.done():
@@ -364,16 +385,20 @@ class Runner:
         return [t for ts, t in self.operator_log if ts >= since]
 
     def _collect_chat(self, now: float) -> list[dict[str, Any]]:
-        """Новые сообщения чата (в порядке прихода). После старта — ещё и неотвеченные из истории."""
+        """Только новые сообщения; история при старте учитывается без повторного исполнения."""
         new: list[dict[str, Any]] = []
+        live = []
+        while not self.client.chat.empty():
+            live.append(self.client.chat.get_nowait().get('message') or {})
+        live_ids = {m.get('id') for m in live}
         if not self._chat_ready:
             self._chat_ready = True
             recent = self.state.get("meeting_01.recent_messages", []) or []
-            for m in unanswered_operator_messages([m for m in recent if isinstance(m, dict)]):
-                if self._take(m, now, history=True):
-                    new.append(m)
-        while not self.client.chat.empty():
-            m = self.client.chat.get_nowait().get("message") or {}
+            for m in recent:
+                if isinstance(m, dict) and isinstance(m.get('id'), int) and m['id'] not in live_ids:
+                    self._take(m, now, history=True)
+                    self._history_message_ids.add(m['id'])
+        for m in live:
             if self._take(m, now):
                 new.append(m)
         self.operator_log = [(t, x) for t, x in self.operator_log if now - t <= OPERATOR_TEXTS_KEEP_S]
@@ -485,6 +510,18 @@ class Runner:
             result = await self.gate.submit(Cmd('meeting_01', 'post_message', {'text': text, 'to': 'operator', 'name': AGENT_NAME},
                                                'Вызов оператора', ref, actor='safety', policy_epoch=self.policy.policy_epoch))
             self.incidents.delivered(item, 'accepted' if result.status == 'sent' else 'not_sent' if result.status == 'dry_run' else result.status)
+
+    def _human_review(self, trigger):
+        if self.policy.operating_state == 'shutting_down':
+            return
+        facts = trigger.meta
+        if facts.get('policy_epoch') not in (None, self.policy.policy_epoch):
+            return
+        node = facts.get('node_id') or next(iter(trigger.nodes), 'application')
+        action = facts.get('action')
+        key = 'action:' + node + ':' + action if action else 'routing:' + str(facts.get('playbook', trigger.key))
+        self.incidents.open(key, 'red', node, trigger.text,
+            'Алгоритм/ИИ не завершил восстановление. Проверьте причину и фактическое состояние; не повторяйте команду вслепую.', facts)
 
     # ------------------------------------------------------------------ ручные команды Оператора
 

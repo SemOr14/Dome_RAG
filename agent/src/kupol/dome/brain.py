@@ -48,7 +48,7 @@ from llm_agent import Settings as LlmSettings  # noqa: E402
 from llm_agent.agent import make_retriever  # noqa: E402
 from llm_agent.context.catalog import NodeCatalog  # noqa: E402
 from llm_agent.dispatcher import Dispatcher, Fired  # noqa: E402
-from llm_agent.triggers import Trigger  # noqa: E402
+from llm_agent.triggers import Trigger, gate_action_trigger, gate_rejection_trigger, gate_verification_trigger, playbook_failure_trigger  # noqa: E402
 from llm_agent.schemas import AgentResponse, LLMCallInfo, ProposedAction  # noqa: E402
 from llm_agent.storage.data_api import ApiControlChecker, DataApiClient, journal_record  # noqa: E402
 
@@ -225,10 +225,16 @@ class LlmBrain:
             events=_Sink(recorder, session, self.journal, lambda: getattr(self, 'policy', None)), control_checker=checker,
         )  # fmt: skip
         self.dispatcher = Dispatcher(self.agent, clock=clock)
+        self.dispatcher.external_verification = True
         self.task: asyncio.Task[None] | None = None
         self.failures = 0
         self.down_until = 0.0
         self.calls = 0
+        self._actions = {}
+        self._timed_out = set()
+        self._feedback_cases = {}
+        self.no_effect_cooldown_s = 120.0
+        self.on_human = lambda trigger: None
 
     @property
     def model(self) -> str:
@@ -249,6 +255,58 @@ class LlmBrain:
 
     def on_log(self, kind: str, rec: dict[str, Any]) -> None:
         self.journal.on_log(kind, rec)
+        trigger = None
+        if kind == 'action' and isinstance(rec.get('seq'), int):
+            self._actions[rec['seq']] = rec
+            if len(self._actions) > 500:
+                first = next(iter(self._actions))
+                self._actions.pop(first)
+                self._timed_out.discard(first)
+            trigger = gate_action_trigger(rec) or gate_rejection_trigger(rec)
+            if trigger is not None and '|timeout|' in trigger.key:
+                self._timed_out.add(rec['seq'])
+        elif kind == 'verification':
+            action = self._actions.get(rec.get('ref'), {})
+            trigger = gate_verification_trigger(rec, action, rec.get('ref') in self._timed_out, self.no_effect_cooldown_s)
+            self._timed_out.discard(rec.get('ref'))
+            rec = {**action, **rec, 'request': action.get('request', {})}
+        if trigger is not None:
+            req = rec.get('request') or {}
+            if req.get('node_id') == 'meeting_01':
+                return  # delivery errors must never create recursive chat/LLM traffic
+            trigger.meta.update(node_id=req.get('node_id'), action=req.get('action'), actor=rec.get('actor', 'algorithm'),
+                                policy_epoch=rec.get('policy_epoch'), pipeline_feedback=True)
+            self.review_failure(trigger)
+
+    def review_failure(self, trigger):
+        policy = getattr(self, 'policy', None)
+        epoch = policy.policy_epoch if policy else None
+        if policy and (policy.operating_state == 'shutting_down' or trigger.meta.get('policy_epoch') not in (None, epoch)):
+            return
+        trigger.meta.setdefault('policy_epoch', epoch)
+        identity = (epoch, trigger.key)
+        if identity in self._feedback_cases:
+            return
+        self._feedback_cases[identity] = trigger
+        if len(self._feedback_cases) > 1000:
+            self._feedback_cases.pop(next(iter(self._feedback_cases)))
+        can_analyze = self.healthy and (not policy or policy.agent_mode != 'off')
+        if trigger.kind == 'verification':
+            if can_analyze:
+                self.dispatcher.submit(trigger)
+        elif can_analyze and trigger.meta.get('actor') != 'agent':
+            self.dispatcher.submit(trigger)
+        else:
+            self.on_human(trigger)
+
+    def playbook_failed(self, name, error):
+        self.review_failure(playbook_failure_trigger(name, error))
+
+    def playbook_recovered(self, name):
+        for identity, trigger in list(self._feedback_cases.items()):
+            if trigger.meta.get('playbook') == name:
+                self.dispatcher.pending.pop(trigger.key, None)
+                self._feedback_cases.pop(identity)
 
     def operator_request(self, text: str, event_id: str | None = None) -> None:
         """Требование Оператора из веб-панели: срочный повод для модели, ответ — рекомендация Оператору."""
@@ -265,9 +323,9 @@ class LlmBrain:
         if ids:
             self.dispatcher.operator.last_id = max(self.dispatcher.operator.last_id, *ids)
 
-    def step(self, chat_new: list[dict[str, Any]], execute: Execute, *, covered_nodes=None, algorithm_summary=None) -> None:
+    def step(self, chat_new: list[dict[str, Any]], execute: Execute, *, covered_nodes=None, algorithm_summary=None, handled_operator_ids=None) -> None:
         """Такт: найти поводы; если пора — запустить вызов модели в фоне (результат исполнит ``execute``)."""
-        fired = self.dispatcher.poll(chat_new, covered_nodes=covered_nodes)
+        fired = self.dispatcher.poll(chat_new, covered_nodes=covered_nodes, handled_operator_ids=handled_operator_ids)
         if fired is not None:
             if algorithm_summary:
                 fired.text += '\nДетерминированный разбор (не ослаблять): ' + json.dumps(algorithm_summary, ensure_ascii=False, default=str)
@@ -294,6 +352,10 @@ class LlmBrain:
             response=(response.raw_text or "")[:4000] or None,
         )  # fmt: skip
         if not response.ok or response.decision is None:
+            for trigger in fired.triggers:
+                if trigger.kind != 'verification' and (trigger.meta.get('pipeline_feedback') or trigger.meta.get('playbook')):
+                    self.dispatcher.pending.pop(trigger.key, None)
+                    self.on_human(trigger)
             self.failures += 1
             if self.failures >= FAILURES_TO_FALLBACK:
                 self.down_until = self.clock() + FALLBACK_S
@@ -302,9 +364,18 @@ class LlmBrain:
             return
         self.failures = 0
         try:
-            await execute(to_intent(response, fired))
+            intent = to_intent(response, fired)
+            recommendation = getattr(self, 'policy', None) and self.policy.agent_mode == 'recommendation'
+            if (not intent.steps or recommendation) and not intent.human_escalation:
+                for trigger in fired.triggers:
+                    if trigger.kind != 'verification' and (trigger.meta.get('pipeline_feedback') or trigger.meta.get('playbook')):
+                        self.on_human(trigger)
+            await execute(intent)
         except Exception as exc:  # noqa: BLE001 - фоновая задача: ошибка исполнения не должна потеряться
             self.log.write("error", where="llm_brain.execute", error=repr(exc))
+            for trigger in fired.triggers:
+                if trigger.kind != 'verification' and (trigger.meta.get('pipeline_feedback') or trigger.meta.get('playbook')):
+                    self.on_human(trigger)
 
     async def close(self) -> None:
         if self.task is not None and not self.task.done():

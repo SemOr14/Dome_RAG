@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -146,13 +147,15 @@ class OperatorWatch:
     def __init__(self, last_id: int = 0):
         self.last_id = last_id
 
-    def messages(self, messages: list[dict], event_ids: dict[int, str] | None = None) -> list[Trigger]:
+    def messages(self, messages: list[dict], event_ids: dict[int, str] | None = None, *, handled_ids=None) -> list[Trigger]:
         out = []
         for msg in sorted((m for m in messages if isinstance(m, dict) and isinstance(m.get("id"), int)),
                           key=lambda m: m["id"]):
             if msg["id"] <= self.last_id:
                 continue
             self.last_id = msg["id"]
+            if msg["id"] in (handled_ids or set()):
+                continue
             sender = msg.get("sender") if isinstance(msg.get("sender"), dict) else {}
             if sender.get("role") != "operator":
                 continue  # свои и чужие агенты — не задача для нас
@@ -162,9 +165,9 @@ class OperatorWatch:
                                {"meeting_01"}, [ev] if ev else []))
         return out
 
-    def from_snapshot(self, snapshot: dict) -> list[Trigger]:
+    def from_snapshot(self, snapshot: dict, *, handled_ids=None) -> list[Trigger]:
         meeting = (snapshot.get("nodes") or {}).get("meeting_01") or {}
-        return self.messages(meeting.get("recent_messages") or [])
+        return self.messages(meeting.get("recent_messages") or [], handled_ids=handled_ids)
 
 
 def command_triggers(events: list[dict]) -> list[Trigger]:
@@ -190,3 +193,85 @@ def command_triggers(events: list[dict]) -> list[Trigger]:
         out.append(Trigger("command", f"command|{kind}|{rid or ev['event_id']}", text,
                            {node} if node else set(), [ev["event_id"]]))
     return out
+
+
+NO_ANSWER = ("нет ответа", "нет соединения", "соединение закрыто")
+
+
+def gate_action_trigger(rec: dict) -> Trigger | None:
+    """Запись action журнала агента: отказ Купола или отсутствие ответа — срочный повод.
+
+    Отказы Gate (rejected) и неотправленные команды (dry_run) Купол не видел — не повод.
+    """
+    resp = rec.get("response") if isinstance(rec.get("response"), dict) else {}
+    if rec.get("rejected") or rec.get("dry_run") or resp.get("success") is not False:
+        return None
+    req = rec.get("request") if isinstance(rec.get("request"), dict) else {}
+    node, action = req.get("node_id"), req.get("action")
+    what = _what(req)
+    error = str(resp.get("error") or "без пояснения")
+    if any(x in error for x in NO_ANSWER):
+        text = (f"Купол не подтвердил команду {what}: {error}. Результат неизвестен, эффект проверяется по телеметрии. "
+                "Не повторяй команду, пока не ясен итог; оцени ситуацию и сообщи Оператору")
+        kind = "timeout"
+    else:
+        text = (f"Купол отклонил команду {what}: {error}. Повтор вслепую запрещён: оцени причину, предложи другое "
+                "действие или попроси Оператора")
+        kind = "refused"
+    return Trigger("command", f"command|{kind}|{rec.get('run_id')}|{rec.get('seq')}", text, {node} if node else set(),
+                   meta={"action_seq": rec.get("seq"), "decision_seq": rec.get("ref"), "error": error})
+
+
+def _what(req: dict) -> str:
+    value = req.get("value")
+    if isinstance(value, dict) and "content" in value:
+        value = {k: v for k, v in value.items() if k != "content"}
+    label = json.dumps(value, ensure_ascii=False, default=str)[:240] if value is not None else ""
+    return f"{req.get('node_id')}.{req.get('action')}" + (f"({label})" if label else "")
+
+
+def gate_verification_trigger(rec: dict, action: dict | None, timed_out: bool, cooldown_s: float) -> Trigger | None:
+    """Запись verification журнала агента (проверка эффекта Gate по телеметрии) — повод для модели.
+
+    ok=false (no_effect): Купол принял команду, а эффекта нет — срочно. ok=true — только как итог команды,
+    на которую Купол не ответил (модели сказали «результат неизвестен»).
+    """
+    req = (action or {}).get("request") if isinstance((action or {}).get("request"), dict) else {}
+    what = _what(req) if req else f"действие seq {rec.get('ref')}"
+    node = req.get("node_id")
+    key = f"{rec.get('run_id')}|{rec.get('ref')}"
+    if rec.get("ok") is False:
+        return Trigger(
+            "command", f"command|no_effect|{key}",
+            f"Команда {what} отправлена, но эффект за {rec.get('waited_s', '?')} с не подтвердился: ожидалось "
+            f"{rec.get('expected')}, наблюдается {rec.get('observed')}. Такая же команда заблокирована Gate на "
+            f"{cooldown_s:.0f} с — не повторяй её: найди причину по телеметрии, предложи другое действие или попроси "
+            "Оператора", {node} if node else set(), meta={"action_seq": rec.get("ref")},
+        )  # fmt: skip
+    if rec.get("ok") is True and timed_out:
+        return Trigger(
+            "verification", f"command|resolved|{key}",
+            f"Итог команды {what}, на которую Купол не ответил вовремя: эффект подтверждён ({rec.get('observed')}). "
+            "Повторять её не нужно", {node} if node else set(), meta={"action_seq": rec.get("ref")},
+        )  # fmt: skip
+    return None
+
+
+def gate_rejection_trigger(rec: dict) -> Trigger | None:
+    """One review of a deterministic proposal rejected locally; not permission to bypass Gate."""
+    if not rec.get("rejected") or rec.get("dry_run"):
+        return None
+    req = rec.get("request") or {}
+    error = str((rec.get("response") or {}).get("error") or "отказ Gate")
+    node = req.get("node_id")
+    return Trigger("command", "gate_rejected|" + _what(req) + "|" + error,
+        f"Алгоритм предложил {_what(req)}, Gate отклонил: {error}. Не обходи запрет и не повторяй эту команду. "
+        "Разбери причину; предложи допустимый иной шаг или структурированный request_human.",
+        {node} if node else set(), meta={"action_seq": rec.get("seq"), "error": error, "local_rejection": True})
+
+
+def playbook_failure_trigger(name: str, error: str) -> Trigger:
+    return Trigger("command", f"playbook_failure|{name}|{error}",
+        f"Детерминированный алгоритм {name} завершился ошибкой {error}. Его действие не выполнено. "
+        "Разбери ситуацию по свежим данным; не повторяй ошибочный сценарий. Если нет допустимого решения — request_human.",
+        meta={"playbook": name, "error": error})
