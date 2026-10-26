@@ -70,6 +70,7 @@ class SmokeCfg(_Cfg):
 
 class PrinterCfg(_Cfg):
     cool_bed_c: float = 40.0
+    stall_timeout_s: float | None = Field(default=None, gt=15)
 
 
 class EnergyCfg(_Cfg):

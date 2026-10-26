@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pretty = value => JSON.stringify(value, null, 2);
 const date = value => value ? new Date(value).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—';
-const labels = {overview:'Обзор системы', charts:'Графики телеметрии', commands:'Управление', agent:'LLM-агент и чат', database:'База данных'};
+const labels = {overview:'Обзор системы', charts:'Графики телеметрии', commands:'Управление', production:'Производство', agent:'LLM-агент и чат', database:'База данных'};
 const state = {page:'overview', runtime:{}, run:'', overview:null, charts:[], dbCursor:0, dbNext:0, dbItems:[], busy:false, commandOperation:null};
 $('token').value = sessionStorage.getItem('dome-api-token') || '';
 
@@ -12,6 +12,7 @@ function toast(message, error=false) {
   clearTimeout(toast.timer); toast.timer=setTimeout(()=>el.classList.add('hidden'),6500);
 }
 async function api(path, options={}) {
+  if(state.exiting && path!=='/control/safety/red')throw new Error('Приложение завершается');
   const headers = {...options.headers};
   if ($('token').value) headers.Authorization='Bearer '+$('token').value;
   if(options.body !== undefined) { headers['Content-Type']='application/json'; options.body=JSON.stringify(options.body); }
@@ -51,7 +52,7 @@ function flatten(value, path='', output={}) {
   return output;
 }
 async function refresh() {
-  if(state.busy)return; state.busy=true;
+  if(state.busy||state.exiting)return; state.busy=true;
   try {
     const runtime=await api('/control/status'); state.runtime=runtime;
     if(!state.run)state.run=runtime.run_id;
@@ -70,14 +71,13 @@ async function refresh() {
     $('notice').textContent=!isActive()?'Вы просматриваете другой запуск. Управление доступно только для текущего.':runtime.last_error?'Ошибка соединения: '+runtime.last_error:runtime.control_enabled?'Реальное управление разрешено настройкой сервера. Каждая команда требует проверок и подтверждения.':'Режим только чтения: команды проходят проверки, но в Купол не отправляются. Подключение выполняется отдельно.';
     $('askAgent').disabled=!runtime.llm_configured || !isActive();
     $('buildPrompt').disabled=!isActive();
-    $('autoAnalysis').checked=runtime.auto_analysis;
-    if(document.activeElement!==$('autoInterval')&&runtime.review_s)$('autoInterval').value=Math.round(runtime.review_s);
     renderOverview(data); renderControls(data); renderDecisions(data); updateSelectors(data);
+    if(window.refreshProductionControl) await window.refreshProductionControl();
     if(state.page==='charts') await refreshCharts();
     $('lastRefresh').textContent='Обновлено '+new Date().toLocaleTimeString('ru-RU');
     $('runtimeDetails').innerHTML=`<p class="tiny muted">Run: <code>${esc(runtime.run_id)}</code><br>Session: <code>${esc(runtime.session_id||'не создана')}</code><br>Роль: ${esc(runtime.role||'не авторизован')}<br>LLM: ${runtime.llm_configured?'ключ настроен':'ключ не настроен'}<br>Решения: ${esc(runtime.brain||'агент не запущен')}</p>`;
     if(state.page==='agent') await loadChat();
-  } catch(error) { $('apiState').textContent='API недоступен'; toast(error.message,true); }
+  } catch(error) { if(!state.exiting){$('apiState').textContent='API недоступен'; toast(error.message,true);} }
   finally {state.busy=false;}
 }
 function renderOverview(data) {
@@ -145,7 +145,7 @@ function updateSelectors(data) {
   const priorChart=$('chartNode').value;
   selectOptions($('chartNode'),data.nodes,x=>x.node_id,x=>`${x.node_id} · ${nodeName(x.node_id)}`);
   if(priorChart!==$('chartNode').value || !$('chartField').options.length)updateFields().catch(e=>toast(e.message,true));
-  $('sendCommand').disabled=!isActive()||!data.catalogue.length;
+  $('sendCommand').disabled=!isActive()||!data.catalogue.length||state.runtime.profile!=='service';
 }
 function updateActions() {
   const node=state.overview?.catalogue.find(x=>x.node_id===$('commandNode').value);
@@ -165,7 +165,7 @@ function renderDecisions(data) {
     return `<article class="panel decision"><div class="panel-heading"><span class="muted tiny">${date(e.ingested_at)} · ${esc(p.decision_id||e.event_id)}</span>${badge(p.severity||'proposed')}</div><h3>${esc(p.summary||p.text||'Решение агента')}</h3><p class="reason">${esc((p.hypotheses||[]).map(x=>x.description).join('; '))}</p>${p.proposed_controls?.length?`<table><thead><tr><th>Предложение</th><th>Проверка LLM-слоя</th><th></th></tr></thead><tbody>${p.proposed_controls.map((a,i)=>`<tr><td><code>${esc(a.node_id)} / ${esc(a.action)}</code><div>${esc(JSON.stringify(a.value))}</div></td><td>${badge(a.accepted?'accepted':'rejected')}<div class="muted">${esc((a.reasons||[]).join('; '))}</div></td><td><button class="small execute-decision" data-event="${esc(e.event_id)}" data-index="${i}" ${a.accepted&&isActive()?'':'disabled'}>Повторно проверить и выполнить</button></td></tr>`).join('')}</tbody></table>`:'<p class="muted tiny">Управляющих действий не предложено.</p>'}<details><summary>Полная структура решения</summary><pre>${esc(pretty(p))}</pre></details></article>`;
   }).join(''):empty('Решений текущего LLM-слоя пока нет. Запросите анализ новых данных.');
   document.querySelectorAll('.execute-decision').forEach(button=>button.onclick=()=>action(button,async()=>{
-    if(!confirm('Повторно проверить и выполнить действие агента? В живом режиме команда будет отправлена.'))return;
+    if(state.runtime.profile!=='service')throw new Error('Ручное принятие рекомендации доступно только в service');
     button.dataset.operation ||= crypto.randomUUID();
     const result=await api(`/control/decisions/${button.dataset.event}/execute`,{method:'POST',body:{operation_id:button.dataset.operation,action_index:Number(button.dataset.index)}});
     toast(`Результат: ${result.status}. ${result.reason||''}`); await refresh();
@@ -230,6 +230,7 @@ document.querySelectorAll('nav button').forEach(button=>button.onclick=()=>{
   if(state.page==='charts')refreshCharts().catch(e=>toast(e.message,true));
   if(state.page==='database')loadEvents().catch(e=>toast(e.message,true));
   if(state.page==='agent')loadChat().catch(e=>toast(e.message,true));
+  if(state.page==='production' && window.refreshProductionControl)window.refreshProductionControl().catch(e=>toast(e.message,true));
 });
 $('chatForm').onsubmit=event=>{event.preventDefault();action($('chatSend'),async()=>{
   if(!isActive())throw new Error('Выбран другой запуск');
@@ -264,11 +265,10 @@ for(const [id,path] of [['buildPrompt','prompt'],['askAgent','decide']])$(id).on
   $('llmOutput').textContent=pretty(result);$('promptDetails').open=true;
   await refresh();
 });
-$('applyAuto').onclick=()=>action($('applyAuto'),async()=>{await api('/control/auto',{method:'POST',body:{enabled:$('autoAnalysis').checked,interval_s:Number($('autoInterval').value)}});await refresh();});
 $('dbFilters').onsubmit=event=>{event.preventDefault();loadEvents().catch(e=>toast(e.message,true));};
 $('dbNext').onclick=()=>{state.dbCursor=state.dbNext;loadEvents(false).catch(e=>toast(e.message,true));};
 $('find').onclick=()=>action($('find'),async()=>{$('dbDetail').textContent=pretty(await api('/v1/events/'+encodeURIComponent($('findEvent').value.trim())));});
 $('loadAudit').onclick=()=>loadAudit().catch(e=>toast(e.message,true));
 $('export').onclick=()=>{const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([pretty(state.dbItems)],{type:'application/json'}));link.download='dome-events.json';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);};
 refresh();
-setInterval(()=>{if(!document.hidden)refresh();},4000);
+window.panelRefreshTimer=setInterval(()=>{if(!document.hidden)refresh();},4000);

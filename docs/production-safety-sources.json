@@ -1,0 +1,120 @@
+{
+  "base_repository": "SemOr14/Dome_RAG",
+  "base_branch": "work/resilience-prompts-20261026",
+  "base_commit": "7292ae75eecac56cb9f4bca12f335504559a2af3",
+  "organizer_repository": "WhiteDots/Dome_RAG",
+  "organizer_commit": "5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438",
+  "organizer_blobs": [
+    {
+      "path": "01_API.md",
+      "sha": "c7ce91dc2d4f7dfb400ee00465eef4be5ea5ab74"
+    },
+    {
+      "path": "02_Задание_и_оценка.md",
+      "sha": "d67dad76a3a3a58a20b206cd6d0bdefe7dc77441"
+    },
+    {
+      "path": "03_Требования_к_агенту.md",
+      "sha": "9a1aeaa8c4cdd0aee7a2400dd592d427b8e3e7ef"
+    },
+    {
+      "path": "04_Как_создаётся_агент.md",
+      "sha": "452178f06cdcd0e71f86787fcfb6d1feb2a5e714"
+    },
+    {
+      "path": "dome_sandbox_nodes.md",
+      "sha": "a20ef70ec647c781cf97f420dd514d37a8ff1403"
+    },
+    {
+      "path": "knowledge/02_station.md",
+      "sha": "b464b43a91d9d6641ecb8d65d03e992038bc3c8d"
+    },
+    {
+      "path": "knowledge/05_production.md",
+      "sha": "ce37122d64599535d1059e3c3b7d536c8d610cba"
+    },
+    {
+      "path": "knowledge/07_rules.md",
+      "sha": "7a6a2ccf12a03d962208d53799ec07e2b2613936"
+    },
+    {
+      "path": "knowledge/08_safety.md",
+      "sha": "9209a4d987fe2a69f2469f005258c0af684c92c3"
+    }
+  ],
+  "inspected_branches": [
+    {
+      "branch": "agent/llm-layer",
+      "sha": "c1773175e8cdad90b521b13b0d36bc5559957616"
+    },
+    {
+      "branch": "integration/web-agent-data-api",
+      "sha": "085ee736c39296b1c21f72883300eeb2bfcf0efb"
+    },
+    {
+      "branch": "main",
+      "sha": "1136b28432de4fa1be3f633f89299e645f3e4382"
+    },
+    {
+      "branch": "rag/local-retrieval-20261026",
+      "sha": "cb8ad3e111a53b0a6082120445bdacbef0ec3f7d"
+    },
+    {
+      "branch": "work/agent-system",
+      "sha": "1136b28432de4fa1be3f633f89299e645f3e4382"
+    },
+    {
+      "branch": "work/data-api",
+      "sha": "d7bee62a442c84bab233409e8cb287b13b33e1b3"
+    },
+    {
+      "branch": "work/resilience-prompts-20261026",
+      "sha": "7292ae75eecac56cb9f4bca12f335504559a2af3"
+    }
+  ],
+  "selected_features": [
+    {
+      "name": "work/control-contracts",
+      "sha": "0943312f3f59fdcf9eec67edb0d54e171ecbec29",
+      "tree": "cbd360ed8bdc434d487c64e9f2eb038db27969d8"
+    },
+    {
+      "name": "feat/agent-modes",
+      "sha": "a2988b300d34339040a46a9596e8e504e2d9ce8d",
+      "tree": "84875acde35fbf9b5344bd2d152464d8c4bf2174"
+    },
+    {
+      "name": "feat/incident-alerts",
+      "sha": "e04744d00ff0e954923df875da07191c7e371be0",
+      "tree": "1a07a3ad2c80255402014a0f3207632b7a89a4d0"
+    },
+    {
+      "name": "feat/playbook-routing",
+      "sha": "2c099a78e1688f13825fc0baf3ef9ed255a8a6d4",
+      "tree": "f27d4006db044327c7be45a357ea02dc35fc0656"
+    },
+    {
+      "name": "feat/production-console",
+      "sha": "632bf75f84c3e5c01ee2a920cc19dbdab32fbce5",
+      "tree": "734a13ac2e763d9788ddc8b29bfea3d1be1b6a41"
+    },
+    {
+      "name": "feat/printer-supervisor",
+      "sha": "7fd3ff40deb59a517110af370a5ae456a8433825",
+      "tree": "e7ac4ebd1939e0fc2724ce339d8e550689ccef9c"
+    },
+    {
+      "name": "feat/safe-mode-killswitch",
+      "sha": "3f6392e208bc76823de7955e85fb2555e411f58e",
+      "tree": "2e01cb9957290bad41de4b54ffa29e355645cb94"
+    }
+  ],
+  "exclusions": [
+    "No automatic merge of agent/llm-layer or rag/local-retrieval-20261026",
+    "No RAG modifications",
+    "No historical import",
+    "No equipment or paid model calls"
+  ],
+  "api_scope_default": "history",
+  "visual_verification": "Blocked: Cloud Browser ERR_BLOCKED_BY_CLIENT for localhost; Chromium CDN returned Site Unavailable HTML. DOM interaction smoke passed."
+}

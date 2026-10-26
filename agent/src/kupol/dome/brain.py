@@ -30,6 +30,7 @@ from kupol.dome.env import Settings
 from kupol.dome.expects import expect_for
 from kupol.dome.playbooks.base import Intent, Step
 from kupol.dome.state import DomeState
+from kupol.dome.control import DECISION_POLICY_EPOCH
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 FAILURES_TO_FALLBACK = 3  # сбоев модели подряд, после которых решения временно отдаются плейбукам
@@ -101,12 +102,16 @@ class LogJournal:
 class _Sink:
     """События LLM-слоя (llm_request/llm_response/decision/verification) — в БД через рекордер агента."""
 
-    def __init__(self, recorder: DataApiRecorder | None, session: Callable[[], str | None], journal: LogJournal) -> None:
+    def __init__(self, recorder: DataApiRecorder | None, session: Callable[[], str | None], journal: LogJournal, policy=lambda: None) -> None:
         self.recorder = recorder
         self.session = session
         self.journal = journal
+        self.policy = policy
 
     def emit(self, event_type: str, payload: Any, **kwargs: Any) -> str:
+        policy = self.policy()
+        if policy is not None:
+            kwargs['metadata'] = {**kwargs.get('metadata', {}), 'policy_epoch': DECISION_POLICY_EPOCH.get() if DECISION_POLICY_EPOCH.get() is not None else policy.policy_epoch, 'agent_mode': policy.agent_mode}
         if event_type == "verification":
             self.journal.append({"actor": "agent", "kind": "verification", **payload})
         if self.recorder is None:
@@ -152,6 +157,9 @@ def to_intent(response: AgentResponse, fired: Fired) -> Intent:
         a: ProposedAction = v.action
         if a.node_id == "meeting_01" and a.action == "post_message":
             continue
+        if d.request_human is not None and d.request_human.severity == 'red':
+            plan.append(f'Заблокировано до человека: {a.node_id}.{a.action}')
+            continue
         label = f"{a.node_id}.{a.action}({_value(a.value)})"
         if v.accepted and not blocked and not steps:
             exp = expect_for(a.node_id, a.action, a.value)
@@ -177,6 +185,7 @@ def to_intent(response: AgentResponse, fired: Fired) -> Intent:
         plan=plan or ["наблюдать"], steps=steps, say=say, priority=SEVERITY_PRIORITY.get(d.severity, 5),
         cooldown_s=0.0, source="mixed" if d.rag_refs else "llm", rag_refs=list(d.rag_refs),
         say_always=any(t.kind == "operator" for t in fired.triggers),
+        human_escalation=d.request_human.model_dump(mode='json') if d.request_human else None,
     )  # fmt: skip
 
 
@@ -213,7 +222,7 @@ class LlmBrain:
             checker = _SessionChecker(ApiControlChecker(client, recorder.run_id, ""), session)
         self.agent = DomeLLMAgent(
             s, StateTelemetry(state, frame), self.journal, _Catalog([]), retriever=make_retriever(s), llm=llm,
-            events=_Sink(recorder, session, self.journal), control_checker=checker,
+            events=_Sink(recorder, session, self.journal, lambda: getattr(self, 'policy', None)), control_checker=checker,
         )  # fmt: skip
         self.dispatcher = Dispatcher(self.agent, clock=clock)
         self.task: asyncio.Task[None] | None = None
@@ -256,20 +265,25 @@ class LlmBrain:
         if ids:
             self.dispatcher.operator.last_id = max(self.dispatcher.operator.last_id, *ids)
 
-    def step(self, chat_new: list[dict[str, Any]], execute: Execute) -> None:
+    def step(self, chat_new: list[dict[str, Any]], execute: Execute, *, covered_nodes=None, algorithm_summary=None) -> None:
         """Такт: найти поводы; если пора — запустить вызов модели в фоне (результат исполнит ``execute``)."""
-        fired = self.dispatcher.poll(chat_new)
+        fired = self.dispatcher.poll(chat_new, covered_nodes=covered_nodes)
         if fired is not None:
+            if algorithm_summary:
+                fired.text += '\nДетерминированный разбор (не ослаблять): ' + json.dumps(algorithm_summary, ensure_ascii=False, default=str)
             self.task = asyncio.create_task(self._call(fired, execute))
 
     async def _call(self, fired: Fired, execute: Execute) -> None:
         started = time.monotonic()
+        token = DECISION_POLICY_EPOCH.set(self.policy.policy_epoch if getattr(self, 'policy', None) else None)
         try:
             response = await asyncio.to_thread(self.dispatcher.decide, fired)
         except Exception as exc:  # noqa: BLE001 - сбой модели — это «нет решения», не остановка агента
             response = AgentResponse(ok=False, llm_call=LLMCallInfo(model=self.model, purpose=fired.purpose, ok=False,
                                                                     error=repr(exc)[:300],
                                                                     latency_ms=int((time.monotonic() - started) * 1000)))
+        finally:
+            DECISION_POLICY_EPOCH.reset(token)
         self.dispatcher.finish(fired, response)
         self.calls += 1
         info = response.llm_call

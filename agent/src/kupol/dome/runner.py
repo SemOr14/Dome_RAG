@@ -25,6 +25,9 @@ from kupol.dome.checks import assess_co2, assess_energy, assess_printer
 from kupol.dome.client import DomeClient
 from kupol.dome.config import DomeConfig
 from kupol.dome.control import ControlPolicy
+from kupol.dome.incidents import IncidentCenter, classify_live
+from kupol.dome.routing import route_playbooks
+from kupol.dome.printer_supervisor import PrinterSupervisor
 from kupol.dome.datalog import DataApiRecorder
 from kupol.dome.env import Settings
 from kupol.dome.expects import expect_for
@@ -133,13 +136,16 @@ class Runner:
         if recorder is not None:
             # Решения, действия и проверки эффекта — в ту же БД; action ссылается на control через request_id
             log.sink = lambda kind, rec: recorder.event(
-                f"agent_{kind}", rec, session_id=self.client.session_id, metadata={"log_run_id": rec.get("run_id"), "log_seq": rec.get("seq")}
+                f"agent_{kind}", rec, session_id=self.client.session_id, metadata={"log_run_id": rec.get("run_id"), "log_seq": rec.get("seq"),
+                'actor': rec.get('actor') or ('operator' if rec.get('source') == 'operator' else 'agent')}
             )  # fmt: skip
         if brain is not None and not hasattr(brain, "step"):
             brain = brain(self)  # фабрике нужны состояние, клиент и рекордер этого рантайма
         self.brain = brain
         self.policy = policy or ControlPolicy.from_env()
         self.client.policy = self.policy
+        if brain is not None:
+            brain.policy = self.policy
         self.manual = ManualControls(recorder) if recorder is not None else None  # команды Оператора из БД
         self._manual_task: asyncio.Task[Any] | None = None
         self.manual_done: set[str] = set()  # исполненные намерения: прямой вызов и опрос очереди не дублируют команду
@@ -171,6 +177,9 @@ class Runner:
         self._diagnosed: dict[str, float] = {}
         self._plans: dict[int, tuple[Intent, int, list[Step], str | None]] = {}
         self.gate.checkpoint = lambda: (not self.recorder or not self.recorder.storage_error) and self._save_state(force=True)
+        self.incidents = IncidentCenter(lambda kind, payload, **kw: self.recorder.event(kind, payload, **kw) if self.recorder else None)
+        self.printer_supervisor = PrinterSupervisor(self, self.incidents)
+        self._incident_delivery = None
 
     # ------------------------------------------------------------------ жизненный цикл
 
@@ -244,6 +253,11 @@ class Runner:
     # ------------------------------------------------------------------ события связи
 
     def _on_client_event(self, event: str, details: dict[str, Any]) -> None:
+        if event in ('disconnected', 'revoked'):
+            self.state.role, self.state.wall = '', 0
+            self.catalog, self._catalog_msg = Catalog(), None
+            self.policy.policy_epoch += 1
+            self._plans.clear()
         if event == "catalog":
             self.log.write("connection", event="connected", details={"catalog_nodes": details.get("nodes"), "success": details.get("success")})
             return
@@ -269,6 +283,8 @@ class Runner:
         await self._ensure_catalog(now)
         completed = self.gate.check_pending()
         for pending in completed:
+            self.printer_supervisor.verification(pending)
+        for pending in completed:
             plan = self._plans.pop(pending.action_seq, None)
             if plan is None:
                 continue
@@ -281,25 +297,33 @@ class Runner:
                 if intent.say_always:
                     await self.say("Результат команды не подтверждён. Зависимые шаги остановлены; проверьте состояние оборудования.", decision)
         await self._manual_step()  # ручные команды Оператора — раньше автоматических решений
-        intents: list[Intent] = []
+        classify_live(self.state, self.cfg, self.incidents, now)
+        route = route_playbooks(self, now, chat_new)
+        intents = []
+        for intent in route.intents:
+            # Printer resume has exactly one owner: the 12-second supervisor.
+            if any(s.node == 'printer_3d_01' and s.action == 'resume' for s in intent.steps):
+                continue
+            intents.append(intent)
+        intents += self.printer_supervisor.step(now)
         use_llm = self.brain is not None and self.llm_enabled and self.brain.healthy
-        if self.state.role == "team" and use_llm:
-            assert self.brain is not None
-            self.brain.step(chat_new, lambda intent: self.execute(intent, self.clock()))
-        elif self.state.role == "team" and self.policy.algorithms_enabled:
-            if self.brain is not None:
-                self.brain.mark_seen(chat_new + list(self.state.get("meeting_01.recent_messages", []) or []))
-            for pb in self.playbooks:
-                ctx = Ctx(self.state, self.cfg, self.gate, self.mem.setdefault(pb.name, {}), now, self._operator_texts, chat_new)
-                try:
-                    intents += pb.step(ctx)
-                except Exception as exc:  # noqa: BLE001 - сбой одного плейбука не должен остановить остальные
-                    self.log.write("error", where=f"playbook:{pb.name}", error=repr(exc), traceback=traceback.format_exc()[-1500:])
         intents.sort(key=lambda i: i.priority)
         for intent in intents:
             await self.execute(intent, now)
-        if not use_llm and self.llm_enabled:  # модель-основа сама разбирает непокрытые ситуации
-            self._diagnose_uncovered(now)
+        if self.state.role == 'team' and use_llm:
+            epoch, session = self.policy.policy_epoch, self.client.session_id
+            job_files = {node: self.state.get(f'{node}.file_name') for node in ('printer_3d_01', 'cnc_01')}
+            async def current_result(intent):
+                if epoch == self.policy.policy_epoch and session == self.client.session_id and self.llm_enabled and not self._stop.is_set():
+                    if any(s.action == 'resume' and self.state.get(f'{s.node}.file_name') != job_files.get(s.node) for s in intent.steps):
+                        return
+                    await self.execute(intent, self.clock())
+            self.brain.step(chat_new, current_result, covered_nodes=route.covered_nodes, algorithm_summary=route.summary)
+        elif self.brain is not None:
+            self.brain.mark_seen(chat_new)
+        if self._incident_delivery is None or self._incident_delivery.done():
+            self._incident_delivery = asyncio.create_task(self._deliver_incidents())
+            self._bg.append(self._incident_delivery)
         self._observe(now)
         self._save_state()
         self._bg = [t for t in self._bg if not t.done()]
@@ -308,6 +332,10 @@ class Runner:
     async def _idle(self) -> None:
         """Нет телеметрии: раз в минуту отмечаем это в наблюдениях, ничего не решаем."""
         now = self.clock()
+        classify_live(self.state, self.cfg, self.incidents, now)
+        if self._incident_delivery is None or self._incident_delivery.done():
+            self._incident_delivery = asyncio.create_task(self._deliver_incidents())
+            self._bg.append(self._incident_delivery)
         if self.client.connected and now - self._last_observation >= self.cfg.runtime.observation_interval_s:
             self._last_observation = now
             self.log.write("observation", summary="телеметрия не приходит", metrics={"connected": True}, anomalies=["нет телеметрии"])
@@ -368,6 +396,10 @@ class Runner:
 
     async def execute(self, intent: Intent, now: float) -> None:
         """Записать решение, выполнить шаги через Gate, при успехе — сообщить Оператору."""
+        if intent.human_escalation:
+            h = intent.human_escalation
+            self.incidents.open('human:' + h['node_id'] + ':' + h['incident'], h['severity'], h['node_id'],
+                h['incident'], h['required_action'], {'evidence': h.get('facts', []), 'already_done': h.get('already_done', [])})
         actor = 'agent' if intent.source in ('llm', 'mixed') else 'algorithm'
         epoch = self.policy.policy_epoch
         if self.policy.reject(actor, epoch, '', ''):
@@ -398,9 +430,14 @@ class Runner:
     async def _advance_plan(self, intent: Intent, decision: int, steps: list[Step]) -> None:
         """Advance only after a verified effect. Every next command re-enters Gate."""
         results: list[GateResult] = []
+        epoch = self.policy.policy_epoch
         for index, step in enumerate(steps):
             results.append(await self.gate.submit(Cmd(step.node, step.action, step.value, step.reason or intent.cause, decision, step.expect,
-                actor='agent' if intent.source in ('llm', 'mixed') else 'algorithm', policy_epoch=self.policy.policy_epoch)))
+                actor='agent' if intent.source in ('llm', 'mixed') else 'algorithm', policy_epoch=epoch,
+                recovery_owner='printer_supervisor' if intent.key.startswith('supervisor:resume:') else None,
+                operator_requested=intent.say_always and intent.source in ('llm', 'mixed'))))
+            if epoch != self.policy.policy_epoch:
+                return
             if not results[-1].ok or (results[-1].status == "sent" and step.expect is not None):
                 # A plan is a hypothesis. Re-plan from fresh telemetry after each effect;
                 # never execute its dependent tail after rejection or just an ACK.
@@ -413,8 +450,12 @@ class Runner:
                     self._plans[results[-1].action_seq] = (intent, decision, steps[index + 1:], session)
                 elif intent.say_always:
                     await self.say(f"Не выполнено: {step.node}.{step.action} — {results[-1].reason}. Рекомендация: проверьте причину отказа; зависимые шаги отложены.", decision)
+                if not results[-1].ok:
+                    self.incidents.open('action:' + step.node + ':' + step.action, 'red' if results[-1].status == 'ambiguous' else 'yellow',
+                        step.node, results[-1].reason or 'Действие не выполнено', 'Проверьте итог и причину отказа; автоматического повтора нет',
+                        {'action_seq': results[-1].action_seq, 'status': results[-1].status})
                 return
-        if intent.llm_question and self.advisor is not None:
+        if intent.llm_question and self.advisor is not None and self.llm_enabled:
             self._spawn(self._answer_operator(intent, decision))
         elif intent.say and all(r.ok for r in results):
             await self.say(intent.say, decision)
@@ -425,10 +466,25 @@ class Runner:
     async def say(self, text: str, ref: int) -> GateResult:
         """Сообщение Оператору: команда ``post_message`` через Gate и запись ``message``."""
         text = text if len(text) <= 900 else text[:897] + "…"
-        res = await self.gate.submit(Cmd("meeting_01", "post_message", {"text": text, "to": "operator", "name": AGENT_NAME}, "сообщение Оператору", ref))
+        res = await self.gate.submit(Cmd("meeting_01", "post_message", {"text": text, "to": "operator", "name": AGENT_NAME}, "сообщение Оператору", ref,
+            actor='algorithm', policy_epoch=self.policy.policy_epoch))
         if res.ok:
             self.log.write("message", ref=ref, direction="out", to="operator", text=text, dry_run=(res.status == "dry_run") or None)
         return res
+
+    async def _deliver_incidents(self):
+        for item in self.incidents.pending_notifications():
+            if self.policy.operating_state == 'shutting_down':
+                return
+            if self.policy.api_scope != 'full':
+                self.incidents.delivered(item, 'unavailable_history_only')
+                continue
+            ref = self.log.write('decision', situation='Вызов человека', cause=item.reason,
+                                 evidence=[item.facts], source='rules', plan=[item.required_action])
+            text = f'[{item.severity.upper()}] {item.node_id}: {item.reason}. {item.required_action}'[:900]
+            result = await self.gate.submit(Cmd('meeting_01', 'post_message', {'text': text, 'to': 'operator', 'name': AGENT_NAME},
+                                               'Вызов оператора', ref, actor='safety', policy_epoch=self.policy.policy_epoch))
+            self.incidents.delivered(item, 'accepted' if result.status == 'sent' else 'not_sent' if result.status == 'dry_run' else result.status)
 
     # ------------------------------------------------------------------ ручные команды Оператора
 
@@ -507,6 +563,7 @@ class Runner:
     async def _answer_operator(self, intent: Intent, decision: int) -> None:
         """Ответ на свободный вопрос: модель в потоке; нет ответа — запасной текст правил."""
         assert self.advisor is not None and intent.llm_question
+        epoch = self.policy.policy_epoch
         loop = asyncio.get_running_loop()
         try:
             text = await loop.run_in_executor(None, self.advisor.answer, intent.llm_question, self.context_summary(), decision)
@@ -514,7 +571,7 @@ class Runner:
             self.log.write("error", where="advisor.answer", error=repr(exc), ref=decision)
             text = None
         final = text or intent.say
-        if final:
+        if final and self.llm_enabled and epoch == self.policy.policy_epoch:
             await self.say(final, decision)
 
     def uncovered(self) -> dict[str, dict[str, Any]]:

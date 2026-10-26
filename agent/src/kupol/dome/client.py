@@ -227,6 +227,9 @@ class DomeClient:
     def _drop_connection(self, reason: str) -> None:
         self.connected = False
         self._ws = None
+        self.role = ''
+        self.catalog_message = None
+        self.telemetry = None
         for fut in self._pending.values():
             if not fut.done():
                 fut.set_exception(NotConnected("соединение закрыто"))

@@ -82,6 +82,8 @@ class Cmd:
     actor: str = 'algorithm'
     policy_epoch: int | None = None
     operation_id: str | None = None
+    recovery_owner: str | None = None
+    operator_requested: bool = False
 
     @property
     def key(self) -> str:
@@ -295,12 +297,12 @@ class Gate:
             self._note_attempt(cmd, canonical)
             seq = self._log.write(
                 "action", ref=cmd.ref, request=request, response={"success": None, "skipped": "dry_run" if self.dry_run else "управление выключено"},
-                dry_run=True, reason=cmd.reason,
+                dry_run=True, reason=cmd.reason, **self._audit(cmd),
             )
             return GateResult("dry_run", "в сеть не отправлено", None, seq)
         # Persist intent and retry budgets BEFORE any network side effect.
         seq = self._log.write("observation", ref=cmd.ref, summary="намерение сохранено перед отправкой",
-                              metrics={"request": request, "delivery": "prepared"}, anomalies=[])
+                              metrics={"request": request, "delivery": "prepared"}, anomalies=[], **self._audit(cmd))
         self._note_attempt(cmd, canonical)
         self._arm(cmd, seq)
         if self.checkpoint is not None and not self.checkpoint():
@@ -316,10 +318,13 @@ class Gate:
                 COMMAND_ACTOR.reset(actor_token)
         except PolicyRejected as exc:
             self.pending = [p for p in self.pending if p.cmd is not cmd]
+            if canonical == 'resume':
+                key = f'{cmd.node_id}:{self._state.get(cmd.node_id + ".hold_reason")}'
+                self._resume_attempts[key] = max(0, self._resume_attempts.get(key, 0) - 1)
             return self._reject(cmd, str(exc))
         except DomeError as exc:
             self.stats["failed"] += 1
-            seq = self._log.write("action", ref=cmd.ref, request=request, response={"success": False, "error": str(exc)}, reason=cmd.reason)
+            seq = self._log.write("action", ref=cmd.ref, request=request, response={"success": False, "error": str(exc)}, reason=cmd.reason, **self._audit(cmd))
             # Состояние неизвестно: повтор вслепую запрещён — ставим на проверку, если есть чем.
             self._failed_until[cmd.key] = self._clock() + self._cfg.policy.no_effect_cooldown_s
             for p in self.pending:
@@ -330,7 +335,7 @@ class Gate:
         seq = self._log.write(
             "action", ref=cmd.ref, request=request,
             response={"success": ok, "error": response.get("error"), "mode": response.get("mode"), "request_id": response.get("request_id")},
-            reason=cmd.reason,
+            reason=cmd.reason, **self._audit(cmd),
         )  # fmt: skip
         for p in self.pending:
             if p.cmd is cmd:
@@ -376,6 +381,7 @@ class Gate:
             self._log.write(
                 "verification", ref=p.action_seq, expected=exp.description, observed=exp.observe(self._state), ok=ok,
                 waited_s=round(now - p.sent_at, 1),
+                **self._audit(p.cmd),
             )  # fmt: skip
         return done
 
@@ -385,7 +391,7 @@ class Gate:
         self.stats["rejected"] += 1
         seq = self._log.write(
             "action", ref=cmd.ref, request=self._request(cmd, cmd.action), response={"success": False, "error": f"Gate: {reason}"},
-            rejected=True, reason=cmd.reason,
+            rejected=True, reason=cmd.reason, **self._audit(cmd),
         )  # fmt: skip
         return GateResult("rejected", reason, None, seq)
 
@@ -395,6 +401,10 @@ class Gate:
         if cmd.value is not None:
             req["value"] = cmd.value
         return req
+
+    def _audit(self, cmd):
+        return {'operation_id': cmd.operation_id, 'actor': cmd.actor, 'policy_epoch': cmd.policy_epoch,
+                'agent_mode': self.policy.agent_mode if self.policy else None, 'causal_ref': cmd.ref}
 
     def _reject_reason(self, cmd: Cmd) -> str | None:
         if self.policy is not None:
@@ -440,6 +450,8 @@ class Gate:
 
     def _transport_reason(self, cmd: Cmd) -> str | None:
         """Recheck after limiter wait, immediately before writing to the socket."""
+        if getattr(self, 'dispatch_guard', None) and (bad := self.dispatch_guard(cmd)):
+            return bad
         if self.policy is not None:
             bad = self.policy.reject(cmd.actor, cmd.policy_epoch, cmd.node_id, cmd.action)
             if bad:
@@ -512,6 +524,11 @@ class Gate:
     def _state_reason(self, cmd: Cmd, canonical: str) -> str | None:
         st = self._state
         node, value = cmd.node_id, cmd.value
+        smoke = any(st.get(f'{d}.smoke_detected') is True or str(st.get(f'{d}.alarm_state', '')).upper() in ('ALARM', 'SMOKE')
+                    for d in ('smoke_detector_01', 'smoke_detector_02'))
+        if (node in MACHINES and canonical in ('start_job', 'resume', 'home', 'move')) or (node == 'smart_panel_01' and canonical == 'line_on' and _line_number(value) in (1, 2, 3, 4, 5)):
+            if smoke or st.get('dome_automation_01.interlocks.IL_SMOKE.state') == 'TRIPPED':
+                return 'Дым/IL_SMOKE: включение питания и движение запрещены до устранения причины'
         if node != "meeting_01" and canonical != "reconnect" and (not st.has(node) or st.is_frozen(node) or st.get(f"{node}.online") is False):
             return "нет актуального состояния целевого узла"
         if node != "meeting_01" and canonical != "reconnect" and not finite_number(st.get(f"{node}.updated_at")):
@@ -545,7 +562,12 @@ class Gate:
                                                                 self._cfg.checks.condensate.dew_gap_c) for s in live):
                     return "IL_CONDENSATE: безопасные условия не подтверждены актуальными источниками"
         if node in MACHINES and canonical == "resume":
-            return self._resume_reason(node)
+            explicit_operator_request = cmd.actor == 'operator' or (cmd.actor == 'agent' and cmd.operator_requested)
+            if not explicit_operator_request and not st.get(f'{node}.hold_reason'):
+                return 'Ручная/неизвестная пауза автоматически не возобновляется'
+            if node == 'printer_3d_01' and not explicit_operator_request and cmd.recovery_owner != 'printer_supervisor':
+                return 'Автоматическое восстановление принтера принадлежит серверному supervisor'
+            return self._resume_reason(node, prepared=any(p.cmd is cmd for p in self.pending))
         if node in MACHINES and canonical == "start_job":
             return self._start_job_reason(node, value)
         if node == "thermal_insulation_01" and canonical == "set_lock":
@@ -575,7 +597,7 @@ class Gate:
                 return f"данные {value} устарели, задержаны или недостоверны"
         return None
 
-    def _resume_reason(self, node: str) -> str | None:
+    def _resume_reason(self, node: str, prepared: bool = False) -> str | None:
         st = self._state
         level = st.get(f"{node}.hold_level")
         reason = st.get(f"{node}.hold_reason")
@@ -608,7 +630,7 @@ class Gate:
                     return "напряжение шины не восстановилось"
             else:
                 return f"причина удержания {reason} не распознана: resume не отправляем"
-            if self.resume_attempts(node, str(reason)) >= max(1, self._cfg.policy.resume_max_attempts):
+            if self.resume_attempts(node, str(reason)) - int(prepared) >= max(1, self._cfg.policy.resume_max_attempts):
                 return f"resume по причине {reason} уже пробовали {self.resume_attempts(node, str(reason))} раз"
         if int(st.get(f"{node}.resume_attempts", 0) or 0) >= 2:
             return "сервер уже насчитал 2 попытки resume: третья даст ALARM на 20 минут"
@@ -620,7 +642,7 @@ class Gate:
         if not isinstance(name, str) or not name:
             return "не указано имя файла"
         files = st.get(f"{node}.files", []) or []
-        if name not in files:
+        if name not in {f.get('name') if isinstance(f, dict) else f for f in files if isinstance(f, (str, dict))}:
             return f"файла {name} нет в списке станка"
         if st.get(f"{node}.hold_level") or float(st.get(f"{node}.lockout_remaining_s", 0) or 0) > 0:
             return "станок удержан сервером"
