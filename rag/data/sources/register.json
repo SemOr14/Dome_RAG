@@ -1,0 +1,191 @@
+[
+  {
+    "source_id": "K00",
+    "path": "sources/knowledge/00_assistant.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 274,
+    "sha256": "dff4cb76a294196015a121d109e09167cb6d0960486f7d76d6daf1a34ce0a216",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "K01",
+    "path": "sources/knowledge/01_legend.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 250,
+    "sha256": "cc78cc9950e4aeaed45e54b1027402720078c904a9252befdc7c27a5e78a8069",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "K02",
+    "path": "sources/knowledge/02_station.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 514,
+    "sha256": "38b42f00390727065ac76666f49d5a631f8acd1019fe6267a1a05d80cdde5f01",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "K03",
+    "path": "sources/knowledge/03_energy.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 845,
+    "sha256": "dae8a4f77b9b80168b1db4f05f5755b98680ed43e1b0935588966d3f42fa905f",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "K04",
+    "path": "sources/knowledge/04_telemetry.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 919,
+    "sha256": "013550ce1223e3eacbdaf6a96552d10a82955ffbabb4b0b03fa6161d0f5baeea",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "K05",
+    "path": "sources/knowledge/05_production.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 943,
+    "sha256": "1c4f4d9b81dd08b584a8e962b5fe9c8aee9a8acf2033e2a912887e4a38624d1a",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "K06",
+    "path": "sources/knowledge/06_microclimate.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 356,
+    "sha256": "248d19bba48042fffb4cec55f162b86d60740499c29830328ce8a5bd425b6c4d",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "K07",
+    "path": "sources/knowledge/07_rules.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 314,
+    "sha256": "e5afd5a653b793b2aa5bbbb28c9093749d6d706f136f00c83b81a3e3f29f484b",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "K08",
+    "path": "sources/knowledge/08_safety.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 464,
+    "sha256": "a15d670e1bb036b2134f32de3e951deee4e3ff6ec44c31da187ca99de2dc0cab",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "K09",
+    "path": "sources/knowledge/09_faults.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 1043,
+    "sha256": "987cf2cad4f0e93dc12a6f0306a4c04fe86cee6fef8ac58103235548b843a4d5",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "K10",
+    "path": "sources/knowledge/10_procedures.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 336,
+    "sha256": "ae94eec2210b8b5530ff82f545313d52dd25e786a9e95e24a1aab86b1f69f9bb",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "K11",
+    "path": "sources/knowledge/11_reference.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 625,
+    "sha256": "ba3a8fe9abb56f41929be66814594085d943da432287439104547f83c5a8593a",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "K12",
+    "path": "sources/knowledge/12_history.md",
+    "kind": "reference_document",
+    "scope": "station_reference",
+    "line_count": 348,
+    "sha256": "303b1fe3c34f0b4d252b6390c73dfa51c125c405a51567847f05baf6dd181ff3",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "API",
+    "path": "sources/01_API.md",
+    "kind": "api_contract",
+    "scope": "competition_agent",
+    "line_count": 857,
+    "sha256": "1935fdb3e5afb546fb30b2f0a8f0207061229185e7deb75974ff6e2798fdb066",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "TASK",
+    "path": "sources/02_Задание_и_оценка.md",
+    "kind": "event_document",
+    "scope": "competition_agent",
+    "line_count": 91,
+    "sha256": "1bc825bd115428c5eb32926aaaccd206b70507628832c4e54a71635dfe4b2882",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "REQ",
+    "path": "sources/03_Требования_к_агенту.md",
+    "kind": "event_document",
+    "scope": "competition_agent",
+    "line_count": 185,
+    "sha256": "83d206f675586806b348276a546bdf1abdf66ed17c04da9c5cb1af5608a3250b",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "INTRO",
+    "path": "sources/04_Как_создаётся_агент.md",
+    "kind": "event_document",
+    "scope": "competition_agent",
+    "line_count": 62,
+    "sha256": "beb0e86f3872e95a4e5b702e78918747d4e09b7a33878a3cfaa3dbdb8cdcebb2",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "NODES",
+    "path": "sources/dome_sandbox_nodes.md",
+    "kind": "event_document",
+    "scope": "competition_agent",
+    "line_count": 790,
+    "sha256": "e3fe068109c79636179136be36d5e2751a2eac17145156a78b882c5755ac7214",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "TEL",
+    "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+    "kind": "historical_telemetry",
+    "scope": "recorded_day_2026-10-14",
+    "line_count": 1440,
+    "sha256": "69f4555e68c4d2c498941d682c949d9a42912cea6c5e85a23aaecf0d5435f59c",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "EVT",
+    "path": "sources/Logs/2026-10-14/events.jsonl",
+    "kind": "historical_events",
+    "scope": "recorded_day_2026-10-14",
+    "line_count": 327,
+    "sha256": "3580217ffb9f1a3c4cf87192bcad5afd6f9a069698d780f4d7f1cf05af3fa280",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "BOOK",
+    "path": "sources/Logs/2026-10-14/logbook.jsonl",
+    "kind": "historical_logbook",
+    "scope": "recorded_day_2026-10-14",
+    "line_count": 1,
+    "sha256": "d7ec220c996a5cd6be613c9f15e91f40436a03a4ffb9e3c7d5970c04bcb78e46",
+    "current_state_evidence": false
+  }
+]

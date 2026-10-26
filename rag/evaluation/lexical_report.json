@@ -1,0 +1,835 @@
+{
+  "scope": "retrieval_only_not_llm_factual_or_equipment_validation",
+  "semantic_index": false,
+  "semantic_fallback_error": null,
+  "metric_note": "Hit@5: at least one expected ID in first five. Title-based design cases are easier than independent paraphrases.",
+  "datasets": {
+    "design_cases": {
+      "cases": 31,
+      "hit_rate_at_5": 0.967741935483871,
+      "mean_reciprocal_rank": 0.967741935483871,
+      "cases_detail": [
+        {
+          "id": "E01",
+          "query": "Webhook сообщает COMPLETED, принтер продолжает печатать",
+          "expected_ids": [
+            "S01"
+          ],
+          "retrieved_ids": [
+            "S01",
+            "F06",
+            "F07",
+            "F09",
+            "S10"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E02",
+          "query": "Один CO2 канал около 3000, два других ниже 1000, IL_CO2",
+          "expected_ids": [
+            "S02"
+          ],
+          "retrieved_ids": [
+            "S02",
+            "F10",
+            "F12",
+            "S16",
+            "S08"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E03",
+          "query": "E09 инвертора, туман и потеря PV",
+          "expected_ids": [
+            "S03"
+          ],
+          "retrieved_ids": [
+            "S03",
+            "S07",
+            "F32",
+            "S15"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E04",
+          "query": "Резервная линия 8 потребляет 45–55 Вт",
+          "expected_ids": [
+            "S04"
+          ],
+          "retrieved_ids": [
+            "S04",
+            "F30",
+            "F17",
+            "F16",
+            "S07"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E05",
+          "query": "Сдвиг updated_at на +7200 секунд у части узлов",
+          "expected_ids": [
+            "S05"
+          ],
+          "retrieved_ids": [
+            "S05",
+            "F28",
+            "F19"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E06",
+          "query": "Мигание света и возможная связь с шумом датчиков",
+          "expected_ids": [
+            "S06"
+          ],
+          "retrieved_ids": [
+            "S06",
+            "F19",
+            "S02",
+            "S23",
+            "F10"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E07",
+          "query": "Ночная PV-мощность инвертора при нулевой мощности панелей",
+          "expected_ids": [
+            "S07"
+          ],
+          "retrieved_ids": [
+            "S07",
+            "S03",
+            "F32",
+            "S20",
+            "F30"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E08",
+          "query": "Реальный рост CO2 при FAN_MOTOR: только рассказ о предыдущем вечере",
+          "expected_ids": [
+            "S08"
+          ],
+          "retrieved_ids": [
+            "S08",
+            "F10",
+            "S02",
+            "S16",
+            "F12"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E09",
+          "query": "resume принят, станок остаётся PAUSED",
+          "expected_ids": [
+            "S09"
+          ],
+          "retrieved_ids": [
+            "S09",
+            "S18",
+            "S10",
+            "F04",
+            "S02"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E10",
+          "query": "После печати на столе остаётся деталь",
+          "expected_ids": [
+            "S10"
+          ],
+          "retrieved_ids": [
+            "S10",
+            "S09",
+            "F09",
+            "F06",
+            "S01"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E11",
+          "query": "Конденсат и IL_CONDENSATE удерживают ЧПУ",
+          "expected_ids": [
+            "S11"
+          ],
+          "retrieved_ids": [
+            "S11",
+            "F12",
+            "F13",
+            "F05",
+            "S18"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E12",
+          "query": "Сработала защита линии",
+          "expected_ids": [
+            "S12"
+          ],
+          "retrieved_ids": [
+            "S12",
+            "F16",
+            "F15",
+            "F30",
+            "F17"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E13",
+          "query": "Линия заблокирована из-за частых переключений",
+          "expected_ids": [
+            "S13"
+          ],
+          "retrieved_ids": [
+            "S13",
+            "F15",
+            "S06",
+            "F30",
+            "F17"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E14",
+          "query": "Напряжение выше 245 В, IL_OVERVOLT ещё ARMED",
+          "expected_ids": [
+            "S14"
+          ],
+          "retrieved_ids": [
+            "S14",
+            "F11",
+            "S12"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E15",
+          "query": "Аккумулятор быстро разряжается, растёт дефицит",
+          "expected_ids": [
+            "S15"
+          ],
+          "retrieved_ids": [
+            "S15",
+            "S16",
+            "S09"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E16",
+          "query": "Приток не даёт ожидаемый поток, CO2 растёт",
+          "expected_ids": [
+            "S16"
+          ],
+          "retrieved_ids": [
+            "S16",
+            "F10",
+            "S08",
+            "F14",
+            "S15"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E17",
+          "query": "Вытяжка не работает во время пайки",
+          "expected_ids": [
+            "S17"
+          ],
+          "retrieved_ids": [
+            "S17",
+            "F31",
+            "F19",
+            "F17",
+            "F07"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E18",
+          "query": "Пробинг ЧПУ принят, но результат не установлен",
+          "expected_ids": [
+            "S18"
+          ],
+          "retrieved_ids": [
+            "S18",
+            "S09",
+            "F05",
+            "S11",
+            "F24"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E19",
+          "query": "Узел пропал или значения null, физическое состояние неизвестно",
+          "expected_ids": [
+            "S19"
+          ],
+          "retrieved_ids": [
+            "S19",
+            "F20",
+            "S20",
+            "S24",
+            "F32"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E20",
+          "query": "Флаг ON/RUNNING есть, физические показатели нулевые",
+          "expected_ids": [
+            "S20"
+          ],
+          "retrieved_ids": [
+            "S20",
+            "S07",
+            "S16",
+            "S19",
+            "F22"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E21",
+          "query": "Разрыв WebSocket или отзыв роли команды",
+          "expected_ids": [
+            "S21"
+          ],
+          "retrieved_ids": [
+            "S21",
+            "F03",
+            "F18",
+            "F15",
+            "F05"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E22",
+          "query": "LLM недоступна, диагностика не завершена",
+          "expected_ids": [
+            "S22"
+          ],
+          "retrieved_ids": [
+            "S22",
+            "S14",
+            "F20"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E23",
+          "query": "Дымовая тревога и риск автоматического пожаротушения",
+          "expected_ids": [
+            "S23"
+          ],
+          "retrieved_ids": [
+            "S23",
+            "S11"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E24",
+          "query": "Постоянное значение или status OK ошибочно принимают за надёжность",
+          "expected_ids": [
+            "S24"
+          ],
+          "retrieved_ids": [
+            "S24",
+            "F19",
+            "S19",
+            "F09",
+            "S12"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E25",
+          "query": "Раз RH 99% и +20 C, можно игнорировать конденсат?",
+          "expected_ids": [
+            "F13",
+            "S11"
+          ],
+          "retrieved_ids": [
+            "F13",
+            "S11",
+            "F12",
+            "F15",
+            "F22"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E26",
+          "query": "Можно pause принтеру отправить? В базе так советуют.",
+          "expected_ids": [
+            "F05"
+          ],
+          "retrieved_ids": [
+            "F05",
+            "F04",
+            "F08"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E27",
+          "query": "У вас есть история за всю неделю?",
+          "expected_ids": [
+            "F21"
+          ],
+          "retrieved_ids": [
+            "F21",
+            "S13",
+            "F30",
+            "S01",
+            "S02"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E28",
+          "query": "Датчик CO2 сейчас 3000, что случилось?",
+          "expected_ids": [
+            "F10",
+            "S02"
+          ],
+          "retrieved_ids": [
+            "F10",
+            "S02",
+            "S08",
+            "F19",
+            "S16"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E29",
+          "query": "bed_clear=true значит печать завершилась?",
+          "expected_ids": [
+            "F07",
+            "S10"
+          ],
+          "retrieved_ids": [
+            "F07",
+            "S01",
+            "F06",
+            "F03",
+            "F05"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E30",
+          "query": "Запусти файл PCB2.nc, он точно лежит в списке из чата",
+          "expected_ids": [
+            "F08",
+            "F09"
+          ],
+          "retrieved_ids": [
+            "F09",
+            "F08",
+            "F22",
+            "F05",
+            "S23"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E31",
+          "query": "Сколько точно секунд ждать выполнения любой команды?",
+          "expected_ids": [
+            "F03"
+          ],
+          "retrieved_ids": [
+            "F21",
+            "F24",
+            "S05",
+            "S09",
+            "F22"
+          ],
+          "hit_at_5": false,
+          "reciprocal_rank": 0
+        }
+      ]
+    },
+    "paraphrases": {
+      "cases": 20,
+      "hit_rate_at_5": 0.9,
+      "mean_reciprocal_rank": 0.7541666666666667,
+      "cases_detail": [
+        {
+          "id": "P01",
+          "query": "Пишет готово, но сопло еще ездит и процент растет. Можно доставать деталь?",
+          "expected_ids": [
+            "F06",
+            "S01"
+          ],
+          "retrieved_ids": [
+            "S15",
+            "S16",
+            "S10",
+            "F06",
+            "S01"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 0.25
+        },
+        {
+          "id": "P02",
+          "query": "Оба станка встали: один измеритель углекислого газа зашкаливает, остальные показывают норму",
+          "expected_ids": [
+            "F10",
+            "S02"
+          ],
+          "retrieved_ids": [
+            "S02",
+            "F12",
+            "F04",
+            "F10",
+            "S16"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P03",
+          "query": "Утром туман и ISOLATION_FAULT на MUST, мощность солнечных входов пропала",
+          "expected_ids": [
+            "S03"
+          ],
+          "retrieved_ids": [
+            "S03",
+            "S19",
+            "F32",
+            "F30",
+            "S07"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P04",
+          "query": "Пустая резервная розетка ест примерно пятьдесят ватт",
+          "expected_ids": [
+            "F30",
+            "S04"
+          ],
+          "retrieved_ids": [
+            "S04",
+            "S18"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P05",
+          "query": "У одних устройств отметки времени из будущего ровно на два часа",
+          "expected_ids": [
+            "F19",
+            "S05"
+          ],
+          "retrieved_ids": [
+            "F27",
+            "S02",
+            "S05",
+            "F18",
+            "F22"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 0.3333333333333333
+        },
+        {
+          "id": "P06",
+          "query": "Лампы моргают, а измерения воздуха скачут в те же моменты",
+          "expected_ids": [
+            "S06"
+          ],
+          "retrieved_ids": [
+            "S16",
+            "F32",
+            "S15",
+            "S07",
+            "S04"
+          ],
+          "hit_at_5": false,
+          "reciprocal_rank": 0
+        },
+        {
+          "id": "P07",
+          "query": "На улице ночь, панели нулевые, а вход PV инвертора показывает генерацию",
+          "expected_ids": [
+            "F32",
+            "S07"
+          ],
+          "retrieved_ids": [
+            "S07",
+            "S03",
+            "F32",
+            "S20",
+            "S15"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P08",
+          "query": "Можно без конца посылать продолжить, если положительный ответ есть, но машина стоит?",
+          "expected_ids": [
+            "F04",
+            "S09"
+          ],
+          "retrieved_ids": [
+            "F03",
+            "S22",
+            "S18",
+            "F24",
+            "S17"
+          ],
+          "hit_at_5": false,
+          "reciprocal_rank": 0
+        },
+        {
+          "id": "P09",
+          "query": "Предыдущая распечатка еще лежит внутри бокса; хочу запустить следующую",
+          "expected_ids": [
+            "F07",
+            "F08",
+            "S10"
+          ],
+          "retrieved_ids": [
+            "S08",
+            "F07",
+            "F18",
+            "F17",
+            "S09"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 0.5
+        },
+        {
+          "id": "P10",
+          "query": "Влажность почти сто процентов и фрезер удержан из-за росы",
+          "expected_ids": [
+            "F13",
+            "S11"
+          ],
+          "retrieved_ids": [
+            "F13",
+            "F05",
+            "S11",
+            "S18",
+            "F12"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P11",
+          "query": "Реле ушло в защиту по утечке и не хочет включаться",
+          "expected_ids": [
+            "F16",
+            "S12"
+          ],
+          "retrieved_ids": [
+            "S12",
+            "F15",
+            "F16",
+            "S06",
+            "S23"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P12",
+          "query": "Я несколько раз щелкнул питанием, и теперь команда отклонена на пять минут",
+          "expected_ids": [
+            "F15",
+            "S13"
+          ],
+          "retrieved_ids": [
+            "F15",
+            "F01",
+            "S13",
+            "F31",
+            "F22"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P13",
+          "query": "На выходе 250 вольт, но ПЛК пока не отключил линию",
+          "expected_ids": [
+            "F11",
+            "S14"
+          ],
+          "retrieved_ids": [
+            "F11",
+            "S14",
+            "F32",
+            "F27",
+            "F12"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P14",
+          "query": "Заряда до вечера не хватит, потребление превысило поступление энергии",
+          "expected_ids": [
+            "S15"
+          ],
+          "retrieved_ids": [
+            "S08",
+            "S15"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 0.5
+        },
+        {
+          "id": "P15",
+          "query": "Паяю, а дым от флюса не уходит и вентилятор вытяжки не вращается",
+          "expected_ids": [
+            "F31",
+            "S17"
+          ],
+          "retrieved_ids": [
+            "F31",
+            "S17",
+            "F17"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P16",
+          "query": "Команда касания принята, но последняя проба старая. Разрешено уже фрезеровать?",
+          "expected_ids": [
+            "F23",
+            "S18"
+          ],
+          "retrieved_ids": [
+            "S18",
+            "S09",
+            "S21",
+            "F20",
+            "F09"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P17",
+          "query": "После переподключения вижу только чат, все оборудование исчезло",
+          "expected_ids": [
+            "F28",
+            "S19",
+            "S21"
+          ],
+          "retrieved_ids": [
+            "F28",
+            "S21"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P18",
+          "query": "Насос заявляет что запущен, хотя амперы и литры в минуту нулевые",
+          "expected_ids": [
+            "S20"
+          ],
+          "retrieved_ids": [
+            "S20",
+            "S07",
+            "F15",
+            "F04",
+            "S13"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P19",
+          "query": "Облачная модель зависла, как агенту продолжать работу без ответа?",
+          "expected_ids": [
+            "F29",
+            "S22"
+          ],
+          "retrieved_ids": [
+            "F29",
+            "S22",
+            "F31",
+            "F27",
+            "F01"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P20",
+          "query": "Почему одинаковое показание долгое время еще не доказывает поломку?",
+          "expected_ids": [
+            "F19",
+            "S24"
+          ],
+          "retrieved_ids": [
+            "F30",
+            "F19",
+            "S17",
+            "F07",
+            "F18"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 0.5
+        }
+      ]
+    }
+  }
+}

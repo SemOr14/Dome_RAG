@@ -1,0 +1,1107 @@
+[
+  {
+    "id": "FAQ-SRC-18",
+    "question": "Что такое Купол?",
+    "source_answer": "Купол — автономная станция, собранная под одним куполом. Станция рассчитана на работу в изоляции, в тяжёлых условиях, без постоянного присутствия людей.\n\nКупол состоит из нескольких связанных систем: энергетика, связь и телеметрия, производство, микроклимат.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 18,
+        "end_line": 23
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-24",
+    "question": "Из каких систем состоит Купол?",
+    "source_answer": "Четыре основных системы:\n\n1. **Энергетика** — солнечные панели, инвертор, накопитель, умный щит, Raspberry Pi.\n2. **Телеметрия и связь** — датчики, метеостанция, локальная сеть, внешние каналы.\n3. **Производство** — 3D-принтер, ЧПУ, пайка, травление, измерения.\n4. **Микроклимат** — датчики CO₂, температуры, влажности, вытяжка, увлажнитель.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 24,
+        "end_line": 32
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-33",
+    "question": "Какова задача экипажа?",
+    "source_answer": "Подготовить Купол к автономной работе: проверить системы, настроить агентов Купола, выполнить производственное задание как проверку готовности.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 33,
+        "end_line": 36
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-37",
+    "question": "Сколько человек в экипаже?",
+    "source_answer": "2–4 человека, плюс настроенные агенты Купола.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 37,
+        "end_line": 40
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-41",
+    "question": "Какие роли есть в экипаже?",
+    "source_answer": "- **Инженер-оператор** — работает внутри Купола, выполняет производственное задание и ручные операции.\n- **Инженер-диагност** — за пультом, следит за телеметрией, распознаёт отказы, управляет системами.\n- **Инженер по агентам** — за пультом, настраивает агентов Купола, следит за их работой, готовит резервные сценарии.\n\nРоли могут совмещаться и меняться.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 41,
+        "end_line": 48
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-49",
+    "question": "Что такое автономная работа?",
+    "source_answer": "Режим, в котором Купол сам производит и распределяет энергию, сам собирает данные, сам реагирует на изменения и отказы, сам выполняет производственные операции — без постоянного присутствия людей.\n\n---",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 49,
+        "end_line": 54
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-57",
+    "question": "Как подключиться к системам управления?",
+    "source_answer": "Нужны:\n\n- ключ доступа (выдаёт дежурный);\n- адрес системы управления;\n- порт;\n- протокол.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 57,
+        "end_line": 65
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-66",
+    "question": "Что делать, если дисплей завис?",
+    "source_answer": "1. Проверить данные через систему управления.\n2. Если система управления отдаёт свежие данные — доверять ей.\n3. Перезагрузить дисплей.\n4. Если не помогло — перезапустить сервис отображения.\n\n**Правило.** Доверяйте данным из системы управления, а не экрану.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 66,
+        "end_line": 74
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-75",
+    "question": "Как отправить команду?",
+    "source_answer": "Через систему управления. После отправки команды **обязательно** проверить, что состояние изменилось.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 75,
+        "end_line": 78
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-79",
+    "question": "Команда прошла успешно, но состояние не изменилось. Что делать?",
+    "source_answer": "Это может быть отброшенная команда. Нужно:\n\n1. Проверить состояние устройства.\n2. Проверить логи.\n3. Отправить команду повторно.\n4. Проверить состояние снова.\n5. Если не помогло — сообщить дежурному.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 79,
+        "end_line": 88
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-89",
+    "question": "Что такое переключение источника данных?",
+    "source_answer": "Техническая возможность, при которой данные конкретного устройства начинают поступать из другого источника. Внешние интерфейсы остаются неизменными — экипаж не видит, что источник изменился.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 89,
+        "end_line": 92
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-93",
+    "question": "Что делать, если устройство зависло в промежуточном состоянии?",
+    "source_answer": "1. Проверить статус в системе управления.\n2. Если состояние не меняется длительное время — сообщить дежурному.\n3. Если доступ есть — принудительно завершить переключение.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 93,
+        "end_line": 98
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-99",
+    "question": "Что делать, если датчик показывает странные значения?",
+    "source_answer": "1. Не действовать по первому сигналу.\n2. Сверить с другими источниками.\n3. Если расхождение подтверждается — пометить источник как недостоверный.\n4. Сообщить дежурному.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 99,
+        "end_line": 105
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-106",
+    "question": "Как понять, что датчик врёт?",
+    "source_answer": "Признаки:\n\n- показания не согласуются с другими источниками;\n- значение не меняется длительное время;\n- значение равно максимуму шкалы;\n- резкий скачок, физически невозможный;\n- значение равно нулю или пусто при наличии активности.\n\n**Что делать.** Сверить с независимым источником, пометить как недостоверный.\n\n---",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 106,
+        "end_line": 119
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-122",
+    "question": "Что делать, если упала генерация?",
+    "source_answer": "1. Проверить статус каналов съёма мощности.\n2. Проверить напряжение на панелях.\n3. Проверить код ошибки инвертора.\n4. Если канал отключён — включить.\n5. Если ошибка изоляции — проанализировать условия, сбросить.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 122,
+        "end_line": 129
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-130",
+    "question": "Что делать, если накопитель разряжается быстрее обычного?",
+    "source_answer": "1. Проверить общее потребление.\n2. Проверить, нет ли фантомного потребления на линиях.\n3. Проверить статус балансировки.\n4. Проверить историю разряда.\n5. При необходимости — отключить некритические линии.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 130,
+        "end_line": 137
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-138",
+    "question": "Что такое уровень заряда?",
+    "source_answer": "Уровень заряда — процент заряда аккумуляторной батареи.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 138,
+        "end_line": 141
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-142",
+    "question": "Что такое система управления батареей?",
+    "source_answer": "Система управления батареей следит за зарядом, разрядом, балансировкой ячеек и температурой аккумуляторов.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 142,
+        "end_line": 145
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-146",
+    "question": "Что такое съём максимальной мощности?",
+    "source_answer": "Алгоритм, который позволяет снимать максимум мощности с солнечных панелей при изменяющихся условиях освещённости.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 146,
+        "end_line": 149
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-150",
+    "question": "Инвертор перешёл в режим запрета разряда. Что делать?",
+    "source_answer": "1. Проверить состояние внешней сети.\n2. Если сеть нестабильна — вернуть обычный режим.\n3. Если сеть стабильна — выяснить причину перехода.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 150,
+        "end_line": 155
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-156",
+    "question": "Что такое безопасный режим умного щита?",
+    "source_answer": "Безопасный режим — состояние, в которое щит переходит при сбое обновления прошивки. Все линии переводятся в состояние OFF.\n\n**Что делать.** Выйти из безопасного режима через локальный интерфейс, восстановить линии по приоритету.\n\n---",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 156,
+        "end_line": 163
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-166",
+    "question": "Что делать, если станок остановился?",
+    "source_answer": "1. Проверить статус контроллера.\n2. Проверить координаты.\n3. Проверить логи.\n4. Если координаты в норме — сбросить ошибку и продолжить.\n5. Если координаты сбиты — сделать повторное определение нуля.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 166,
+        "end_line": 173
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-174",
+    "question": "Что такое экстренная пауза станка?",
+    "source_answer": "Команда экстренной остановки. Станок замирает, координаты сохраняются.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 174,
+        "end_line": 177
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-178",
+    "question": "Что делать, если принтер встал на паузу?",
+    "source_answer": "1. Проверить статус ошибки.\n2. Проверить наличие филамента.\n3. Проверить температуру сопла и стола.\n4. Если ошибка ложная — сбросить и продолжить.\n5. Если реальная — устранить причину.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 178,
+        "end_line": 185
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-186",
+    "question": "Что делать, если пайка не получается?",
+    "source_answer": "1. Проверить температуру на дисплее.\n2. Проверить потребление линии.\n3. Проверить реальную температуру пирометром.\n4. Если датчик врёт — использовать альтернативный инструмент.\n5. Если нагрев отключён — включить линию.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 186,
+        "end_line": 193
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-194",
+    "question": "Что делать, если травление идёт слишком долго?",
+    "source_answer": "1. Проверить температуру раствора.\n2. Проверить потребление линии нагревателя.\n3. Проверить нормативное время.\n4. Если нагреватель отключён — включить линию.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 194,
+        "end_line": 200
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-201",
+    "question": "Что такое определение нуля станка?",
+    "source_answer": "Процедура определения нулевой точки станка. После неё станок знает, где находится.\n\n**Важно.** Определение нуля без необходимости может сбить координаты.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 201,
+        "end_line": 206
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-207",
+    "question": "Почему вытяжка обязательна при пайке?",
+    "source_answer": "При пайке выделяются вредные испарения. Вытяжка их удаляет. Без вытяжки пайка запрещена.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 207,
+        "end_line": 210
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-211",
+    "question": "Можно ли оставлять оборудование без присмотра?",
+    "source_answer": "Нет. Работающее оборудование нельзя оставлять без присмотра.\n\n---",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 211,
+        "end_line": 216
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-219",
+    "question": "Что делать, если CO₂ показывает резкий скачок?",
+    "source_answer": "1. Проверить скорость изменения. Рост с 400 до 3000 ppm за секунды физически невозможен.\n2. Проверить другие датчики.\n3. Если скачок невозможен — пометить датчик как недостоверный.\n4. Если значение подтверждается — реальная тревога.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 219,
+        "end_line": 225
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-226",
+    "question": "Что делать, если датчик влажности показывает 99%?",
+    "source_answer": "1. Проверить точку росы.\n2. Если температура +20°C, влажность 99%, но нет резкого падения температуры — конденсата быть не может.\n3. Пометить датчик как недостоверный.\n4. Игнорировать ложные предупреждения.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 226,
+        "end_line": 232
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-233",
+    "question": "Можно ли управлять вентиляцией?",
+    "source_answer": "В текущей конфигурации Купола управление вентиляцией через программный интерфейс недоступно. Система может генерировать предупреждения, но физического воздействия на вентиляцию нет.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 233,
+        "end_line": 236
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-237",
+    "question": "Можно ли управлять обогревом?",
+    "source_answer": "В текущей конфигурации Купола управление обогревом через программный интерфейс недоступно. События разыгрываются на уровне предупреждений.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 237,
+        "end_line": 240
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-241",
+    "question": "Что такое точка росы?",
+    "source_answer": "Температура, при которой влажность воздуха достигает 100% и начинается конденсация. Если температура поверхности ниже точки росы — на ней образуется конденсат.\n\n---",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 241,
+        "end_line": 246
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-249",
+    "question": "Какие зоны доступа есть в Куполе?",
+    "source_answer": "- **Зона общего доступа** — цифровые системы, датчики, интерфейсы. Доступ всем.\n- **Рабочая зона** — производственное оборудование и ручные операции. Доступ после инструктажа, под надзором.\n- **Зона повышенной опасности** — силовая электрика, накопитель, нагрев, химия. Прямой доступ запрещён.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 249,
+        "end_line": 254
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-255",
+    "question": "Можно ли зайти в зону повышенной опасности?",
+    "source_answer": "Нет. Прямой доступ запрещён. Воздействие — только дистанционно через программные интерфейсы.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 255,
+        "end_line": 258
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-259",
+    "question": "Можно ли отключить аппаратную блокировку?",
+    "source_answer": "Нет. Аппаратные блокировки не отключаются ни экипажем, ни агентами.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 259,
+        "end_line": 262
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-263",
+    "question": "Что делать, если сработала аварийная остановка?",
+    "source_answer": "1. Остановиться.\n2. Сообщить дежурному.\n3. Дождаться разрешения на продолжение.\n\n**Срабатывание аварийной остановки — пауза, без последствий.**",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 263,
+        "end_line": 270
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-271",
+    "question": "Можно ли использовать собственные средства связи?",
+    "source_answer": "Нет. Только штатные каналы.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 271,
+        "end_line": 274
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-275",
+    "question": "Что делать при поражении электрическим током?",
+    "source_answer": "1. Не касаться пострадавшего голыми руками.\n2. Отключить питание.\n3. Вызвать помощь.\n4. Оказать первую помощь (если умеете).\n5. Сообщить дежурному.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 275,
+        "end_line": 282
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-283",
+    "question": "Что делать при возгорании?",
+    "source_answer": "1. Сообщить на пульт.\n2. Отключить питание (если безопасно).\n3. Использовать огнетушитель (если умеете).\n4. Покинуть зону.\n5. Вызвать помощь.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 283,
+        "end_line": 290
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-291",
+    "question": "Что делать при попадании химии на кожу?",
+    "source_answer": "1. Промыть большим количеством воды.\n2. Сообщить дежурному.\n3. Обратиться за медицинской помощью.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 291,
+        "end_line": 296
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-297",
+    "question": "Что делать при попадании химии в глаза?",
+    "source_answer": "1. Промыть большим количеством воды, не менее 15 минут.\n2. Не тереть глаза.\n3. Сообщить дежурному.\n4. Обратиться за медицинской помощью.\n\n---",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 297,
+        "end_line": 305
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-308",
+    "question": "Сколько агентов нужно?",
+    "source_answer": "Минимум один зарегистрированный агент. Число агентов — решение экипажа.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 308,
+        "end_line": 311
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-312",
+    "question": "Что такое регистрация агента?",
+    "source_answer": "Документ, в котором указывается имя, функция, зона ответственности, уровень автономности, способ проверки результата и резервный сценарий агента.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 312,
+        "end_line": 315
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-316",
+    "question": "Что будет, если агент не зарегистрирован?",
+    "source_answer": "Незарегистрированный агент не допускается к управлению системами.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 316,
+        "end_line": 319
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-320",
+    "question": "Какие уровни автономности бывают?",
+    "source_answer": "1. **Советник** — советует, но не действует.\n2. **С подтверждением** — предлагает действие, человек подтверждает.\n3. **Ограниченная автономия** — действует в разрешённых границах без подтверждения.\n4. **Высокая автономия** — не допускается.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 320,
+        "end_line": 326
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-327",
+    "question": "Что такое резервный сценарий?",
+    "source_answer": "Что делать, если агент не работает. Каждый агент должен иметь резервный сценарий.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 327,
+        "end_line": 330
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-331",
+    "question": "Что такое отключение ассистентов?",
+    "source_answer": "Ситуация, при которой агенты Купола становятся недоступны на некоторое время.\n\n**Что делать.** Работать по заранее прописанным сценариям, использовать резервные сценарии.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 331,
+        "end_line": 336
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-337",
+    "question": "Кто отвечает за решения агента?",
+    "source_answer": "Любое решение агента, повлиявшее на систему, имеет человека-акцептанта. Это фиксируется в журнале решений.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 337,
+        "end_line": 340
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-341",
+    "question": "Что делать, если агент повторяет команды?",
+    "source_answer": "1. Остановить агента.\n2. Проверить, не зациклился ли он.\n3. Проверить, не конфликтует ли он с аппаратной блокировкой.\n4. Исправить поведение.\n\n---",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 341,
+        "end_line": 349
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-352",
+    "question": "Как оператор общается с пультом?",
+    "source_answer": "Только через штатные каналы связи. Использование собственных средств связи запрещено.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 352,
+        "end_line": 355
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-356",
+    "question": "Что делать, если связь деградировала?",
+    "source_answer": "Связь может быть нарушена. Экипаж должен работать при её ухудшении.\n\n**Что делать:**\n\n- использовать резервные каналы;\n- перейти на текстовую коммуникацию;\n- [ЗАПОЛНИТЬ: другие действия].",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 356,
+        "end_line": 365
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-366",
+    "question": "Можно ли использовать телефон для связи?",
+    "source_answer": "Нет. Только штатные каналы.\n\n---",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 366,
+        "end_line": 371
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-374",
+    "question": "Что делать при техническом сбое?",
+    "source_answer": "1. Сообщить на большую землю.\n2. Не пытаться самостоятельно устранить, если это опасно.\n3. Работать в ограниченном режиме до устранения.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 374,
+        "end_line": 379
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-380",
+    "question": "Что делать, если потеряна связь с системами?",
+    "source_answer": "1. Проверить, работает ли локальная сеть.\n2. Проверить, доступен ли сервер.\n3. Если недоступен — сообщить дежурному.\n4. Если доступен — проверить ключ доступа.\n5. Проверить, активна ли смена.\n6. Перезапустить поток данных.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 380,
+        "end_line": 388
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-389",
+    "question": "Что делать, если сервис завис?",
+    "source_answer": "1. Сообщить дежурному.\n2. Убедиться, что перезапуск не нарушит критические процессы.\n3. Выполнить перезапуск.\n4. Проверить, что сервис поднялся.\n5. Зафиксировать в журнале.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 389,
+        "end_line": 396
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-397",
+    "question": "Что делать, если диск на Raspberry Pi заполнен?",
+    "source_answer": "1. Подключиться к Raspberry Pi.\n2. Удалить старые логи.\n3. Проверить, что свободное место появилось.\n4. Сообщить дежурному.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 397,
+        "end_line": 403
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-404",
+    "question": "Что делать, если Raspberry Pi перегрелся?",
+    "source_answer": "1. Снизить нагрузку.\n2. Отключить второстепенные процессы.\n3. Улучшить охлаждение (если возможно).\n4. Сообщить дежурному.\n\n---",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 404,
+        "end_line": 412
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-415",
+    "question": "Где найти список оборудования?",
+    "source_answer": "Смотрите файл «Устройство станции и оборудование».",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 415,
+        "end_line": 418
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-419",
+    "question": "Что делать, если оборудования нет в списке?",
+    "source_answer": "1. Проверить, не упоминается ли оно в других разделах.\n2. Уточнить у дежурного.\n3. Сообщить для дополнения списка.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 419,
+        "end_line": 424
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-425",
+    "question": "Можно ли использовать своё оборудование?",
+    "source_answer": "Нет. Экипаж работает с оборудованием, предоставленным станцией.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 425,
+        "end_line": 428
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-429",
+    "question": "Можно ли трогать оборудование в зоне повышенной опасности?",
+    "source_answer": "Нет. Прямой доступ в зону повышенной опасности запрещён.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 429,
+        "end_line": 432
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-433",
+    "question": "Что такое МС-ТЮК?",
+    "source_answer": "Разветвитель телеметрии. Используется для независимого измерения тока на линиях.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 433,
+        "end_line": 436
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  },
+  {
+    "id": "FAQ-SRC-437",
+    "question": "Что такое умный щит?",
+    "source_answer": "Устройство распределения электроэнергии. Восемь линий, каждая управляется отдельно по Wi-Fi.\n\n---",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 437,
+        "end_line": 442
+      }
+    ],
+    "scope": "station_reference",
+    "review_status": "SOURCE_ONLY",
+    "retrieval_policy": "reference_not_approved",
+    "operational_use": "Do not use standalone; reconcile conflicts.json and curated FAQ."
+  }
+]

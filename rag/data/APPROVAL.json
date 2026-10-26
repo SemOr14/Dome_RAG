@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-26",
+  "user_instruction": "собирай",
+  "scope": "Implementation of approved RAG design and advisory knowledge retrieval; not live equipment control.",
+  "approved_ids": {
+    "faq": "F01-F32",
+    "situations": "S01-S24",
+    "conflicts": "C01-C12"
+  },
+  "unreviewed_source_candidates": "reference_only",
+  "editorial_update": "F01 describes the runtime. F03 clarifies operation-specific waiting and asynchronous probe_z, citing API 7.6."
+}

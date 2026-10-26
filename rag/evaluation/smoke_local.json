@@ -1,0 +1,119 @@
+{
+  "mode": "local_extractive",
+  "question": "Webhook пишет COMPLETED, а принтер продолжает печатать",
+  "answer_status": "reference_answer",
+  "retrieved_ids": [
+    "S01",
+    "F06",
+    "F07",
+    "F09",
+    "S10"
+  ],
+  "used_record_ids": [
+    "S01",
+    "F06"
+  ],
+  "citations": [
+    {
+      "key": "API:303-314",
+      "source_id": "API",
+      "path": "sources/01_API.md",
+      "start_line": 303,
+      "end_line": 314,
+      "snapshot_sha256": "1935fdb3e5afb546fb30b2f0a8f0207061229185e7deb75974ff6e2798fdb066"
+    },
+    {
+      "key": "K09:777-790",
+      "source_id": "K09",
+      "path": "sources/knowledge/09_faults.md",
+      "start_line": 777,
+      "end_line": 790,
+      "snapshot_sha256": "987cf2cad4f0e93dc12a6f0306a4c04fe86cee6fef8ac58103235548b843a4d5"
+    },
+    {
+      "key": "TEL:654-654",
+      "source_id": "TEL",
+      "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+      "start_line": 654,
+      "end_line": 654,
+      "snapshot_sha256": "69f4555e68c4d2c498941d682c949d9a42912cea6c5e85a23aaecf0d5435f59c"
+    },
+    {
+      "key": "EVT:84-84",
+      "source_id": "EVT",
+      "path": "sources/Logs/2026-10-14/events.jsonl",
+      "start_line": 84,
+      "end_line": 84,
+      "snapshot_sha256": "3580217ffb9f1a3c4cf87192bcad5afd6f9a069698d780f4d7f1cf05af3fa280"
+    },
+    {
+      "key": "EVT:160-160",
+      "source_id": "EVT",
+      "path": "sources/Logs/2026-10-14/events.jsonl",
+      "start_line": 160,
+      "end_line": 160,
+      "snapshot_sha256": "3580217ffb9f1a3c4cf87192bcad5afd6f9a069698d780f4d7f1cf05af3fa280"
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "C10",
+      "issue": "Ранее true во время печати было названо аномалией. API меняет флаг на false после завершения и на true при открытии двери; значение во время печати само по себе не доказывает сбой.",
+      "proposed_handling": "Использовать bed_clear как серверный флаг предстарта, а не как датчик пустоты и не как критерий завершения. Для завершения нужны state/progress и согласованные данные."
+    }
+  ],
+  "observation": {
+    "current": null,
+    "quality": {
+      "state": "absent",
+      "issues": [
+        "Актуальные показания не переданы."
+      ]
+    },
+    "historical_or_documented_signals": [
+      "История 10:53: state/real_state PRINTING, webhook COMPLETED, progress 33.1%, z 10.12 мм.",
+      "Проверить изменение прогресса/положения и время, не только один флаг."
+    ],
+    "basis": "historical_episode",
+    "historical_window": "2026-10-14 10:50:08–11:00:04"
+  },
+  "interpretation": {
+    "hypotheses": [
+      "Рассинхронизация webhook.",
+      "Задержка потока состояния либо иной текущий сбой."
+    ],
+    "confirmed_current_cause": null
+  },
+  "decision": {
+    "proposed_steps": [
+      "Считать завершение неподтверждённым; сохранить бокс закрытым во время печати.",
+      "Сопоставить свежие state/real_state/progress и сообщения оператора."
+    ],
+    "executable": false
+  },
+  "verification": {
+    "expected_and_checks": [
+      "Завершение согласовано по состояниям и прогрессу, нет продолжающейся печати.",
+      "Для следующего задания отдельно проверить bed_clear и подготовку."
+    ],
+    "observed_result": null,
+    "result": "not_run"
+  },
+  "correction": {
+    "on_failed_or_uncertain": [
+      "При расхождении запросить дополнительные наблюдения; не открывать бокс по webhook.",
+      "После изменения гипотезы повторно проверить состояние, не копировать прежнюю разблокировку."
+    ],
+    "automatic_command_repeat": false
+  },
+  "summary": "Сверить state, real_state, progress_pct, изменение z_mm, актуальность данных и физические сведения при необходимости. Один webhook не подтверждает завершение: 14 октября была продолжающаяся печать при webhook COMPLETED.",
+  "context_budget": {
+    "max_chars": 30000,
+    "used_chars": 8205,
+    "unit": "characters_not_tokens"
+  },
+  "semantic": {
+    "enabled": false,
+    "fallback_error": null
+  }
+}

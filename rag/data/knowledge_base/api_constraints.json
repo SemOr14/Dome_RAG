@@ -1,0 +1,214 @@
+{
+  "review_status": "DRAFT_FOR_REVIEW",
+  "scope": "documented_api_not_runtime_permissions",
+  "source_refs": [
+    {
+      "source_id": "API",
+      "path": "sources/01_API.md",
+      "start_line": 663,
+      "end_line": 700
+    },
+    {
+      "source_id": "API",
+      "path": "sources/01_API.md",
+      "start_line": 151,
+      "end_line": 181
+    },
+    {
+      "source_id": "API",
+      "path": "sources/01_API.md",
+      "start_line": 272,
+      "end_line": 302
+    },
+    {
+      "source_id": "API",
+      "path": "sources/01_API.md",
+      "start_line": 325,
+      "end_line": 335
+    },
+    {
+      "source_id": "API",
+      "path": "sources/01_API.md",
+      "start_line": 341,
+      "end_line": 395
+    }
+  ],
+  "interlocks": [
+    {
+      "id": "IL_CO2",
+      "condition": "Основной CO2 >2000 ppm",
+      "duration": "60 с",
+      "effect": "Принтер и ЧПУ удержаны, приток 100%",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    {
+      "id": "IL_CONDENSATE",
+      "condition": "RH>90% или T−Tросы<1 C",
+      "duration": "60 с",
+      "effect": "Удержание ЧПУ",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    {
+      "id": "IL_SMOKE",
+      "condition": "Тревога дыма зоны",
+      "duration": "Удержание сразу; 60 с без квитирования до пожаротушения",
+      "effect": "FABLAB: станки удержаны, линия 1 OFF",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    {
+      "id": "IL_LOAD_SHED",
+      "condition": "SOC<25%, прогноз<1 ч или дефицит",
+      "duration": "Не указано в таблице",
+      "effect": "Линии 8,1, затем 3,4 OFF; автозапуск дизеля",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    {
+      "id": "IL_STORM",
+      "condition": "Ветер>20 м/с",
+      "duration": "30 с",
+      "effect": "Ветрогенератор OFF, клапаны закрыты, рециркуляция",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    {
+      "id": "IL_OVERVOLT",
+      "condition": "Напряжение линии>245 В",
+      "duration": "120 с",
+      "effect": "Линия OFF",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    {
+      "id": "IL_INV_OVERLOAD",
+      "condition": "Ошибка E07 инвертора",
+      "duration": "120 с",
+      "effect": "Линии 8,1 OFF",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    {
+      "id": "IL_HEAT",
+      "condition": "Инвертор>75 C",
+      "duration": "120 с",
+      "effect": "Линия 1 OFF",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    {
+      "id": "IL_OVERCURRENT",
+      "condition": "Ток линии>90% уставки",
+      "duration": "120 с",
+      "effect": "Линия OFF",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "A01",
+      "rule": "3 пустых resume → ALARM 20 минут; принтер отменяет задание.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        }
+      ]
+    },
+    {
+      "id": "A02",
+      "rule": ">3 переключений одной линии за 2 минуты → lockout 5 минут.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        }
+      ]
+    },
+    {
+      "id": "A03",
+      "rule": "probe_z: рабочий Z при контакте = plate_thickness; результат асинхронный.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 341,
+          "end_line": 395
+        }
+      ]
+    },
+    {
+      "id": "A04",
+      "rule": "move/set_zero/probe_z только IDLE без задания; конкретный ALARM обрабатывается по API.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 341,
+          "end_line": 395
+        }
+      ]
+    }
+  ]
+}

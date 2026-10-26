@@ -1,0 +1,368 @@
+[
+  {
+    "id": "C01",
+    "title": "Вентиляция: справочник против API",
+    "review_status": "APPROVED",
+    "issue": "K06/K11 утверждают отсутствие программного управления вентиляцией; API описывает turn_on/set_speed/set_mode.",
+    "proposed_handling": "Для доступности команд использовать актуальный describe_nodes и API. K06/K11 не применять как описание текущих прав.",
+    "source_refs": [
+      {
+        "source_id": "K06",
+        "path": "sources/knowledge/06_microclimate.md",
+        "start_line": 190,
+        "end_line": 209
+      },
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 233,
+        "end_line": 236
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 540,
+        "end_line": 575
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  },
+  {
+    "id": "C02",
+    "title": "Пауза и остановка станков",
+    "review_status": "APPROVED",
+    "issue": "Каталог неисправностей местами предлагает агенту остановить станок; API прямо запрещает pause/abort и произвольный G-code.",
+    "proposed_handling": "Не создавать pause/abort из текста knowledge. Использовать точные разрешения runtime; опасность передавать предусмотренным каналом оператору.",
+    "source_refs": [
+      {
+        "source_id": "K09",
+        "path": "sources/knowledge/09_faults.md",
+        "start_line": 707,
+        "end_line": 720
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 272,
+        "end_line": 302
+      },
+      {
+        "source_id": "TASK",
+        "path": "sources/02_Задание_и_оценка.md",
+        "start_line": 30,
+        "end_line": 42
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  },
+  {
+    "id": "C03",
+    "title": "Повторы команды и блокировка",
+    "review_status": "APPROVED",
+    "issue": "FAQ советует повтор после success без изменения; три пустых resume вызывают ALARM, частые переключения блокируют линию.",
+    "proposed_handling": "Сначала свежая проверка, причина удержания и счётчики. Корректировка означает пересмотр гипотезы; автоматический повтор не подразумевается.",
+    "source_refs": [
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 79,
+        "end_line": 88
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 272,
+        "end_line": 302
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 325,
+        "end_line": 335
+      },
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 69,
+        "end_line": 82
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  },
+  {
+    "id": "C04",
+    "title": "Влажность 99%: необоснованное исключение конденсата",
+    "review_status": "APPROVED",
+    "issue": "K06 и FAQ делают вывод об отсутствии конденсата при +20 C без резкого падения температуры. Такой вывод не доказан: нет температуры поверхностей.",
+    "proposed_handling": "Исключить этот вывод из рабочих ответов. Сопоставлять RH, dew_point_c, температуру и условия поверхностей; отсутствие данных оставлять неизвестным. Это редакторское ограничение, не новая физическая норма.",
+    "source_refs": [
+      {
+        "source_id": "K06",
+        "path": "sources/knowledge/06_microclimate.md",
+        "start_line": 103,
+        "end_line": 132
+      },
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 226,
+        "end_line": 232
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 663,
+        "end_line": 700
+      },
+      {
+        "source_id": "K08",
+        "path": "sources/knowledge/08_safety.md",
+        "start_line": 122,
+        "end_line": 164
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  },
+  {
+    "id": "C05",
+    "title": "Резкий CO2 не доказывает ложную тревогу",
+    "review_status": "APPROVED",
+    "issue": "В K06/FAQ резкий рост и отсутствие пайки названы достаточными признаками лжи датчика; размещение, задержки и независимость не установлены.",
+    "proposed_handling": "Считать это гипотезой и запросить согласованные независимые измерения; не давать совет игнорировать тревогу по одному признаку.",
+    "source_refs": [
+      {
+        "source_id": "K06",
+        "path": "sources/knowledge/06_microclimate.md",
+        "start_line": 28,
+        "end_line": 75
+      },
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 219,
+        "end_line": 225
+      },
+      {
+        "source_id": "K04",
+        "path": "sources/knowledge/04_telemetry.md",
+        "start_line": 143,
+        "end_line": 195
+      },
+      {
+        "source_id": "K08",
+        "path": "sources/knowledge/08_safety.md",
+        "start_line": 122,
+        "end_line": 164
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  },
+  {
+    "id": "C06",
+    "title": "Аппаратная защита и программный интерлок",
+    "review_status": "APPROVED",
+    "issue": "API предлагает block_interlock и acknowledge, а safety запрещает обход аппаратных защит; generic рекомендации о сбросах не разделяют тип защиты.",
+    "proposed_handling": "Различать аппаратный барьер, программную блокировку и квитирование. block_interlock и подавление пожаротушения исключить из готовых сценариев до отдельного разбора и утверждения.",
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 663,
+        "end_line": 700
+      },
+      {
+        "source_id": "K08",
+        "path": "sources/knowledge/08_safety.md",
+        "start_line": 122,
+        "end_line": 164
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 576,
+        "end_line": 606
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  },
+  {
+    "id": "C07",
+    "title": "Разные роли агента и разные этапы",
+    "review_status": "APPROVED",
+    "issue": "K00 описывает справочного помощника без управления, K07/K11 — общие роли/акцептанта, TASK/REQ — автономного агента команды на смене.",
+    "proposed_handling": "В каждой записи хранить scope. Ограничения справочного помощника не выдавать за API права команды; ручные команды во время смены не предлагать.",
+    "source_refs": [
+      {
+        "source_id": "K00",
+        "path": "sources/knowledge/00_assistant.md",
+        "start_line": 63,
+        "end_line": 76
+      },
+      {
+        "source_id": "K07",
+        "path": "sources/knowledge/07_rules.md",
+        "start_line": 82,
+        "end_line": 116
+      },
+      {
+        "source_id": "K11",
+        "path": "sources/knowledge/11_reference.md",
+        "start_line": 337,
+        "end_line": 340
+      },
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 8,
+        "end_line": 22
+      },
+      {
+        "source_id": "TASK",
+        "path": "sources/02_Задание_и_оценка.md",
+        "start_line": 79,
+        "end_line": 91
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  },
+  {
+    "id": "C08",
+    "title": "Устаревший/иной реестр узлов",
+    "review_status": "APPROVED",
+    "issue": "dome_sandbox_nodes и knowledge описывают оборудование разных конфигураций; наличие в справочнике не подтверждает runtime-узел.",
+    "proposed_handling": "Не объявлять химреактор/увлажнитель/паяльную станцию управляемыми узлами без describe_nodes. Отдельно хранить физическое оборудование и API node_id.",
+    "source_refs": [
+      {
+        "source_id": "K05",
+        "path": "sources/knowledge/05_production.md",
+        "start_line": 46,
+        "end_line": 57
+      },
+      {
+        "source_id": "NODES",
+        "path": "sources/dome_sandbox_nodes.md",
+        "start_line": 182,
+        "end_line": 254
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 151,
+        "end_line": 181
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  },
+  {
+    "id": "C09",
+    "title": "История станции и каталог возможных отказов",
+    "review_status": "APPROVED",
+    "issue": "K12 содержит шаблон истории и недостаток подтверждённой хронологии, K09 — возможные отказы. Логи предоставлены только за один день.",
+    "proposed_handling": "Сценарии knowledge маркировать document_only, эпизоды логов — historical, дневник — narrative. Не обещать недельное покрытие и не выдавать шаблоны за реальные происшествия.",
+    "source_refs": [
+      {
+        "source_id": "K12",
+        "path": "sources/knowledge/12_history.md",
+        "start_line": 18,
+        "end_line": 35
+      },
+      {
+        "source_id": "K12",
+        "path": "sources/knowledge/12_history.md",
+        "start_line": 192,
+        "end_line": 201
+      },
+      {
+        "source_id": "K09",
+        "path": "sources/knowledge/09_faults.md",
+        "start_line": 8,
+        "end_line": 13
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 810,
+        "end_line": 857
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  },
+  {
+    "id": "C10",
+    "title": "bed_clear: прежняя интерпретация артефакта требует уточнения",
+    "review_status": "APPROVED",
+    "issue": "Ранее true во время печати было названо аномалией. API меняет флаг на false после завершения и на true при открытии двери; значение во время печати само по себе не доказывает сбой.",
+    "proposed_handling": "Использовать bed_clear как серверный флаг предстарта, а не как датчик пустоты и не как критерий завершения. Для завершения нужны state/progress и согласованные данные.",
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 303,
+        "end_line": 314
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 654,
+        "end_line": 654
+      },
+      {
+        "source_id": "EVT",
+        "path": "sources/Logs/2026-10-14/events.jsonl",
+        "start_line": 160,
+        "end_line": 160
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  },
+  {
+    "id": "C11",
+    "title": "Символьные состояния защиты в API",
+    "review_status": "APPROVED",
+    "issue": "Раздел 7.4 использует RCD_TRIP для состояния линии, раздел 8 — RCD_TRIPPED для protection_state. Смешивать разные поля нельзя.",
+    "proposed_handling": "Хранить имена полей вместе с enum, сохранять исходный ответ. Нераспознанный enum означает неизвестное, а не разрешение включения.",
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 325,
+        "end_line": 335
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 444,
+        "end_line": 462
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  },
+  {
+    "id": "C12",
+    "title": "Пересказанные инструменты и WebSocket API",
+    "review_status": "APPROVED",
+    "issue": "В старых чатах использованы control_production/control_greenhouse/get_node_status; прямой API задаёт type=control/query и node_id/action/value.",
+    "proposed_handling": "Чаты не импортировать как контракт. Интерфейсы внешнего агента не конвертировать по аналогии; точные формы брать из API и runtime каталога.",
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 73,
+        "end_line": 109
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 182,
+        "end_line": 199
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 200,
+        "end_line": 222
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  }
+]

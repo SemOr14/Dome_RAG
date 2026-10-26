@@ -1,0 +1,327 @@
+{"ts":"2026-10-14T00:02:16","kind":"change","dome":{"day":3,"time":"00:02"},"node_id":"smoke_detector_02","param":"sensor_state","from":"DEGRADED","to":"OK"}
+{"ts":"2026-10-14T00:37:12","kind":"journal","dome":{"day":3,"time":"00:37"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":72.62,"door":"MAIN_AIRLOCK","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T01:27:16","kind":"journal","dome":{"day":3,"time":"01:27"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":73.45,"door":"STORAGE","credential":"OP-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T01:57:20","kind":"journal","dome":{"day":3,"time":"01:57"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":73.96,"door":"FABLAB","credential":"OP-03","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T03:07:04","kind":"journal","dome":{"day":3,"time":"03:07"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":75.12,"door":"FABLAB","credential":"OP-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T03:44:04","kind":"journal","dome":{"day":3,"time":"03:44"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":75.73,"door":"STORAGE","credential":"SCI-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T03:59:04","kind":"journal","dome":{"day":3,"time":"03:59"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":75.98,"door":"FABLAB","credential":"ENG-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T04:01:20","kind":"journal","dome":{"day":3,"time":"04:01"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":76.02,"door":"FABLAB","credential":"ENG-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T04:30:04","kind":"change","dome":{"day":3,"time":"04:30"},"node_id":"solar_inverter_01","param":"mppt_state","from":"TRACKING","to":"OFF"}
+{"ts":"2026-10-14T04:30:04","kind":"change","dome":{"day":3,"time":"04:30"},"node_id":"solar_inverter_01","param":"error","from":false,"to":true}
+{"ts":"2026-10-14T04:30:04","kind":"change","dome":{"day":3,"time":"04:30"},"node_id":"solar_inverter_01","param":"error_code","from":null,"to":"E09"}
+{"ts":"2026-10-14T04:30:04","kind":"change","dome":{"day":3,"time":"04:30"},"node_id":"solar_inverter_01","param":"error_text","from":null,"to":"ISOLATION_FAULT"}
+{"ts":"2026-10-14T05:03:04","kind":"journal","dome":{"day":3,"time":"05:03"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":77.05,"door":"FABLAB","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T07:05:00","kind":"action","dome":{"day":3,"time":"07:05"},"actor":"agent","team":1,"node_id":"solar_inverter_01","action":"set_mode_hybrid","value":null,"success":true}
+{"ts":"2026-10-14T07:05:04","kind":"change","dome":{"day":3,"time":"07:05"},"node_id":"solar_inverter_01","param":"mode","from":"GRID_ONLY","to":"HYBRID"}
+{"ts":"2026-10-14T07:05:28","kind":"journal","dome":{"day":3,"time":"07:05"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":79.09,"door":"FABLAB","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T07:08:04","kind":"journal","dome":{"day":3,"time":"07:08"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":79.13,"door":"FABLAB","credential":"ENG-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T07:11:52","kind":"journal","dome":{"day":3,"time":"07:11"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":79.2,"door":"FABLAB","credential":"ENG-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T07:17:44","kind":"change","dome":{"day":3,"time":"07:17"},"node_id":"climate_sensor_02","param":"sensor_state","from":"OK","to":"DEGRADED"}
+{"ts":"2026-10-14T07:37:04","kind":"action","dome":{"day":3,"time":"07:37"},"actor":"agent","team":1,"node_id":"solar_inverter_01","action":"reset_error","value":null,"success":true}
+{"ts":"2026-10-14T07:37:08","kind":"change","dome":{"day":3,"time":"07:37"},"node_id":"solar_inverter_01","param":"mppt_state","from":"OFF","to":"TRACKING"}
+{"ts":"2026-10-14T07:37:08","kind":"change","dome":{"day":3,"time":"07:37"},"node_id":"solar_inverter_01","param":"error","from":true,"to":false}
+{"ts":"2026-10-14T07:37:08","kind":"change","dome":{"day":3,"time":"07:37"},"node_id":"solar_inverter_01","param":"error_code","from":"E09","to":null}
+{"ts":"2026-10-14T07:37:08","kind":"change","dome":{"day":3,"time":"07:37"},"node_id":"solar_inverter_01","param":"error_text","from":"ISOLATION_FAULT","to":null}
+{"ts":"2026-10-14T07:44:44","kind":"journal","dome":{"day":3,"time":"07:44"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":79.75,"door":"MAIN_AIRLOCK","credential":"OP-03","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T07:47:36","kind":"journal","dome":{"day":3,"time":"07:47"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":79.79,"door":"FABLAB","credential":"SCI-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T07:53:24","kind":"journal","dome":{"day":3,"time":"07:53"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":79.89,"door":"MAIN_AIRLOCK","credential":"SCI-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T07:53:52","kind":"journal","dome":{"day":3,"time":"07:53"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":79.9,"door":"FABLAB","credential":"OP-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T07:54:44","kind":"change","dome":{"day":3,"time":"07:54"},"node_id":"climate_sensor_02","param":"sensor_state","from":"DEGRADED","to":"OK"}
+{"ts":"2026-10-14T08:03:56","kind":"journal","dome":{"day":3,"time":"08:03"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":80.07,"door":"SERVER_ROOM","credential":"MED-01","direction":"OUT","result":"DENIED"}}
+{"ts":"2026-10-14T08:12:48","kind":"journal","dome":{"day":3,"time":"08:12"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":80.21,"door":"FABLAB","credential":"ENG-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T08:14:44","kind":"journal","dome":{"day":3,"time":"08:14"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":80.25,"door":"MAIN_AIRLOCK","credential":"SCI-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T08:15:00","kind":"action","dome":{"day":3,"time":"08:15"},"actor":"agent","team":1,"node_id":"smart_panel_01","action":"line_off","value":8,"success":true}
+{"ts":"2026-10-14T08:15:00","kind":"message","dome":{"day":3,"time":"08:15"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Резервная линия 8 с 23:30 потребляет ~53.3 Вт, хотя нагрузки на ней нет. Отключил. Похоже на утечку — посмотрите клеммник линии 8."}
+{"ts":"2026-10-14T08:15:04","kind":"change","dome":{"day":3,"time":"08:15"},"node_id":"smart_panel_01","param":"lines[7].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T08:16:00","kind":"journal","dome":{"day":3,"time":"08:16"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":80.27,"door":"MAIN_AIRLOCK","credential":"MED-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T08:21:20","kind":"journal","dome":{"day":3,"time":"08:21"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":80.36,"door":"FABLAB","credential":"SCI-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T08:22:52","kind":"journal","dome":{"day":3,"time":"08:22"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":80.38,"door":"FABLAB","credential":"OP-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T08:25:04","kind":"journal","dome":{"day":3,"time":"08:25"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":80.42,"door":"STORAGE","credential":"ENG-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T08:38:28","kind":"journal","dome":{"day":3,"time":"08:38"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":80.64,"door":"MAIN_AIRLOCK","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T08:39:24","kind":"journal","dome":{"day":3,"time":"08:39"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":80.66,"door":"MAIN_AIRLOCK","credential":"SCI-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T08:40:40","kind":"journal","dome":{"day":3,"time":"08:40"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":80.68,"door":"FABLAB","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T08:56:56","kind":"journal","dome":{"day":3,"time":"08:56"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":80.95,"door":"MAIN_AIRLOCK","credential":"SCI-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T09:00:00","kind":"action","dome":{"day":3,"time":"09:00"},"actor":"operator","node_id":"smart_panel_01","action":"set_workstation","value":"IDLE","success":true}
+{"ts":"2026-10-14T09:00:00","kind":"message","dome":{"day":3,"time":"09:00"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Привет, я в куполе. Что по системам?"}
+{"ts":"2026-10-14T09:01:12","kind":"message","dome":{"day":3,"time":"09:01"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Доброе утро. АКБ 38 %, инвертор HYBRID, станки свободны."}
+{"ts":"2026-10-14T09:05:12","kind":"journal","dome":{"day":3,"time":"09:05"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":81.09,"door":"FABLAB","credential":"MED-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T09:16:28","kind":"journal","dome":{"day":3,"time":"09:16"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":81.27,"door":"FABLAB","credential":"SCI-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T09:30:00","kind":"message","dome":{"day":3,"time":"09:30"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Следующее задание: sensor_case.gcode — корпус датчика."}
+{"ts":"2026-10-14T09:31:28","kind":"action","dome":{"day":3,"time":"09:31"},"actor":"agent","team":1,"node_id":"printer_3d_01","action":"start_job","value":"sensor_case.gcode","success":true}
+{"ts":"2026-10-14T09:31:28","kind":"message","dome":{"day":3,"time":"09:31"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Запустил sensor_case.gcode на принтере, ориентировочно 4 ч."}
+{"ts":"2026-10-14T09:31:32","kind":"change","dome":{"day":3,"time":"09:31"},"node_id":"printer_3d_01","param":"state","from":"COMPLETED","to":"PRINTING"}
+{"ts":"2026-10-14T09:31:32","kind":"change","dome":{"day":3,"time":"09:31"},"node_id":"printer_3d_01","param":"file_name","from":"bracket_v2.gcode","to":"sensor_case.gcode"}
+{"ts":"2026-10-14T09:31:32","kind":"change","dome":{"day":3,"time":"09:31"},"node_id":"printer_3d_01","param":"real_state","from":"COMPLETED","to":"PRINTING"}
+{"ts":"2026-10-14T09:31:36","kind":"change","dome":{"day":3,"time":"09:31"},"node_id":"printer_3d_01","param":"webhook_state","from":"COMPLETED","to":"PRINTING"}
+{"ts":"2026-10-14T09:37:36","kind":"journal","dome":{"day":3,"time":"09:37"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":81.63,"door":"STORAGE","credential":"ENG-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T09:38:48","kind":"journal","dome":{"day":3,"time":"09:38"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":81.65,"door":"FABLAB","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T09:40:00","kind":"action","dome":{"day":3,"time":"09:40"},"actor":"operator","node_id":"smart_panel_01","action":"inspect_line","value":8,"success":true}
+{"ts":"2026-10-14T09:40:00","kind":"message","dome":{"day":3,"time":"09:40"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Клеммник резервной линии окислен и влажный — зачистила, просушила."}
+{"ts":"2026-10-14T09:42:48","kind":"journal","dome":{"day":3,"time":"09:42"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":81.71,"door":"FABLAB","credential":"OP-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T09:45:00","kind":"message","dome":{"day":3,"time":"09:45"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Фрезер свободен? Нужен pcb_power_board.nc (плата питания)."}
+{"ts":"2026-10-14T09:45:00","kind":"action","dome":{"day":3,"time":"09:45"},"actor":"agent","team":1,"node_id":"smart_panel_01","action":"line_on","value":8,"success":true}
+{"ts":"2026-10-14T09:45:04","kind":"change","dome":{"day":3,"time":"09:45"},"node_id":"smart_panel_01","param":"lines[7].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T09:46:16","kind":"action","dome":{"day":3,"time":"09:46"},"actor":"agent","team":1,"node_id":"cnc_01","action":"start_job","value":"pcb_power_board.nc","success":true}
+{"ts":"2026-10-14T09:46:16","kind":"message","dome":{"day":3,"time":"09:46"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Принял. Фрезер работает по pcb_power_board.nc, слежу."}
+{"ts":"2026-10-14T09:46:20","kind":"change","dome":{"day":3,"time":"09:46"},"node_id":"cnc_01","param":"state","from":"IDLE","to":"RUNNING"}
+{"ts":"2026-10-14T09:46:20","kind":"change","dome":{"day":3,"time":"09:46"},"node_id":"cnc_01","param":"file_name","from":"pcb_relay_driver.nc","to":"pcb_power_board.nc"}
+{"ts":"2026-10-14T09:53:12","kind":"journal","dome":{"day":3,"time":"09:53"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":81.89,"door":"FABLAB","credential":"SCI-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T09:58:48","kind":"journal","dome":{"day":3,"time":"09:58"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":81.98,"door":"MAIN_AIRLOCK","credential":"ENG-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T09:59:52","kind":"journal","dome":{"day":3,"time":"09:59"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":82.0,"door":"FABLAB","credential":"ENG-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T10:11:52","kind":"journal","dome":{"day":3,"time":"10:11"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":82.2,"door":"MAIN_AIRLOCK","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T10:17:08","kind":"journal","dome":{"day":3,"time":"10:17"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":82.29,"door":"MAIN_AIRLOCK","credential":"MED-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T10:17:36","kind":"journal","dome":{"day":3,"time":"10:17"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":82.29,"door":"MAIN_AIRLOCK","credential":"OP-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T10:25:44","kind":"journal","dome":{"day":3,"time":"10:25"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":82.43,"door":"MAIN_AIRLOCK","credential":"SCI-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T10:27:44","kind":"journal","dome":{"day":3,"time":"10:27"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":82.46,"door":"FABLAB","credential":"SCI-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T10:30:00","kind":"action","dome":{"day":3,"time":"10:30"},"actor":"agent","team":1,"node_id":"solar_inverter_01","action":"set_mode_grid_only","value":null,"success":true}
+{"ts":"2026-10-14T10:30:00","kind":"message","dome":{"day":3,"time":"10:30"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"SOC 34 % — перевёл нагрузку на сеть (GRID_ONLY), АКБ заряжается от панелей."}
+{"ts":"2026-10-14T10:30:00","kind":"action","dome":{"day":3,"time":"10:30"},"actor":"operator","node_id":"smart_panel_01","action":"set_workstation","value":"SOLDERING","success":true}
+{"ts":"2026-10-14T10:30:04","kind":"change","dome":{"day":3,"time":"10:30"},"node_id":"solar_inverter_01","param":"mode","from":"HYBRID","to":"GRID_ONLY"}
+{"ts":"2026-10-14T10:30:28","kind":"journal","dome":{"day":3,"time":"10:30"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":82.51,"door":"FABLAB","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T10:48:00","kind":"journal","dome":{"day":3,"time":"10:48"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":82.8,"door":"MAIN_AIRLOCK","credential":"OP-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T10:50:08","kind":"change","dome":{"day":3,"time":"10:50"},"node_id":"printer_3d_01","param":"webhook_state","from":"PRINTING","to":"COMPLETED"}
+{"ts":"2026-10-14T10:53:24","kind":"message","dome":{"day":3,"time":"10:53"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Принтер сообщает COMPLETED (webhook_state). Открываю бокс — можно забирать деталь."}
+{"ts":"2026-10-14T10:53:24","kind":"action","dome":{"day":3,"time":"10:53"},"actor":"agent","team":1,"node_id":"thermal_insulation_01","action":"set_lock","value":{"lock":0,"locked":false},"success":true}
+{"ts":"2026-10-14T10:53:28","kind":"change","dome":{"day":3,"time":"10:53"},"node_id":"thermal_insulation_01","param":"locks","from":["LOCKED","LOCKED"],"to":["UNLOCKED","LOCKED"]}
+{"ts":"2026-10-14T10:55:56","kind":"message","dome":{"day":3,"time":"10:55"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Он ещё печатает! Сопло ездит, на экране 34.3 %. Дверь не открываю."}
+{"ts":"2026-10-14T10:55:56","kind":"action","dome":{"day":3,"time":"10:55"},"actor":"agent","team":1,"node_id":"thermal_insulation_01","action":"set_lock","value":{"lock":0,"locked":true},"success":true}
+{"ts":"2026-10-14T10:55:56","kind":"message","dome":{"day":3,"time":"10:55"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Понял: state = PRINTING, progress и z_mm растут, расходится только webhook_state. Замок закрыл."}
+{"ts":"2026-10-14T10:56:00","kind":"change","dome":{"day":3,"time":"10:56"},"node_id":"thermal_insulation_01","param":"locks","from":["UNLOCKED","LOCKED"],"to":["LOCKED","LOCKED"]}
+{"ts":"2026-10-14T10:58:16","kind":"change","dome":{"day":3,"time":"10:58"},"node_id":"cnc_01","param":"state","from":"RUNNING","to":"IDLE"}
+{"ts":"2026-10-14T11:00:04","kind":"change","dome":{"day":3,"time":"11:00"},"node_id":"printer_3d_01","param":"webhook_state","from":"COMPLETED","to":"PRINTING"}
+{"ts":"2026-10-14T11:04:16","kind":"message","dome":{"day":3,"time":"11:04"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Сняла pcb_power_board.nc, стол фрезера свободен."}
+{"ts":"2026-10-14T11:10:24","kind":"journal","dome":{"day":3,"time":"11:10"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":83.17,"door":"MAIN_AIRLOCK","credential":"MED-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T11:11:12","kind":"journal","dome":{"day":3,"time":"11:11"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":83.19,"door":"MAIN_AIRLOCK","credential":"OP-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T11:13:12","kind":"journal","dome":{"day":3,"time":"11:13"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":83.22,"door":"FABLAB","credential":"OP-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T11:14:56","kind":"journal","dome":{"day":3,"time":"11:14"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":83.25,"door":"MAIN_AIRLOCK","credential":"SCI-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T11:30:00","kind":"action","dome":{"day":3,"time":"11:30"},"actor":"operator","node_id":"smart_panel_01","action":"set_workstation","value":"IDLE","success":true}
+{"ts":"2026-10-14T11:37:20","kind":"journal","dome":{"day":3,"time":"11:37"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":83.62,"door":"MAIN_AIRLOCK","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T11:38:16","kind":"journal","dome":{"day":3,"time":"11:38"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":83.64,"door":"FABLAB","credential":"SCI-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T11:38:36","kind":"journal","dome":{"day":3,"time":"11:38"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":83.64,"door":"MAIN_AIRLOCK","credential":"ENG-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T11:40:00","kind":"action","dome":{"day":3,"time":"11:40"},"actor":"agent","team":1,"node_id":"solar_inverter_01","action":"set_mode_hybrid","value":null,"success":true}
+{"ts":"2026-10-14T11:40:00","kind":"message","dome":{"day":3,"time":"11:40"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"АКБ 77 %, солнце есть — вернул инвертор в HYBRID."}
+{"ts":"2026-10-14T11:40:04","kind":"change","dome":{"day":3,"time":"11:40"},"node_id":"solar_inverter_01","param":"mode","from":"GRID_ONLY","to":"HYBRID"}
+{"ts":"2026-10-14T11:46:04","kind":"journal","dome":{"day":3,"time":"11:46"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":83.77,"door":"STORAGE","credential":"SCI-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T11:54:52","kind":"change","dome":{"day":3,"time":"11:54"},"node_id":"climate_sensor_03","param":"sensor_state","from":"OK","to":"DEGRADED"}
+{"ts":"2026-10-14T11:57:48","kind":"journal","dome":{"day":3,"time":"11:57"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":83.96,"door":"MAIN_AIRLOCK","credential":"OP-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T12:22:20","kind":"journal","dome":{"day":3,"time":"12:22"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":84.37,"door":"FABLAB","credential":"OP-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T12:29:32","kind":"change","dome":{"day":3,"time":"12:29"},"node_id":"climate_sensor_03","param":"sensor_state","from":"DEGRADED","to":"OK"}
+{"ts":"2026-10-14T12:29:36","kind":"journal","dome":{"day":3,"time":"12:29"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":84.49,"door":"FABLAB","credential":"ENG-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T12:30:00","kind":"message","dome":{"day":3,"time":"12:30"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Следующее задание: pcb_sensor_hub.nc — плата хаба датчиков."}
+{"ts":"2026-10-14T12:31:04","kind":"action","dome":{"day":3,"time":"12:31"},"actor":"agent","team":1,"node_id":"cnc_01","action":"start_job","value":"pcb_sensor_hub.nc","success":true}
+{"ts":"2026-10-14T12:31:04","kind":"message","dome":{"day":3,"time":"12:31"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Принял. Фрезер работает по pcb_sensor_hub.nc, слежу."}
+{"ts":"2026-10-14T12:31:08","kind":"change","dome":{"day":3,"time":"12:31"},"node_id":"cnc_01","param":"state","from":"IDLE","to":"RUNNING"}
+{"ts":"2026-10-14T12:31:08","kind":"change","dome":{"day":3,"time":"12:31"},"node_id":"cnc_01","param":"file_name","from":"pcb_power_board.nc","to":"pcb_sensor_hub.nc"}
+{"ts":"2026-10-14T12:40:24","kind":"journal","dome":{"day":3,"time":"12:40"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":84.67,"door":"FABLAB","credential":"OP-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T12:47:52","kind":"journal","dome":{"day":3,"time":"12:47"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":84.8,"door":"MAIN_AIRLOCK","credential":"ENG-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T12:51:04","kind":"message","dome":{"day":3,"time":"12:51"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Станки встали оба — что случилось?"}
+{"ts":"2026-10-14T12:51:04","kind":"change","dome":{"day":3,"time":"12:51"},"node_id":"printer_3d_01","param":"state","from":"PRINTING","to":"PAUSED"}
+{"ts":"2026-10-14T12:51:04","kind":"change","dome":{"day":3,"time":"12:51"},"node_id":"printer_3d_01","param":"paused","from":false,"to":true}
+{"ts":"2026-10-14T12:51:04","kind":"change","dome":{"day":3,"time":"12:51"},"node_id":"printer_3d_01","param":"hold_level","from":null,"to":"WARNING"}
+{"ts":"2026-10-14T12:51:04","kind":"change","dome":{"day":3,"time":"12:51"},"node_id":"printer_3d_01","param":"hold_reason","from":null,"to":"IL_CO2"}
+{"ts":"2026-10-14T12:51:04","kind":"change","dome":{"day":3,"time":"12:51"},"node_id":"cnc_01","param":"state","from":"RUNNING","to":"PAUSED"}
+{"ts":"2026-10-14T12:51:04","kind":"change","dome":{"day":3,"time":"12:51"},"node_id":"cnc_01","param":"paused","from":false,"to":true}
+{"ts":"2026-10-14T12:51:04","kind":"change","dome":{"day":3,"time":"12:51"},"node_id":"cnc_01","param":"hold_level","from":null,"to":"WARNING"}
+{"ts":"2026-10-14T12:51:04","kind":"change","dome":{"day":3,"time":"12:51"},"node_id":"cnc_01","param":"hold_reason","from":null,"to":"IL_CO2"}
+{"ts":"2026-10-14T12:51:04","kind":"change","dome":{"day":3,"time":"12:51"},"node_id":"supply_ventilation_01","param":"mode","from":"MIXED","to":"FRESH_AIR"}
+{"ts":"2026-10-14T12:51:04","kind":"automation","dome":{"day":3,"time":"12:51"},"node_id":"dome_automation_01","event":{"event_id":"AUT-0005","t":1791971464.0,"t_s":262264.0,"interlock":"IL_CO2","type":"TRIP","message":"CO₂ 3043 ppm (climate_sensor_01): станки на паузе, приток 100 %","acknowledged":false,"paused":["printer_3d_01","cnc_01"]}}
+{"ts":"2026-10-14T12:51:04","kind":"change","dome":{"day":3,"time":"12:51"},"node_id":"dome_automation_01","param":"interlocks.IL_CO2.state","from":"ARMED","to":"TRIPPED"}
+{"ts":"2026-10-14T12:51:08","kind":"change","dome":{"day":3,"time":"12:51"},"node_id":"printer_3d_01","param":"real_state","from":"PRINTING","to":"PAUSED"}
+{"ts":"2026-10-14T12:51:12","kind":"change","dome":{"day":3,"time":"12:51"},"node_id":"printer_3d_01","param":"webhook_state","from":"PRINTING","to":"PAUSED"}
+{"ts":"2026-10-14T12:52:16","kind":"action","dome":{"day":3,"time":"12:52"},"actor":"agent","team":1,"node_id":"dome_automation_01","action":"set_data_trust","value":{"node":"climate_sensor_01","param":"co2_ppm","trust":"UNRELIABLE"},"success":true}
+{"ts":"2026-10-14T12:52:16","kind":"action","dome":{"day":3,"time":"12:52"},"actor":"agent","team":1,"node_id":"dome_automation_01","action":"set_primary_sensor","value":"climate_sensor_02","success":true}
+{"ts":"2026-10-14T12:52:16","kind":"action","dome":{"day":3,"time":"12:52"},"actor":"agent","team":1,"node_id":"dome_automation_01","action":"reset_interlock","value":"IL_CO2","success":true}
+{"ts":"2026-10-14T12:52:20","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"supply_ventilation_01","param":"mode","from":"FRESH_AIR","to":"MIXED"}
+{"ts":"2026-10-14T12:52:20","kind":"automation","dome":{"day":3,"time":"12:52"},"node_id":"dome_automation_01","event":{"event_id":"AUT-0006","t":1791971540.0,"t_s":262340.0,"interlock":"IL_CO2","type":"RELEASE","message":"Интерлок снят агентом, линии возвращены: []","acknowledged":false}}
+{"ts":"2026-10-14T12:52:20","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"dome_automation_01","param":"interlocks.IL_CO2.state","from":"TRIPPED","to":"ARMED"}
+{"ts":"2026-10-14T12:52:20","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"dome_automation_01","param":"primary_co2_sensor","from":"climate_sensor_01","to":"climate_sensor_02"}
+{"ts":"2026-10-14T12:52:24","kind":"action","dome":{"day":3,"time":"12:52"},"actor":"agent","team":1,"node_id":"printer_3d_01","action":"resume","value":null,"success":true}
+{"ts":"2026-10-14T12:52:24","kind":"action","dome":{"day":3,"time":"12:52"},"actor":"agent","team":1,"node_id":"cnc_01","action":"resume","value":null,"success":true}
+{"ts":"2026-10-14T12:52:24","kind":"message","dome":{"day":3,"time":"12:52"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Ложный CO₂: climate_sensor_01 — 3041 ppm, climate_sensor_02/03 — 773/787. Датчик помечен ненадёжным, основной — climate_sensor_02, станки продолжены."}
+{"ts":"2026-10-14T12:52:28","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"printer_3d_01","param":"state","from":"PAUSED","to":"PRINTING"}
+{"ts":"2026-10-14T12:52:28","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"printer_3d_01","param":"paused","from":true,"to":false}
+{"ts":"2026-10-14T12:52:28","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"printer_3d_01","param":"real_state","from":"PAUSED","to":"PRINTING"}
+{"ts":"2026-10-14T12:52:28","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"printer_3d_01","param":"hold_level","from":"WARNING","to":null}
+{"ts":"2026-10-14T12:52:28","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"printer_3d_01","param":"hold_reason","from":"IL_CO2","to":null}
+{"ts":"2026-10-14T12:52:28","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"cnc_01","param":"state","from":"PAUSED","to":"RUNNING"}
+{"ts":"2026-10-14T12:52:28","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"cnc_01","param":"paused","from":true,"to":false}
+{"ts":"2026-10-14T12:52:28","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"cnc_01","param":"hold_level","from":"WARNING","to":null}
+{"ts":"2026-10-14T12:52:28","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"cnc_01","param":"hold_reason","from":"IL_CO2","to":null}
+{"ts":"2026-10-14T12:52:32","kind":"change","dome":{"day":3,"time":"12:52"},"node_id":"printer_3d_01","param":"webhook_state","from":"PAUSED","to":"PRINTING"}
+{"ts":"2026-10-14T13:09:56","kind":"journal","dome":{"day":3,"time":"13:09"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":85.17,"door":"MAIN_AIRLOCK","credential":"MED-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T13:10:16","kind":"journal","dome":{"day":3,"time":"13:10"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":85.17,"door":"FABLAB","credential":"ENG-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T13:15:36","kind":"journal","dome":{"day":3,"time":"13:15"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":85.26,"door":"STORAGE","credential":"OP-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T13:20:24","kind":"change","dome":{"day":3,"time":"13:20"},"node_id":"cnc_01","param":"state","from":"RUNNING","to":"IDLE"}
+{"ts":"2026-10-14T13:30:28","kind":"message","dome":{"day":3,"time":"13:30"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Сняла pcb_sensor_hub.nc, стол фрезера свободен."}
+{"ts":"2026-10-14T13:33:00","kind":"journal","dome":{"day":3,"time":"13:33"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":85.55,"door":"FABLAB","credential":"OP-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T13:34:08","kind":"journal","dome":{"day":3,"time":"13:34"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":85.57,"door":"FABLAB","credential":"SCI-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T13:35:12","kind":"change","dome":{"day":3,"time":"13:35"},"node_id":"printer_3d_01","param":"state","from":"PRINTING","to":"COMPLETED"}
+{"ts":"2026-10-14T13:35:12","kind":"change","dome":{"day":3,"time":"13:35"},"node_id":"printer_3d_01","param":"real_state","from":"PRINTING","to":"COMPLETED"}
+{"ts":"2026-10-14T13:35:12","kind":"change","dome":{"day":3,"time":"13:35"},"node_id":"printer_3d_01","param":"bed_clear","from":true,"to":false}
+{"ts":"2026-10-14T13:35:16","kind":"change","dome":{"day":3,"time":"13:35"},"node_id":"printer_3d_01","param":"webhook_state","from":"PRINTING","to":"COMPLETED"}
+{"ts":"2026-10-14T13:35:28","kind":"action","dome":{"day":3,"time":"13:35"},"actor":"agent","team":1,"node_id":"dome_automation_01","action":"set_data_trust","value":{"node":"climate_sensor_01","param":"co2_ppm","trust":"TRUSTED"},"success":true}
+{"ts":"2026-10-14T13:35:28","kind":"action","dome":{"day":3,"time":"13:35"},"actor":"agent","team":1,"node_id":"dome_automation_01","action":"set_primary_sensor","value":"climate_sensor_01","success":true}
+{"ts":"2026-10-14T13:35:32","kind":"change","dome":{"day":3,"time":"13:35"},"node_id":"dome_automation_01","param":"primary_co2_sensor","from":"climate_sensor_02","to":"climate_sensor_01"}
+{"ts":"2026-10-14T13:39:04","kind":"message","dome":{"day":3,"time":"13:39"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Готово на принтере? Иду за деталью."}
+{"ts":"2026-10-14T13:39:48","kind":"action","dome":{"day":3,"time":"13:39"},"actor":"agent","team":1,"node_id":"thermal_insulation_01","action":"set_lock","value":{"lock":0,"locked":false},"success":true}
+{"ts":"2026-10-14T13:39:52","kind":"change","dome":{"day":3,"time":"13:39"},"node_id":"thermal_insulation_01","param":"locks","from":["LOCKED","LOCKED"],"to":["UNLOCKED","LOCKED"]}
+{"ts":"2026-10-14T13:39:56","kind":"message","dome":{"day":3,"time":"13:39"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Бокс разблокирован (замок 0), стол остыл."}
+{"ts":"2026-10-14T13:40:36","kind":"change","dome":{"day":3,"time":"13:40"},"node_id":"climate_sensor_03","param":"sensor_state","from":"OK","to":"DEGRADED"}
+{"ts":"2026-10-14T13:41:44","kind":"action","dome":{"day":3,"time":"13:41"},"actor":"operator","node_id":"thermal_insulation_01","action":"set_door","value":{"door":0,"open":true},"success":true}
+{"ts":"2026-10-14T13:41:48","kind":"change","dome":{"day":3,"time":"13:41"},"node_id":"printer_3d_01","param":"bed_clear","from":false,"to":true}
+{"ts":"2026-10-14T13:41:48","kind":"change","dome":{"day":3,"time":"13:41"},"node_id":"thermal_insulation_01","param":"doors","from":["CLOSED","CLOSED"],"to":["OPEN","CLOSED"]}
+{"ts":"2026-10-14T13:43:24","kind":"action","dome":{"day":3,"time":"13:43"},"actor":"operator","node_id":"thermal_insulation_01","action":"set_door","value":{"door":0,"open":false},"success":true}
+{"ts":"2026-10-14T13:43:24","kind":"message","dome":{"day":3,"time":"13:43"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Деталь забрала, дверь закрыла."}
+{"ts":"2026-10-14T13:43:28","kind":"change","dome":{"day":3,"time":"13:43"},"node_id":"thermal_insulation_01","param":"doors","from":["OPEN","CLOSED"],"to":["CLOSED","CLOSED"]}
+{"ts":"2026-10-14T13:43:32","kind":"journal","dome":{"day":3,"time":"13:43"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":85.73,"door":"MAIN_AIRLOCK","credential":"OP-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T13:43:36","kind":"action","dome":{"day":3,"time":"13:43"},"actor":"agent","team":1,"node_id":"thermal_insulation_01","action":"set_lock","value":{"lock":0,"locked":true},"success":true}
+{"ts":"2026-10-14T13:43:40","kind":"change","dome":{"day":3,"time":"13:43"},"node_id":"thermal_insulation_01","param":"locks","from":["UNLOCKED","LOCKED"],"to":["LOCKED","LOCKED"]}
+{"ts":"2026-10-14T13:44:16","kind":"journal","dome":{"day":3,"time":"13:44"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":85.74,"door":"MAIN_AIRLOCK","credential":"ENG-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T13:54:20","kind":"journal","dome":{"day":3,"time":"13:54"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":85.91,"door":"FABLAB","credential":"SCI-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T14:06:56","kind":"journal","dome":{"day":3,"time":"14:06"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":86.12,"door":"FABLAB","credential":"ENG-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T14:09:32","kind":"change","dome":{"day":3,"time":"14:09"},"node_id":"climate_sensor_03","param":"sensor_state","from":"DEGRADED","to":"OK"}
+{"ts":"2026-10-14T14:16:52","kind":"journal","dome":{"day":3,"time":"14:16"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":86.28,"door":"FABLAB","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T14:24:44","kind":"journal","dome":{"day":3,"time":"14:24"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":86.41,"door":"MAIN_AIRLOCK","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T14:26:16","kind":"journal","dome":{"day":3,"time":"14:26"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":86.44,"door":"MAIN_AIRLOCK","credential":"ENG-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T14:30:00","kind":"message","dome":{"day":3,"time":"14:30"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Следующее задание: gear_m1_z24.gcode — шестерня z24."}
+{"ts":"2026-10-14T14:31:24","kind":"action","dome":{"day":3,"time":"14:31"},"actor":"agent","team":1,"node_id":"printer_3d_01","action":"start_job","value":"gear_m1_z24.gcode","success":true}
+{"ts":"2026-10-14T14:31:24","kind":"message","dome":{"day":3,"time":"14:31"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Запустил gear_m1_z24.gcode на принтере, ориентировочно 1 ч."}
+{"ts":"2026-10-14T14:31:28","kind":"change","dome":{"day":3,"time":"14:31"},"node_id":"printer_3d_01","param":"state","from":"COMPLETED","to":"PRINTING"}
+{"ts":"2026-10-14T14:31:28","kind":"change","dome":{"day":3,"time":"14:31"},"node_id":"printer_3d_01","param":"file_name","from":"sensor_case.gcode","to":"gear_m1_z24.gcode"}
+{"ts":"2026-10-14T14:31:28","kind":"change","dome":{"day":3,"time":"14:31"},"node_id":"printer_3d_01","param":"real_state","from":"COMPLETED","to":"PRINTING"}
+{"ts":"2026-10-14T14:31:32","kind":"change","dome":{"day":3,"time":"14:31"},"node_id":"printer_3d_01","param":"webhook_state","from":"COMPLETED","to":"PRINTING"}
+{"ts":"2026-10-14T14:34:20","kind":"change","dome":{"day":3,"time":"14:34"},"node_id":"material_inventory_01","param":"sensor_state","from":"OK","to":"DEGRADED"}
+{"ts":"2026-10-14T14:38:28","kind":"journal","dome":{"day":3,"time":"14:38"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":86.64,"door":"FABLAB","credential":"ENG-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T14:47:12","kind":"journal","dome":{"day":3,"time":"14:47"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":86.79,"door":"MAIN_AIRLOCK","credential":"MED-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T14:54:20","kind":"journal","dome":{"day":3,"time":"14:54"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":86.91,"door":"MAIN_AIRLOCK","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T15:00:00","kind":"action","dome":{"day":3,"time":"15:00"},"actor":"operator","node_id":"smart_panel_01","action":"set_workstation","value":"SOLDERING","success":true}
+{"ts":"2026-10-14T15:03:40","kind":"journal","dome":{"day":3,"time":"15:03"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":87.06,"door":"FABLAB","credential":"ENG-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T15:06:40","kind":"journal","dome":{"day":3,"time":"15:06"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":87.11,"door":"FABLAB","credential":"OP-03","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T15:13:08","kind":"change","dome":{"day":3,"time":"15:13"},"node_id":"material_inventory_01","param":"sensor_state","from":"DEGRADED","to":"OK"}
+{"ts":"2026-10-14T15:19:56","kind":"journal","dome":{"day":3,"time":"15:19"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":87.33,"door":"MAIN_AIRLOCK","credential":"SCI-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T15:20:36","kind":"journal","dome":{"day":3,"time":"15:20"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":87.34,"door":"SERVER_ROOM","credential":"ENG-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T15:23:04","kind":"journal","dome":{"day":3,"time":"15:23"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":87.38,"door":"SERVER_ROOM","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T15:29:16","kind":"journal","dome":{"day":3,"time":"15:29"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":87.49,"door":"FABLAB","credential":"OP-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T15:29:44","kind":"journal","dome":{"day":3,"time":"15:29"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":87.5,"door":"FABLAB","credential":"ENG-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T15:30:00","kind":"message","dome":{"day":3,"time":"15:30"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Запусти front_panel_engrave.nc (гравировка передней панели), заготовку закрепила."}
+{"ts":"2026-10-14T15:30:00","kind":"action","dome":{"day":3,"time":"15:30"},"actor":"operator","node_id":"smart_panel_01","action":"set_workstation","value":"IDLE","success":true}
+{"ts":"2026-10-14T15:30:36","kind":"action","dome":{"day":3,"time":"15:30"},"actor":"agent","team":1,"node_id":"cnc_01","action":"start_job","value":"front_panel_engrave.nc","success":true}
+{"ts":"2026-10-14T15:30:36","kind":"message","dome":{"day":3,"time":"15:30"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Принял. Фрезер работает по front_panel_engrave.nc, слежу."}
+{"ts":"2026-10-14T15:30:40","kind":"change","dome":{"day":3,"time":"15:30"},"node_id":"cnc_01","param":"state","from":"IDLE","to":"RUNNING"}
+{"ts":"2026-10-14T15:30:40","kind":"change","dome":{"day":3,"time":"15:30"},"node_id":"cnc_01","param":"file_name","from":"pcb_sensor_hub.nc","to":"front_panel_engrave.nc"}
+{"ts":"2026-10-14T15:33:20","kind":"change","dome":{"day":3,"time":"15:33"},"node_id":"printer_3d_01","param":"state","from":"PRINTING","to":"COMPLETED"}
+{"ts":"2026-10-14T15:33:20","kind":"change","dome":{"day":3,"time":"15:33"},"node_id":"printer_3d_01","param":"real_state","from":"PRINTING","to":"COMPLETED"}
+{"ts":"2026-10-14T15:33:20","kind":"change","dome":{"day":3,"time":"15:33"},"node_id":"printer_3d_01","param":"bed_clear","from":true,"to":false}
+{"ts":"2026-10-14T15:33:24","kind":"change","dome":{"day":3,"time":"15:33"},"node_id":"printer_3d_01","param":"webhook_state","from":"PRINTING","to":"COMPLETED"}
+{"ts":"2026-10-14T15:37:12","kind":"journal","dome":{"day":3,"time":"15:37"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":87.62,"door":"FABLAB","credential":"SCI-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T15:37:28","kind":"message","dome":{"day":3,"time":"15:37"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Печать закончилась, заберу деталь — разблокируй бокс."}
+{"ts":"2026-10-14T15:38:24","kind":"action","dome":{"day":3,"time":"15:38"},"actor":"agent","team":1,"node_id":"thermal_insulation_01","action":"set_lock","value":{"lock":0,"locked":false},"success":true}
+{"ts":"2026-10-14T15:38:28","kind":"change","dome":{"day":3,"time":"15:38"},"node_id":"thermal_insulation_01","param":"locks","from":["LOCKED","LOCKED"],"to":["UNLOCKED","LOCKED"]}
+{"ts":"2026-10-14T15:38:32","kind":"message","dome":{"day":3,"time":"15:38"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Бокс разблокирован (замок 0), стол остыл."}
+{"ts":"2026-10-14T15:39:44","kind":"action","dome":{"day":3,"time":"15:39"},"actor":"operator","node_id":"thermal_insulation_01","action":"set_door","value":{"door":0,"open":true},"success":true}
+{"ts":"2026-10-14T15:39:48","kind":"change","dome":{"day":3,"time":"15:39"},"node_id":"printer_3d_01","param":"bed_clear","from":false,"to":true}
+{"ts":"2026-10-14T15:39:48","kind":"change","dome":{"day":3,"time":"15:39"},"node_id":"thermal_insulation_01","param":"doors","from":["CLOSED","CLOSED"],"to":["OPEN","CLOSED"]}
+{"ts":"2026-10-14T15:40:52","kind":"journal","dome":{"day":3,"time":"15:40"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":87.68,"door":"MAIN_AIRLOCK","credential":"ENG-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T15:41:04","kind":"action","dome":{"day":3,"time":"15:41"},"actor":"operator","node_id":"thermal_insulation_01","action":"set_door","value":{"door":0,"open":false},"success":true}
+{"ts":"2026-10-14T15:41:04","kind":"message","dome":{"day":3,"time":"15:41"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Забрала, всё ок."}
+{"ts":"2026-10-14T15:41:08","kind":"change","dome":{"day":3,"time":"15:41"},"node_id":"thermal_insulation_01","param":"doors","from":["OPEN","CLOSED"],"to":["CLOSED","CLOSED"]}
+{"ts":"2026-10-14T15:41:16","kind":"action","dome":{"day":3,"time":"15:41"},"actor":"agent","team":1,"node_id":"thermal_insulation_01","action":"set_lock","value":{"lock":0,"locked":true},"success":true}
+{"ts":"2026-10-14T15:41:20","kind":"change","dome":{"day":3,"time":"15:41"},"node_id":"thermal_insulation_01","param":"locks","from":["UNLOCKED","LOCKED"],"to":["LOCKED","LOCKED"]}
+{"ts":"2026-10-14T15:46:36","kind":"journal","dome":{"day":3,"time":"15:46"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":87.78,"door":"SERVER_ROOM","credential":"OP-03","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T15:48:00","kind":"journal","dome":{"day":3,"time":"15:48"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":87.8,"door":"MAIN_AIRLOCK","credential":"ENG-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T16:00:36","kind":"change","dome":{"day":3,"time":"16:00"},"node_id":"cnc_01","param":"state","from":"RUNNING","to":"IDLE"}
+{"ts":"2026-10-14T16:06:04","kind":"message","dome":{"day":3,"time":"16:06"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Сняла front_panel_engrave.nc, стол фрезера свободен."}
+{"ts":"2026-10-14T16:14:52","kind":"journal","dome":{"day":3,"time":"16:14"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":88.25,"door":"FABLAB","credential":"MED-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T16:15:28","kind":"journal","dome":{"day":3,"time":"16:15"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":88.26,"door":"FABLAB","credential":"SCI-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T16:29:32","kind":"journal","dome":{"day":3,"time":"16:29"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":88.49,"door":"FABLAB","credential":"SCI-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T16:31:00","kind":"change","dome":{"day":3,"time":"16:31"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:31:16","kind":"change","dome":{"day":3,"time":"16:31"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:32:16","kind":"change","dome":{"day":3,"time":"16:32"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:32:24","kind":"journal","dome":{"day":3,"time":"16:32"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":88.54,"door":"FABLAB","credential":"MED-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T16:32:32","kind":"change","dome":{"day":3,"time":"16:32"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:33:32","kind":"change","dome":{"day":3,"time":"16:33"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:33:48","kind":"change","dome":{"day":3,"time":"16:33"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:34:00","kind":"action","dome":{"day":3,"time":"16:34"},"actor":"agent","team":1,"node_id":"climate_sensor_02","action":"recalibrate","value":null,"success":true}
+{"ts":"2026-10-14T16:34:24","kind":"journal","dome":{"day":3,"time":"16:34"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":88.57,"door":"MAIN_AIRLOCK","credential":"ENG-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T16:34:48","kind":"change","dome":{"day":3,"time":"16:34"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:35:00","kind":"change","dome":{"day":3,"time":"16:35"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:36:00","kind":"change","dome":{"day":3,"time":"16:36"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:36:16","kind":"change","dome":{"day":3,"time":"16:36"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:37:16","kind":"change","dome":{"day":3,"time":"16:37"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:37:32","kind":"change","dome":{"day":3,"time":"16:37"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:38:32","kind":"change","dome":{"day":3,"time":"16:38"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:38:48","kind":"change","dome":{"day":3,"time":"16:38"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:39:00","kind":"message","dome":{"day":3,"time":"16:39"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Свет мигает уже минут десять — гаснет на несколько секунд каждую минуту."}
+{"ts":"2026-10-14T16:39:00","kind":"journal","dome":{"day":3,"time":"16:39"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":88.65,"door":"MAIN_AIRLOCK","credential":"OP-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T16:39:48","kind":"change","dome":{"day":3,"time":"16:39"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:40:00","kind":"change","dome":{"day":3,"time":"16:40"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:41:00","kind":"change","dome":{"day":3,"time":"16:41"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:41:16","kind":"change","dome":{"day":3,"time":"16:41"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:42:16","kind":"change","dome":{"day":3,"time":"16:42"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:42:32","kind":"change","dome":{"day":3,"time":"16:42"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:43:32","kind":"change","dome":{"day":3,"time":"16:43"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:43:48","kind":"change","dome":{"day":3,"time":"16:43"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:44:48","kind":"change","dome":{"day":3,"time":"16:44"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:45:00","kind":"change","dome":{"day":3,"time":"16:45"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:46:00","kind":"action","dome":{"day":3,"time":"16:46"},"actor":"agent","team":1,"node_id":"smart_panel_01","action":"line_off","value":6,"success":true}
+{"ts":"2026-10-14T16:46:00","kind":"action","dome":{"day":3,"time":"16:46"},"actor":"agent","team":1,"node_id":"smart_panel_01","action":"line_on","value":7,"success":true}
+{"ts":"2026-10-14T16:46:00","kind":"message","dome":{"day":3,"time":"16:46"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"Отключил основное освещение (линия 6), включил аварийное (7). Шум датчиков совпадал с провалами света — похоже на контроллер светильников."}
+{"ts":"2026-10-14T16:46:00","kind":"change","dome":{"day":3,"time":"16:46"},"node_id":"smart_panel_01","param":"lines[5].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:46:04","kind":"change","dome":{"day":3,"time":"16:46"},"node_id":"smart_panel_01","param":"lines[6].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:50:04","kind":"action","dome":{"day":3,"time":"16:50"},"actor":"agent","team":1,"node_id":"smart_panel_01","action":"line_on","value":6,"success":true}
+{"ts":"2026-10-14T16:50:08","kind":"change","dome":{"day":3,"time":"16:50"},"node_id":"smart_panel_01","param":"lines[5].state","from":"OFF","to":"ON"}
+{"ts":"2026-10-14T16:51:04","kind":"action","dome":{"day":3,"time":"16:51"},"actor":"agent","team":1,"node_id":"smart_panel_01","action":"line_off","value":7,"success":true}
+{"ts":"2026-10-14T16:51:08","kind":"change","dome":{"day":3,"time":"16:51"},"node_id":"smart_panel_01","param":"lines[6].state","from":"ON","to":"OFF"}
+{"ts":"2026-10-14T16:56:28","kind":"journal","dome":{"day":3,"time":"16:56"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":88.94,"door":"FABLAB","credential":"ENG-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T17:09:32","kind":"journal","dome":{"day":3,"time":"17:09"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":89.16,"door":"MAIN_AIRLOCK","credential":"SCI-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T17:24:40","kind":"journal","dome":{"day":3,"time":"17:24"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":89.41,"door":"STORAGE","credential":"ENG-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T17:29:44","kind":"journal","dome":{"day":3,"time":"17:29"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":89.5,"door":"FABLAB","credential":"ENG-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T17:33:48","kind":"journal","dome":{"day":3,"time":"17:33"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":89.56,"door":"FABLAB","credential":"OP-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T17:34:08","kind":"journal","dome":{"day":3,"time":"17:34"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":89.57,"door":"STORAGE","credential":"ENG-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T17:35:32","kind":"journal","dome":{"day":3,"time":"17:35"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":89.59,"door":"FABLAB","credential":"OP-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T17:59:28","kind":"change","dome":{"day":3,"time":"17:59"},"node_id":"air_quality_sensor_01","param":"sensor_state","from":"OK","to":"DEGRADED"}
+{"ts":"2026-10-14T18:05:40","kind":"journal","dome":{"day":3,"time":"18:05"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":90.09,"door":"FABLAB","credential":"OP-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T18:07:12","kind":"journal","dome":{"day":3,"time":"18:07"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":90.12,"door":"FABLAB","credential":"ENG-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T18:08:04","kind":"journal","dome":{"day":3,"time":"18:08"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":90.13,"door":"FABLAB","credential":"OP-03","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T18:08:20","kind":"journal","dome":{"day":3,"time":"18:08"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":90.14,"door":"FABLAB","credential":"ENG-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T18:14:56","kind":"journal","dome":{"day":3,"time":"18:14"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":90.25,"door":"FABLAB","credential":"SCI-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T18:23:44","kind":"journal","dome":{"day":3,"time":"18:23"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":90.4,"door":"FABLAB","credential":"OP-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T18:27:24","kind":"change","dome":{"day":3,"time":"18:27"},"node_id":"air_quality_sensor_01","param":"sensor_state","from":"DEGRADED","to":"OK"}
+{"ts":"2026-10-14T18:30:00","kind":"action","dome":{"day":3,"time":"18:30"},"actor":"operator","node_id":"smart_panel_01","action":"set_workstation","value":"OFF","success":true}
+{"ts":"2026-10-14T18:30:00","kind":"message","dome":{"day":3,"time":"18:30"},"sender":{"role":"operator","team":null,"name":"Марина Белова"},"to":"agent","text":"Конец смены, до завтра."}
+{"ts":"2026-10-14T18:57:44","kind":"journal","dome":{"day":3,"time":"18:57"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":90.96,"door":"FABLAB","credential":"OP-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T19:21:12","kind":"journal","dome":{"day":3,"time":"19:21"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":91.35,"door":"FABLAB","credential":"MED-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T19:23:32","kind":"journal","dome":{"day":3,"time":"19:23"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":91.39,"door":"FABLAB","credential":"SCI-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T19:26:40","kind":"journal","dome":{"day":3,"time":"19:26"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":91.44,"door":"FABLAB","credential":"OP-03","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T19:31:16","kind":"journal","dome":{"day":3,"time":"19:31"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":91.52,"door":"FABLAB","credential":"ENG-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T19:37:32","kind":"journal","dome":{"day":3,"time":"19:37"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":91.63,"door":"FABLAB","credential":"ENG-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T19:44:12","kind":"journal","dome":{"day":3,"time":"19:44"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":91.74,"door":"FABLAB","credential":"ENG-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T19:59:04","kind":"journal","dome":{"day":3,"time":"19:59"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":91.98,"door":"SERVER_ROOM","credential":"ENG-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T20:05:52","kind":"journal","dome":{"day":3,"time":"20:05"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":92.1,"door":"MAIN_AIRLOCK","credential":"OP-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T20:08:52","kind":"journal","dome":{"day":3,"time":"20:08"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":92.15,"door":"FABLAB","credential":"MED-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T20:21:40","kind":"journal","dome":{"day":3,"time":"20:21"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":92.36,"door":"FABLAB","credential":"ENG-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T20:31:04","kind":"journal","dome":{"day":3,"time":"20:31"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":92.52,"door":"FABLAB","credential":"SCI-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T20:32:16","kind":"journal","dome":{"day":3,"time":"20:32"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":92.54,"door":"MAIN_AIRLOCK","credential":"OP-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T20:36:20","kind":"journal","dome":{"day":3,"time":"20:36"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":92.61,"door":"FABLAB","credential":"SCI-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T20:44:36","kind":"journal","dome":{"day":3,"time":"20:44"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":92.74,"door":"MAIN_AIRLOCK","credential":"MED-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T20:45:04","kind":"journal","dome":{"day":3,"time":"20:45"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":92.75,"door":"MAIN_AIRLOCK","credential":"OP-03","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T20:47:08","kind":"journal","dome":{"day":3,"time":"20:47"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":92.79,"door":"FABLAB","credential":"SCI-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T20:50:24","kind":"journal","dome":{"day":3,"time":"20:50"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":92.84,"door":"MAIN_AIRLOCK","credential":"OP-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T20:52:24","kind":"journal","dome":{"day":3,"time":"20:52"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":92.87,"door":"FABLAB","credential":"SCI-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T20:58:04","kind":"journal","dome":{"day":3,"time":"20:58"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":92.97,"door":"MAIN_AIRLOCK","credential":"OP-03","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T21:00:32","kind":"journal","dome":{"day":3,"time":"21:00"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":93.01,"door":"FABLAB","credential":"OP-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T21:09:32","kind":"journal","dome":{"day":3,"time":"21:09"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":93.16,"door":"FABLAB","credential":"SCI-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T21:10:52","kind":"journal","dome":{"day":3,"time":"21:10"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":93.18,"door":"MAIN_AIRLOCK","credential":"SCI-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T21:21:24","kind":"journal","dome":{"day":3,"time":"21:21"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":93.36,"door":"FABLAB","credential":"ENG-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T21:23:44","kind":"journal","dome":{"day":3,"time":"21:23"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":93.4,"door":"MAIN_AIRLOCK","credential":"OP-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T21:30:20","kind":"journal","dome":{"day":3,"time":"21:30"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":93.51,"door":"FABLAB","credential":"OP-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T21:31:16","kind":"journal","dome":{"day":3,"time":"21:31"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":93.52,"door":"FABLAB","credential":"ENG-02","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T21:40:00","kind":"action","dome":{"day":3,"time":"21:40"},"actor":"agent","team":1,"node_id":"solar_inverter_01","action":"set_mode_grid_only","value":null,"success":true}
+{"ts":"2026-10-14T21:40:00","kind":"message","dome":{"day":3,"time":"21:40"},"sender":{"role":"team","team":1,"name":"Дежурный агент"},"to":"operator","text":"SOC 35 % — перевёл нагрузку на сеть (GRID_ONLY), АКБ заряжается от панелей."}
+{"ts":"2026-10-14T21:40:04","kind":"change","dome":{"day":3,"time":"21:40"},"node_id":"solar_inverter_01","param":"mode","from":"HYBRID","to":"GRID_ONLY"}
+{"ts":"2026-10-14T21:43:40","kind":"journal","dome":{"day":3,"time":"21:43"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":93.73,"door":"FABLAB","credential":"ENG-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T21:50:00","kind":"action","dome":{"day":3,"time":"21:50"},"actor":"agent","team":1,"node_id":"edge_compute_01","action":"sync_time","value":null,"success":true}
+{"ts":"2026-10-14T21:51:16","kind":"journal","dome":{"day":3,"time":"21:51"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":93.85,"door":"FABLAB","credential":"OP-02","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T21:55:04","kind":"journal","dome":{"day":3,"time":"21:55"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":93.92,"door":"SERVER_ROOM","credential":"OP-01","direction":"IN","result":"GRANTED"}}
+{"ts":"2026-10-14T22:14:28","kind":"journal","dome":{"day":3,"time":"22:14"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":94.24,"door":"MAIN_AIRLOCK","credential":"ENG-01","direction":"OUT","result":"GRANTED"}}
+{"ts":"2026-10-14T23:39:16","kind":"journal","dome":{"day":3,"time":"23:39"},"node_id":"access_control_01","param":"passage_events","entry":{"t_h":95.65,"door":"FABLAB","credential":"OP-02","direction":"OUT","result":"GRANTED"}}

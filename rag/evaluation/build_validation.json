@@ -1,0 +1,32 @@
+{
+  "unit_tests": 20,
+  "unit_test_result": "PASS",
+  "semantic": true,
+  "retrieval": {
+    "design_cases": {
+      "cases": 31,
+      "hit_at_5": 1.0,
+      "mrr": 0.9516129032258065
+    },
+    "paraphrases": {
+      "cases": 20,
+      "hit_at_5": 1.0,
+      "mrr": 0.925
+    }
+  },
+  "live_deepseek": {
+    "mode": "rag_with_deepseek_proposal",
+    "status": "model_proposal_citations_checked_not_factual_verification",
+    "usage": {
+      "prompt_tokens": 2732,
+      "completion_tokens": 505,
+      "total_tokens": 3237,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 2732
+    }
+  },
+  "equipment_commands_sent": 0
+}

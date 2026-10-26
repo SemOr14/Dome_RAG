@@ -1,0 +1,4644 @@
+[
+  {
+    "id": "S01",
+    "title": "Webhook сообщает COMPLETED, принтер продолжает печатать",
+    "category": "production",
+    "nodes": [
+      "printer_3d_01",
+      "thermal_insulation_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_episode",
+    "historical_window": "2026-10-14 10:50:08–11:00:04",
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "История 10:53: state/real_state PRINTING, webhook COMPLETED, progress 33.1%, z 10.12 мм.",
+        "Проверить изменение прогресса/положения и время, не только один флаг."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 303,
+          "end_line": 314
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 777,
+          "end_line": 790
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 654,
+          "end_line": 654
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 84,
+          "end_line": 84
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Рассинхронизация webhook.",
+        "Задержка потока состояния либо иной текущий сбой."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 303,
+          "end_line": 314
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 777,
+          "end_line": 790
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 654,
+          "end_line": 654
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 84,
+          "end_line": 84
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Считать завершение неподтверждённым; сохранить бокс закрытым во время печати.",
+        "Сопоставить свежие state/real_state/progress и сообщения оператора."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 303,
+          "end_line": 314
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 777,
+          "end_line": 790
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 654,
+          "end_line": 654
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 84,
+          "end_line": 84
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Завершение согласовано по состояниям и прогрессу, нет продолжающейся печати.",
+        "Для следующего задания отдельно проверить bed_clear и подготовку."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 303,
+          "end_line": 314
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 777,
+          "end_line": 790
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 654,
+          "end_line": 654
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 84,
+          "end_line": 84
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "При расхождении запросить дополнительные наблюдения; не открывать бокс по webhook.",
+        "После изменения гипотезы повторно проверить состояние, не копировать прежнюю разблокировку."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 303,
+          "end_line": 314
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 777,
+          "end_line": 790
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 654,
+          "end_line": 654
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 84,
+          "end_line": 84
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 303,
+        "end_line": 314
+      },
+      {
+        "source_id": "K09",
+        "path": "sources/knowledge/09_faults.md",
+        "start_line": 777,
+        "end_line": 790
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 654,
+        "end_line": 654
+      },
+      {
+        "source_id": "EVT",
+        "path": "sources/Logs/2026-10-14/events.jsonl",
+        "start_line": 84,
+        "end_line": 84
+      }
+    ],
+    "conflict_ids": [
+      "C10"
+    ]
+  },
+  {
+    "id": "S02",
+    "title": "Один CO2 канал около 3000, два других ниже 1000, IL_CO2",
+    "category": "climate",
+    "nodes": [
+      "climate_sensor_01",
+      "climate_sensor_02",
+      "climate_sensor_03",
+      "dome_automation_01",
+      "printer_3d_01",
+      "cnc_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_episode",
+    "historical_window": "2026-10-14 12:51–13:06",
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "В 12:52 показания 3038 / 774 / 791 ppm; оба станка PAUSED, hold_reason IL_CO2.",
+        "Учитывать зоны, задержки и независимость каналов."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 773,
+          "end_line": 773
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 131,
+          "end_line": 131
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Выброс одного датчика подтверждается сопоставлением истории и дневником.",
+        "Для нового случая возможны локальный реальный рост, несовпадение времён или общая ошибка."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 773,
+          "end_line": 773
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 131,
+          "end_line": 131
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сначала подтвердить расхождение и проверить актуальный IL_CO2.",
+        "Смена доверия/основного датчика и reset_interlock — только условный план после доказательств и разрешений.",
+        "resume рассматривать отдельно после устранения причины."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 773,
+          "end_line": 773
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 131,
+          "end_line": 131
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Новый основной источник актуален и допустим; текущая причина удержания снята.",
+        "Проверить фактическое продолжение каждого станка и счётчик resume_attempts."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 773,
+          "end_line": 773
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 131,
+          "end_line": 131
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "При недостатке независимых данных сохранить неопределённость и запросить проверку оператором.",
+        "Не повторять reset/resume и не принимать большинство датчиков за гарантию безопасности."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 773,
+          "end_line": 773
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 131,
+          "end_line": 131
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 663,
+        "end_line": 700
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 272,
+        "end_line": 302
+      },
+      {
+        "source_id": "K04",
+        "path": "sources/knowledge/04_telemetry.md",
+        "start_line": 143,
+        "end_line": 195
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 773,
+        "end_line": 773
+      },
+      {
+        "source_id": "EVT",
+        "path": "sources/Logs/2026-10-14/events.jsonl",
+        "start_line": 131,
+        "end_line": 131
+      }
+    ],
+    "conflict_ids": [
+      "C05",
+      "C06"
+    ]
+  },
+  {
+    "id": "S03",
+    "title": "E09 инвертора, туман и потеря PV",
+    "category": "energy",
+    "nodes": [
+      "solar_inverter_01",
+      "solar_panels_01",
+      "weather_station_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_episode",
+    "historical_window": "2026-10-14 04:30:04–07:38",
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "E09 ISOLATION_FAULT 04:30:04; на минутных снимках 04:31–07:37.",
+        "Дневник связывает эпизод с влажным туманным утром."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 205,
+          "end_line": 218
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 11,
+          "end_line": 11
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 459,
+          "end_line": 459
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Историческая гипотеза: условия изоляции при влаге.",
+        "Измерительная ошибка или другая реальная неисправность; код не доказывает причину."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 205,
+          "end_line": 218
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 11,
+          "end_line": 11
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 459,
+          "end_line": 459
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить ошибку, условия, актуальную генерацию и разрешённую процедуру.",
+        "reset_error — кандидат только после выяснения причины и допустимости."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 205,
+          "end_line": 218
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 11,
+          "end_line": 11
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 459,
+          "end_line": 459
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Ошибка снята, актуальные PV/MPPT/мощность согласованы, нет повторного возникновения."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 205,
+          "end_line": 218
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 11,
+          "end_line": 11
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 459,
+          "end_line": 459
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Если ошибка возвращается, отказаться от повторных сбросов и запросить предусмотренную проверку.",
+        "Не обещать, что ожидание окончания тумана устранит любой E09."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 205,
+          "end_line": 218
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 11,
+          "end_line": 11
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 459,
+          "end_line": 459
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 403,
+        "end_line": 443
+      },
+      {
+        "source_id": "K03",
+        "path": "sources/knowledge/03_energy.md",
+        "start_line": 205,
+        "end_line": 218
+      },
+      {
+        "source_id": "EVT",
+        "path": "sources/Logs/2026-10-14/events.jsonl",
+        "start_line": 11,
+        "end_line": 11
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 459,
+        "end_line": 459
+      },
+      {
+        "source_id": "BOOK",
+        "path": "sources/Logs/2026-10-14/logbook.jsonl",
+        "start_line": 1,
+        "end_line": 1
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S04",
+    "title": "Резервная линия 8 потребляет 45–55 Вт",
+    "category": "energy",
+    "nodes": [
+      "smart_panel_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_episode",
+    "historical_window": "2026-10-14 00:00–09:46",
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "00:00–08:15 мощность 45–55 Вт, медиана 50.05 Вт.",
+        "После осмотра и включения с 09:46 мощность в снимках 0."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 595,
+          "end_line": 618
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 496,
+          "end_line": 496
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 587,
+          "end_line": 587
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Нагрузка или измерительная аномалия.",
+        "Влажный окисленный клеммник — объяснение оператора, не прямое измерение."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 595,
+          "end_line": 618
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 496,
+          "end_line": 496
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 587,
+          "end_line": 587
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить назначение линии, время, ток/мощность и недавние команды.",
+        "Условный запрос оператору на допустимый осмотр; не предписывать самостоятельный ремонт опасной электрики."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 595,
+          "end_line": 618
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 496,
+          "end_line": 496
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 587,
+          "end_line": 587
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "После разрешённого вмешательства сверить состояние, мощность, ток и отсутствие повторной аномалии."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 595,
+          "end_line": 618
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 496,
+          "end_line": 496
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 587,
+          "end_line": 587
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Если аномалия сохраняется, пересмотреть источники и ограничить предположения; не циклировать линию.",
+        "Физические работы только в пределах допусков площадки."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 595,
+          "end_line": 618
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 496,
+          "end_line": 496
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 587,
+          "end_line": 587
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "K03",
+        "path": "sources/knowledge/03_energy.md",
+        "start_line": 595,
+        "end_line": 618
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 325,
+        "end_line": 335
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 336,
+        "end_line": 340
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 496,
+        "end_line": 496
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 587,
+        "end_line": 587
+      },
+      {
+        "source_id": "BOOK",
+        "path": "sources/Logs/2026-10-14/logbook.jsonl",
+        "start_line": 1,
+        "end_line": 1
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S05",
+    "title": "Сдвиг updated_at на +7200 секунд у части узлов",
+    "category": "telemetry",
+    "nodes": [
+      "edge_compute_01",
+      "climate_sensor_02",
+      "climate_sensor_03"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_episode",
+    "historical_window": "2026-10-14 21:01–21:51",
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "21:01–21:50 у 26/36 узлов метки на +7200 с относительно ts, интерпретированного как UTC+3.",
+        "clock_offset_s edge=7200; в 21:50 зарегистрирован sync_time."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 633,
+          "end_line": 662
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 717,
+          "end_line": 737
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1262,
+          "end_line": 1262
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 323,
+          "end_line": 323
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1312,
+          "end_line": 1312
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Рассинхрон времени источников, часовой пояс или транспортная интерпретация.",
+        "Причина сдвига аппаратно не установлена."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 633,
+          "end_line": 662
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 717,
+          "end_line": 737
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1262,
+          "end_line": 1262
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 323,
+          "end_line": 323
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1312,
+          "end_line": 1312
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Развести event_time/received_at/source_updated_at и не сортировать всё по одной метке.",
+        "sync_time только разрешённый кандидат; сохранить исходные отметки."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 633,
+          "end_line": 662
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 717,
+          "end_line": 737
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1262,
+          "end_line": 1262
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 323,
+          "end_line": 323
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1312,
+          "end_line": 1312
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "В 21:51 исторически все узлы снова согласованы; в новом случае проверить последующие снимки и устойчивость."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 633,
+          "end_line": 662
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 717,
+          "end_line": 737
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1262,
+          "end_line": 1262
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 323,
+          "end_line": 323
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1312,
+          "end_line": 1312
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Если коррекция не помогает, исключить сомнительные метки из доказательства свежести и запросить другие источники."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 633,
+          "end_line": 662
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 717,
+          "end_line": 737
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1262,
+          "end_line": 1262
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 323,
+          "end_line": 323
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1312,
+          "end_line": 1312
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 633,
+        "end_line": 662
+      },
+      {
+        "source_id": "K04",
+        "path": "sources/knowledge/04_telemetry.md",
+        "start_line": 717,
+        "end_line": 737
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 1262,
+        "end_line": 1262
+      },
+      {
+        "source_id": "EVT",
+        "path": "sources/Logs/2026-10-14/events.jsonl",
+        "start_line": 323,
+        "end_line": 323
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 1312,
+        "end_line": 1312
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S06",
+    "title": "Мигание света и возможная связь с шумом датчиков",
+    "category": "telemetry",
+    "nodes": [
+      "smart_panel_01",
+      "climate_sensor_02",
+      "climate_sensor_03"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_episode",
+    "historical_window": "2026-10-14 16:31–16:51",
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "События фиксируют 12 коротких циклов OFF→ON линии 6 с 16:31 до 16:45.",
+        "Минутные снимки фиксируют только часть; дневник сообщает о шуме."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 810,
+          "end_line": 857
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 935,
+          "end_line": 950
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 237,
+          "end_line": 237
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Корреляция с электропитанием/помехами — гипотеза.",
+        "Независимый сбой датчиков или артефакт дискретизации."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 810,
+          "end_line": 857
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 935,
+          "end_line": 950
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 237,
+          "end_line": 237
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сопоставить секундные события и показания, не объявлять перекалибровку решением по факту команды.",
+        "Изменение освещения — только после оценки назначения линий и лимита переключений."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 810,
+          "end_line": 857
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 935,
+          "end_line": 950
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 237,
+          "end_line": 237
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Проверять шум/ошибки до и после по сопоставимым окнам и состояние освещения; одна корреляция не доказывает наводку."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 810,
+          "end_line": 857
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 935,
+          "end_line": 950
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 237,
+          "end_line": 237
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Если шум сохраняется, пересмотреть гипотезу и запросить разрешённый осмотр; не продолжать переключать реле."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 810,
+          "end_line": 857
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 935,
+          "end_line": 950
+        },
+        {
+          "source_id": "EVT",
+          "path": "sources/Logs/2026-10-14/events.jsonl",
+          "start_line": 237,
+          "end_line": 237
+        },
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 810,
+        "end_line": 857
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 325,
+        "end_line": 335
+      },
+      {
+        "source_id": "K09",
+        "path": "sources/knowledge/09_faults.md",
+        "start_line": 935,
+        "end_line": 950
+      },
+      {
+        "source_id": "EVT",
+        "path": "sources/Logs/2026-10-14/events.jsonl",
+        "start_line": 237,
+        "end_line": 237
+      },
+      {
+        "source_id": "BOOK",
+        "path": "sources/Logs/2026-10-14/logbook.jsonl",
+        "start_line": 1,
+        "end_line": 1
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S07",
+    "title": "Ночная PV-мощность инвертора при нулевой мощности панелей",
+    "category": "energy",
+    "nodes": [
+      "solar_panels_01",
+      "solar_inverter_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_episode",
+    "historical_window": "2026-10-14; пример 23:00",
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "23:00: power_w панелей 0, pv_power_w инвертора 150.4 Вт.",
+        "По условию панели=0 и инвертор PV>20 Вт найдено 374 снимка. Это критерий анализа, не порог аварии."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 712,
+          "end_line": 733
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1381,
+          "end_line": 1381
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Различие семантики, источников, времени или измерительная/модельная ошибка.",
+        "Механизм не установлен; ночная генерация не доказана."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 712,
+          "end_line": 733
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1381,
+          "end_line": 1381
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Не вычислять подтверждённый энергобаланс по одному полю.",
+        "Проверить сопоставимость величин и независимые измерения."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 712,
+          "end_line": 733
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1381,
+          "end_line": 1381
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Показания сопоставлены по времени и смыслу; источник расхождения установлен или помечен неизвестным."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 712,
+          "end_line": 733
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1381,
+          "end_line": 1381
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "При отсутствии объяснения сохранить конфликт и не подменять расчёт произвольным выбором канала."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 712,
+          "end_line": 733
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 1381,
+          "end_line": 1381
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "K03",
+        "path": "sources/knowledge/03_energy.md",
+        "start_line": 712,
+        "end_line": 733
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 403,
+        "end_line": 443
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 1381,
+        "end_line": 1381
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S08",
+    "title": "Реальный рост CO2 при FAN_MOTOR: только рассказ о предыдущем вечере",
+    "category": "climate",
+    "nodes": [
+      "supply_ventilation_01",
+      "climate_sensor_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_narrative_only",
+    "historical_window": "Narrative: запись 2026-10-14 о вечере 2026-10-13",
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "Единственная дневниковая запись 14 октября описывает вчерашнюю остановку притока и согласованный рост трёх CO2 каналов.",
+        "Телеметрии предыдущего дня в наборе нет."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "K12",
+          "path": "sources/knowledge/12_history.md",
+          "start_line": 192,
+          "end_line": 201
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Отказ вентиляции и реальный рост — мнение автора, не восстановленный временной ряд."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "K12",
+          "path": "sources/knowledge/12_history.md",
+          "start_line": 192,
+          "end_line": 201
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Использовать как гипотезу для поиска признаков отказа притока.",
+        "Не переносить числа/длительности в текущие условия и не выдавать эпизод за измеренный данным файлом."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "K12",
+          "path": "sources/knowledge/12_history.md",
+          "start_line": 192,
+          "end_line": 201
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Проверить текущие airflow/state/alarm и согласованную динамику датчиков."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "K12",
+          "path": "sources/knowledge/12_history.md",
+          "start_line": 192,
+          "end_line": 201
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Если первичных данных нет, оставить narrative_only; не объявлять диагноз подтверждённым."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "BOOK",
+          "path": "sources/Logs/2026-10-14/logbook.jsonl",
+          "start_line": 1,
+          "end_line": 1
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "K12",
+          "path": "sources/knowledge/12_history.md",
+          "start_line": 192,
+          "end_line": 201
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "BOOK",
+        "path": "sources/Logs/2026-10-14/logbook.jsonl",
+        "start_line": 1,
+        "end_line": 1
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 540,
+        "end_line": 575
+      },
+      {
+        "source_id": "K12",
+        "path": "sources/knowledge/12_history.md",
+        "start_line": 192,
+        "end_line": 201
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S09",
+    "title": "resume принят, станок остаётся PAUSED",
+    "category": "production",
+    "nodes": [
+      "printer_3d_01",
+      "cnc_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "success true, state PAUSED, hold_reason остаётся, resume_attempts растёт."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Активная причина hold.",
+        "Задержка/неактуальная телеметрия или иное условие."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Проверить hold/интерлок и счётчик; не делать следующий resume до устранения причины."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Свежий state PRINTING/RUNNING и отсутствие активного hold."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "При неуспехе переоценить причину; при ALARM ждать предусмотренного снятия, не спамить командами."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 272,
+        "end_line": 302
+      },
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 69,
+        "end_line": 82
+      }
+    ],
+    "conflict_ids": [
+      "C03"
+    ]
+  },
+  {
+    "id": "S10",
+    "title": "После печати на столе остаётся деталь",
+    "category": "production",
+    "nodes": [
+      "printer_3d_01",
+      "thermal_insulation_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "Завершение подтверждено, bed_clear false."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 303,
+          "end_line": 314
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 510,
+          "end_line": 539
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Штатная деталь на столе.",
+        "Несогласованный флаг/недостоверные статусы."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 303,
+          "end_line": 314
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 510,
+          "end_line": 539
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Не запускать новое задание; подготовить запрос оператору на снятие после подтверждения условий доступа."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 303,
+          "end_line": 314
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 510,
+          "end_line": 539
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Оператор завершил снятие, дверь/замок согласованы, предстарта проверен bed_clear."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 303,
+          "end_line": 314
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 510,
+          "end_line": 539
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Если bed_clear не подтверждён, не считать дверь доказательством снятия; уточнить состояние."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 303,
+          "end_line": 314
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 510,
+          "end_line": 539
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 303,
+        "end_line": 314
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 510,
+        "end_line": 539
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 336,
+        "end_line": 340
+      }
+    ],
+    "conflict_ids": [
+      "C10"
+    ]
+  },
+  {
+    "id": "S11",
+    "title": "Конденсат и IL_CONDENSATE удерживают ЧПУ",
+    "category": "climate",
+    "nodes": [
+      "climate_sensor_01",
+      "cnc_01",
+      "dome_automation_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "RH/dew_point и температура согласуются или конфликтуют; hold IL_CONDENSATE."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 103,
+          "end_line": 132
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Реальный риск влаги.",
+        "Ошибка одного канала/несовместимость времён."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 103,
+          "end_line": 132
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить независимые свежие данные и состояние поверхностей разрешённым способом.",
+        "Не отвергать риск только из-за температуры +20 C."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 103,
+          "end_line": 132
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Причина удержания устранена по актуальным условиям; последующее продолжение ЧПУ подтверждено отдельно."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 103,
+          "end_line": 132
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "При неизвестных условиях ограничить вывод, запросить проверку; без автоматических reset/resume."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 272,
+          "end_line": 302
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 103,
+          "end_line": 132
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 663,
+        "end_line": 700
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 272,
+        "end_line": 302
+      },
+      {
+        "source_id": "K06",
+        "path": "sources/knowledge/06_microclimate.md",
+        "start_line": 103,
+        "end_line": 132
+      },
+      {
+        "source_id": "K08",
+        "path": "sources/knowledge/08_safety.md",
+        "start_line": 122,
+        "end_line": 164
+      }
+    ],
+    "conflict_ids": [
+      "C04",
+      "C06"
+    ]
+  },
+  {
+    "id": "S12",
+    "title": "Сработала защита линии",
+    "category": "energy",
+    "nodes": [
+      "smart_panel_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "state TRIPPED/RCD_TRIP или protection_state, alarm, ток/напряжение/lockout."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Перегрузка/утечка/защита.",
+        "Ошибочные данные; причина ещё неизвестна."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Установить причину и применимую процедуру; line_on не подменяет reset_protection."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "После допустимого сброса проверить питание, ток, мощность и отсутствие повторного срабатывания."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "При повторе прекратить сбросы и передать вопрос ответственному; не обходить аппаратный барьер."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 325,
+        "end_line": 335
+      },
+      {
+        "source_id": "K08",
+        "path": "sources/knowledge/08_safety.md",
+        "start_line": 122,
+        "end_line": 164
+      }
+    ],
+    "conflict_ids": [
+      "C06",
+      "C11"
+    ]
+  },
+  {
+    "id": "S13",
+    "title": "Линия заблокирована из-за частых переключений",
+    "category": "energy",
+    "nodes": [
+      "smart_panel_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "lockout_remaining_s >0, известна история переключений."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 953,
+          "end_line": 966
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Антидребезг: больше 3 переключений за 2 минуты.",
+        "Другая блокировка: проверить lockout_reason."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 953,
+          "end_line": 966
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Остановить повторы, сохранить состояние очереди и историю; дождаться допустимости следующего изменения."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 953,
+          "end_line": 966
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "lockout снят, новая команда только при актуальной необходимости, состояние проверено."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 953,
+          "end_line": 966
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Если блокировка остаётся, разобраться в причине; не переключать соседние линии вместо заблокированной."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 953,
+          "end_line": 966
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 325,
+        "end_line": 335
+      },
+      {
+        "source_id": "K09",
+        "path": "sources/knowledge/09_faults.md",
+        "start_line": 953,
+        "end_line": 966
+      }
+    ],
+    "conflict_ids": [
+      "C03"
+    ]
+  },
+  {
+    "id": "S14",
+    "title": "Напряжение выше 245 В, IL_OVERVOLT ещё ARMED",
+    "category": "energy",
+    "nodes": [
+      "smart_panel_01",
+      "dome_automation_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "Разовый voltage_v >245 В, интерлок ARMED."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Не завершена выдержка 120 с.",
+        "Разные источники/времена, trust, иная конфигурация или ошибка."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Получить ряд и pending по той же линии; проверить актуальную конфигурацию."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Установлена длительность превышения и реакция ПЛК по тем же данным."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Если поведение не объяснено, оформить конфликт и передать диагностику; не проверять созданием перенапряжения."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 325,
+          "end_line": 335
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 663,
+        "end_line": 700
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 325,
+        "end_line": 335
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S15",
+    "title": "Аккумулятор быстро разряжается, растёт дефицит",
+    "category": "energy",
+    "nodes": [
+      "battery_01",
+      "solar_inverter_01",
+      "smart_panel_01",
+      "dizel_1"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "Динамика SOC, ток/мощность батареи, режим, сеть и генерация."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 619,
+          "end_line": 641
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Рост нагрузки/падение генерации/режим инвертора.",
+        "Ошибочная оценка SOC или измерения."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 619,
+          "end_line": 641
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сопоставить согласованный баланс, прогноз и IL_LOAD_SHED; решения об источниках/нагрузках условны."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 619,
+          "end_line": 641
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Подтверждено изменение баланса и устойчивость важных потребителей по свежим показаниям."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 619,
+          "end_line": 641
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Если SOC и энергия расходятся, пересмотреть данные и план; не объявлять неисправность батареи по одному проценту."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "K03",
+          "path": "sources/knowledge/03_energy.md",
+          "start_line": 619,
+          "end_line": 641
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 403,
+          "end_line": 443
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "K03",
+        "path": "sources/knowledge/03_energy.md",
+        "start_line": 619,
+        "end_line": 641
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 403,
+        "end_line": 443
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 663,
+        "end_line": 700
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S16",
+    "title": "Приток не даёт ожидаемый поток, CO2 растёт",
+    "category": "climate",
+    "nodes": [
+      "supply_ventilation_01",
+      "climate_sensor_01",
+      "climate_sensor_02",
+      "climate_sensor_03"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "state/alarm/airflow/fresh_air и сопоставимая динамика CO2."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 190,
+          "end_line": 209
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Отказ/ограничение вентиляции.",
+        "Состояние передачи данных, локальный источник или неверный канал."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 190,
+          "end_line": 209
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Проверить режим, поток, ошибки, AUTO и доступные действия; физические проверки только оператору."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 190,
+          "end_line": 209
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Фактический поток и тренд воздуха, а не только ON/процент задания; после изменения проверить устойчивость."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 190,
+          "end_line": 209
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Если поток не подтверждён, не увеличивать задание бесконечно; запросить проверку и сохранить ограничение."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 190,
+          "end_line": 209
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 540,
+        "end_line": 575
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 663,
+        "end_line": 700
+      },
+      {
+        "source_id": "K06",
+        "path": "sources/knowledge/06_microclimate.md",
+        "start_line": 190,
+        "end_line": 209
+      }
+    ],
+    "conflict_ids": [
+      "C01"
+    ]
+  },
+  {
+    "id": "S17",
+    "title": "Вытяжка не работает во время пайки",
+    "category": "production",
+    "nodes": [
+      "fume_extraction_01",
+      "smart_panel_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "SOLDERING/сообщение оператора, нет воздушного потока или RPM, есть alarm."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 133,
+          "end_line": 160
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Питание линии 1, мотор/фильтр или ошибка состояния."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 133,
+          "end_line": 160
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Проектировать сообщение оператору о прекращении пайки до восстановления.",
+        "Проверить источник питания и причину; включение — только условный кандидат."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 133,
+          "end_line": 160
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Согласованы состояние, RPM/airflow и допустимость продолжения пайки."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 133,
+          "end_line": 160
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "При неуспехе не повторять сброс мотора; предусмотренная физическая проверка."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 540,
+          "end_line": 575
+        },
+        {
+          "source_id": "K06",
+          "path": "sources/knowledge/06_microclimate.md",
+          "start_line": 133,
+          "end_line": 160
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 336,
+          "end_line": 340
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 540,
+        "end_line": 575
+      },
+      {
+        "source_id": "K06",
+        "path": "sources/knowledge/06_microclimate.md",
+        "start_line": 133,
+        "end_line": 160
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 336,
+        "end_line": 340
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S18",
+    "title": "Пробинг ЧПУ принят, но результат не установлен",
+    "category": "production",
+    "nodes": [
+      "cnc_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "Ответ probe_z success; state BUSY или last_probe ещё прежний/пустой."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 341,
+          "end_line": 395
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Асинхронная операция.",
+        "Нет контакта, ошибка или старый результат."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 341,
+          "end_line": 395
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Проверять last_probe, state, z_mm и их актуальность; не запускать обработку до результата."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 341,
+          "end_line": 395
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Новый last_probe.success true, корректная рабочая система; при касании Z соответствует plate_thickness, не обязательно нулю."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 341,
+          "end_line": 395
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "При ALARM:5 действовать по документированной процедуре после проверки; не увеличивать ход/подачу вслепую."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 341,
+          "end_line": 395
+        }
+      ]
+    },
+    "open_questions": [
+      "На реальном станке задержка может превышать таймаут команды; измерить до назначения deadline."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 341,
+        "end_line": 395
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S19",
+    "title": "Узел пропал или значения null, физическое состояние неизвестно",
+    "category": "telemetry",
+    "nodes": [
+      "network_link_01",
+      "smart_panel_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "Нет поля/узла, online false, время последнего получения."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 694,
+          "end_line": 716
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 43,
+          "end_line": 72
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Питание, сеть, процесс опроса, права guest или отказ источника."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 694,
+          "end_line": 716
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 43,
+          "end_line": 72
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Отметить unknown, проверить роль/поток/смежные узлы. Не выдавать отсутствие пакета за OFF."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 694,
+          "end_line": 716
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 43,
+          "end_line": 72
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Возврат актуальных сообщений и наблюдаемых значений, а не только ping."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 694,
+          "end_line": 716
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 43,
+          "end_line": 72
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "При продолжающейся неизвестности ограничить зависимые выводы и запросить предусмотренную проверку."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 694,
+          "end_line": 716
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 43,
+          "end_line": 72
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "K04",
+        "path": "sources/knowledge/04_telemetry.md",
+        "start_line": 694,
+        "end_line": 716
+      },
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 69,
+        "end_line": 82
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 43,
+        "end_line": 72
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S20",
+    "title": "Флаг ON/RUNNING есть, физические показатели нулевые",
+    "category": "telemetry",
+    "nodes": [
+      "water_pump_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "Статус RUNNING, но расход, ток, мощность могут быть нулевыми или отсутствовать."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 617,
+          "end_line": 632
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Командный статус, пауза процесса, неправильное поле, ошибка/устаревание.",
+        "Работа насоса не подтверждена."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 617,
+          "end_line": 632
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сопоставить running/state/flow/pressure/current и независимые сведения; не классифицировать одну причину без данных."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 617,
+          "end_line": 632
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Физический эффект подтверждён несколькими актуальными подходящими полями."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 617,
+          "end_line": 632
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "При расхождении сохранить неизвестное, запросить осмотр по правилам; не тестировать многократным включением."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 617,
+          "end_line": 632
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 617,
+        "end_line": 632
+      },
+      {
+        "source_id": "K04",
+        "path": "sources/knowledge/04_telemetry.md",
+        "start_line": 143,
+        "end_line": 195
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S21",
+    "title": "Разрыв WebSocket или отзыв роли команды",
+    "category": "connectivity",
+    "nodes": [
+      "meeting_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "disconnected/session_revoked/guest, нет прежней телеметрии."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 43,
+          "end_line": 72
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Смена активной команды.",
+        "Сетевой/серверный сбой."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 43,
+          "end_line": 72
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Переподключение с паузой и повторная auth; для guest не запрашивать управление.",
+        "Восстановить текущую картину, не повторять старые команды."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 43,
+          "end_line": 72
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Роль, каталог и доступные потоки актуальны; соединение само по себе недостаточно."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 43,
+          "end_line": 72
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Если доступ не возвращается, сохранить журнал и ограниченный режим; не менять ключи на чужие."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 43,
+          "end_line": 72
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 69,
+          "end_line": 82
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 43,
+        "end_line": 72
+      },
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 69,
+        "end_line": 82
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S22",
+    "title": "LLM недоступна, диагностика не завершена",
+    "category": "software",
+    "nodes": [],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "Таймаут/ошибка/лимит DeepSeek, нет подтверждённого ответа."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 39,
+          "end_line": 68
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 175,
+          "end_line": 185
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Временная недоступность сервиса или бюджет/конфигурация."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 39,
+          "end_line": 68
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 175,
+          "end_line": 185
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Продолжать заранее утверждённые проверки кодом и сохранять журнал; повтор модели с паузой.",
+        "Не ждать LLM для срочной предусмотренной реакции."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 39,
+          "end_line": 68
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 175,
+          "end_line": 185
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Сервис восстановлен и ответ валиден; решения всё равно проходят обычную проверку."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 39,
+          "end_line": 68
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 175,
+          "end_line": 185
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "При продолжающейся недоступности сохранить fallback, не подменять модель другим запрещённым облачным API."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 39,
+          "end_line": 68
+        },
+        {
+          "source_id": "REQ",
+          "path": "sources/03_Требования_к_агенту.md",
+          "start_line": 175,
+          "end_line": 185
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 39,
+        "end_line": 68
+      },
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 175,
+        "end_line": 185
+      }
+    ],
+    "conflict_ids": []
+  },
+  {
+    "id": "S23",
+    "title": "Дымовая тревога и риск автоматического пожаротушения",
+    "category": "safety",
+    "nodes": [
+      "smoke_detector_01",
+      "fire_suppression_01",
+      "dome_automation_01"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "smoke/alarm, зона, IL_SMOKE, события и время; API описывает 60 с до пуска без квитирования."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 576,
+          "end_line": 606
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 879,
+          "end_line": 892
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Возможна настоящая опасность; ошибка датчика не установлена одним CO/VOC.",
+        "Точный профиль разрешённой реакции нужно утвердить."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 576,
+          "end_line": 606
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 879,
+          "end_line": 892
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Приоритет людям и установленным инструкциям; не генерировать автоматическое подавление пожарной защиты.",
+        "Обязательная эскалация по действующей процедуре; доступность acknowledge не равна разрешению отмены."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 576,
+          "end_line": 606
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 879,
+          "end_line": 892
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Подтверждение безопасного состояния уполномоченным способом и согласованные источники; не одно квитирование."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 576,
+          "end_line": 606
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 879,
+          "end_line": 892
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "При неизвестном состоянии не объявлять тревогу ложной; сохранять реакцию по регламенту."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 576,
+          "end_line": 606
+        },
+        {
+          "source_id": "API",
+          "path": "sources/01_API.md",
+          "start_line": 663,
+          "end_line": 700
+        },
+        {
+          "source_id": "K08",
+          "path": "sources/knowledge/08_safety.md",
+          "start_line": 122,
+          "end_line": 164
+        },
+        {
+          "source_id": "K09",
+          "path": "sources/knowledge/09_faults.md",
+          "start_line": 879,
+          "end_line": 892
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 576,
+        "end_line": 606
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 663,
+        "end_line": 700
+      },
+      {
+        "source_id": "K08",
+        "path": "sources/knowledge/08_safety.md",
+        "start_line": 122,
+        "end_line": 164
+      },
+      {
+        "source_id": "K09",
+        "path": "sources/knowledge/09_faults.md",
+        "start_line": 879,
+        "end_line": 892
+      }
+    ],
+    "conflict_ids": [
+      "C06"
+    ]
+  },
+  {
+    "id": "S24",
+    "title": "Постоянное значение или status OK ошибочно принимают за надёжность",
+    "category": "telemetry",
+    "nodes": [],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "observation": {
+      "signals": [
+        "Значение неизменно либо статус OK при расхождении с другими данными."
+      ],
+      "require_freshness": true,
+      "missing_data": "Не заменять отсутствующее значение нулём; вернуть insufficient_evidence.",
+      "source_refs": [
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 647,
+          "end_line": 670
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 773,
+          "end_line": 773
+        }
+      ]
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Реально стабильный процесс.",
+        "Замороженный канал/ошибка обновления/статус не оценивает достоверность."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": [
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 647,
+          "end_line": 670
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 773,
+          "end_line": 773
+        }
+      ]
+    },
+    "decision": {
+      "proposed_steps": [
+        "Проверить время и другие параметры; сопоставить независимый источник."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Согласовать карточку и профиль применения.",
+        "Установить актуальные права через describe_nodes.",
+        "Проверить свежесть, условия и независимые барьеры."
+      ],
+      "source_refs": [
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 647,
+          "end_line": 670
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 773,
+          "end_line": 773
+        }
+      ]
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Есть независимое подтверждение либо источник явно помечен сомнительным."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Определяется API/измеренной задержкой устройства; единого времени нет.",
+      "source_refs": [
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 647,
+          "end_line": 670
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 773,
+          "end_line": 773
+        }
+      ]
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Если подтверждения нет, вернуть insufficient_evidence, а не выбирать удобное значение."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Конечный лимит определяет политика агента; в проекте не реализован.",
+      "source_refs": [
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 647,
+          "end_line": 670
+        },
+        {
+          "source_id": "K04",
+          "path": "sources/knowledge/04_telemetry.md",
+          "start_line": 143,
+          "end_line": 195
+        },
+        {
+          "source_id": "TEL",
+          "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+          "start_line": 773,
+          "end_line": 773
+        }
+      ]
+    },
+    "open_questions": [
+      "Подтвердить доступные поля и права на целевом подключении."
+    ],
+    "prohibited_inferences": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "source_refs": [
+      {
+        "source_id": "K04",
+        "path": "sources/knowledge/04_telemetry.md",
+        "start_line": 647,
+        "end_line": 670
+      },
+      {
+        "source_id": "K04",
+        "path": "sources/knowledge/04_telemetry.md",
+        "start_line": 143,
+        "end_line": 195
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 773,
+        "end_line": 773
+      }
+    ],
+    "conflict_ids": []
+  }
+]

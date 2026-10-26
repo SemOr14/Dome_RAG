@@ -1,0 +1,159 @@
+{
+  "mode": "rag_with_deepseek_proposal",
+  "question": "Принтер сообщает COMPLETED, но прогресс и z_mm растут. Какие данные проверить перед открытием бокса?",
+  "answer_status": "reference_answer",
+  "retrieved_ids": [
+    "S01",
+    "F06",
+    "F07",
+    "F19",
+    "S24"
+  ],
+  "used_record_ids": [
+    "S01"
+  ],
+  "citations": [
+    {
+      "key": "API:303-314",
+      "source_id": "API",
+      "path": "sources/01_API.md",
+      "start_line": 303,
+      "end_line": 314,
+      "snapshot_sha256": "1935fdb3e5afb546fb30b2f0a8f0207061229185e7deb75974ff6e2798fdb066"
+    },
+    {
+      "key": "K09:777-790",
+      "source_id": "K09",
+      "path": "sources/knowledge/09_faults.md",
+      "start_line": 777,
+      "end_line": 790,
+      "snapshot_sha256": "987cf2cad4f0e93dc12a6f0306a4c04fe86cee6fef8ac58103235548b843a4d5"
+    },
+    {
+      "key": "TEL:654-654",
+      "source_id": "TEL",
+      "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+      "start_line": 654,
+      "end_line": 654,
+      "snapshot_sha256": "69f4555e68c4d2c498941d682c949d9a42912cea6c5e85a23aaecf0d5435f59c"
+    },
+    {
+      "key": "EVT:84-84",
+      "source_id": "EVT",
+      "path": "sources/Logs/2026-10-14/events.jsonl",
+      "start_line": 84,
+      "end_line": 84,
+      "snapshot_sha256": "3580217ffb9f1a3c4cf87192bcad5afd6f9a069698d780f4d7f1cf05af3fa280"
+    },
+    {
+      "key": "EVT:160-160",
+      "source_id": "EVT",
+      "path": "sources/Logs/2026-10-14/events.jsonl",
+      "start_line": 160,
+      "end_line": 160,
+      "snapshot_sha256": "3580217ffb9f1a3c4cf87192bcad5afd6f9a069698d780f4d7f1cf05af3fa280"
+    }
+  ],
+  "conflicts": [
+    {
+      "id": "C10",
+      "issue": "Ранее true во время печати было названо аномалией. API меняет флаг на false после завершения и на true при открытии двери; значение во время печати само по себе не доказывает сбой.",
+      "proposed_handling": "Использовать bed_clear как серверный флаг предстарта, а не как датчик пустоты и не как критерий завершения. Для завершения нужны state/progress и согласованные данные."
+    }
+  ],
+  "observation": {
+    "current": null,
+    "quality": {
+      "state": "absent",
+      "issues": [
+        "Актуальные показания не переданы."
+      ]
+    },
+    "historical_or_documented_signals": [
+      "История 10:53: state/real_state PRINTING, webhook COMPLETED, progress 33.1%, z 10.12 мм.",
+      "Проверить изменение прогресса/положения и время, не только один флаг."
+    ],
+    "basis": "historical_episode",
+    "historical_window": "2026-10-14 10:50:08–11:00:04"
+  },
+  "interpretation": {
+    "hypotheses": [
+      "Рассинхронизация webhook.",
+      "Задержка потока состояния либо иной текущий сбой."
+    ],
+    "confirmed_current_cause": null
+  },
+  "decision": {
+    "proposed_steps": [
+      "Считать завершение неподтверждённым; сохранить бокс закрытым во время печати.",
+      "Сопоставить свежие state/real_state/progress и сообщения оператора."
+    ],
+    "executable": false
+  },
+  "verification": {
+    "expected_and_checks": [
+      "Завершение согласовано по состояниям и прогрессу, нет продолжающейся печати.",
+      "Для следующего задания отдельно проверить bed_clear и подготовку."
+    ],
+    "observed_result": null,
+    "result": "not_run"
+  },
+  "correction": {
+    "on_failed_or_uncertain": [
+      "При расхождении запросить дополнительные наблюдения; не открывать бокс по webhook.",
+      "После изменения гипотезы повторно проверить состояние, не копировать прежнюю разблокировку."
+    ],
+    "automatic_command_repeat": false
+  },
+  "summary": "Webhook сообщает COMPLETED, принтер продолжает печатать",
+  "context_budget": {
+    "max_chars": 30000,
+    "used_chars": 7628,
+    "unit": "characters_not_tokens"
+  },
+  "semantic": {
+    "enabled": true,
+    "fallback_error": null
+  },
+  "llm": {
+    "model": "deepseek-flash",
+    "proposal": {
+      "summary": "Ситуация похожа на описанную в S01 рассинхронизацию: webhook/флаг сообщает COMPLETED, тогда как прогресс и z_mm указывают на продолжающуюся печать. Актуальная телеметрия не передана (observation_quality: absent), поэтому открывать бокс по одному флагу нельзя. Перед любым открытием нужно получить свежие согласованные данные и убедиться, что печать действительно остановлена.",
+      "interpretations": [
+        "Возможна рассинхронизация webhook с реальным состоянием (S01), но это гипотеза, а не подтверждённый диагноз.",
+        "Возможна задержка потока состояния или иной текущий сбой (S01); текущие значения неизвестны.",
+        "Флаг bed_clear не является датчиком пустоты бокса и не подтверждает завершение (C10): его нельзя использовать как критерий готовности к открытию."
+      ],
+      "proposed_checks": [
+        "Запросить свежие поля printer_3d_01: state, real_state, webhook_state, progress_pct, z_mm, error_code, hold_reason, resume_attempts, lockout_remaining_s, updated_at.",
+        "Сравнить два последовательных наблюдения по времени: растут ли progress_pct и z_mm и меняется ли updated_at — это покажет, идёт ли печать.",
+        "Сверить state/real_state между собой и с сообщением webhook; при расхождении считать завершение неподтверждённым (S01).",
+        "Учесть конфликт C10 и не трактовать bed_clear как признак завершения или пустоты стола.",
+        "Проверить журнал событий на наличие действий/изменений состояния после момента COMPLETED.",
+        "Открытие бокса рассматривать только после согласованного подтверждения остановки печати по нескольким полям и наблюдениям; до этого держать бокс закрытым."
+      ],
+      "cited_record_ids": [
+        "S01",
+        "C10"
+      ],
+      "source_keys": [
+        "API:303-314",
+        "K09:777-790",
+        "TEL:654-654",
+        "EVT:84-84",
+        "EVT:160-160"
+      ]
+    },
+    "usage": {
+      "prompt_tokens": 2732,
+      "completion_tokens": 505,
+      "total_tokens": 3237,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 2732
+    },
+    "status": "model_proposal_citations_checked_not_factual_verification"
+  }
+}

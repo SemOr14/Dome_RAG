@@ -1,0 +1,45 @@
+{
+  "telemetry_records": 1440,
+  "event_records": 327,
+  "logbook_records": 1,
+  "time_start": "2026-10-14T00:00:00",
+  "time_end": "2026-10-14T23:59:00",
+  "step_seconds": [
+    60.0
+  ],
+  "node_counts": [
+    36
+  ],
+  "clock_shift_rows": 50,
+  "clock_shift_nodes": [
+    "solar_panels_01",
+    "wind_turbine_01",
+    "dizel_1",
+    "fuel_tank_01",
+    "air_quality_sensor_01",
+    "smoke_detector_01",
+    "smoke_detector_02",
+    "weather_station_01",
+    "seysmo_01",
+    "water_pump_01",
+    "water_tank_01",
+    "water_filter_01",
+    "fire_suppression_01",
+    "access_control_01",
+    "radiation_sensor_01",
+    "chem_sensor_01",
+    "material_inventory_01",
+    "equipment_cooling_01",
+    "supply_ventilation_01",
+    "dome_sealing_01",
+    "climate_sensor_02",
+    "climate_sensor_03",
+    "radio_01",
+    "backup_comms_01",
+    "thermal_insulation_01",
+    "thermal_insulation_02"
+  ],
+  "pv_disagreement_rows": 374,
+  "pv_disagreement_rule": "panels.power_w == 0 AND inverter.pv_power_w > 20; analytical selector, not alarm threshold",
+  "cause_ground_truth_available": false
+}
