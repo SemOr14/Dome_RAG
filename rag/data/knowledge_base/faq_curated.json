@@ -1,0 +1,931 @@
+[
+  {
+    "id": "F01",
+    "question": "Что делает RAG, а что решает агент?",
+    "answer": "RAG выполняет локальный поиск по FAQ и ситуациям, собирает источники и конфликты, возвращает пять этапов разбора. Опциональный DeepSeek формулирует диагностическое предложение. Права, исполнение команд и фактическая проверка оборудования остаются отдельными функциями агента; исполнителя оборудования в RAG нет.",
+    "tags": [
+      "rag",
+      "архитектура"
+    ],
+    "source_refs": [
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 175,
+        "end_line": 185
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 151,
+        "end_line": 181
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F02",
+    "question": "Каким документам доверять при расхождении?",
+    "answer": "Сначала определить область вопроса. Ограничения безопасности сохраняются; актуальные runtime-права и API определяют допустимую форму команды; TASK/REQ — правила смены; knowledge — справочные гипотезы; логи — прошлые наблюдения. Неустранимый конфликт показать явно.",
+    "tags": [
+      "источники"
+    ],
+    "source_refs": [
+      {
+        "source_id": "K08",
+        "path": "sources/knowledge/08_safety.md",
+        "start_line": 8,
+        "end_line": 15
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 151,
+        "end_line": 181
+      },
+      {
+        "source_id": "TASK",
+        "path": "sources/02_Задание_и_оценка.md",
+        "start_line": 79,
+        "end_line": 91
+      }
+    ],
+    "conflict_ids": [
+      "C01",
+      "C06",
+      "C07"
+    ],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F03",
+    "question": "Почему success=true не означает выполненную команду?",
+    "answer": "Это подтверждение API. Нужно сопоставить свежую телеметрию с ожидаемым результатом; при несовпадении статус проверки — не подтверждено, даже если ответ положительный. Единого времени ожидания выполнения любой команды нет: оно зависит от операции, новой телеметрии и фактической задержки. probe_z может длиться дольше таймаута приёма команды; истечение времени само по себе не означает, что действие не было выполнено.",
+    "tags": [
+      "verification",
+      "success",
+      "ожидание",
+      "таймаут",
+      "секунды",
+      "время выполнения команды"
+    ],
+    "source_refs": [
+      {
+        "source_id": "TASK",
+        "path": "sources/02_Задание_и_оценка.md",
+        "start_line": 43,
+        "end_line": 58
+      },
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 111,
+        "end_line": 134
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 272,
+        "end_line": 302
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 341,
+        "end_line": 395
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F04",
+    "question": "Можно повторять resume до запуска станка?",
+    "answer": "Нет. Причина hold должна исчезнуть. Три попытки без устранения причины вызывают ALARM на 20 минут; у принтера задание отменяется. После неуспеха пересмотреть причину, а не повторять вслепую.",
+    "tags": [
+      "resume",
+      "пауза"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 272,
+        "end_line": 302
+      }
+    ],
+    "conflict_ids": [
+      "C03"
+    ],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F05",
+    "question": "Кто ставит принтер и фрезер на паузу?",
+    "answer": "В документированном API паузу/удержание ставит сервер. Агент запускает разрешённый файл и может resume по условиям. Общие советы knowledge об остановке нельзя превратить в несуществующую pause-команду.",
+    "tags": [
+      "pause",
+      "производство"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 272,
+        "end_line": 302
+      },
+      {
+        "source_id": "TASK",
+        "path": "sources/02_Задание_и_оценка.md",
+        "start_line": 30,
+        "end_line": 42
+      }
+    ],
+    "conflict_ids": [
+      "C02"
+    ],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F06",
+    "question": "Как определить завершение печати при webhook COMPLETED?",
+    "answer": "Сверить state, real_state, progress_pct, изменение z_mm, актуальность данных и физические сведения при необходимости. Один webhook не подтверждает завершение: 14 октября была продолжающаяся печать при webhook COMPLETED.",
+    "tags": [
+      "webhook",
+      "принтер"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 303,
+        "end_line": 314
+      },
+      {
+        "source_id": "K09",
+        "path": "sources/knowledge/09_faults.md",
+        "start_line": 777,
+        "end_line": 790
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 654,
+        "end_line": 654
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F07",
+    "question": "Что значит bed_clear и достаточно ли его для открытия бокса?",
+    "answer": "API устанавливает false после завершения печати и true при открытии двери оператором. Флаг проверяется перед новым стартом; true во время печати само по себе не ошибка и не доказательство завершения. Бокс во время печати не открывать.",
+    "tags": [
+      "bed_clear",
+      "принтер"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 303,
+        "end_line": 314
+      }
+    ],
+    "conflict_ids": [
+      "C10"
+    ],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F08",
+    "question": "Какие условия нужны перед start_job?",
+    "answer": "Проверить актуальные права, состояние/hold, требуемую подготовку и наличие файла из files/list_files. Для принтера дополнительно bed_clear; для ЧПУ — согласованные координаты и подготовка заготовки. Не считать список файлов подтверждением готовности.",
+    "tags": [
+      "start_job",
+      "подготовка"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 272,
+        "end_line": 302
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 303,
+        "end_line": 314
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 315,
+        "end_line": 324
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 341,
+        "end_line": 395
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F09",
+    "question": "Где брать файлы печати и фрезеровки?",
+    "answer": "Из files в телеметрии или list_files. start_job принимает имя из списка. Загружать на принтер разрешены только файлы организаторов; у ЧПУ загрузки нет.",
+    "tags": [
+      "files",
+      "gcode"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 315,
+        "end_line": 324
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F10",
+    "question": "Как отличать ложный CO2 от реального роста?",
+    "answer": "Сравнить свежие значения нескольких каналов, их расположение, reading_delay_s, доверие и динамику. Расхождение или скачок даёт гипотезу сбоя; не доказывает безопасность. В эпизоде 12:51 первый канал около 3000 ppm расходился с двумя ниже 1000.",
+    "tags": [
+      "co2",
+      "датчики"
+    ],
+    "source_refs": [
+      {
+        "source_id": "K04",
+        "path": "sources/knowledge/04_telemetry.md",
+        "start_line": 143,
+        "end_line": 195
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 663,
+        "end_line": 700
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 773,
+        "end_line": 773
+      }
+    ],
+    "conflict_ids": [
+      "C05"
+    ],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F11",
+    "question": "Почему при напряжении выше 245 В блокировка ещё ARMED?",
+    "answer": "API указывает длительность превышения 120 с для IL_OVERVOLT. Нужны временной ряд, pending/lines_pending, доверие к источнику, совпадение линии и меток. Разовый снимок не доказывает ошибку ПЛК.",
+    "tags": [
+      "IL_OVERVOLT",
+      "245",
+      "ARMED"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 663,
+        "end_line": 700
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F12",
+    "question": "Какие условия IL_CO2 и IL_CONDENSATE?",
+    "answer": "В API: основной CO2 >2000 ppm 60 с; конденсат — RH >90% или T−Tросы <1 C 60 с. Это условия данного ПЛК, не универсальные медицинские/эксплуатационные нормы.",
+    "tags": [
+      "IL_CO2",
+      "IL_CONDENSATE",
+      "пороги"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 663,
+        "end_line": 700
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F13",
+    "question": "Можно ли считать 99% RH ложным конденсатом?",
+    "answer": "По одному значению — нет. Нужны независимые согласованные RH/температуры, точка росы и условия поверхностей. Упрощённое исключение конденсата из FAQ не использовать.",
+    "tags": [
+      "конденсат",
+      "влажность"
+    ],
+    "source_refs": [
+      {
+        "source_id": "K06",
+        "path": "sources/knowledge/06_microclimate.md",
+        "start_line": 103,
+        "end_line": 132
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 663,
+        "end_line": 700
+      },
+      {
+        "source_id": "K08",
+        "path": "sources/knowledge/08_safety.md",
+        "start_line": 122,
+        "end_line": 164
+      }
+    ],
+    "conflict_ids": [
+      "C04"
+    ],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F14",
+    "question": "Есть ли программное управление притоком?",
+    "answer": "В API supply_ventilation_01 есть turn_on/turn_off/reset_alarm, set_speed 10..100%, set_mode RECIRCULATION/FRESH_AIR/MIXED. На конкретном подключении доступность подтверждает describe_nodes; старый текст knowledge об отсутствии управления не определяет runtime.",
+    "tags": [
+      "вентиляция",
+      "приток"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 540,
+        "end_line": 575
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 151,
+        "end_line": 181
+      }
+    ],
+    "conflict_ids": [
+      "C01"
+    ],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F15",
+    "question": "Почему не следует переключать питание много раз?",
+    "answer": "Больше трёх переключений одной линии за две минуты блокируют её на пять минут. До команды проверить назначение линии, эффект, защиту и lockout; после — state/current_a/power_w.",
+    "tags": [
+      "реле",
+      "дребезг"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 325,
+        "end_line": 335
+      }
+    ],
+    "conflict_ids": [
+      "C03"
+    ],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F16",
+    "question": "Как включать линию после TRIPPED или RCD_TRIP?",
+    "answer": "line_on при сработавшей защите отклоняется. API описывает reset_protection, который взводит защиту и включает линию; сам факт доступности не разрешает сброс без установления причины и допустимости. Не путать state с protection_state.",
+    "tags": [
+      "щиток",
+      "защита"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 325,
+        "end_line": 335
+      },
+      {
+        "source_id": "K08",
+        "path": "sources/knowledge/08_safety.md",
+        "start_line": 122,
+        "end_line": 164
+      }
+    ],
+    "conflict_ids": [
+      "C06",
+      "C11"
+    ],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F17",
+    "question": "Как связаны номера линий и индексы массива?",
+    "answer": "Номера линий 1..8; индекс lines[0] означает линию 1. ФабЛаб — линия 2, принтер внутри — отдельная линия 3, ЧПУ — 4, Химлаб — 5; рабочее место и вытяжка — линия 1.",
+    "tags": [
+      "линии",
+      "питание"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 444,
+        "end_line": 462
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F18",
+    "question": "Как связан замок бокса с открытием двери?",
+    "answer": "Агент меняет замок разрешённой командой; дверь открывает оператор физически и только при открытом замке. ФабЛаб имеет два замка, Химлаб — общий. Разблокировка не доказывает открытие.",
+    "tags": [
+      "замки",
+      "двери"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 510,
+        "end_line": 539
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 336,
+        "end_line": 340
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F19",
+    "question": "Как проверять датчики и время?",
+    "answer": "Сохранять время получения, источник и его updated_at, учитывать задержку/дрейф, пропуски и рассинхрон. Постоянное значение может быть реальным, а status OK — сочетаться с ошибочным измерением.",
+    "tags": [
+      "свежесть",
+      "время"
+    ],
+    "source_refs": [
+      {
+        "source_id": "K04",
+        "path": "sources/knowledge/04_telemetry.md",
+        "start_line": 90,
+        "end_line": 142
+      },
+      {
+        "source_id": "K04",
+        "path": "sources/knowledge/04_telemetry.md",
+        "start_line": 143,
+        "end_line": 195
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 1262,
+        "end_line": 1262
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F20",
+    "question": "Что делать с null и отсутствующим узлом?",
+    "answer": "Не подставлять ноль и не утверждать остановку оборудования. Пометить недоступность, проверить роль/питание/связь/последний приём. REQ требует устойчивости к таким данным.",
+    "tags": [
+      "null",
+      "offline"
+    ],
+    "source_refs": [
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 69,
+        "end_line": 82
+      },
+      {
+        "source_id": "K04",
+        "path": "sources/knowledge/04_telemetry.md",
+        "start_line": 694,
+        "end_line": 716
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F21",
+    "question": "Сколько истории есть и подтверждает ли она текущее состояние?",
+    "answer": "В доступном наборе один день: 14.10.2026, 1440 снимков, 327 событий, один дневник. Это примеры прошлого; они не доказывают текущую причину. Причины в дневнике — мнение автора.",
+    "tags": [
+      "история",
+      "RAG"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 810,
+        "end_line": 857
+      },
+      {
+        "source_id": "K12",
+        "path": "sources/knowledge/12_history.md",
+        "start_line": 192,
+        "end_line": 201
+      },
+      {
+        "source_id": "BOOK",
+        "path": "sources/Logs/2026-10-14/logbook.jsonl",
+        "start_line": 1,
+        "end_line": 1
+      }
+    ],
+    "conflict_ids": [
+      "C09"
+    ],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F22",
+    "question": "Зачем различать журнал событий и минутную телеметрию?",
+    "answer": "Численные показатели в архиве идут раз в 60 с, события имеют более точные отметки. Краткие провалы света между снимками теряются. Сначала согласовать часы и время возникновения/регистрации.",
+    "tags": [
+      "дискретизация",
+      "логи"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 810,
+        "end_line": 857
+      },
+      {
+        "source_id": "EVT",
+        "path": "sources/Logs/2026-10-14/events.jsonl",
+        "start_line": 237,
+        "end_line": 237
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F23",
+    "question": "Как проверять probe_z и рабочий ноль?",
+    "answer": "Машинные и рабочие координаты различаются на wco_mm. При касании рабочий Z становится plate_thickness, затем следует retract. Проверять last_probe.success, state и z_mm: success при приёме не подтверждает касание.",
+    "tags": [
+      "probe_z",
+      "координаты"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 341,
+        "end_line": 395
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F24",
+    "question": "Почему нельзя выполнять home наугад после паузы?",
+    "answer": "Сначала определить причину и сохранность координат/задания. API допускает move/set_zero/probe_z только в IDLE без задания; восстановление после ALARM зависит от конкретной ошибки. Home не является универсальным средством продолжения.",
+    "tags": [
+      "home",
+      "ЧПУ"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 341,
+        "end_line": 395
+      },
+      {
+        "source_id": "K05",
+        "path": "sources/knowledge/05_production.md",
+        "start_line": 598,
+        "end_line": 611
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F25",
+    "question": "Что может сделать только оператор?",
+    "answer": "Физические действия из operator_controls: осмотр, очистка, замена, снятие детали, переключение патчкорда. Агент просит коротко через meeting_01. Права на опасную зону это не расширяет.",
+    "tags": [
+      "оператор"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 336,
+        "end_line": 340
+      },
+      {
+        "source_id": "K08",
+        "path": "sources/knowledge/08_safety.md",
+        "start_line": 85,
+        "end_line": 121
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F26",
+    "question": "Можно ли загрузить все логи в каждый запрос DeepSeek?",
+    "answer": "REQ требует выбирать данные и частоту обращения из-за бюджета. Проект предлагает передавать компактную ситуацию, нужные источники и исходные поля с метками времени; полный архив хранить отдельно.",
+    "tags": [
+      "контекст",
+      "токены"
+    ],
+    "source_refs": [
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 39,
+        "end_line": 68
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F27",
+    "question": "Что обязательно логировать у будущего агента?",
+    "answer": "JSONL UTF-8 с ts/run_id/seq/kind; observation, decision с основаниями, action со ссылкой на решение и verification после изменения, сообщения и llm_call. Ключи не записывать. Это формат будущего агента; RAG-проект пока не реализует логгер.",
+    "tags": [
+      "логи",
+      "verification"
+    ],
+    "source_refs": [
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 83,
+        "end_line": 174
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F28",
+    "question": "Что делать при guest или session_revoked?",
+    "answer": "При guest доступен только чат, нет полной телеметрии и управления. После session_revoked закрытие и переподключение с паузой; отсутствие узлов не выдавать за одновременный отказ станции.",
+    "tags": [
+      "guest",
+      "session_revoked"
+    ],
+    "source_refs": [
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 43,
+        "end_line": 72
+      },
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 69,
+        "end_line": 82
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F29",
+    "question": "Что делать, если DeepSeek недоступен?",
+    "answer": "По REQ агент продолжает работать без модели: предусмотренные проверки и простые правила выполняются кодом, обращения повторяются с паузой. Конкретная модель и автономные действия требуют отдельного утверждения.",
+    "tags": [
+      "DeepSeek",
+      "fallback"
+    ],
+    "source_refs": [
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 39,
+        "end_line": 68
+      },
+      {
+        "source_id": "REQ",
+        "path": "sources/03_Требования_к_агенту.md",
+        "start_line": 175,
+        "end_line": 185
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F30",
+    "question": "Доказывает ли фантомная мощность неисправность линии?",
+    "answer": "Нет. Сверить схему потребителей, единицы/время/каналы и независимые данные. В истории линия 8 стала показывать ноль после осмотра; причина влажного клеммника описана оператором, но не измерена телеметрией напрямую.",
+    "tags": [
+      "фантомная мощность",
+      "линия 8"
+    ],
+    "source_refs": [
+      {
+        "source_id": "K03",
+        "path": "sources/knowledge/03_energy.md",
+        "start_line": 595,
+        "end_line": 618
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 496,
+        "end_line": 496
+      },
+      {
+        "source_id": "BOOK",
+        "path": "sources/Logs/2026-10-14/logbook.jsonl",
+        "start_line": 1,
+        "end_line": 1
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F31",
+    "question": "Можно ли при пайке работать без вытяжки?",
+    "answer": "В knowledge требуется работающая вытяжка. При её отказе оператор прекращает пайку до восстановления. В API вытяжка связана с линией 1 вместе с рабочим местом; состояние питания ещё не подтверждает воздушный поток.",
+    "tags": [
+      "вытяжка",
+      "пайка"
+    ],
+    "source_refs": [
+      {
+        "source_id": "K06",
+        "path": "sources/knowledge/06_microclimate.md",
+        "start_line": 133,
+        "end_line": 160
+      },
+      {
+        "source_id": "API",
+        "path": "sources/01_API.md",
+        "start_line": 540,
+        "end_line": 575
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  },
+  {
+    "id": "F32",
+    "question": "Что делать, если источники мощности расходятся?",
+    "answer": "Сначала проверить, что величины сопоставимы по времени, единицам, точкам и источникам измерений. Причина расхождения пока неизвестна; не рассчитывать физическую генерацию по одному подозрительному полю.",
+    "tags": [
+      "PV",
+      "мощность"
+    ],
+    "source_refs": [
+      {
+        "source_id": "K03",
+        "path": "sources/knowledge/03_energy.md",
+        "start_line": 712,
+        "end_line": 733
+      },
+      {
+        "source_id": "TEL",
+        "path": "sources/Logs/2026-10-14/telemetry.jsonl",
+        "start_line": 1381,
+        "end_line": 1381
+      }
+    ],
+    "conflict_ids": [],
+    "review_status": "APPROVED",
+    "scope": "competition_agent",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "current_state_claim": false
+  }
+]
