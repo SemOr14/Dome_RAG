@@ -31,15 +31,26 @@ class ProposedAction(BaseModel):
         return None if v in ({}, [], "") else v
 
 
+REQUEST_STATUSES = ("answered", "executing", "already_done", "partial", "refused")
+
+
 class OperatorMessage(BaseModel):
     needed: bool = False
     text: str = ""
     to: str = "operator"
+    # Итог требования Оператора по решению модели; partial/refused помечаются «НЕ ВЫПОЛНЕНО» кодом рантайма
+    request_status: str = ""
 
     @field_validator("text")
     @classmethod
     def _limit(cls, v: str) -> str:
         return v[:4000]
+
+    @field_validator("request_status", mode="before")
+    @classmethod
+    def _status(cls, v: Any) -> str:
+        v = str(v or "").strip().lower()
+        return v if v in REQUEST_STATUSES else ""
 
 
 class AgentDecision(BaseModel):
@@ -109,7 +120,9 @@ def output_schema_example() -> dict:
             "reason": "зачем", "expected": "что проверить в телеметрии после команды",
             "verify_after_s": 8, "priority": 1,
         }],
-        "operator_message": {"needed": False, "text": "", "to": "operator"},
+        "operator_message": {"needed": False, "text": "", "to": "operator",
+                             "request_status": "только на требование Оператора: answered | executing | already_done | "
+                                               "partial | refused; иначе пусто"},
         "wait_and_watch": ["что отслеживать дальше"],
         "rag_refs": ["id использованных документов базы знаний"],
         "risks": ["что может пойти не так"],

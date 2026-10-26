@@ -32,6 +32,14 @@ ROOT = Path(__file__).resolve().parents[1]
 DISPATCH_WAIT_S = 15.0  # сколько ждать итога ручной команды от агента
 
 
+def _instant(value) -> float:
+    """ISO-время с любой точностью долей секунды → число для сортировки (строки сравниваются неверно)."""
+    try:
+        return datetime.fromisoformat(str(value)).timestamp()
+    except ValueError:
+        return 0.0
+
+
 class Hub:
     def __init__(self, store):
         self.store = store
@@ -184,11 +192,14 @@ class Hub:
 
     def chat(self, run_id):
         """Лента переписки: требования Оператора из панели, ответы-рекомендации агента, чат Купола meeting_01."""
-        items, seen = [], {}
+        # Время сообщения Купола (time) идёт по часам сервера, у эмулятора — игровым, а требования панели — по нашим.
+        # Порядок и время показа — по нашему приёму (первое событие с этим сообщением), иначе стороны не чередуются.
+        items, seen, arrived, sent_at = [], {}, {}, {}
         for item in self.store.latest_telemetry(run_id, "meeting_01")["items"]:
             for m in item["payload"].get("recent_messages") or []:
                 if isinstance(m, dict) and isinstance(m.get("id"), int):
                     seen[m["id"]] = m
+                    arrived.setdefault(m["id"], item["ingested_at"])
         for kind in ("operator_request", "meeting_message", "control_response", "agent_message"):
             after = 0
             while True:
@@ -203,19 +214,25 @@ class Hub:
                         items.append({"from": "operator", "via": "panel", "time": e["ingested_at"], "text": p.get("text")})
                     elif isinstance(m, dict) and isinstance(m.get("id"), int):
                         seen[m["id"]] = m
+                        arrived[m["id"]] = min(arrived.get(m["id"], e["ingested_at"]), e["ingested_at"], key=_instant)
                     elif kind == "agent_message" and p.get("direction") == "out" and p.get("dry_run"):
                         items.append({"from": "agent", "via": "dome_chat", "time": e["ingested_at"], "text": p.get("text"),
                                       "not_sent": True})
+                    elif kind == "agent_message" and p.get("direction") == "out":
+                        sent_at.setdefault(p.get("text"), e["ingested_at"])  # Купол не вернул сообщение в ответе
         for m in seen.values():
             sender = m.get("sender") or {}
             # Роль team у всех клиентов с ключом команды; наш агент — только под своим именем
             role = sender.get("role")
             who = "operator" if role == "operator" else "agent" if role == "team" and sender.get("name") == AGENT_NAME else "other"
             t = m.get("time")
+            if who == "agent" and m.get("text") in sent_at:
+                arrived[m["id"]] = min(arrived.get(m["id"], sent_at[m["text"]]), sent_at[m["text"]], key=_instant)
             items.append({"from": who, "via": "dome_chat", "id": m["id"], "to": m.get("to"), "text": m.get("text"),
                           "name": sender.get("name"), "team": sender.get("team"),
-                          "time": datetime.fromtimestamp(t, timezone.utc).isoformat() if isinstance(t, (int, float)) else t})
-        items.sort(key=lambda x: str(x.get("time") or ""))
+                          "time": arrived.get(m["id"]) or (datetime.fromtimestamp(t, timezone.utc).isoformat()
+                                                           if isinstance(t, (int, float)) else t)})
+        items.sort(key=lambda x: (_instant(x.get("time")), x.get("id") or 0))
         return {"items": items}
 
     def _agent(self):

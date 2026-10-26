@@ -35,6 +35,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 FAILURES_TO_FALLBACK = 3  # сбоев модели подряд, после которых решения временно отдаются плейбукам
 FALLBACK_S = 300.0
 SEVERITY_PRIORITY = {"critical": 1, "warning": 3, "info": 5}
+REQUEST_MISSED = {"refused": "агент отказался выполнять", "partial": "выполнено только частично"}
 JOURNAL_KINDS = ("decision", "action", "verification", "message")
 ADVISORY = (
     "\n\nРежим: управление агента выключено — твои команды в Купол не отправятся. Предлагай действия как обычно "
@@ -167,12 +168,19 @@ def to_intent(response: AgentResponse, fired: Fired) -> Intent:
         say = None  # сообщение не прошло проверку LLM-слоя (длина, пустота)
     refused = [f"{v.action.node_id}.{v.action.action} — {'; '.join(v.reasons)}" for v in response.verdicts
                if not v.accepted and v.action.node_id != "meeting_01"]
+    operator = any(t.kind == "operator" for t in fired.triggers)
+    if operator:
+        status = d.operator_message.request_status
+        if status in REQUEST_MISSED:
+            refused.insert(0, f"требование Оператора — {REQUEST_MISSED[status]}")
+        elif status == "executing" and not steps and not refused:
+            refused.insert(0, "требование Оператора — агент не предложил команд для него")
     return Intent(
         key=f"llm:{response.decision_id}", situation=d.situation, cause=d.cause or "не установлена", confidence=d.confidence,
         evidence=[e.model_dump(exclude_none=True) for e in d.evidence] or [{"trigger": t.text[:300]} for t in fired.triggers],
         plan=plan or ["наблюдать"], steps=steps, say=say, priority=SEVERITY_PRIORITY.get(d.severity, 5),
         cooldown_s=0.0, source="mixed" if d.rag_refs else "llm", rag_refs=list(d.rag_refs),
-        say_always=any(t.kind == "operator" for t in fired.triggers), refused=refused,
+        say_always=operator, refused=refused,
     )  # fmt: skip
 
 

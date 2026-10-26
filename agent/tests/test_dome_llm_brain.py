@@ -287,3 +287,46 @@ def test_no_effect_is_an_immediate_trigger_with_repeat_block(tmp_path: Path) -> 
             assert hits and "заблокирована Gate на 120 с" in hits[0]
 
     run(scenario())
+
+
+def test_operator_request_refused_by_model_is_marked_not_done() -> None:
+    from kupol.dome.brain import to_intent
+    from llm_agent.dispatcher import Fired
+    from llm_agent.schemas import ActionVerdict, AgentDecision, AgentResponse, LLMCallInfo, ProposedAction
+    from llm_agent.triggers import Trigger
+
+    def intent(status: Any, actions: list[ProposedAction] = ()):
+        text = "Линию 3 не отключаю: идёт печать."
+        decision = AgentDecision(situation="Оператор просит отключить линию 3", actions=list(actions),
+                                 operator_message={"needed": True, "text": text, "request_status": status})
+        verdicts = [ActionVerdict(action=a, accepted=True) for a in actions]
+        verdicts.append(ActionVerdict(action=ProposedAction(node_id="meeting_01", action="post_message", value={"text": text}), accepted=True))
+        response = AgentResponse(ok=True, decision=decision, decision_id="d1", llm_call=LLMCallInfo(model="fake", ok=True), verdicts=verdicts)
+        return to_intent(response, Fired([Trigger("operator", "op|1", "Требование Оператора (веб-панель): «Отключи линию 3»")], ""))
+
+    assert intent("refused").refused == ["требование Оператора — агент отказался выполнять"]
+    assert intent("PARTIAL").refused == ["требование Оператора — выполнено только частично"]
+    assert intent("executing").refused == ["требование Оператора — агент не предложил команд для него"]
+    line = ProposedAction(node_id="smart_panel_01", action="line_off", value={"line": 3})
+    assert intent("executing", [line]).refused == []
+    assert intent("already_done").refused == intent("answered").refused == intent("что-то").refused == []
+
+
+def test_operator_request_refusal_reaches_operator_even_without_text(tmp_path: Path) -> None:
+    def answer(trigger: str) -> dict[str, Any]:
+        if "Требование Оператора" in trigger:
+            return {"situation": "Оператор просит отключить линию принтера", "actions": [],
+                    "operator_message": {"needed": False, "text": "", "request_status": "refused"}}
+        return QUIET
+
+    async def scenario() -> None:
+        w = World()
+        start_work(w)
+        async with LlmHarness(tmp_path, w, FakeLLM(answer)) as h:
+            await h.step(2)
+            assert h.brain is not None
+            h.brain.operator_request("Отключи линию питания принтера", "req-2")
+            await h.step(8)
+            assert w.posted == ["НЕ ВЫПОЛНЕНО: требование Оператора — агент отказался выполнять."]
+
+    run(scenario())

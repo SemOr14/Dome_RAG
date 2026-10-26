@@ -106,13 +106,31 @@ function actionStatus(p){
   if(p.dry_run)return ['wait','Не отправлено · только чтение',''];
   return r.success?['good','Принято Куполом','']:['bad','Ошибка Купола',r.error];
 }
+// «НЕ ВЫПОЛНЕНО: a; b. Сообщение агента: «…»» (runner.with_outcome) → список невыполненного и сам текст агента
+function splitOutcome(text){
+  const m=/^НЕ ВЫПОЛНЕНО: ([\s\S]*?)\.(?: Сообщение агента: «([\s\S]*)»)?$/.exec(text||'');
+  return m?{missed:m[1].split('; '),say:m[2]||''}:{missed:[],say:text||''};
+}
+function delivery(p){
+  const r=p.response||{};
+  if(p.rejected)return ['bad','не отправлено: '+(r.error||'Gate')];
+  if(p.dry_run)return ['wait','не отправлено · только чтение'];
+  return r.success?['good','доставлено в чат Купола']:['bad','ошибка доставки: '+(r.error||'')];
+}
+function messageItem(p,time){
+  const {missed,say}=splitOutcome(String(p.request.value?.text??p.request.value??'')),[cls,status]=delivery(p);
+  const head=missed.length?'<span class="badge bad">НЕ ВЫПОЛНЕНО</span>':'';
+  const list=missed.length?`<ul class="plan missed">${missed.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'';
+  return `<div class="event message-event${missed.length?' not-done':''}">${time}<span><span class="badge good">АГЕНТ</span></span><div><b>Сообщение Оператору</b> ${head}${list}${say?`<p class="what">${esc(say)}</p>`:''}<p class="tiny"><span class="dot ${cls==='good'?'good':cls==='bad'?'bad':''}"></span>${esc(status)}</p></div></div>`;
+}
 function timelineItem(e,all){
   const p=e.payload||{},time=`<span class="muted">${date(e.ingested_at)}</span>`;
+  if(e.event_type==='agent_action'&&p.request?.node_id==='meeting_01')return messageItem(p,time);
   if(e.event_type==='agent_action'&&p.request){
     const req=p.request,dec=all.find(x=>x.event_type==='agent_decision'&&x.payload?.seq===p.ref&&x.payload?.run_id===p.run_id)?.payload;
-    const operator=dec?.source==='operator',[cls,status,why]=actionStatus(p),chat=req.node_id==='meeting_01';
-    const what=chat?`Сообщение Оператору: ${esc(req.value?.text||req.value||'')}`:`<code>${esc(req.node_id)}.${esc(req.action)}</code> ${value(req.value)}`;
-    return `<div class="event control ${operator?'by-operator':'by-agent'}">${time}<span><span class="badge ${operator?'wait':'good'}">${operator?'ОПЕРАТОР':'АГЕНТ'}</span></span><div><b>${chat?'Сообщение в чат':'Управляющее воздействие'}</b> <span class="badge ${cls}">${esc(status)}</span><p class="what">${what}</p><p>${esc(why||p.reason||'')}</p></div></div>`;
+    const operator=dec?.source==='operator',[cls,status,why]=actionStatus(p);
+    const what=`<code>${esc(req.node_id)}.${esc(req.action)}</code> ${value(req.value)}`;
+    return `<div class="event control ${operator?'by-operator':'by-agent'}">${time}<span><span class="badge ${operator?'wait':'good'}">${operator?'ОПЕРАТОР':'АГЕНТ'}</span></span><div><b>Управляющее воздействие</b> <span class="badge ${cls}">${esc(status)}</span><p class="what">${what}</p><p>${esc(why||p.reason||'')}</p></div></div>`;
   }
   if(e.event_type==='control_intent'&&e.source==='operator'){
     const c=all.__controls?.find(x=>x.event.event_id===e.event_id),v=c?.validation;
@@ -127,9 +145,16 @@ function timelineItem(e,all){
   const text=p.summary||p.text||p.reason||p.action||p.event||(typeof p.message==='string'?p.message:p.message?.text)||'';
   return `<div class="event">${time}<span>${esc(who)}</span><div><b>${esc(e.event_type)}</b><p>${esc(text)}</p></div></div>`;
 }
+// Сообщение агента Оператору показывает одна карточка (agent_action); намерение, запрос, ответ Купола и запись
+// message о том же сообщении — служебные дубли (они есть во вкладке «База данных»)
+function chatDuplicate(e){
+  const p=e.payload||{};
+  if(e.event_type==='agent_message')return p.direction==='out';
+  return e.source!=='operator'&&['control_intent','control','control_response'].includes(e.event_type)&&(p.action==='post_message'||p.node_id==='meeting_01');
+}
 function renderTimeline(data){
   const all=Object.assign([...data.events],{__controls:data.controls});
-  const shown=data.events.filter(e=>!TIMELINE_HIDDEN.has(e.event_type)).slice(0,30);
+  const shown=data.events.filter(e=>!TIMELINE_HIDDEN.has(e.event_type)&&!chatDuplicate(e)).slice(0,30);
   $('timeline').innerHTML=shown.length?shown.map(e=>timelineItem(e,all)).join(''):empty('События ещё не записаны.');
 }
 function renderControls(data) {

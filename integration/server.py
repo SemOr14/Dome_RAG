@@ -95,7 +95,12 @@ def create_app(db_path=None, token=None):
                 from fastapi.responses import JSONResponse
 
                 return JSONResponse({"detail": "Посторонний Origin"}, status_code=403)
-        return await call_next(request)
+        response = await call_next(request)
+        if request.url.path.startswith("/ui"):
+            # Браузер должен сверять файлы панели при каждой загрузке: иначе после обновления кода
+            # он продолжает показывать старую разметку событий из своего кэша
+            response.headers["Cache-Control"] = "no-cache"
+        return response
 
     # Keep the durable HTTP auditor outside the Origin guard as well.
     from data_api.app import AuditMiddleware

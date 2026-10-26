@@ -87,7 +87,8 @@ def with_outcome(say: str, missed: list[str]) -> str:
     """Сообщение Оператору: невыполненное — первым, чтобы текст модели («отключено…») не вводил в заблуждение."""
     if not missed:
         return say
-    return f"НЕ ВЫПОЛНЕНО: {'; '.join(missed)}. Сообщение агента: «{say}»"
+    head = f"НЕ ВЫПОЛНЕНО: {'; '.join(missed)}."
+    return f"{head} Сообщение агента: «{say}»" if say else head
 
 
 def git_version() -> str:
@@ -361,12 +362,14 @@ class Runner:
             results.append(await self.gate.submit(Cmd(step.node, step.action, step.value, step.reason or intent.cause, decision, step.expect)))
         if intent.llm_question and self.advisor is not None:
             self._spawn(self._answer_operator(intent, decision))
-        elif intent.say and (all(r.ok for r in results) or intent.say_always):
+        else:
             missed = intent.refused + [
                 f"{s.node}.{s.action} — {'управление агента выключено, решение за Оператором' if r.reason == AGENT_CONTROL_OFF else r.reason}"
                 for s, r in zip(intent.steps, results) if not r.ok or r.reason == AGENT_CONTROL_OFF
             ]  # fmt: skip
-            await self.say(with_outcome(intent.say, missed), decision)
+            # На требование Оператора отвечаем всегда: невыполненное — даже если модель промолчала
+            if (intent.say and (all(r.ok for r in results) or intent.say_always)) or (intent.say_always and missed):
+                await self.say(with_outcome(intent.say or "", missed), decision)
 
     async def say(self, text: str, ref: int) -> GateResult:
         """Сообщение Оператору: команда ``post_message`` через Gate и запись ``message``."""

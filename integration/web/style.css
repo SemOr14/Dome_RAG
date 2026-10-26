@@ -14,3 +14,7 @@
 .event.decision-event b{font-size:12px}
 .event .plan{margin:6px 0 0;padding-left:18px;color:var(--text)}
 .event .plan li{margin:2px 0}
+.event.message-event{border-left:3px solid #5f6f86;padding-left:12px;background:#161e29;border-radius:6px;margin:4px 0}
+.event.message-event.not-done{border-left-color:var(--red);background:#251a1b}
+.event.message-event .what{color:var(--text);font-size:12px;margin-top:6px}
+.event .plan.missed{color:#f0b4ab}
