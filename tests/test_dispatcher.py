@@ -286,3 +286,18 @@ def test_gate_verification_trigger_no_effect_and_timeout_resolution():
     assert gate_verification_trigger(good, action, timed_out=False, cooldown_s=120) is None  # обычный успех — не повод
     done = gate_verification_trigger(good, action, timed_out=True, cooldown_s=120)
     assert done.kind == "verification" and "подтверждён" in done.text and "не нужно" in done.text
+
+
+def test_two_minute_review_is_not_postponed_by_other_calls_or_pending_events(tmp_path):
+    from llm_agent.triggers import Trigger
+    d, llm, clock = make(tmp_path, quiet_snapshot(), trigger_min_interval_s=0)
+    d.settings.trigger_review_s = 120
+    for i in range(1, 9):
+        clock.t = 1000 + i * 30
+        d.agent.telemetry.snapshot['timestamp'] = clock.t
+        d.agent.telemetry.snapshot['observed_at'] = str(i)
+        d.submit(Trigger('operator', f'other-{i}', 'другая задача'))
+        fired = d.tick()
+        assert len(fired) == 1
+        assert any(t.kind == 'review' for t in fired[0].triggers) == (i % 4 == 0)
+    assert len(llm.calls) == 8

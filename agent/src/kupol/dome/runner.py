@@ -16,7 +16,7 @@ import time
 import traceback
 from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from kupol.dome.agentlog import AgentLog
 from kupol.dome.catalog import Catalog
@@ -131,19 +131,26 @@ class Runner:
             client.recorder = recorder or client.recorder
         if recorder is not None:
             # Решения, действия и проверки эффекта — в ту же БД; action ссылается на control через request_id
-            log.sink = lambda kind, rec: recorder.event(
-                f"agent_{kind}", rec, session_id=self.client.session_id, metadata={"log_run_id": rec.get("run_id"), "log_seq": rec.get("seq")}
-            )  # fmt: skip
+            def record_log(kind: str, rec: dict[str, Any]) -> None:
+                assert self.recorder is not None
+                self.recorder.event(f"agent_{kind}", rec, session_id=self.client.session_id,
+                                    metadata={"log_run_id": rec.get("run_id"), "log_seq": rec.get("seq")})
+            log.sink = record_log
         if brain is not None and not hasattr(brain, "step"):
             brain = brain(self)  # фабрике нужны состояние, клиент и рекордер этого рантайма
-        self.brain = brain
+        self.brain = cast("LlmBrain | None", brain)
         self.llm_enabled = True  # панель может временно отдать решения плейбукам
         self.manual = ManualControls(recorder) if recorder is not None else None  # команды Оператора из БД
         self._manual_task: asyncio.Task[Any] | None = None
         self.manual_done: set[str] = set()  # исполненные намерения: прямой вызов и опрос очереди не дублируют команду
-        if brain is not None:
+        if self.brain is not None:
             db_sink = log.sink
-            log.sink = lambda kind, rec: (db_sink and db_sink(kind, rec), brain.on_log(kind, rec))  # журнал для промпта
+            def combined_log(kind: str, rec: dict[str, Any]) -> None:
+                if db_sink is not None:
+                    db_sink(kind, rec)
+                assert self.brain is not None
+                self.brain.on_log(kind, rec)
+            log.sink = combined_log
         self.catalog = Catalog()
         self._catalog_msg: dict[str, Any] | None = None
         self.gate = Gate(
@@ -161,6 +168,8 @@ class Runner:
         self.seen_msgs: set[int] = set()
         self.operator_log: list[tuple[float, str]] = []
         self._chat_ready = False
+        self._next_patrol = self.clock() + cfg.runtime.patrol_interval_s
+        self._patrol_no = 0
         self._last_observation = 0.0
         self._last_anomalies: frozenset[str] = frozenset()
         self._last_save = 0.0
@@ -270,17 +279,41 @@ class Runner:
             await self.execute(intent, now)
         if not use_llm:  # модель-основа сама разбирает непокрытые ситуации
             self._diagnose_uncovered(now)
+        self._patrol(now)
         self._observe(now)
         self._save_state()
         self._bg = [t for t in self._bg if not t.done()]
         self.ticks += 1
 
     async def _idle(self) -> None:
-        """Нет телеметрии: раз в минуту отмечаем это в наблюдениях, ничего не решаем."""
+        """Таймеры продолжают работать без кадров; устаревшие данные не обновляем."""
         now = self.clock()
+        self._patrol(now)
+        if self.client.connected and self.state.role == "team" and self.brain is not None and self.llm_enabled and self.brain.healthy:
+            self.brain.step([], lambda intent: self.execute(intent, self.clock()))
         if self.client.connected and now - self._last_observation >= self.cfg.runtime.observation_interval_s:
             self._last_observation = now
             self.log.write("observation", summary="телеметрия не приходит", metrics={"connected": True}, anomalies=["нет телеметрии"])
+
+    def _patrol(self, now: float) -> None:
+        """Read-only inspection, even without LLM, new telemetry or a connected client."""
+        if now < self._next_patrol:
+            return
+        from kupol.dome.monitoring import assess_impacts
+
+        self._next_patrol += (int((now - self._next_patrol) // self.cfg.runtime.patrol_interval_s) + 1) * self.cfg.runtime.patrol_interval_s
+        self._patrol_no += 1
+        age = max(0.0, now - self.state.wall) if self.state.wall else None
+        msg = self.client.telemetry or {}
+        impacts = assess_impacts({"nodes": self.state.nodes, "timestamp": msg.get("timestamp"), "stale": age is None or age > STALE_TELEMETRY_S})
+        self.log.write("observation", summary=f"Плановый обход №{self._patrol_no}: проверено {len(self.state.nodes)} узлов",
+                       metrics={**self.context_summary(), "pending_verifications": len(self.gate.pending),
+                                "gate_stats": dict(self.gate.stats), "connected": self.client.connected, "telemetry_age_s": age,
+                                "fresh": age is not None and age <= STALE_TELEMETRY_S},
+                       anomalies=self.anomalies(), impacts=impacts,
+                       patrol={"number": self._patrol_no, "interval_s": self.cfg.runtime.patrol_interval_s,
+                               "nodes_checked": len(self.state.nodes), "frozen_nodes": self.state.frozen_nodes(),
+                               "checklist": ["свежесть", "датчики", "энергия", "защита", "производство", "эффект команд"]})
 
     # ------------------------------------------------------------------ каталог и чат
 
@@ -351,6 +384,7 @@ class Runner:
                 self.log.write("error", where="rag", error=repr(exc))
         fields: dict[str, Any] = {
             "situation": intent.situation, "cause": intent.cause, "confidence": intent.confidence, "evidence": intent.evidence,
+            "impact_kind": intent.impact_kind, "authenticity": intent.authenticity, "causal_chain": intent.causal_chain,
             "plan": intent.plan, "source": "mixed" if refs and intent.source == "rules" else intent.source, "priority": intent.priority,
         }  # fmt: skip
         if refs or intent.rag_refs:

@@ -15,6 +15,8 @@ from .context.graph import InfluenceGraph, format_edge
 from .context.telemetry import TelemetryContext, compact_telemetry
 from .rag.base import RagDoc, Retriever
 from .schemas import output_schema_example
+from .monitoring import assess_impacts
+from .scenarios import relevant_scenarios
 
 
 def _tojson(value: Any, indent: int | None = None) -> str:
@@ -77,17 +79,19 @@ class PromptBuilder:
         except Exception:  # RAG не должен ронять агента
             rag_docs = []
         dome_time = _dome_time(snapshot.get("game_time"))
+        impacts = assess_impacts(snapshot)
+        scenarios = relevant_scenarios(self.rag_query(trigger, tctx), {x["kind"] for x in impacts})
 
         system = self.env.get_template(self.system_template).render(
             hard_rules=self.hard_rules, output_schema=output_schema_example(), team_name=self.team_name)
         user = self.env.get_template(self.user_template).render(
-            trigger=trigger, dome_time=dome_time, game_time=snapshot.get("game_time"),
+            impacts=impacts, scenarios=scenarios, trigger=trigger, dome_time=dome_time, game_time=snapshot.get("game_time"),
             observed_at=snapshot.get("observed_at"),
             telemetry=tctx.nodes, anomalies=tctx.anomalies, catalog=self.catalog.for_prompt(),
             graph_edges=edges, journal=journal, rag_docs=rag_docs)
 
         stats = {"system_chars": len(system), "user_chars": len(user),
                  "approx_tokens": (len(system) + len(user)) // 3, "anomalies": len(tctx.anomalies),
-                 "graph_edges": len(edges), "journal": len(journal), "rag_docs": [d.id for d in rag_docs]}
+                 "graph_edges": len(edges), "journal": len(journal), "rag_docs": [d.id for d in rag_docs], "scenario_ids": [c["id"] for c in scenarios]}
         return BuiltPrompt(messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
                            telemetry=tctx, rag_docs=rag_docs, journal=journal, dome_time=dome_time, stats=stats)

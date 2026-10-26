@@ -2,6 +2,7 @@
 # Значения опираются на Dome_RAG/01_API.md и базу знаний; пороги, отмеченные ASSUMPTION, уточнять по живым данным.
 
 runtime:
+  patrol_interval_s: 120         # независимый обход, в том числе без новых кадров и без LLM
   observation_interval_s: 45      # запись observation в лог (и при заметных изменениях)
   request_timeout_s: 15
   request_rate_per_s: 4.0         # требование организаторов: не больше 5 запросов/с

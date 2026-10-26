@@ -61,15 +61,17 @@ Execute = Callable[[Intent], Awaitable[None]]
 class StateTelemetry:
     """Снимок для промпта из ``DomeState`` рантайма; ``timestamp`` — время кадра Купола."""
 
-    def __init__(self, state: DomeState, frame: Callable[[], dict[str, Any] | None]) -> None:
+    def __init__(self, state: DomeState, frame: Callable[[], dict[str, Any] | None], clock: Callable[[], float] = time.time) -> None:
         self.state = state
         self.frame = frame
+        self.clock = clock
 
     def latest(self) -> dict[str, Any]:
         msg = self.frame() or {}
         observed = datetime.fromtimestamp(self.state.wall, timezone.utc).isoformat() if self.state.wall else None
         return {"timestamp": msg.get("timestamp"), "game_time": dict(self.state.game_time or {}),
-                "nodes": dict(self.state.nodes), "observed_at": observed}
+                "nodes": dict(self.state.nodes), "observed_at": observed,
+                "telemetry_age_s": max(0.0, self.clock() - self.state.wall) if self.state.wall else None}
 
     def history(self, node_id: str, param: str, limit: int = 20) -> list[dict[str, Any]]:
         return []
@@ -171,6 +173,7 @@ def to_intent(response: AgentResponse, fired: Fired) -> Intent:
         key=f"llm:{response.decision_id}", situation=d.situation, cause=d.cause or "не установлена", confidence=d.confidence,
         evidence=[e.model_dump(exclude_none=True) for e in d.evidence] or [{"trigger": t.text[:300]} for t in fired.triggers],
         plan=plan or ["наблюдать"], steps=steps, say=say, priority=SEVERITY_PRIORITY.get(d.severity, 5),
+        impact_kind=d.impact_kind, authenticity=d.authenticity, causal_chain=list(d.causal_chain),
         cooldown_s=0.0, source="mixed" if d.rag_refs else "llm", rag_refs=list(d.rag_refs),
         say_always=any(t.kind == "operator" for t in fired.triggers), refused=refused,
     )  # fmt: skip
@@ -208,7 +211,7 @@ class LlmBrain:
             client = data_client or DataApiClient(settings.data_api_url, settings.data_api_token or None, s.data_api_timeout_s)
             checker = _SessionChecker(ApiControlChecker(client, recorder.run_id, ""), session)
         self.agent = DomeLLMAgent(
-            s, StateTelemetry(state, frame), self.journal, _Catalog([]), retriever=make_retriever(s), llm=llm,
+            s, StateTelemetry(state, frame, clock), self.journal, _Catalog([]), retriever=make_retriever(s), llm=llm,
             events=_Sink(recorder, session, self.journal), control_checker=checker,
         )  # fmt: skip
         self.dispatcher = Dispatcher(self.agent, clock=clock)
@@ -250,6 +253,8 @@ class LlmBrain:
                 self.dispatcher.submit(trig)
         elif kind == "verification":
             ref = rec.get("ref")
+            if not isinstance(ref, int):
+                return
             trig = gate_verification_trigger(rec, self._actions.get(ref), ref in self._timed_out, self.no_effect_cooldown_s)
             self._timed_out.discard(ref)
             if trig is not None:  # нет эффекта или итог после таймаута — по факту проверки Gate

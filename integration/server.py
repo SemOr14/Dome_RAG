@@ -54,7 +54,7 @@ class ToggleIn(BaseModel):
 
 class AutoIn(BaseModel):
     enabled: bool
-    interval_s: int = Field(default=60, ge=30, le=3600)
+    interval_s: int = Field(default=120, ge=30, le=3600)
 
 
 def create_app(db_path=None, token=None):
@@ -65,6 +65,9 @@ def create_app(db_path=None, token=None):
     # Empty on first start. No archive/sample import, no WebSocket connection on startup.
     db_path = db_path or os.getenv("DATA_API_DB", str(ROOT / "state/data-api.sqlite3"))
     app = storage_app(db_path, token)
+    from integration.charts import ChartFeed
+
+    chart_feed = ChartFeed(app.state.store)
     hub = Hub(app.state.store)
     app.state.hub = hub
     secrets = [hub.settings.dome_key, hub.settings.deepseek_key]
@@ -223,19 +226,26 @@ def create_app(db_path=None, token=None):
             "controls": [store.control(r["event_id"]) for r in controls],
         }
 
+    @app.get("/control/charts")
+    def charts(run_id: str):
+        return chart_feed.read(run_id)
+
     @app.get("/control/series")
     def series(
-        run_id: str, node_id: str, field: str, limit: int = Query(240, ge=1, le=1000)
+        run_id: str, node_id: str, field: str, limit: int = Query(240, ge=1, le=1000),
+        source: str | None = None, session_id: str | None = None, channel: str | None = None
     ):
         store = app.state.store
         tokens = split_path(field)
         points = []
+        stream_filter = " AND e.source=? AND e.session_id IS ? AND e.channel=?" if source is not None else ""
+        stream_args = (source, session_id, channel or "websocket") if source is not None else ()
         with store.connection() as conn:
             rows = conn.execute(
                 "SELECT e.id,e.ingested_at,e.body_json,n.payload_json FROM node_snapshots n "
                 "JOIN events e ON e.id=n.event_row_id WHERE e.run_id=? AND n.node_id=? "
-                "ORDER BY e.id DESC LIMIT ?",
-                (run_id, node_id, limit),
+                f"{stream_filter} ORDER BY e.id DESC LIMIT ?",
+                (run_id, node_id, *stream_args, limit),
             ).fetchall()
         for row in reversed(rows):
             value = loads(row["payload_json"])

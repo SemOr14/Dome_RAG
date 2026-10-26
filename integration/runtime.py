@@ -261,7 +261,7 @@ class Hub:
         self.emit("agent_control", {"enabled": enabled})
         return self.status()
 
-    async def set_auto(self, enabled, interval=60):
+    async def set_auto(self, enabled, interval=120):
         """Автономные решения LLM-агента (выключено — плейбуки) и интервал планового обзора, с."""
         if self.runner:
             self.runner.llm_enabled = enabled

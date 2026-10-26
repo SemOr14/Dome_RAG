@@ -42,7 +42,9 @@
     </section>
     <section id="page-charts" class="page hidden">
       <div class="panel form-row"><label>Узел<select id="chartNode"></select></label><label class="grow">Параметр<select id="chartField"></select></label><button id="addChart">Добавить график</button></div>
-      <p class="muted tiny">Последние 240 снимков. Пропуски и null показаны разрывами. Ось времени — получение сервером, исходная метка доступна при наведении.</p>
+      <p class="muted tiny">20 основных графиков. Аномалии всех числовых рядов появляются сверху жёлтым; это повод для проверки. Последние 240 снимков. Пропуски и null показаны разрывами. Ось времени — получение сервером, исходная метка доступна при наведении.</p>
+      <p id="chartSummary" class="muted tiny" role="status"></p>
+      <p id="impactSummary" class="tiny"></p>
       <div id="charts" class="chart-grid"></div>
     </section>
     <section id="page-commands" class="page hidden">

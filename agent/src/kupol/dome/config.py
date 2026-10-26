@@ -21,6 +21,7 @@ class ChatLimit(_Cfg):
 
 
 class RuntimeCfg(_Cfg):
+    patrol_interval_s: float = Field(default=120.0, gt=0)
     observation_interval_s: float = Field(default=45.0, gt=0)
     request_timeout_s: float = Field(default=15.0, gt=0)
     request_rate_per_s: float = Field(default=4.0, gt=0, le=5.0)

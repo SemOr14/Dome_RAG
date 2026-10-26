@@ -1,0 +1,376 @@
+version: 1
+cases:
+- id: F01
+  kind: 'false'
+  title: Одиночный ложный CO₂
+  tags:
+  - co2_ppm
+  - IL_CO2
+  - climate_sensor
+  signals: Один датчик скачет, два свежих датчика той же зоны согласуются и показывают
+    норму.
+  checks: Проверить online/status, задержку, доверие и зону всех трёх; минимум два
+    независимых подтверждения нормы.
+  recovery: Сначала допустимая коррекция доверия и выбор исправного источника; защиту
+    снимать лишь по подтверждённой причине.
+  verify: Новые показания, корректный основной датчик, интерлок не возникает снова.
+  origin: logs
+  reference: https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-14/events.jsonl
+    @ 12:51:04; причина ложности требует проверки телеметрией
+- id: F02
+  kind: 'false'
+  title: Ложный дым или настоящий пожар
+  tags:
+  - smoke
+  - IL_SMOKE
+  - obscuration
+  - co_ppm
+  - voc
+  signals: Дискретная тревога дыма без подтверждённых физических признаков.
+  checks: Сопоставить CO, VOC, оптическое затемнение, второй извещатель и осмотр Оператора;
+    отсутствие данных не равно норме.
+  recovery: При подтверждённом пожаре сохранить защиту; при подтверждённой ложной
+    тревоге действовать только в рамках прав.
+  verify: Новый независимый замер и отсутствие повторной тревоги; не отключать пожаротушение
+    по одному датчику.
+  origin: logs
+  reference: https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-16/events.jsonl
+    @ 12:10:04; IL_SMOKE и удержания, ложность не доказана
+- id: F03
+  kind: 'false'
+  title: Неверная метка времени
+  tags:
+  - updated_at
+  - reading_delay_s
+  - clock
+  - timestamp
+  signals: Несколько узлов внезапно оказываются старыми или из будущего.
+  checks: Сравнить часы edge, timestamp кадра и серверное время получения; не смешивать
+    часы игры и реальные секунды.
+  recovery: Восстановить источник времени разрешённым действием, дождаться свежих
+    кадров.
+  verify: Возраст узлов считается корректно по нескольким кадрам, команды не подтверждены
+    старыми данными.
+  origin: docs
+  reference: knowledge/04_telemetry.md; 01_API.md
+- id: F04
+  kind: 'false'
+  title: Деградация датчика запаса воды
+  tags:
+  - water_tank
+  - level_pct
+  - sensor_state
+  - confidence
+  signals: Уровень резко меняется одновременно с DEGRADED.
+  checks: Сверить расход, насос, историю и осмотр бака; не делать вывод об утечке
+    только по скачку.
+  recovery: Передать осмотр Оператору, ограничить решения по недостоверному показанию.
+  verify: Уровень и расход согласуются после восстановления датчика.
+  origin: logs
+  reference: https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-12/events.jsonl
+    @ 16:01:04
+- id: F05
+  kind: 'false'
+  title: Тревога показания после смены режима
+  tags:
+  - power_w
+  - temperature_c
+  - set_speed
+  - set_mode
+  signals: Статистический скачок сразу после разрешённого изменения режима.
+  checks: Сверить журнал команды, цель, время и физически ожидаемый отклик.
+  recovery: Наблюдать переходный процесс; не компенсировать штатный переход обратной
+    командой.
+  verify: Отклик соответствует команде и стабилизируется; при отсутствии эффекта причина
+    остаётся неизвестной.
+  origin: synthetic
+  reference: Проверочная гипотеза, не историческое событие
+- id: F06
+  kind: 'false'
+  title: Завершение webhook против реального состояния
+  tags:
+  - printer
+  - webhook_state
+  - real_state
+  - COMPLETED
+  signals: Webhook=COMPLETED, но real_state=PRINTING и растёт progress_pct.
+  checks: Сверить реальное состояние, ход прогресса, мощность и стол.
+  recovery: Не считать изделие готовым, не запускать следующую работу; восстановить
+    сервис только разрешённым способом.
+  verify: Физическое завершение, остывание и снятие детали подтверждаются отдельно.
+  origin: logs
+  reference: https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-14/events.jsonl;
+    сопоставлять webhook с telemetry
+- id: H01
+  kind: hidden
+  title: Медленный дрейф CO₂
+  tags:
+  - co2_ppm
+  - climate_sensor
+  - DEGRADED
+  signals: Показание остаётся в допустимом диапазоне, но постепенно отходит от двух
+    других.
+  checks: Проверить одинаковую зону, свежесть, тренд разности и калибровку.
+  recovery: Ограничить доверие только после проверки; доступную калибровку сверить
+    с каталогом.
+  verify: Разность возвращается в устойчивый коридор без подавления реальной тревоги.
+  origin: logs
+  reference: https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-12/events.jsonl
+    @ 05:02:12 и 09:20:16; DEGRADED не доказывает дрейф
+- id: H02
+  kind: hidden
+  title: Неучтённая нагрузка
+  tags:
+  - load_power_w
+  - total_power_w
+  - soc_pct
+  - power_w
+  signals: Сумма линий не объясняет нагрузку инвертора и разряд АКБ.
+  checks: Учесть потери, зарядный ток, разные точки измерения и одновременность; проверить
+    устойчивость невязки.
+  recovery: Проверить линии по одной через каталог и правила; критические потребители
+    не отключать вслепую.
+  verify: Невязка снижается, подтверждён источник потребления, сохранены нужные потребители.
+  origin: synthetic
+  reference: Физическая гипотеза по энергетическому балансу
+- id: H03
+  kind: hidden
+  title: Застывшее значение при живом соединении
+  tags:
+  - updated_at
+  - progress_pct
+  - frozen
+  - stale
+  signals: Соединение есть, но timestamp узла или ход операции не обновляется.
+  checks: Сверить другие узлы, возраст кадра, reading_delay_s и историю операции.
+  recovery: Восстановить связь или запросить осмотр; не повторять управляющую команду
+    на старом кадре.
+  verify: Несколько новых source timestamps и изменение независимого физического показателя.
+  origin: docs
+  reference: knowledge/04_telemetry.md; 03_Требования_к_агенту.md
+- id: H04
+  kind: hidden
+  title: Тихий брак печати или фрезеровки
+  tags:
+  - part_defect
+  - quality_state
+  - progress_pct
+  - rotation_distance
+  signals: Прогресс и статус нормальны, но качество или калибровка подозрительны.
+  checks: Сверить part_defect, quality_state, материал, калибровку и осмотр изделия.
+  recovery: Не объявлять выполнение задания по одному progress=100; физическую проверку
+    поручить Оператору.
+  verify: Годность подтверждена независимым осмотром и проверкой требований задания.
+  origin: docs
+  reference: knowledge/05_production.md; 02_Задание_и_оценка.md
+- id: H05
+  kind: hidden
+  title: Исполнитель принял команду без эффекта
+  tags:
+  - verification
+  - no_effect
+  - fan_state
+  - current_a
+  signals: success=true, но физическое показание не изменилось за контрольное окно.
+  checks: Сверить запрошенную уставку и измеренный ток/обороты/поток на свежем кадре.
+  recovery: Не дублировать команду в cooldown; искать питание, защиту или неисправность.
+  verify: Отдельная verification подтверждает измеренный эффект, а не только ответ
+    API.
+  origin: docs
+  reference: contracts/manual-control.md; agent/src/kupol/dome/gate.py
+- id: H06
+  kind: hidden
+  title: Задержанное исполнение после таймаута
+  tags:
+  - request_timeout
+  - verification
+  - ambiguous
+  signals: На команду нет ответа; исполнение могло уже начаться.
+  checks: Проверить request_id, журнал и свежую телеметрию; таймаут не означает отказ.
+  recovery: Не отправлять ту же команду повторно до выяснения результата.
+  verify: Итог связан с исходной командой; поздний ответ не вызывает второе действие.
+  origin: docs
+  reference: 01_API.md; contracts/event.schema.json
+- id: C01
+  kind: cascade
+  title: CO₂ → интерлок → удержание двух станков
+  tags:
+  - co2_ppm
+  - IL_CO2
+  - hold_reason
+  signals: IL_CO2=TRIPPED и hold_reason=IL_CO2 у принтера/ЧПУ.
+  checks: Отдельно определить истинность исходного CO₂ и факт каскада; две копии одного
+    сигнала не независимы.
+  recovery: Причина → восстановление воздуха/доверия → подтверждение → разрешённый
+    сброс → проверка станков по очереди.
+  verify: CO₂ в норме, защита готова, удержание снято допустимым способом, прогресс
+    возобновился.
+  origin: logs
+  reference: https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-14/events.jsonl
+    @ 12:51:04
+- id: C02
+  kind: cascade
+  title: Конденсат → автоматика → остановка ЧПУ
+  tags:
+  - IL_CONDENSATE
+  - humidity_pct
+  - dew_point_c
+  - E09
+  signals: Высокая влажность/малая разность точки росы и температуры, удержание IL_CONDENSATE.
+  checks: Проверить несколько климатических источников, влажность шкафа и условия
+    запуска инвертора.
+  recovery: Устранить источник влажности и проверить вентиляцию; reset/resume не применять
+    до разрешённых условий.
+  verify: Влажность и точка росы безопасны, код ошибки не возвращается, ЧПУ движется.
+  origin: logs
+  reference: https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-15/events.jsonl
+    @ 09:36:00; 2026-10-13 @ 06:41:00
+- id: C03
+  kind: cascade
+  title: Разряд АКБ → разгрузка → потеря питания
+  tags:
+  - soc_pct
+  - IL_LOAD_SHED
+  - UNDERVOLTAGE
+  signals: Заряд падает, IL_LOAD_SHED срабатывает, потребители теряют питание.
+  checks: Сверить АКБ и инвертор, генерацию, режим питания и зависимость линий.
+  recovery: Восстановить доступный источник по правилам; разгружать только разрешённые
+    некритические линии, затем проверять станки.
+  verify: Заряд стабилизируется, напряжение восстановлено, повторного каскада нет.
+  origin: logs
+  reference: https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-15/events.jsonl
+    @ 19:12:00; 2026-10-12 @ 13:51:32
+- id: C04
+  kind: cascade
+  title: Перегрузка линии → защита → зависимые узлы
+  tags:
+  - IL_OVERCURRENT
+  - TRIPPED
+  - smart_panel
+  - current_a
+  signals: Рост тока и защитное отключение линии.
+  checks: Сверить линию, потребителей, lockout и журнал переключений.
+  recovery: Найти нагрузку/КЗ, не снимать защиту повторно без устранения причины и
+    разрешённых условий.
+  verify: Ток в норме, блокировка не возвращается, зависимые узлы дают свежие данные.
+  origin: logs
+  reference: https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-12/events.jsonl
+    @ 16:12:00
+- id: C05
+  kind: cascade
+  title: Вентиляция перегружает энергосистему
+  tags:
+  - supply_ventilation
+  - co2_ppm
+  - soc_pct
+  - load_power_w
+  signals: Борьба с высоким CO₂ увеличивает нагрузку при недостаточной генерации.
+  checks: Сравнить безопасность воздуха, запас энергии и разрешённые альтернативы.
+  recovery: Сохранять безопасный воздух; искать другой источник и снижать допустимые
+    вторичные нагрузки.
+  verify: Одновременно CO₂ снижается и запас энергии не уходит ниже защитного минимума.
+  origin: synthetic
+  reference: Комбинация воздушного и энергетического сценариев
+- id: C06
+  kind: cascade
+  title: Падение связи выглядит как множество аварий
+  tags:
+  - edge_compute
+  - online
+  - UNKNOWN
+  - stale
+  signals: Группа зависимых узлов становится UNKNOWN одновременно.
+  checks: Проверить общий edge/сеть/питание и timestamps прежде чем считать каждый
+    узел отдельным отказом.
+  recovery: Восстановить общую зависимость по правам; не отправлять массовые сбросы.
+  verify: Каждый узел снова отдаёт свежие физические данные, старые ошибки перепроверены.
+  origin: synthetic
+  reference: Гипотеза общей причины в графе влияний
+- id: B01
+  kind: base
+  title: Подтверждённый рост CO₂
+  tags:
+  - co2_ppm
+  - supply_ventilation
+  signals: Два свежих независимых датчика одной зоны подтверждают высокий CO₂.
+  checks: Сверить реальные обороты/поток вентиляции и питание.
+  recovery: Допустимая вентиляция с проверкой энергетики; Оператору сообщить при угрозе
+    людям.
+  verify: Свежие независимые значения снижаются; защита не подавлена.
+  origin: docs
+  reference: knowledge/06_microclimate.md; knowledge/08_safety.md
+- id: B02
+  kind: base
+  title: Инвертор E09
+  tags:
+  - solar_inverter
+  - E09
+  - humidity_pct
+  signals: Инвертор сообщает E09.
+  checks: По документации уточнить условия reset, влажность и подтверждённую причину;
+    не угадывать смысл неизвестного кода.
+  recovery: Устранить причину и выдержать cooldown; один допустимый reset с проверкой,
+    затем эскалация.
+  verify: Ошибка не возвращается, выходное напряжение и нагрузка восстановлены.
+  origin: logs
+  reference: https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-14/events.jsonl
+    @ 04:30:04
+- id: B03
+  kind: base
+  title: Неизвестный код E07
+  tags:
+  - solar_inverter
+  - E07
+  - error_code
+  signals: Код инвертора отсутствует в проверенном плейбуке.
+  checks: Запросить справку, error_text и физические параметры; не переносить рецепт
+    E09 на E07.
+  recovery: Наблюдение и Оператор с указанием кода; управление только по подтверждённым
+    условиям.
+  verify: Причина установлена и подтверждён эффект разрешённого восстановления.
+  origin: logs
+  reference: https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-17/events.jsonl
+    @ 14:01:36
+- id: B04
+  kind: base
+  title: Занятый стол принтера
+  tags:
+  - bed_clear
+  - BED_COLLISION
+  - printer
+  signals: COMPLETED/IDLE, но bed_clear=false.
+  checks: Убедиться, что печать завершена и стол остыл, проверить наличие детали.
+  recovery: Попросить Оператора снять деталь; не пытаться заменить физическое действие
+    командой.
+  verify: Свежий bed_clear=true и подтверждение Оператора до следующей работы.
+  origin: docs
+  reference: knowledge/05_production.md; 01_API.md
+- id: B05
+  kind: base
+  title: Перегрев оборудования
+  tags:
+  - temperature_c
+  - inverter_temp_c
+  - spindle_temp_c
+  - fan_state
+  signals: Температура растёт при недостаточном охлаждении.
+  checks: Сверить второй источник, ток/обороты вентилятора, нагрузку и засорение.
+  recovery: Разрешённое охлаждение/снижение нагрузки; аппаратную защиту сохранить.
+  verify: Температура устойчиво снижается на свежих кадрах, вентилятор физически работает.
+  origin: docs
+  reference: knowledge/03_energy.md; knowledge/08_safety.md
+- id: B06
+  kind: base
+  title: Просроченная операция без явной ошибки
+  tags:
+  - progress_pct
+  - print_time_left_s
+  - job_time_left_s
+  signals: Работа RUNNING/PRINTING, но прогресс не меняется и ETA вышла.
+  checks: Проверить возраст данных, hold_reason, физическое движение, материал, питание
+    и журнал.
+  recovery: Не запускать работу заново; сначала причина и разрешённое восстановление;
+    при неизвестности — осмотр.
+  verify: Прогресс растёт и ETA пересчитана по фактическим новым измерениям.
+  origin: synthetic
+  reference: Гипотеза зависшей операции

@@ -142,9 +142,11 @@ class Dispatcher:
             found += self.operator.messages([m for m, _ in msgs.values()], {i: e for i, (_, e) in msgs.items()})
         found += self._due_checks(snapshot, now)
         if self.settings.trigger_review_s and now - self.last_review >= self.settings.trigger_review_s \
-                and not self.pending:
-            found.append(Trigger("review", "review", "Плановый обзор: оцени состояние купола и риски на ближайшее "
-                                                     "время. Если всё штатно — действий не нужно"))
+                and "review" not in self.pending:
+            found.append(Trigger("review", "review", "Плановый обзор (120-секундный обход по умолчанию): сверь все узлы, "
+                                                     "свежесть, пары датчиков, энергобаланс, защиту, прогресс и результаты команд. "
+                                                     "Отдели ложные, скрытые, каскадные и базовые воздействия; "
+                                                     "без свежих данных нельзя подтверждать эффект. Если штатно — действий и сообщений не нужно"))
         for trig in found:
             self._add(trig, now)
         self._save_state()
@@ -163,7 +165,7 @@ class Dispatcher:
     def _add(self, trig: Trigger, now: float) -> None:
         self.stats["triggers"] += 1
         last = self.fired_at.get(trig.key)
-        if last is not None and now - last < self.settings.trigger_cooldown_s and trig.kind != "verification":
+        if last is not None and now - last < self.settings.trigger_cooldown_s and trig.kind not in ("verification", "review"):
             self.stats["suppressed"] += 1  # та же ситуация недавно уже оценивалась
             return
         if trig.key in self.pending:  # повтор той же ситуации до вызова — объединяем
@@ -187,7 +189,8 @@ class Dispatcher:
         fired = Fired(triggers, text, nodes=set().union(*(t.nodes for t in triggers)),
                       purpose=f"диспетчер: {', '.join(kinds)}", snapshot=snapshot, batch=batch)
         self.last_call = now
-        self.last_review = now
+        if any(t.kind == "review" for t in triggers):
+            self.last_review = now
         if self.dry_run:
             for p in batch:
                 self._done(p.trigger, now)

@@ -1,0 +1,97 @@
+{
+  "source_repository": "https://github.com/WhiteDots/Dome_RAG",
+  "source_commit": "5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438",
+  "mode": "historical replay; no ground truth, no control, no LLM calls",
+  "days": [
+    {
+      "day": "2026-10-12",
+      "frames": 1440,
+      "sha256": "34f7f54878562ab904fea4da2dfadd18a91417884bb1d35b15de3ffa8ebb129b",
+      "numeric_fields": 346,
+      "distinct_numeric_values_checked": 497269,
+      "assessment_candidates": {},
+      "threshold_frames": {}
+    },
+    {
+      "day": "2026-10-13",
+      "frames": 1440,
+      "sha256": "0e0d39c8fcf535f966e452c85bdad4146964669d8909b5c7e1eabc4601d7d586",
+      "numeric_fields": 346,
+      "distinct_numeric_values_checked": 497299,
+      "assessment_candidates": {},
+      "threshold_frames": {
+        "climate_sensor_01.humidity_pct": 11,
+        "solar_inverter_01.battery_soc_pct": 18,
+        "battery_01.soc_pct": 18,
+        "climate_sensor_01.co2_ppm": 8
+      }
+    },
+    {
+      "day": "2026-10-14",
+      "frames": 1440,
+      "sha256": "69f4555e68c4d2c498941d682c949d9a42912cea6c5e85a23aaecf0d5435f59c",
+      "numeric_fields": 348,
+      "distinct_numeric_values_checked": 499576,
+      "assessment_candidates": {
+        "hidden": 10,
+        "false": 2,
+        "cascade": 1
+      },
+      "threshold_frames": {
+        "solar_inverter_01.battery_soc_pct": 16,
+        "battery_01.soc_pct": 16,
+        "climate_sensor_01.co2_ppm": 17
+      }
+    },
+    {
+      "day": "2026-10-15",
+      "frames": 1440,
+      "sha256": "c66757c91eb454087c237355a894f1639c05ef9929077c1379453f8cf387c20d",
+      "numeric_fields": 356,
+      "distinct_numeric_values_checked": 503773,
+      "assessment_candidates": {
+        "cascade": 2
+      },
+      "threshold_frames": {
+        "climate_sensor_01.humidity_pct": 16,
+        "solar_inverter_01.battery_soc_pct": 21,
+        "battery_01.soc_pct": 21
+      }
+    },
+    {
+      "day": "2026-10-16",
+      "frames": 1440,
+      "sha256": "63d6ac6d04f6a436d12603c48a4a74fce264e3052e61e20642ebced3621b493d",
+      "numeric_fields": 352,
+      "distinct_numeric_values_checked": 505543,
+      "assessment_candidates": {
+        "false": 59
+      },
+      "threshold_frames": {}
+    },
+    {
+      "day": "2026-10-17",
+      "frames": 1440,
+      "sha256": "32b0726f4caa80607703daf3a9ca2521d9059e6cd02070b68aaee64d64495cda",
+      "numeric_fields": 356,
+      "distinct_numeric_values_checked": 502853,
+      "assessment_candidates": {},
+      "threshold_frames": {
+        "solar_inverter_01.battery_soc_pct": 10,
+        "battery_01.soc_pct": 10
+      }
+    },
+    {
+      "day": "2026-10-18",
+      "frames": 1440,
+      "sha256": "5b9d9ade36bdf1f133cc177c0fdc89dd12102392660df03a29de9787b19bcb5b",
+      "numeric_fields": 356,
+      "distinct_numeric_values_checked": 511738,
+      "assessment_candidates": {},
+      "threshold_frames": {
+        "solar_inverter_01.battery_soc_pct": 9,
+        "battery_01.soc_pct": 9
+      }
+    }
+  ]
+}

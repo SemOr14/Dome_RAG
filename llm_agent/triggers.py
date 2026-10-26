@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .context.telemetry import compact_telemetry
+from .monitoring import NumericMonitor
 
 # Порядок важен: при объединении поводов первыми идут более срочные
 PRIORITY = {"operator": 0, "alarm": 0, "command": 0, "conflict": 1, "stale": 1, "operation": 1,
@@ -63,6 +64,8 @@ class TelemetryWatch:
     def __init__(self, stale_s: float, stall_s: float):
         self.stale_s = stale_s
         self.stall_s = stall_s
+        self.numeric = NumericMonitor()
+        self.numeric_active: set[str] = set()
         self.active: set[str] = set()  # ключи аномалий, уже отданных в работу; исчезнувшие снимаются
         self.frame: tuple | None = None
         self.frame_since: float | None = None
@@ -92,6 +95,13 @@ class TelemetryWatch:
             nodes_hit = {a["node"]} | ({str(value)} if isinstance(value, str) and value.startswith("IL_") else set())
             out.append(Trigger(_anomaly_kind(a), key, f"{where} = {value!r}: {a['note']}", nodes_hit))
         self.active = set(current)
+        numeric = self.numeric.observe(nodes, self.frame_mark(snapshot))
+        numeric_keys = {f"numeric|{a['node']}|{a['field']}" for a in numeric}
+        for a in numeric:
+            key = f"numeric|{a['node']}|{a['field']}"
+            if key not in self.numeric_active and not any(x['node'] == a['node'] and x.get('param') == a['field'] for x in current.values()):
+                out.append(Trigger("alarm", key, f"{a['node']}.{a['field']}: {a['note']} (гипотеза для проверки)", {a['node']}))
+        self.numeric_active = numeric_keys
 
         for node, running in JOB_NODES.items():
             data = nodes.get(node) or {}
