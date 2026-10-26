@@ -47,8 +47,8 @@ policy:
       start_job: { any: true }
       resume: {}
     thermal_insulation_01:
-      set_lock: { object: [lock, locked] }
-      set_fan_pwm: { object: [fan, pwm] }
+      set_lock: { object: [lock, locked], properties: {lock: {type: integer, range: [0, 1]}, locked: {type: boolean}} }
+      set_fan_pwm: { object: [fan, pwm], properties: {fan: {type: integer, range: [0, 5]}, pwm: {type: integer, range: [0, 255]}} }
     climate_sensor_02:
       recalibrate: {}
     climate_sensor_03:
@@ -144,7 +144,7 @@ rag:
 
 advisor:
   enabled: true
-  model: deepseek-chat           # из списка организаторов: deepseek-chat, deepseek-reasoner
+  model: deepseek-v4-flash        # также для резервного диагностического советника
   min_interval_s: 60              # не чаще вызывать модель по одной теме
   max_calls_per_hour: 60
   timeout_s: 20

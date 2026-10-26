@@ -14,7 +14,7 @@ from kupol.dome.client import RequestTimeout
 from kupol.dome.config import load_dome_config
 from kupol.dome.gate import Cmd, Expect, Gate
 from kupol.dome.state import DomeState
-from tests.dome_helpers import catalog, set_path, state_from
+from tests.dome_helpers import catalog, set_path, synchronous_state_from as state_from
 
 CFG = load_dome_config(Path(__file__).resolve().parents[1] / "dome.yaml")
 
@@ -144,6 +144,9 @@ def test_verification_ok_and_failure_with_cooldown(rig: Rig) -> None:
 def test_verification_success_when_state_changes(rig: Rig) -> None:
     r = rig.go("smart_panel_01", "line_off", 8, expect=Expect.equals("smart_panel_01.lines[7].state", "OFF"))
     set_path(rig.state, "smart_panel_01.lines[7].state", "OFF")
+    nodes = __import__("copy").deepcopy(rig.state.nodes)
+    nodes["smart_panel_01"]["updated_at"] += 1
+    rig.state.update({"nodes": nodes}, "team", rig.t + 1)
     rig.gate.check_pending()
     ver = rig.records("verification")[-1]
     assert ver["ok"] is True and ver["ref"] == r.action_seq

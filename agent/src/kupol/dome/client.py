@@ -216,8 +216,9 @@ class DomeClient:
         try:
             text = raw.decode("utf-8", "replace") if isinstance(raw, bytes) else raw
             self.recorder.frame(direction, msg, self.session_id, text)
-        except Exception:  # noqa: BLE001 - журнал БД не должен ронять связь
-            pass
+        except Exception as exc:  # noqa: BLE001
+            if direction == "outbound" and isinstance(msg, dict) and msg.get("type") == "control":
+                raise DomeError("команда не сохранена в журнал; отправка запрещена") from exc
 
     def _emit(self, event: str, **details: Any) -> None:
         if self.recorder is not None:

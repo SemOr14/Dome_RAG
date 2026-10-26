@@ -119,7 +119,7 @@ class RagCfg(_Cfg):
 
 class AdvisorCfg(_Cfg):
     enabled: bool = True
-    model: str = "deepseek-chat"
+    model: str = "deepseek-v4-flash"
     min_interval_s: float = Field(default=60.0, ge=0)
     max_calls_per_hour: int = Field(default=60, ge=1)
     timeout_s: float = Field(default=20.0, gt=0)

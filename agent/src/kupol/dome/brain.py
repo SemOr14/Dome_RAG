@@ -147,15 +147,21 @@ def to_intent(response: AgentResponse, fired: Fired) -> Intent:
     assert d is not None
     steps: list[Step] = []
     plan: list[str] = []
+    blocked = False
     for v in response.verdicts:
         a: ProposedAction = v.action
         if a.node_id == "meeting_01" and a.action == "post_message":
             continue
         label = f"{a.node_id}.{a.action}({_value(a.value)})"
-        if v.accepted:
-            steps.append(Step(a.node_id, a.action, a.value, expect_for(a.node_id, a.action, a.value), (a.reason or d.cause)[:200]))
+        if v.accepted and not blocked and not steps:
+            exp = expect_for(a.node_id, a.action, a.value)
+            exp.timeout_s = max(exp.timeout_s or 0, a.verify_after_s)
+            steps.append(Step(a.node_id, a.action, a.value, exp, (a.reason or d.cause)[:200]))
             plan.append(f"{label}: {a.reason}" + (f" → ожидаем {a.expected}" if a.expected else ""))
+        elif v.accepted:
+            plan.append(f"отложить до нового решения по телеметрии: {label}")
         else:
+            blocked = True
             plan.append(f"не делать {label}: {'; '.join(v.reasons)}")
     plan += [f"наблюдать: {w}" for w in d.wait_and_watch]
     say = d.operator_message.text.strip() if d.operator_message.needed and d.operator_message.text.strip() else None

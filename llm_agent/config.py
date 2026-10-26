@@ -45,7 +45,7 @@ def _path(name: str, default: str) -> Path:
 class Settings:
     deepseek_api_key: str | None
     deepseek_base_url: str = "https://api.deepseek.com"
-    model: str = "deepseek-chat"
+    model: str = "deepseek-v4-flash"
     timeout_s: float = 30.0
     max_retries: int = 2
     temperature: float = 0.2
@@ -84,7 +84,7 @@ class Settings:
         return cls(
             deepseek_api_key=key,
             deepseek_base_url=os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com"),
-            model=os.getenv("LLM_MODEL", "deepseek-chat"),
+            model=os.getenv("LLM_MODEL", "deepseek-v4-flash"),
             timeout_s=float(os.getenv("LLM_TIMEOUT_S", "30")),
             max_retries=int(os.getenv("LLM_MAX_RETRIES", "2")),
             temperature=float(os.getenv("LLM_TEMPERATURE", "0.2")),

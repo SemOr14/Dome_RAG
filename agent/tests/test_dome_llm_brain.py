@@ -100,7 +100,17 @@ def test_llm_decides_and_gate_executes_with_verification(tmp_path: Path) -> None
         w = World()
         start_work(w)
         w.at(10, spike("climate_sensor_01"))
-        llm = FakeLLM(co2_answer)
+        def staged_answer(trigger: str) -> dict:
+            import copy
+            if "расходятся" not in trigger and "Проверка результата" not in trigger:
+                return QUIET
+            auto = w.nodes["dome_automation_01"]
+            index = 0 if not auto["data_trust"] else 1 if auto["primary_co2_sensor"] != "climate_sensor_02" else 2
+            answer = copy.deepcopy(FALSE_CO2)
+            answer["actions"] = [answer["actions"][index]]
+            answer["operator_message"] = {"needed": False, "text": ""}
+            return answer
+        llm = FakeLLM(staged_answer)
         async with LlmHarness(tmp_path, w, llm) as h:
             await h.step(30)
             auto = w.nodes["dome_automation_01"]
@@ -109,10 +119,11 @@ def test_llm_decides_and_gate_executes_with_verification(tmp_path: Path) -> None
             assert [m["action"] for m in h.sent()] == ["set_data_trust", "set_primary_sensor"]  # set_speed=5 не ушёл
             assert w.posted == []  # Gate отклонил один из шагов — «всё сделано» Оператору не пишем (правило рантайма)
 
-            [dec] = [r for r in h.records("decision") if r["situation"] == FALSE_CO2["situation"]]
+            decisions = [r for r in h.records("decision") if r["situation"] == FALSE_CO2["situation"]]
+            dec = decisions[0]
             assert dec["source"] == "llm" and dec["confidence"] == 0.9
             assert not [r for r in h.records("decision") if r["source"] in ("rules", "mixed")]  # плейбуки молчат
-            actions = [r for r in h.records("action") if r.get("ref") == dec["seq"]]
+            actions = [r for r in h.records("action") if r.get("ref") in {d["seq"] for d in decisions}]
             assert {a["request"]["action"] for a in actions} == {"set_data_trust", "set_primary_sensor", "set_speed"}
             rejected = next(a for a in actions if a["request"]["action"] == "set_speed")
             assert rejected["rejected"] and "Gate" in rejected["response"]["error"]
@@ -183,8 +194,7 @@ def test_panel_operator_request_gets_recommendation_even_if_gate_rejects(tmp_pat
             await h.step(8)  # не раньше паузы между вызовами модели (10 с)
             assert any("Снизь приток до 5 %" in t for t in llm.triggers)
             assert not h.sent("set_speed")  # Gate: политика 10..100
-            assert len(w.posted) == 1 and w.posted[0].startswith("Скорость притока снизить до 5 % нельзя")
-            assert "Не выполнено: supply_ventilation_01.set_speed" in w.posted[0]
+            assert len(w.posted) == 1 and "Не выполнено: supply_ventilation_01.set_speed" in w.posted[0]
 
     run(scenario())
 

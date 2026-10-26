@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import subprocess
 import time
 import traceback
@@ -29,8 +30,13 @@ from kupol.dome.expects import expect_for
 from kupol.dome.gate import Cmd, Gate, GateResult
 from kupol.dome.manual import ManualControls
 from kupol.dome.playbooks.air import Co2Playbook, CondensatePlaybook
-from kupol.dome.playbooks.base import Ctx, Intent, Playbook
-from kupol.dome.playbooks.devices import AlarmPlaybook, ClockPlaybook, NetworkPlaybook, StalePlaybook
+from kupol.dome.playbooks.base import Ctx, Intent, Playbook, Step
+from kupol.dome.playbooks.devices import (
+    AlarmPlaybook,
+    ClockPlaybook,
+    NetworkPlaybook,
+    StalePlaybook,
+)
 from kupol.dome.playbooks.energy import EnergyPlaybook
 from kupol.dome.playbooks.lines import OvercurrentPlaybook, PhantomLinePlaybook
 from kupol.dome.playbooks.machines import ResumePlaybook, SmokePlaybook
@@ -159,6 +165,8 @@ class Runner:
         self._stop = asyncio.Event()
         self._bg: list[asyncio.Task[None]] = []
         self._diagnosed: dict[str, float] = {}
+        self._plans: dict[int, tuple[Intent, int, list[Step], str | None]] = {}
+        self.gate.checkpoint = lambda: (not self.recorder or not self.recorder.storage_error) and self._save_state(force=True)
 
     # ------------------------------------------------------------------ жизненный цикл
 
@@ -238,7 +246,19 @@ class Runner:
         self._refresh_catalog()
         chat_new = self._collect_chat(now)
         await self._ensure_catalog(now)
-        self.gate.check_pending()
+        completed = self.gate.check_pending()
+        for pending in completed:
+            plan = self._plans.pop(pending.action_seq, None)
+            if plan is None:
+                continue
+            intent, decision, remaining, session = plan
+            if pending.verified and session == self.client.session_id and self.state.role == "team":
+                await self._advance_plan(intent, decision, remaining)
+            else:
+                self.log.write("observation", ref=decision, summary="план прерван; требуется новое решение",
+                               metrics={"verified": pending.verified, "session_changed": session != self.client.session_id}, anomalies=[])
+                if intent.say_always:
+                    await self.say("Результат команды не подтверждён. Зависимые шаги остановлены; проверьте состояние оборудования.", decision)
         await self._manual_step()  # ручные команды Оператора — раньше автоматических решений
         intents: list[Intent] = []
         use_llm = self.brain is not None and self.llm_enabled and self.brain.healthy
@@ -345,9 +365,26 @@ class Runner:
         if refs or intent.rag_refs:
             fields["rag_refs"] = intent.rag_refs + [r["ref"] for r in refs]
         decision = self.log.write("decision", **fields)
+        await self._advance_plan(intent, decision, list(intent.steps))
+
+    async def _advance_plan(self, intent: Intent, decision: int, steps: list[Step]) -> None:
+        """Advance only after a verified effect. Every next command re-enters Gate."""
         results: list[GateResult] = []
-        for step in intent.steps:
+        for index, step in enumerate(steps):
             results.append(await self.gate.submit(Cmd(step.node, step.action, step.value, step.reason or intent.cause, decision, step.expect)))
+            if not results[-1].ok or (results[-1].status == "sent" and step.expect is not None):
+                # A plan is a hypothesis. Re-plan from fresh telemetry after each effect;
+                # never execute its dependent tail after rejection or just an ACK.
+                self.log.write("observation", ref=decision, summary="план ожидает проверки эффекта" if results[-1].ok else "план прерван",
+                               anomalies=[], metrics={"action_seq": results[-1].action_seq})
+                if results[-1].ok:
+                    if not hasattr(self, "_plans"):
+                        self._plans = {}
+                    session = getattr(getattr(self, "client", None), "session_id", None)
+                    self._plans[results[-1].action_seq] = (intent, decision, steps[index + 1:], session)
+                elif intent.say_always:
+                    await self.say(f"Не выполнено: {step.node}.{step.action} — {results[-1].reason}. Рекомендация: проверьте причину отказа; зависимые шаги отложены.", decision)
+                return
         if intent.llm_question and self.advisor is not None:
             self._spawn(self._answer_operator(intent, decision))
         elif intent.say and all(r.ok for r in results):
@@ -552,23 +589,29 @@ class Runner:
 
     # ------------------------------------------------------------------ сохранение состояния
 
-    def _save_state(self, force: bool = False) -> None:
+    def _save_state(self, force: bool = False) -> bool:
         now = self.clock()
         if not force and now - self._last_save < STATE_SAVE_EVERY_S:
-            return
+            return True
         self._last_save = now
         payload = {
             "saved_at": now, "mem": self.mem, "last_decision": self.last_decision,
             "seen_msgs": sorted(self.seen_msgs)[-200:], "operator_log": self.operator_log[-40:],
             "failed_until": self.gate.export_failed(), "manual_cursor": self.manual.cursor if self.manual else None,
+            "gate_runtime": self.gate.export_runtime(),
         }  # fmt: skip
         try:
             self._state_path.parent.mkdir(parents=True, exist_ok=True)
             tmp = self._state_path.with_suffix(".tmp")
-            tmp.write_text(json.dumps(payload, ensure_ascii=False, default=str), encoding="utf-8")
+            with tmp.open("w", encoding="utf-8") as f:
+                f.write(json.dumps(payload, ensure_ascii=False, default=str))
+                f.flush()
+                os.fsync(f.fileno())
             tmp.replace(self._state_path)
+            return True
         except OSError as exc:
             self.log.write("error", where="save_state", error=repr(exc))
+            return False
 
     def _load_state(self) -> None:
         if not self._state_path.is_file():
@@ -580,6 +623,7 @@ class Runner:
             self.seen_msgs = {int(x) for x in data.get("seen_msgs") or []}
             self.operator_log = [(float(t), str(x)) for t, x in data.get("operator_log") or []]
             self.gate.import_failed(data.get("failed_until") or {})
+            self.gate.import_runtime(data.get("gate_runtime") or {})
             if self.manual is not None and isinstance(data.get("manual_cursor"), int):
                 self.manual.cursor = data["manual_cursor"]  # команды, пришедшие за время перезапуска, не теряются
             self.log.write("observation", summary="состояние восстановлено после перезапуска", metrics={"saved_at": data.get("saved_at")}, anomalies=[])

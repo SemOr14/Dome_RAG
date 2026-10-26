@@ -21,8 +21,8 @@ class ProposedAction(BaseModel):
     value: Any = None
     reason: str = ""
     expected: str = Field("", description="что должно измениться в телеметрии")
-    verify_after_s: float = 8.0
-    priority: int = 1
+    verify_after_s: float = Field(8.0, ge=1, le=300, allow_inf_nan=False)
+    priority: int = Field(1, ge=1, le=9)
 
     @field_validator("value")
     @classmethod
@@ -99,9 +99,9 @@ def output_schema_example() -> dict:
     return {
         "situation": "кратко: что происходит",
         "cause": "предполагаемая причина",
-        "severity": "info | warning | critical",
+        "severity": "info",
         "confidence": 0.8,
-        "false_alarm": "true | false | null (если не про тревогу)",
+        "false_alarm": None,
         "evidence": [{"node": "climate_sensor_02", "param": "co2_ppm", "value": 781, "note": "почему важно"}],
         "actions": [{
             "node_id": "dome_automation_01", "action": "set_data_trust",

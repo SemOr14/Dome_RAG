@@ -168,8 +168,11 @@ class Hub:
     async def request(self, operation_id, text):
         """Требование Оператора (пользователь панели) агенту: срочный повод для LLM, ответ — рекомендация в чат."""
         brain = self.runner.brain if self.runner else None
-        if self.store.event(operation_id):
-            return {"status": "duplicate", "event_id": operation_id}  # повтор HTTP-запроса
+        previous = self.store.event(operation_id)
+        if previous:
+            if previous.get("event_type") != "operator_request" or previous.get("payload") != {"text": text}:
+                raise HTTPException(409, "operation_id уже относится к другому обращению")
+            return {"status": "duplicate", "event_id": operation_id}  # identical HTTP retry
         self.emit("operator_request", {"text": text}, event_id=operation_id, metadata={"operator": "веб-панель"})
         if not (self.client and self.client.connected):
             return {"status": "not_connected", "event_id": operation_id, "reason": "агент не подключён к Куполу"}

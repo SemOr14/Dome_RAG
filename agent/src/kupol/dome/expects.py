@@ -53,13 +53,21 @@ def expect_for(node: str, action: str, value: Any) -> Expect:
     if a == "turn_on":
         return Expect.custom(f"{node} включён", lambda s: s.get(f"{node}.state") == "ON" or s.get(f"{node}.enabled") is True, [f"{node}.state", f"{node}.enabled"])
     if a == "reset_alarm":
-        return Expect.custom(f"{node}: авария сброшена", lambda s: s.get(f"{node}.alarm") in (False, None, "NONE", "NORMAL"), [f"{node}.alarm", f"{node}.alarm_state"])
+        return Expect.custom(f"{node}: авария сброшена", lambda s: s.get(f"{node}.alarm") in (False, "NONE", "NORMAL")
+                             or s.get(f"{node}.alarm_state") == "NORMAL", [f"{node}.alarm", f"{node}.alarm_state"])
     if a in ("enable_all_mppt", "disable_all_mppt") and node == "solar_panels_01":
         return Expect.equals(f"{node}.all_mppt_enabled", a == "enable_all_mppt")
     if a in ("set_mode_grid_only", "set_mode_hybrid"):
         return Expect.equals(f"{node}.mode", "GRID_ONLY" if a == "set_mode_grid_only" else "HYBRID")
     if a in ("set_speed", "set_mode") and value is not None and not isinstance(value, dict):
         return Expect.equals(f"{node}.{'speed_pct' if a == 'set_speed' else 'mode'}", value)
+    if a == "set_lock" and isinstance(value, dict) and isinstance(value.get("lock"), int):
+        return Expect.equals(f"{node}.locks[{value['lock']}]", "LOCKED" if value.get("locked") is True else "UNLOCKED")
+    if a == "set_fan_pwm" and isinstance(value, dict) and isinstance(value.get("fan"), int):
+        return Expect.equals(f"{node}.fans_pwm[{value['fan']}]", value.get("pwm"))
+    if a == "reconnect":
+        return Expect.custom(f"{node}: связь восстановлена", lambda s: s.has(node) and s.get(f"{node}.online") is True
+                             and not s.is_frozen(node), [f"{node}.online", f"{node}.status"])
     return Expect.custom(
-        f"{node}: на связи и обновляется после {action} (конкретный эффект не описан)", lambda s: node in s.nodes and not s.is_frozen(node), [f"{node}.status", f"{node}.updated_at"]
+        f"{node}: эффект {action} не описан, нужна отдельная сверка", lambda s: False, [f"{node}.status", f"{node}.updated_at"]
     )

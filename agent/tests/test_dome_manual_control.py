@@ -67,15 +67,6 @@ def test_operator_command_goes_through_gate_to_dome(tmp_path: Path) -> None:
     async def scenario() -> None:
         w = World()
         start_work(w)
-        frame = w.telemetry
-
-        def telemetry() -> dict:  # сервер сверяет updated_at с timestamp кадра, у эмулятора он 0.0
-            data = frame()
-            for body in data["nodes"].values():
-                body["updated_at"] = 0.0
-            return data
-
-        w.telemetry = telemetry  # type: ignore[method-assign]
         with testclient.TestClient(create_app(tmp_path / "db.sqlite3", token=TOKEN)) as http:
             http.headers["Authorization"] = f"Bearer {TOKEN}"
             async with DbHarness(tmp_path, w, http) as h:

@@ -41,6 +41,9 @@ def _drop_noise(d: dict) -> dict:
 
 def _compact_node(node_id: str, data: dict, key_fields: list[str]) -> dict:
     out: dict[str, Any] = {}
+    for name in ("updated_at", "reading_delay_s", "online", "status", "sensor_state"):
+        if name in data:
+            out[name] = data[name]
     # online/status показываем только когда они не штатные
     if data.get("online") is False:
         out["online"] = False
@@ -71,6 +74,9 @@ def _compact_node(node_id: str, data: dict, key_fields: list[str]) -> dict:
             out[name] = data[name]
     for name in ("sensor_state", "confidence", *ALARM_FIELDS):
         if name in data and name not in out:
+            out[name] = data[name]
+    for name in ("updated_at", "reading_delay_s", "online", "status", "sensor_state"):
+        if name in data:
             out[name] = data[name]
     return _drop_noise(out)
 

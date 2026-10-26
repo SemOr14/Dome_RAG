@@ -280,7 +280,7 @@ def test_phantom_line_is_switched_off_with_one_request_to_operator(tmp_path: Pat
     run(scenario())
 
 
-def test_e09_waits_for_dry_air_then_resets_once(tmp_path: Path) -> None:
+def test_e09_remains_protected_even_when_air_drains(tmp_path: Path) -> None:
     async def scenario() -> None:
         w = World()
         w.nodes["solar_inverter_01"].update({"error": True, "error_code": "E09", "error_text": "ISOLATION_FAULT", "mppt_state": "OFF"})
@@ -290,8 +290,8 @@ def test_e09_waits_for_dry_air_then_resets_once(tmp_path: Path) -> None:
             assert not h.sent("reset_error")
             w.nodes["weather_station_01"]["humidity_pct"] = 55.0
             await h.step(10)
-            assert len(h.sent("reset_error")) == 1 and w.nodes["solar_inverter_01"]["error"] is False
-            assert [v["ok"] for v in h.records("verification")] == [True]
+            assert not h.sent("reset_error") and w.nodes["solar_inverter_01"]["error"] is True
+            assert not h.records("verification")
 
     run(scenario())
 
@@ -306,8 +306,8 @@ def test_false_smoke_is_acknowledged_in_time_real_smoke_is_not(tmp_path: Path) -
         w.at(6, alarm)
         async with Harness(tmp_path / "f", w) as h:
             await h.step(10)
-            assert [m["action"] for m in h.sent()] == ["acknowledge", "reset_alarm"]
-            assert w.nodes["dome_automation_01"]["events"][-1]["acknowledged"] is True
+            assert not h.sent()  # no current event/zone clearance: cannot cancel suppression
+            assert w.nodes["dome_automation_01"]["events"][-1]["acknowledged"] is False
 
     async def real_alarm() -> None:
         w = World()
