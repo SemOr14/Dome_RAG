@@ -23,6 +23,7 @@
 [общий контракт](contracts/production-control-v1.md),
 [отчёт реализации](docs/production-safety-report.md),
 [фактический маршрут, алгоритмы и сравнение с веткой агента](docs/Dome_changes_and_routing_27-10-2026.md),
+[актуальное отдельное сравнение с agent/llm-layer и подробный разбор алгоритмов](docs/Dome_all_changes_vs_agent_llm_layer_27-10-2026.md),
 [все отличия итоговой сборки от main с начала задания](docs/Dome_all_changes_vs_main_27-10-2026.md).
 RAG и соседние рабочие ветки не сливаются автоматически.
 
