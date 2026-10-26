@@ -116,7 +116,7 @@ class Dispatcher:
             self.finish(fired, self.decide(fired))
         return [fired]
 
-    def poll(self, chat: list[dict] | None = None) -> Fired | None:
+    def poll(self, chat: list[dict] | None = None, *, covered_nodes=None) -> Fired | None:
         """Собрать поводы; если пора звать модель — вернуть объединённый вызов (модель здесь не вызывается).
 
         chat — сообщения meeting_message.message, полученные вызывающим кодом напрямую из WebSocket.
@@ -141,6 +141,8 @@ class Dispatcher:
                         msgs[msg["id"]] = (msg, ev["event_id"])
             found += self.operator.messages([m for m, _ in msgs.values()], {i: e for i, (_, e) in msgs.items()})
         found += self._due_checks(snapshot, now)
+        if covered_nodes:
+            found = [t for t in found if t.kind in ('operator', 'verification') or not t.nodes or not t.nodes <= set(covered_nodes)]
         if self.settings.trigger_review_s and now - self.last_review >= self.settings.trigger_review_s \
                 and not self.pending:
             found.append(Trigger("review", "review", "Плановый обзор: оцени состояние купола и риски на ближайшее "

@@ -42,6 +42,15 @@ class OperatorMessage(BaseModel):
         return v[:4000]
 
 
+class HumanEscalation(BaseModel):
+    node_id: str = Field(min_length=1, max_length=200)
+    incident: str = Field(min_length=1, max_length=400)
+    severity: Literal['yellow', 'red'] = 'red'
+    facts: list[Evidence] = Field(default_factory=list)
+    already_done: list[str] = Field(default_factory=list)
+    required_action: str = Field(min_length=1, max_length=1200)
+
+
 class AgentDecision(BaseModel):
     situation: str
     cause: str = ""
@@ -51,6 +60,7 @@ class AgentDecision(BaseModel):
     evidence: list[Evidence] = []
     actions: list[ProposedAction] = []
     operator_message: OperatorMessage = OperatorMessage()
+    request_human: HumanEscalation | None = None
     wait_and_watch: list[str] = []
     rag_refs: list[str] = []
     risks: list[str] = []
@@ -110,6 +120,7 @@ def output_schema_example() -> dict:
             "verify_after_s": 8, "priority": 1,
         }],
         "operator_message": {"needed": False, "text": "", "to": "operator"},
+        "request_human": None,
         "wait_and_watch": ["что отслеживать дальше"],
         "rag_refs": ["id использованных документов базы знаний"],
         "risks": ["что может пойти не так"],

@@ -152,6 +152,9 @@ def to_intent(response: AgentResponse, fired: Fired) -> Intent:
         a: ProposedAction = v.action
         if a.node_id == "meeting_01" and a.action == "post_message":
             continue
+        if d.request_human is not None and d.request_human.severity == 'red':
+            plan.append(f'Заблокировано до человека: {a.node_id}.{a.action}')
+            continue
         label = f"{a.node_id}.{a.action}({_value(a.value)})"
         if v.accepted and not blocked and not steps:
             exp = expect_for(a.node_id, a.action, a.value)
@@ -177,6 +180,7 @@ def to_intent(response: AgentResponse, fired: Fired) -> Intent:
         plan=plan or ["наблюдать"], steps=steps, say=say, priority=SEVERITY_PRIORITY.get(d.severity, 5),
         cooldown_s=0.0, source="mixed" if d.rag_refs else "llm", rag_refs=list(d.rag_refs),
         say_always=any(t.kind == "operator" for t in fired.triggers),
+        human_escalation=d.request_human.model_dump(mode='json') if d.request_human else None,
     )  # fmt: skip
 
 
@@ -256,10 +260,12 @@ class LlmBrain:
         if ids:
             self.dispatcher.operator.last_id = max(self.dispatcher.operator.last_id, *ids)
 
-    def step(self, chat_new: list[dict[str, Any]], execute: Execute) -> None:
+    def step(self, chat_new: list[dict[str, Any]], execute: Execute, *, covered_nodes=None, algorithm_summary=None) -> None:
         """Такт: найти поводы; если пора — запустить вызов модели в фоне (результат исполнит ``execute``)."""
-        fired = self.dispatcher.poll(chat_new)
+        fired = self.dispatcher.poll(chat_new, covered_nodes=covered_nodes)
         if fired is not None:
+            if algorithm_summary:
+                fired.text += '\nДетерминированный разбор (не ослаблять): ' + json.dumps(algorithm_summary, ensure_ascii=False, default=str)
             self.task = asyncio.create_task(self._call(fired, execute))
 
     async def _call(self, fired: Fired, execute: Execute) -> None:
