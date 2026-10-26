@@ -1,0 +1,17 @@
+# Секреты и локальная конфигурация
+.env
+.env.*
+!.env.example
+Keys/
+
+# Временные файлы Python и редакторов
+__pycache__/
+*.py[cod]
+.venv/
+.idea/
+.vscode/
+
+# Локальные логи и состояние агента
+agent_state.json
+state/
+logs/

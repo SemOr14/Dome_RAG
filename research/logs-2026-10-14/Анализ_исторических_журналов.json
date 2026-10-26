@@ -1,0 +1,2845 @@
+{
+  "source": "D:\\олимпиады\\лига автономных систем 2026\\doc_2026-10-26_15-14-59.git\\Logs",
+  "historical_only": true,
+  "files": {
+    "Logs\\2026-10-14\\events.jsonl": {
+      "records": 327,
+      "parse_errors": [],
+      "kinds": {
+        "change": 118,
+        "journal": 131,
+        "action": 42,
+        "message": 34,
+        "automation": 2
+      },
+      "first_ts": "2026-10-14T00:02:16",
+      "last_ts": "2026-10-14T23:39:16"
+    },
+    "Logs\\2026-10-14\\logbook.jsonl": {
+      "records": 1,
+      "parse_errors": [],
+      "kinds": {
+        "logbook": 1
+      },
+      "first_ts": "2026-10-14T18:45:00",
+      "last_ts": "2026-10-14T18:45:00"
+    },
+    "Logs\\2026-10-14\\telemetry.jsonl": {
+      "records": 1440,
+      "parse_errors": [],
+      "kinds": {
+        "telemetry": 1440
+      },
+      "first_ts": "2026-10-14T00:00:00",
+      "last_ts": "2026-10-14T23:59:00"
+    }
+  },
+  "observed_nodes": {
+    "access_control_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "alarm",
+        "alarm_reason",
+        "doors",
+        "lockdown",
+        "online",
+        "passage_events",
+        "status",
+        "system_state",
+        "updated_at"
+      ],
+      "field_types": {
+        "/alarm": {
+          "boolean": 1440
+        },
+        "/alarm_reason": {
+          "null": 1440
+        },
+        "/doors": {
+          "object": 1440
+        },
+        "/doors/FABLAB": {
+          "object": 1440
+        },
+        "/doors/FABLAB/lock_battery_pct": {
+          "number": 1440
+        },
+        "/doors/FABLAB/locked": {
+          "boolean": 1440
+        },
+        "/doors/FABLAB/state": {
+          "string": 1440
+        },
+        "/doors/MAIN_AIRLOCK": {
+          "object": 1440
+        },
+        "/doors/MAIN_AIRLOCK/lock_battery_pct": {
+          "number": 1440
+        },
+        "/doors/MAIN_AIRLOCK/locked": {
+          "boolean": 1440
+        },
+        "/doors/MAIN_AIRLOCK/state": {
+          "string": 1440
+        },
+        "/doors/SERVER_ROOM": {
+          "object": 1440
+        },
+        "/doors/SERVER_ROOM/lock_battery_pct": {
+          "number": 1440
+        },
+        "/doors/SERVER_ROOM/locked": {
+          "boolean": 1440
+        },
+        "/doors/SERVER_ROOM/state": {
+          "string": 1440
+        },
+        "/doors/STORAGE": {
+          "object": 1440
+        },
+        "/doors/STORAGE/lock_battery_pct": {
+          "number": 1440
+        },
+        "/doors/STORAGE/locked": {
+          "boolean": 1440
+        },
+        "/doors/STORAGE/state": {
+          "string": 1440
+        },
+        "/lockdown": {
+          "boolean": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/passage_events": {
+          "array": 1440
+        },
+        "/passage_events/*/credential": {
+          "string": 28800
+        },
+        "/passage_events/*/direction": {
+          "string": 28800
+        },
+        "/passage_events/*/door": {
+          "string": 28800
+        },
+        "/passage_events/*/result": {
+          "string": 28800
+        },
+        "/passage_events/*/t_h": {
+          "number": 28800
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/system_state": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "air_quality_sensor_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "chem_ppm",
+        "co_ppm",
+        "confidence",
+        "online",
+        "sensor_state",
+        "status",
+        "updated_at",
+        "voc_index",
+        "warming_up",
+        "zone"
+      ],
+      "field_types": {
+        "/chem_ppm": {
+          "number": 1440
+        },
+        "/co_ppm": {
+          "number": 1440
+        },
+        "/confidence": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/sensor_state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/voc_index": {
+          "integer": 1440
+        },
+        "/warming_up": {
+          "boolean": 1440
+        },
+        "/zone": {
+          "string": 1440
+        }
+      }
+    },
+    "backup_comms_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "active_channel",
+        "available",
+        "bitrate_kbps",
+        "latency_ms",
+        "online",
+        "protocol",
+        "signal_quality_pct",
+        "state",
+        "status",
+        "traffic_priority",
+        "updated_at"
+      ],
+      "field_types": {
+        "/active_channel": {
+          "string": 1440
+        },
+        "/available": {
+          "boolean": 1440
+        },
+        "/bitrate_kbps": {
+          "number": 1440
+        },
+        "/latency_ms": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/protocol": {
+          "string": 1440
+        },
+        "/signal_quality_pct": {
+          "number": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/traffic_priority": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "battery_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "balancing_state",
+        "cell_voltage_delta_mv",
+        "charge_allowed",
+        "current_a",
+        "estimated_capacity_kwh",
+        "nominal_capacity_ah",
+        "nominal_capacity_kwh",
+        "online",
+        "power_w",
+        "soc_pct",
+        "state",
+        "status",
+        "temperature_c",
+        "updated_at",
+        "voltage_v"
+      ],
+      "field_types": {
+        "/balancing_state": {
+          "string": 1440
+        },
+        "/cell_voltage_delta_mv": {
+          "number": 1440
+        },
+        "/charge_allowed": {
+          "boolean": 1440
+        },
+        "/current_a": {
+          "number": 1440
+        },
+        "/estimated_capacity_kwh": {
+          "number": 1440
+        },
+        "/nominal_capacity_ah": {
+          "number": 1440
+        },
+        "/nominal_capacity_kwh": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/power_w": {
+          "number": 1440
+        },
+        "/soc_pct": {
+          "number": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/temperature_c": {
+          "number": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/voltage_v": {
+          "number": 1440
+        }
+      }
+    },
+    "chem_sensor_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "alarm_state",
+        "alarm_threshold",
+        "concentration_ppm",
+        "confidence",
+        "online",
+        "sensor_state",
+        "status",
+        "substance",
+        "updated_at",
+        "warning_threshold"
+      ],
+      "field_types": {
+        "/alarm_state": {
+          "string": 1440
+        },
+        "/alarm_threshold": {
+          "number": 1440
+        },
+        "/concentration_ppm": {
+          "number": 1440
+        },
+        "/confidence": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/sensor_state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/substance": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/warning_threshold": {
+          "number": 1440
+        }
+      }
+    },
+    "climate_sensor_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "co2_ppm",
+        "confidence",
+        "dew_point_c",
+        "humidity_pct",
+        "online",
+        "sensor_state",
+        "status",
+        "temperature_c",
+        "updated_at",
+        "zone"
+      ],
+      "field_types": {
+        "/co2_ppm": {
+          "integer": 1440
+        },
+        "/confidence": {
+          "number": 1440
+        },
+        "/dew_point_c": {
+          "number": 1440
+        },
+        "/humidity_pct": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/sensor_state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/temperature_c": {
+          "number": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/zone": {
+          "string": 1440
+        }
+      }
+    },
+    "climate_sensor_02": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "co2_ppm",
+        "confidence",
+        "dew_point_c",
+        "drift_co2_ppm",
+        "drift_humidity_pct",
+        "drift_temp_c",
+        "humidity_pct",
+        "online",
+        "reading_delay_s",
+        "sensor_state",
+        "status",
+        "temperature_c",
+        "updated_at",
+        "zone"
+      ],
+      "field_types": {
+        "/co2_ppm": {
+          "integer": 1440
+        },
+        "/confidence": {
+          "number": 1440
+        },
+        "/dew_point_c": {
+          "number": 1440
+        },
+        "/drift_co2_ppm": {
+          "number": 1440
+        },
+        "/drift_humidity_pct": {
+          "number": 1440
+        },
+        "/drift_temp_c": {
+          "number": 1440
+        },
+        "/humidity_pct": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/reading_delay_s": {
+          "number": 1440
+        },
+        "/sensor_state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/temperature_c": {
+          "number": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/zone": {
+          "string": 1440
+        }
+      }
+    },
+    "climate_sensor_03": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "co2_ppm",
+        "confidence",
+        "dew_point_c",
+        "drift_co2_ppm",
+        "drift_humidity_pct",
+        "drift_temp_c",
+        "humidity_pct",
+        "online",
+        "reading_delay_s",
+        "sensor_state",
+        "status",
+        "temperature_c",
+        "updated_at",
+        "zone"
+      ],
+      "field_types": {
+        "/co2_ppm": {
+          "integer": 1440
+        },
+        "/confidence": {
+          "number": 1440
+        },
+        "/dew_point_c": {
+          "number": 1440
+        },
+        "/drift_co2_ppm": {
+          "number": 1440
+        },
+        "/drift_humidity_pct": {
+          "number": 1440
+        },
+        "/drift_temp_c": {
+          "number": 1440
+        },
+        "/humidity_pct": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/reading_delay_s": {
+          "number": 1440
+        },
+        "/sensor_state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/temperature_c": {
+          "number": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/zone": {
+          "string": 1440
+        }
+      }
+    },
+    "cnc_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "alarm",
+        "alarm_code",
+        "error_code",
+        "error_text",
+        "file_name",
+        "files",
+        "hold_level",
+        "hold_reason",
+        "homed",
+        "job_duration_s",
+        "job_elapsed_s",
+        "job_time_left_s",
+        "last_gcode",
+        "last_probe",
+        "lockout_remaining_s",
+        "mpos_mm",
+        "online",
+        "part_defect",
+        "paused",
+        "power_w",
+        "progress_pct",
+        "quality_state",
+        "resume_attempts",
+        "spindle_rpm",
+        "spindle_target_rpm",
+        "spindle_temp_c",
+        "state",
+        "status",
+        "updated_at",
+        "wco_mm",
+        "x_mm",
+        "y_mm",
+        "z_mm"
+      ],
+      "field_types": {
+        "/alarm": {
+          "boolean": 1440
+        },
+        "/alarm_code": {
+          "null": 1440
+        },
+        "/error_code": {
+          "null": 1440
+        },
+        "/error_text": {
+          "null": 1440
+        },
+        "/file_name": {
+          "string": 1440
+        },
+        "/files": {
+          "array": 1440
+        },
+        "/hold_level": {
+          "null": 1439,
+          "string": 1
+        },
+        "/hold_reason": {
+          "null": 1439,
+          "string": 1
+        },
+        "/homed": {
+          "boolean": 1440
+        },
+        "/job_duration_s": {
+          "number": 1440
+        },
+        "/job_elapsed_s": {
+          "number": 1440
+        },
+        "/job_time_left_s": {
+          "number": 1440
+        },
+        "/last_gcode": {
+          "null": 1440
+        },
+        "/last_probe": {
+          "null": 1440
+        },
+        "/lockout_remaining_s": {
+          "number": 1440
+        },
+        "/mpos_mm": {
+          "array": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/part_defect": {
+          "null": 1440
+        },
+        "/paused": {
+          "boolean": 1440
+        },
+        "/power_w": {
+          "number": 1440
+        },
+        "/progress_pct": {
+          "number": 1440
+        },
+        "/quality_state": {
+          "string": 1440
+        },
+        "/resume_attempts": {
+          "integer": 1440
+        },
+        "/spindle_rpm": {
+          "number": 1440
+        },
+        "/spindle_target_rpm": {
+          "number": 1440
+        },
+        "/spindle_temp_c": {
+          "number": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/wco_mm": {
+          "array": 1440
+        },
+        "/x_mm": {
+          "number": 1440
+        },
+        "/y_mm": {
+          "number": 1440
+        },
+        "/z_mm": {
+          "number": 1440
+        }
+      }
+    },
+    "dizel_1": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "engine_temp_c",
+        "fault_code",
+        "fault_reason",
+        "fuel_consumption_l_h",
+        "online",
+        "power_w",
+        "preheat_state",
+        "runtime_h",
+        "start_attempts",
+        "state",
+        "status",
+        "updated_at"
+      ],
+      "field_types": {
+        "/engine_temp_c": {
+          "number": 1440
+        },
+        "/fault_code": {
+          "null": 1440
+        },
+        "/fault_reason": {
+          "null": 1440
+        },
+        "/fuel_consumption_l_h": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/power_w": {
+          "number": 1440
+        },
+        "/preheat_state": {
+          "string": 1440
+        },
+        "/runtime_h": {
+          "number": 1440
+        },
+        "/start_attempts": {
+          "integer": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "dome_automation_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "autonomy_forecast_h",
+        "data_trust",
+        "diesel_autostart",
+        "events",
+        "interlocks",
+        "line_current_limits_a",
+        "mode",
+        "online",
+        "primary_co2_sensor",
+        "status",
+        "updated_at",
+        "ventilation_auto"
+      ],
+      "field_types": {
+        "/autonomy_forecast_h": {
+          "null": 1440
+        },
+        "/data_trust": {
+          "object": 1440
+        },
+        "/data_trust/climate_sensor_01.co2_ppm": {
+          "string": 43
+        },
+        "/diesel_autostart": {
+          "boolean": 1440
+        },
+        "/events": {
+          "array": 1440
+        },
+        "/events/*/acknowledged": {
+          "boolean": 7095
+        },
+        "/events/*/event_id": {
+          "string": 7095
+        },
+        "/events/*/interlock": {
+          "string": 7095
+        },
+        "/events/*/line": {
+          "integer": 2880
+        },
+        "/events/*/message": {
+          "string": 7095
+        },
+        "/events/*/paused": {
+          "array": 2108
+        },
+        "/events/*/t": {
+          "number": 7095
+        },
+        "/events/*/t_s": {
+          "number": 7095
+        },
+        "/events/*/type": {
+          "string": 7095
+        },
+        "/interlocks": {
+          "object": 1440
+        },
+        "/interlocks/IL_CO2": {
+          "object": 1440
+        },
+        "/interlocks/IL_CO2/blocked_remaining_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_CO2/paused": {
+          "array": 1
+        },
+        "/interlocks/IL_CO2/pending_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_CO2/prev_vent": {
+          "object": 1
+        },
+        "/interlocks/IL_CO2/prev_vent/mode": {
+          "string": 1
+        },
+        "/interlocks/IL_CO2/prev_vent/speed_pct": {
+          "number": 1
+        },
+        "/interlocks/IL_CO2/reason": {
+          "null": 1440
+        },
+        "/interlocks/IL_CO2/state": {
+          "string": 1440
+        },
+        "/interlocks/IL_CO2/state_detail": {
+          "string": 2
+        },
+        "/interlocks/IL_CO2/title": {
+          "string": 1440
+        },
+        "/interlocks/IL_CO2/tripped_at_s": {
+          "number": 668
+        },
+        "/interlocks/IL_CO2/trips": {
+          "integer": 1440
+        },
+        "/interlocks/IL_CONDENSATE": {
+          "object": 1440
+        },
+        "/interlocks/IL_CONDENSATE/blocked_remaining_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_CONDENSATE/paused": {
+          "array": 1440
+        },
+        "/interlocks/IL_CONDENSATE/pending_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_CONDENSATE/reason": {
+          "null": 1440
+        },
+        "/interlocks/IL_CONDENSATE/state": {
+          "string": 1440
+        },
+        "/interlocks/IL_CONDENSATE/title": {
+          "string": 1440
+        },
+        "/interlocks/IL_CONDENSATE/tripped_at_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_CONDENSATE/trips": {
+          "integer": 1440
+        },
+        "/interlocks/IL_HEAT": {
+          "object": 1440
+        },
+        "/interlocks/IL_HEAT/blocked_remaining_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_HEAT/pending_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_HEAT/reason": {
+          "null": 1440
+        },
+        "/interlocks/IL_HEAT/state": {
+          "string": 1440
+        },
+        "/interlocks/IL_HEAT/title": {
+          "string": 1440
+        },
+        "/interlocks/IL_HEAT/trips": {
+          "integer": 1440
+        },
+        "/interlocks/IL_INV_OVERLOAD": {
+          "object": 1440
+        },
+        "/interlocks/IL_INV_OVERLOAD/blocked_remaining_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_INV_OVERLOAD/pending_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_INV_OVERLOAD/reason": {
+          "null": 1440
+        },
+        "/interlocks/IL_INV_OVERLOAD/state": {
+          "string": 1440
+        },
+        "/interlocks/IL_INV_OVERLOAD/title": {
+          "string": 1440
+        },
+        "/interlocks/IL_INV_OVERLOAD/trips": {
+          "integer": 1440
+        },
+        "/interlocks/IL_LOAD_SHED": {
+          "object": 1440
+        },
+        "/interlocks/IL_LOAD_SHED/blocked_remaining_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_LOAD_SHED/pending_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_LOAD_SHED/reason": {
+          "null": 1440
+        },
+        "/interlocks/IL_LOAD_SHED/state": {
+          "string": 1440
+        },
+        "/interlocks/IL_LOAD_SHED/title": {
+          "string": 1440
+        },
+        "/interlocks/IL_LOAD_SHED/trips": {
+          "integer": 1440
+        },
+        "/interlocks/IL_OVERCURRENT": {
+          "object": 1440
+        },
+        "/interlocks/IL_OVERCURRENT/blocked_remaining_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_OVERCURRENT/lines_pending": {
+          "object": 1440
+        },
+        "/interlocks/IL_OVERCURRENT/pending_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_OVERCURRENT/reason": {
+          "null": 1440
+        },
+        "/interlocks/IL_OVERCURRENT/shed_lines": {
+          "array": 1440
+        },
+        "/interlocks/IL_OVERCURRENT/state": {
+          "string": 1440
+        },
+        "/interlocks/IL_OVERCURRENT/title": {
+          "string": 1440
+        },
+        "/interlocks/IL_OVERCURRENT/tripped_at_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_OVERCURRENT/trips": {
+          "integer": 1440
+        },
+        "/interlocks/IL_OVERVOLT": {
+          "object": 1440
+        },
+        "/interlocks/IL_OVERVOLT/blocked_remaining_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_OVERVOLT/lines_pending": {
+          "object": 1440
+        },
+        "/interlocks/IL_OVERVOLT/pending_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_OVERVOLT/reason": {
+          "null": 1440
+        },
+        "/interlocks/IL_OVERVOLT/state": {
+          "string": 1440
+        },
+        "/interlocks/IL_OVERVOLT/title": {
+          "string": 1440
+        },
+        "/interlocks/IL_OVERVOLT/trips": {
+          "integer": 1440
+        },
+        "/interlocks/IL_SMOKE": {
+          "object": 1440
+        },
+        "/interlocks/IL_SMOKE/blocked_remaining_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_SMOKE/pending_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_SMOKE/reason": {
+          "null": 1440
+        },
+        "/interlocks/IL_SMOKE/state": {
+          "string": 1440
+        },
+        "/interlocks/IL_SMOKE/title": {
+          "string": 1440
+        },
+        "/interlocks/IL_SMOKE/trips": {
+          "integer": 1440
+        },
+        "/interlocks/IL_SMOKE/zones": {
+          "object": 1440
+        },
+        "/interlocks/IL_STORM": {
+          "object": 1440
+        },
+        "/interlocks/IL_STORM/blocked_remaining_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_STORM/pending_s": {
+          "number": 1440
+        },
+        "/interlocks/IL_STORM/reason": {
+          "null": 1440
+        },
+        "/interlocks/IL_STORM/state": {
+          "string": 1440
+        },
+        "/interlocks/IL_STORM/title": {
+          "string": 1440
+        },
+        "/interlocks/IL_STORM/trips": {
+          "integer": 1440
+        },
+        "/line_current_limits_a": {
+          "object": 1440
+        },
+        "/line_current_limits_a/1": {
+          "number": 1440
+        },
+        "/mode": {
+          "string": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/primary_co2_sensor": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/ventilation_auto": {
+          "boolean": 1440
+        }
+      }
+    },
+    "dome_sealing_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "fault_code",
+        "leak_detected",
+        "leak_rate_pct",
+        "online",
+        "pressure_diff_pa",
+        "seal_ready",
+        "sealed_zone",
+        "state",
+        "status",
+        "updated_at",
+        "valve_positions_pct",
+        "valve_targets_pct"
+      ],
+      "field_types": {
+        "/fault_code": {
+          "null": 1440
+        },
+        "/leak_detected": {
+          "boolean": 1440
+        },
+        "/leak_rate_pct": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/pressure_diff_pa": {
+          "number": 1440
+        },
+        "/seal_ready": {
+          "boolean": 1440
+        },
+        "/sealed_zone": {
+          "null": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/valve_positions_pct": {
+          "array": 1440
+        },
+        "/valve_targets_pct": {
+          "array": 1440
+        }
+      }
+    },
+    "edge_compute_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "clock_offset_s",
+        "cpu_load_pct",
+        "free_memory_pct",
+        "gpu_load_pct",
+        "load_limit_pct",
+        "online",
+        "services",
+        "state",
+        "status",
+        "temperature_c",
+        "updated_at",
+        "uptime_h"
+      ],
+      "field_types": {
+        "/clock_offset_s": {
+          "number": 1440
+        },
+        "/cpu_load_pct": {
+          "number": 1440
+        },
+        "/free_memory_pct": {
+          "number": 1440
+        },
+        "/gpu_load_pct": {
+          "number": 1440
+        },
+        "/load_limit_pct": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/services": {
+          "object": 1440
+        },
+        "/services/agent_runtime": {
+          "string": 1440
+        },
+        "/services/api_gateway": {
+          "string": 1440
+        },
+        "/services/telemetry_collector": {
+          "string": 1440
+        },
+        "/services/vision_inference": {
+          "string": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/temperature_c": {
+          "number": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/uptime_h": {
+          "number": 1440
+        }
+      }
+    },
+    "equipment_cooling_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "alarm",
+        "alarm_code",
+        "bleeding",
+        "coolant_flow_l_min",
+        "coolant_temp_c",
+        "heat_exchanger_temp_c",
+        "online",
+        "pump_power_w",
+        "speed_pct",
+        "state",
+        "status",
+        "updated_at"
+      ],
+      "field_types": {
+        "/alarm": {
+          "boolean": 1440
+        },
+        "/alarm_code": {
+          "null": 1440
+        },
+        "/bleeding": {
+          "boolean": 1440
+        },
+        "/coolant_flow_l_min": {
+          "number": 1440
+        },
+        "/coolant_temp_c": {
+          "number": 1440
+        },
+        "/heat_exchanger_temp_c": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/pump_power_w": {
+          "number": 1440
+        },
+        "/speed_pct": {
+          "number": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "fire_suppression_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "active_zone",
+        "alarm",
+        "automation_blocked",
+        "discharge_l_min",
+        "false_trigger_count",
+        "fault_code",
+        "online",
+        "pressure_bar",
+        "ready",
+        "state",
+        "status",
+        "updated_at",
+        "valves"
+      ],
+      "field_types": {
+        "/active_zone": {
+          "null": 1440
+        },
+        "/alarm": {
+          "boolean": 1440
+        },
+        "/automation_blocked": {
+          "boolean": 1440
+        },
+        "/discharge_l_min": {
+          "number": 1440
+        },
+        "/false_trigger_count": {
+          "integer": 1440
+        },
+        "/fault_code": {
+          "null": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/pressure_bar": {
+          "number": 1440
+        },
+        "/ready": {
+          "boolean": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/valves": {
+          "object": 1440
+        },
+        "/valves/FABLAB": {
+          "string": 1440
+        },
+        "/valves/LIVING": {
+          "string": 1440
+        },
+        "/valves/POWER_ROOM": {
+          "string": 1440
+        },
+        "/valves/STORAGE": {
+          "string": 1440
+        }
+      }
+    },
+    "fuel_tank_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "capacity_l",
+        "consumption_l_h",
+        "contamination_pct",
+        "fuel_quality",
+        "fuel_temp_c",
+        "level_pct",
+        "online",
+        "reserve_l",
+        "state",
+        "status",
+        "updated_at",
+        "volume_l",
+        "water_content_ppm"
+      ],
+      "field_types": {
+        "/capacity_l": {
+          "number": 1440
+        },
+        "/consumption_l_h": {
+          "number": 1440
+        },
+        "/contamination_pct": {
+          "number": 1440
+        },
+        "/fuel_quality": {
+          "string": 1440
+        },
+        "/fuel_temp_c": {
+          "number": 1440
+        },
+        "/level_pct": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/reserve_l": {
+          "number": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/volume_l": {
+          "number": 1440
+        },
+        "/water_content_ppm": {
+          "number": 1440
+        }
+      }
+    },
+    "fume_extraction_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "airflow_pct",
+        "alarm",
+        "alarm_code",
+        "enabled",
+        "fan_rpm",
+        "motor_state",
+        "motor_temp_c",
+        "online",
+        "power_w",
+        "status",
+        "updated_at"
+      ],
+      "field_types": {
+        "/airflow_pct": {
+          "number": 1440
+        },
+        "/alarm": {
+          "boolean": 1440
+        },
+        "/alarm_code": {
+          "null": 1440
+        },
+        "/enabled": {
+          "boolean": 1440
+        },
+        "/fan_rpm": {
+          "integer": 1440
+        },
+        "/motor_state": {
+          "string": 1440
+        },
+        "/motor_temp_c": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/power_w": {
+          "number": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "material_inventory_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "cnc_blanks_count",
+        "confidence",
+        "consumables_pct",
+        "filament_g",
+        "filament_pct",
+        "low_stock_warnings",
+        "online",
+        "sensor_state",
+        "spare_spools",
+        "spool_capacity_g",
+        "status",
+        "updated_at"
+      ],
+      "field_types": {
+        "/cnc_blanks_count": {
+          "integer": 1440
+        },
+        "/confidence": {
+          "number": 1440
+        },
+        "/consumables_pct": {
+          "number": 1440
+        },
+        "/filament_g": {
+          "number": 1440
+        },
+        "/filament_pct": {
+          "number": 1440
+        },
+        "/low_stock_warnings": {
+          "array": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/sensor_state": {
+          "string": 1440
+        },
+        "/spare_spools": {
+          "integer": 1440
+        },
+        "/spool_capacity_g": {
+          "number": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "network_link_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "active_path",
+        "link_flaps",
+        "link_state",
+        "online",
+        "packet_loss_pct",
+        "panel_link_state",
+        "patchcord_replacing",
+        "reserve_link_state",
+        "rx_power_dbm",
+        "status",
+        "updated_at"
+      ],
+      "field_types": {
+        "/active_path": {
+          "string": 1440
+        },
+        "/link_flaps": {
+          "integer": 1440
+        },
+        "/link_state": {
+          "string": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/packet_loss_pct": {
+          "number": 1440
+        },
+        "/panel_link_state": {
+          "string": 1440
+        },
+        "/patchcord_replacing": {
+          "boolean": 1440
+        },
+        "/reserve_link_state": {
+          "string": 1440
+        },
+        "/rx_power_dbm": {
+          "number": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "printer_3d_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "bed_clear",
+        "bed_heater_power_pct",
+        "bed_target_c",
+        "bed_temp_c",
+        "error_code",
+        "filament_required_g",
+        "filament_used_g",
+        "file_name",
+        "files",
+        "gcode_error",
+        "gcode_state",
+        "heater_power_pct",
+        "hold_level",
+        "hold_reason",
+        "homed",
+        "last_gcode",
+        "lockout_remaining_s",
+        "nozzle_target_c",
+        "nozzle_temp_c",
+        "online",
+        "part_defect",
+        "paused",
+        "power_w",
+        "print_duration_s",
+        "print_elapsed_s",
+        "print_time_left_s",
+        "progress_pct",
+        "real_state",
+        "resume_attempts",
+        "rotation_distance_x",
+        "speed_pct",
+        "state",
+        "status",
+        "updated_at",
+        "webhook_state",
+        "x_mm",
+        "y_mm",
+        "z_mm"
+      ],
+      "field_types": {
+        "/bed_clear": {
+          "boolean": 1440
+        },
+        "/bed_heater_power_pct": {
+          "number": 1440
+        },
+        "/bed_target_c": {
+          "number": 1440
+        },
+        "/bed_temp_c": {
+          "number": 1440
+        },
+        "/error_code": {
+          "null": 1440
+        },
+        "/filament_required_g": {
+          "number": 1440
+        },
+        "/filament_used_g": {
+          "number": 1440
+        },
+        "/file_name": {
+          "string": 1440
+        },
+        "/files": {
+          "array": 1440
+        },
+        "/gcode_error": {
+          "null": 1440
+        },
+        "/gcode_state": {
+          "string": 1440
+        },
+        "/heater_power_pct": {
+          "number": 1440
+        },
+        "/hold_level": {
+          "null": 1439,
+          "string": 1
+        },
+        "/hold_reason": {
+          "null": 1439,
+          "string": 1
+        },
+        "/homed": {
+          "boolean": 1440
+        },
+        "/last_gcode": {
+          "null": 1440
+        },
+        "/lockout_remaining_s": {
+          "number": 1440
+        },
+        "/nozzle_target_c": {
+          "number": 1440
+        },
+        "/nozzle_temp_c": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/part_defect": {
+          "null": 1440
+        },
+        "/paused": {
+          "boolean": 1440
+        },
+        "/power_w": {
+          "number": 1440
+        },
+        "/print_duration_s": {
+          "number": 1440
+        },
+        "/print_elapsed_s": {
+          "number": 1440
+        },
+        "/print_time_left_s": {
+          "number": 1440
+        },
+        "/progress_pct": {
+          "number": 1440
+        },
+        "/real_state": {
+          "string": 1440
+        },
+        "/resume_attempts": {
+          "integer": 1440
+        },
+        "/rotation_distance_x": {
+          "number": 1440
+        },
+        "/speed_pct": {
+          "number": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/webhook_state": {
+          "string": 1440
+        },
+        "/x_mm": {
+          "number": 1440
+        },
+        "/y_mm": {
+          "number": 1440
+        },
+        "/z_mm": {
+          "number": 1440
+        }
+      }
+    },
+    "radiation_sensor_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "alarm_state",
+        "alarm_threshold",
+        "confidence",
+        "counts_per_minute",
+        "dose_rate_usv_h",
+        "event_type",
+        "online",
+        "sensor_state",
+        "status",
+        "updated_at",
+        "warning_threshold"
+      ],
+      "field_types": {
+        "/alarm_state": {
+          "string": 1440
+        },
+        "/alarm_threshold": {
+          "number": 1440
+        },
+        "/confidence": {
+          "number": 1440
+        },
+        "/counts_per_minute": {
+          "integer": 1440
+        },
+        "/dose_rate_usv_h": {
+          "number": 1440
+        },
+        "/event_type": {
+          "string": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/sensor_state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/warning_threshold": {
+          "number": 1440
+        }
+      }
+    },
+    "radio_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "bitrate_kbps",
+        "frequency_mhz",
+        "noise_level_dbm",
+        "online",
+        "protocol",
+        "reception",
+        "signal_quality_pct",
+        "snr_db",
+        "state",
+        "status",
+        "updated_at"
+      ],
+      "field_types": {
+        "/bitrate_kbps": {
+          "number": 1440
+        },
+        "/frequency_mhz": {
+          "number": 1440
+        },
+        "/noise_level_dbm": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/protocol": {
+          "string": 1440
+        },
+        "/reception": {
+          "boolean": 1440
+        },
+        "/signal_quality_pct": {
+          "number": 1440
+        },
+        "/snr_db": {
+          "number": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "seysmo_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "amplitude_mm_s",
+        "confidence",
+        "epicenter_distance_km",
+        "estimated_magnitude",
+        "online",
+        "quake_detected",
+        "sensor_state",
+        "status",
+        "threshold_mm_s",
+        "updated_at"
+      ],
+      "field_types": {
+        "/amplitude_mm_s": {
+          "number": 1440
+        },
+        "/confidence": {
+          "number": 1440
+        },
+        "/epicenter_distance_km": {
+          "null": 1440
+        },
+        "/estimated_magnitude": {
+          "null": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/quake_detected": {
+          "boolean": 1440
+        },
+        "/sensor_state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/threshold_mm_s": {
+          "number": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "smart_panel_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "bus_powered",
+        "bus_voltage_v",
+        "lines",
+        "lines_on_count",
+        "online",
+        "status",
+        "total_current_a",
+        "total_power_w",
+        "updated_at"
+      ],
+      "field_types": {
+        "/bus_powered": {
+          "boolean": 1440
+        },
+        "/bus_voltage_v": {
+          "number": 1440
+        },
+        "/lines": {
+          "array": 1440
+        },
+        "/lines/*/alarm": {
+          "boolean": 11520
+        },
+        "/lines/*/alarm_code": {
+          "null": 10080,
+          "string": 1440
+        },
+        "/lines/*/current_a": {
+          "number": 11520
+        },
+        "/lines/*/leakage_ma": {
+          "number": 11520
+        },
+        "/lines/*/line": {
+          "integer": 11520
+        },
+        "/lines/*/lockout_reason": {
+          "null": 11520
+        },
+        "/lines/*/lockout_remaining_s": {
+          "number": 11520
+        },
+        "/lines/*/name": {
+          "string": 11520
+        },
+        "/lines/*/power_w": {
+          "number": 11520
+        },
+        "/lines/*/protection_state": {
+          "string": 11520
+        },
+        "/lines/*/rated_current_a": {
+          "number": 11520
+        },
+        "/lines/*/state": {
+          "string": 11520
+        },
+        "/lines/*/voltage_v": {
+          "number": 11520
+        },
+        "/lines_on_count": {
+          "integer": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/total_current_a": {
+          "number": 1440
+        },
+        "/total_power_w": {
+          "number": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "smoke_detector_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "alarm_state",
+        "confidence",
+        "false_alarm_suspected",
+        "obscuration_pct",
+        "online",
+        "sensor_state",
+        "smoke_detected",
+        "status",
+        "updated_at",
+        "zone"
+      ],
+      "field_types": {
+        "/alarm_state": {
+          "string": 1440
+        },
+        "/confidence": {
+          "number": 1440
+        },
+        "/false_alarm_suspected": {
+          "boolean": 1440
+        },
+        "/obscuration_pct": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/sensor_state": {
+          "string": 1440
+        },
+        "/smoke_detected": {
+          "boolean": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/zone": {
+          "string": 1440
+        }
+      }
+    },
+    "smoke_detector_02": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "alarm_state",
+        "confidence",
+        "false_alarm_suspected",
+        "obscuration_pct",
+        "online",
+        "sensor_state",
+        "smoke_detected",
+        "status",
+        "updated_at",
+        "zone"
+      ],
+      "field_types": {
+        "/alarm_state": {
+          "string": 1440
+        },
+        "/confidence": {
+          "number": 1440
+        },
+        "/false_alarm_suspected": {
+          "boolean": 1440
+        },
+        "/obscuration_pct": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/sensor_state": {
+          "string": 1440
+        },
+        "/smoke_detected": {
+          "boolean": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/zone": {
+          "string": 1440
+        }
+      }
+    },
+    "solar_inverter_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "ac_source",
+        "balancing_state",
+        "battery_capacity_kwh",
+        "battery_charge_blocked",
+        "battery_current_a",
+        "battery_power_w",
+        "battery_soc_pct",
+        "battery_voltage_v",
+        "error",
+        "error_code",
+        "error_text",
+        "fan_current_a",
+        "fan_mode",
+        "fan_state",
+        "generator_power_w",
+        "grid_power_w",
+        "grid_state",
+        "grid_voltage_v",
+        "inverter_temp_c",
+        "load_power_w",
+        "mode",
+        "mppt_enabled",
+        "mppt_state",
+        "online",
+        "output_limit_pct",
+        "output_voltage_v",
+        "power_deficit_w",
+        "pv_power_w",
+        "pv_voltage_v",
+        "status",
+        "updated_at"
+      ],
+      "field_types": {
+        "/ac_source": {
+          "string": 1440
+        },
+        "/balancing_state": {
+          "string": 1440
+        },
+        "/battery_capacity_kwh": {
+          "number": 1440
+        },
+        "/battery_charge_blocked": {
+          "boolean": 1440
+        },
+        "/battery_current_a": {
+          "number": 1440
+        },
+        "/battery_power_w": {
+          "number": 1440
+        },
+        "/battery_soc_pct": {
+          "number": 1440
+        },
+        "/battery_voltage_v": {
+          "number": 1440
+        },
+        "/error": {
+          "boolean": 1440
+        },
+        "/error_code": {
+          "null": 1253,
+          "string": 187
+        },
+        "/error_text": {
+          "null": 1253,
+          "string": 187
+        },
+        "/fan_current_a": {
+          "number": 1440
+        },
+        "/fan_mode": {
+          "string": 1440
+        },
+        "/fan_state": {
+          "string": 1440
+        },
+        "/generator_power_w": {
+          "number": 1440
+        },
+        "/grid_power_w": {
+          "number": 1440
+        },
+        "/grid_state": {
+          "string": 1440
+        },
+        "/grid_voltage_v": {
+          "number": 1440
+        },
+        "/inverter_temp_c": {
+          "number": 1440
+        },
+        "/load_power_w": {
+          "number": 1440
+        },
+        "/mode": {
+          "string": 1440
+        },
+        "/mppt_enabled": {
+          "boolean": 1440
+        },
+        "/mppt_state": {
+          "string": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/output_limit_pct": {
+          "number": 1440
+        },
+        "/output_voltage_v": {
+          "number": 1440
+        },
+        "/power_deficit_w": {
+          "number": 1440
+        },
+        "/pv_power_w": {
+          "number": 1440
+        },
+        "/pv_voltage_v": {
+          "number": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "solar_panels_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "active_mppt_count",
+        "all_mppt_enabled",
+        "cell_temp_c",
+        "channels_count",
+        "mppt_1_enabled",
+        "mppt_channel_power_w",
+        "mppt_channels_enabled",
+        "online",
+        "power_w",
+        "pv_current_a",
+        "pv_voltage_v",
+        "soiling_loss_pct",
+        "status",
+        "updated_at"
+      ],
+      "field_types": {
+        "/active_mppt_count": {
+          "integer": 1440
+        },
+        "/all_mppt_enabled": {
+          "boolean": 1440
+        },
+        "/cell_temp_c": {
+          "number": 1440
+        },
+        "/channels_count": {
+          "integer": 1440
+        },
+        "/mppt_1_enabled": {
+          "boolean": 1440
+        },
+        "/mppt_channel_power_w": {
+          "array": 1440
+        },
+        "/mppt_channels_enabled": {
+          "array": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/power_w": {
+          "number": 1440
+        },
+        "/pv_current_a": {
+          "number": 1440
+        },
+        "/pv_voltage_v": {
+          "number": 1440
+        },
+        "/soiling_loss_pct": {
+          "number": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "supply_ventilation_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "airflow_m3_h",
+        "alarm",
+        "alarm_code",
+        "filter_clog_pct",
+        "filter_state",
+        "fresh_air_m3_h",
+        "mode",
+        "online",
+        "power_w",
+        "speed_pct",
+        "state",
+        "status",
+        "supply_humidity_pct",
+        "supply_temp_c",
+        "updated_at"
+      ],
+      "field_types": {
+        "/airflow_m3_h": {
+          "number": 1440
+        },
+        "/alarm": {
+          "boolean": 1440
+        },
+        "/alarm_code": {
+          "null": 1440
+        },
+        "/filter_clog_pct": {
+          "number": 1440
+        },
+        "/filter_state": {
+          "string": 1440
+        },
+        "/fresh_air_m3_h": {
+          "number": 1440
+        },
+        "/mode": {
+          "string": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/power_w": {
+          "number": 1440
+        },
+        "/speed_pct": {
+          "number": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/supply_humidity_pct": {
+          "number": 1440
+        },
+        "/supply_temp_c": {
+          "number": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "thermal_insulation_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "crc_errors",
+        "doors",
+        "dust_adc",
+        "dust_voltage_v",
+        "fans_pwm",
+        "fans_rpm",
+        "humidity_pct",
+        "locks",
+        "online",
+        "poll_interval_ms",
+        "pressure_pa",
+        "status",
+        "temperature_c",
+        "updated_at",
+        "vacuum_on",
+        "voc_index"
+      ],
+      "field_types": {
+        "/crc_errors": {
+          "integer": 1440
+        },
+        "/doors": {
+          "array": 1440
+        },
+        "/dust_adc": {
+          "integer": 1440
+        },
+        "/dust_voltage_v": {
+          "number": 1440
+        },
+        "/fans_pwm": {
+          "array": 1440
+        },
+        "/fans_rpm": {
+          "array": 1440
+        },
+        "/humidity_pct": {
+          "array": 1440
+        },
+        "/locks": {
+          "array": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/poll_interval_ms": {
+          "integer": 1440
+        },
+        "/pressure_pa": {
+          "array": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/temperature_c": {
+          "array": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/vacuum_on": {
+          "boolean": 1440
+        },
+        "/voc_index": {
+          "array": 1440
+        }
+      }
+    },
+    "thermal_insulation_02": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "doors",
+        "fans_pwm",
+        "fans_rpm",
+        "gas_adc",
+        "gas_voltage_v",
+        "humidity_pct",
+        "lock",
+        "online",
+        "pressure_pa",
+        "relay_fan_level",
+        "status",
+        "temperature_c",
+        "updated_at"
+      ],
+      "field_types": {
+        "/doors": {
+          "array": 1440
+        },
+        "/fans_pwm": {
+          "array": 1440
+        },
+        "/fans_rpm": {
+          "array": 1440
+        },
+        "/gas_adc": {
+          "array": 1440
+        },
+        "/gas_voltage_v": {
+          "array": 1440
+        },
+        "/humidity_pct": {
+          "array": 1440
+        },
+        "/lock": {
+          "string": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/pressure_pa": {
+          "array": 1440
+        },
+        "/relay_fan_level": {
+          "integer": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/temperature_c": {
+          "array": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "water_filter_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "active_filter",
+        "filter_state",
+        "hours_to_replacement",
+        "online",
+        "ph",
+        "pressure_drop_bar",
+        "residual_chlorine_mg_l",
+        "source_turbidity_ntu",
+        "status",
+        "system_state",
+        "tds_ppm",
+        "turbidity_ntu",
+        "updated_at",
+        "warning_active",
+        "wear_pct"
+      ],
+      "field_types": {
+        "/active_filter": {
+          "string": 1440
+        },
+        "/filter_state": {
+          "string": 1440
+        },
+        "/hours_to_replacement": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/ph": {
+          "number": 1440
+        },
+        "/pressure_drop_bar": {
+          "number": 1440
+        },
+        "/residual_chlorine_mg_l": {
+          "number": 1440
+        },
+        "/source_turbidity_ntu": {
+          "number": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/system_state": {
+          "string": 1440
+        },
+        "/tds_ppm": {
+          "number": 1440
+        },
+        "/turbidity_ntu": {
+          "number": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/warning_active": {
+          "boolean": 1440
+        },
+        "/wear_pct": {
+          "object": 1440
+        },
+        "/wear_pct/MAIN": {
+          "number": 1440
+        },
+        "/wear_pct/RESERVE": {
+          "number": 1440
+        }
+      }
+    },
+    "water_pump_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "alarm",
+        "alarm_code",
+        "delivered_l_min",
+        "duty_cycle_pct",
+        "flow_l_min",
+        "motor_current_a",
+        "motor_temp_c",
+        "online",
+        "power_limit_pct",
+        "power_w",
+        "pressure_bar",
+        "running",
+        "source_level_pct",
+        "state",
+        "status",
+        "updated_at"
+      ],
+      "field_types": {
+        "/alarm": {
+          "boolean": 1440
+        },
+        "/alarm_code": {
+          "null": 1440
+        },
+        "/delivered_l_min": {
+          "number": 1440
+        },
+        "/duty_cycle_pct": {
+          "number": 1440
+        },
+        "/flow_l_min": {
+          "number": 1440
+        },
+        "/motor_current_a": {
+          "number": 1440
+        },
+        "/motor_temp_c": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/power_limit_pct": {
+          "number": 1440
+        },
+        "/power_w": {
+          "number": 1440
+        },
+        "/pressure_bar": {
+          "number": 1440
+        },
+        "/running": {
+          "boolean": 1440
+        },
+        "/source_level_pct": {
+          "number": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        }
+      }
+    },
+    "water_tank_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "capacity_l",
+        "confidence",
+        "level_pct",
+        "online",
+        "sensor_state",
+        "state",
+        "status",
+        "updated_at",
+        "volume_l",
+        "water_temp_c"
+      ],
+      "field_types": {
+        "/capacity_l": {
+          "number": 1440
+        },
+        "/confidence": {
+          "number": 1440
+        },
+        "/level_pct": {
+          "number": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/sensor_state": {
+          "string": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/volume_l": {
+          "number": 1440
+        },
+        "/water_temp_c": {
+          "number": 1440
+        }
+      }
+    },
+    "weather_station_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "confidence",
+        "data_available",
+        "humidity_pct",
+        "illuminance_lux",
+        "online",
+        "precipitation_mm_h",
+        "pressure_hpa",
+        "sensor_state",
+        "status",
+        "temperature_c",
+        "updated_at",
+        "wind_direction",
+        "wind_direction_deg",
+        "wind_speed_ms"
+      ],
+      "field_types": {
+        "/confidence": {
+          "number": 1440
+        },
+        "/data_available": {
+          "boolean": 1440
+        },
+        "/humidity_pct": {
+          "number": 1436,
+          "integer": 4
+        },
+        "/illuminance_lux": {
+          "integer": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/precipitation_mm_h": {
+          "number": 1440
+        },
+        "/pressure_hpa": {
+          "number": 1440
+        },
+        "/sensor_state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/temperature_c": {
+          "number": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/wind_direction": {
+          "string": 1440
+        },
+        "/wind_direction_deg": {
+          "integer": 1440
+        },
+        "/wind_speed_ms": {
+          "number": 1440
+        }
+      }
+    },
+    "wind_turbine_01": {
+      "snapshot_count": 1440,
+      "top_level_fields": [
+        "available",
+        "fault_code",
+        "online",
+        "power_w",
+        "rpm",
+        "state",
+        "status",
+        "updated_at",
+        "wind_speed_ms"
+      ],
+      "field_types": {
+        "/available": {
+          "boolean": 1440
+        },
+        "/fault_code": {
+          "null": 1440
+        },
+        "/online": {
+          "boolean": 1440
+        },
+        "/power_w": {
+          "number": 1440
+        },
+        "/rpm": {
+          "number": 1440
+        },
+        "/state": {
+          "string": 1440
+        },
+        "/status": {
+          "string": 1440
+        },
+        "/updated_at": {
+          "number": 1440
+        },
+        "/wind_speed_ms": {
+          "number": 1440
+        }
+      }
+    }
+  },
+  "event_counts": {
+    "change": 118,
+    "journal": 131,
+    "action": 42,
+    "message": 34,
+    "automation": 2,
+    "logbook": 1
+  },
+  "actions": [
+    {
+      "actor": "operator",
+      "node_id": "smart_panel_01",
+      "action": "set_workstation",
+      "success": "True",
+      "count": 6
+    },
+    {
+      "actor": "agent",
+      "node_id": "thermal_insulation_01",
+      "action": "set_lock",
+      "success": "True",
+      "count": 6
+    },
+    {
+      "actor": "operator",
+      "node_id": "thermal_insulation_01",
+      "action": "set_door",
+      "success": "True",
+      "count": 4
+    },
+    {
+      "actor": "agent",
+      "node_id": "smart_panel_01",
+      "action": "line_off",
+      "success": "True",
+      "count": 3
+    },
+    {
+      "actor": "agent",
+      "node_id": "smart_panel_01",
+      "action": "line_on",
+      "success": "True",
+      "count": 3
+    },
+    {
+      "actor": "agent",
+      "node_id": "cnc_01",
+      "action": "start_job",
+      "success": "True",
+      "count": 3
+    },
+    {
+      "actor": "agent",
+      "node_id": "solar_inverter_01",
+      "action": "set_mode_hybrid",
+      "success": "True",
+      "count": 2
+    },
+    {
+      "actor": "agent",
+      "node_id": "printer_3d_01",
+      "action": "start_job",
+      "success": "True",
+      "count": 2
+    },
+    {
+      "actor": "agent",
+      "node_id": "solar_inverter_01",
+      "action": "set_mode_grid_only",
+      "success": "True",
+      "count": 2
+    },
+    {
+      "actor": "agent",
+      "node_id": "dome_automation_01",
+      "action": "set_data_trust",
+      "success": "True",
+      "count": 2
+    },
+    {
+      "actor": "agent",
+      "node_id": "dome_automation_01",
+      "action": "set_primary_sensor",
+      "success": "True",
+      "count": 2
+    },
+    {
+      "actor": "agent",
+      "node_id": "solar_inverter_01",
+      "action": "reset_error",
+      "success": "True",
+      "count": 1
+    },
+    {
+      "actor": "operator",
+      "node_id": "smart_panel_01",
+      "action": "inspect_line",
+      "success": "True",
+      "count": 1
+    },
+    {
+      "actor": "agent",
+      "node_id": "dome_automation_01",
+      "action": "reset_interlock",
+      "success": "True",
+      "count": 1
+    },
+    {
+      "actor": "agent",
+      "node_id": "printer_3d_01",
+      "action": "resume",
+      "success": "True",
+      "count": 1
+    },
+    {
+      "actor": "agent",
+      "node_id": "cnc_01",
+      "action": "resume",
+      "success": "True",
+      "count": 1
+    },
+    {
+      "actor": "agent",
+      "node_id": "climate_sensor_02",
+      "action": "recalibrate",
+      "success": "True",
+      "count": 1
+    },
+    {
+      "actor": "agent",
+      "node_id": "edge_compute_01",
+      "action": "sync_time",
+      "success": "True",
+      "count": 1
+    }
+  ],
+  "automation": [
+    {
+      "interlock": "IL_CO2",
+      "event_type": "TRIP",
+      "count": 1
+    },
+    {
+      "interlock": "IL_CO2",
+      "event_type": "RELEASE",
+      "count": 1
+    }
+  ],
+  "logbook": [
+    {
+      "ts": "2026-10-14T18:45:00",
+      "kind": "logbook",
+      "dome": {
+        "day": 3,
+        "time": "18:45"
+      },
+      "author": "Илья Сафин",
+      "role": "техник связи и автоматики",
+      "text": "Среда, 14.10. Снаружи 3…19 °C, ясно, ветер до 13 м/с. За день напечатали корпус датчика, шестерню; отфрезеровали плату питания, плату хаба датчиков, гравировку панели. Вчера вечером стоял приток (авария FAN_MOTOR), а заметили по CO₂: рос с 806 ppm до 1539/1396/1256 — на всех трёх датчиках. Это был настоящий рост. Сбросили аварию, приток на 90 %, за пару часов CO₂ вернулся. Утром инвертор стоял с ошибкой E09 (изоляция PV) — ночью был туман, влажность 86 %. Подождали, пока туман сойдёт, сбросили ошибку — генерация пошла, 254 Вт. Как и в прошлые туманные утра: сначала сухо, потом reset_error. Резервная линия 8 с ночи (с 23:30) показывала ~53 Вт, хотя на ней ничего не висит. Утром отключили, клеммник оказался окислен и влажный — зачистили. После включения линия снова около 0 Вт, как и положено. Агент объявил, что печать завершилась (webhook_state = COMPLETED), и открыл бокс, а принтер ещё печатал — 33 %. Хорошо, что дверь не открыли. Webhook при длинной печати врёт: смотреть state, progress и z_mm. Оба станка встали по IL_CO2: основной датчик показал 3041 ppm. Остальные два — 773 и 787, людям не душно. Пометили датчик ненадёжным, переключили автоматику на climate_sensor_02, станки продолжили. Настоящий рост CO₂ видно на всех трёх датчиках сразу — как во вторник. Под вечер начали шуметь датчики климата и мигать свет. Сначала грешили на датчики — перекалибровали climate_sensor_02, не помогло. Минут через пятнадцать выключили основной свет, перешли на аварийный — и шум пропал. Думаю, дело в проводке датчиков: идёт рядом с силовой линией освещения, при мигании ловит наводку. Надо развести кабели. По энергии: АКБ от 34 до 100 %, панели дали около 7,8 кВт·ч, потребление 12,7 кВт·ч, из сети 5,6 кВт·ч. SOC проседал до 34 % — переводили нагрузку на сеть, пока панели заряжали АКБ. Нервный день, но купол цел."
+    }
+  ]
+}

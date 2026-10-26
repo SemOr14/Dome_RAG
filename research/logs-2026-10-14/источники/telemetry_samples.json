@@ -1,0 +1,314 @@
+[
+  {
+    "observed_at": "2026-10-26T09:59:31.250970+00:00",
+    "telemetry": {
+      "solarKw": 0.939,
+      "windKw": 0.0034,
+      "windState": "ON",
+      "lines": [
+        0.0668,
+        0.0043,
+        0.1007,
+        0.0107,
+        0.011,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lineNames": [
+        "Мастерская + вытяжка",
+        "Теплица ФабЛаб",
+        "3D-принтер",
+        "ЧПУ-фрезер",
+        "Теплица Химлаб",
+        "Освещение",
+        "Аварийный свет",
+        "Резерв"
+      ],
+      "lineStates": [
+        "ON",
+        "ON",
+        "ON",
+        "ON",
+        "ON",
+        "ON",
+        "OFF",
+        "OFF"
+      ],
+      "battery": {
+        "soc": 82.76,
+        "mode": "HYBRID",
+        "error": null,
+        "grid": "AVAILABLE"
+      },
+      "temp": 25.8,
+      "hum": 32.4,
+      "co2": 1617.0,
+      "printer": {
+        "status": "printing",
+        "progress": 63.9,
+        "remainMin": 0,
+        "file": ".cache/EN4Pro_0.4_D1_Elegoo PLA _0.24_52m44s.gcode",
+        "hold": null,
+        "holdReason": null,
+        "online": true,
+        "bedClear": true
+      },
+      "cnc": {
+        "status": "idle",
+        "progress": 0.0,
+        "remainMin": 0,
+        "file": null,
+        "hold": null,
+        "holdReason": null,
+        "online": true
+      },
+      "diesel": {
+        "on": false,
+        "kw": 0.0,
+        "fuel": 75.1
+      },
+      "forecastStartHour": 12,
+      "fSun": [
+        92,
+        95,
+        92,
+        85,
+        74,
+        59,
+        41,
+        21,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fWind": [
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5
+      ],
+      "gameTime": {
+        "day": 0,
+        "hour": 11.24
+      }
+    }
+  },
+  {
+    "observed_at": "2026-10-26T09:59:33.683249+00:00",
+    "telemetry": {
+      "solarKw": 0.939,
+      "windKw": 0.0034,
+      "windState": "ON",
+      "lines": [
+        0.0668,
+        0.0043,
+        0.1007,
+        0.0107,
+        0.011,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lineNames": [
+        "Мастерская + вытяжка",
+        "Теплица ФабЛаб",
+        "3D-принтер",
+        "ЧПУ-фрезер",
+        "Теплица Химлаб",
+        "Освещение",
+        "Аварийный свет",
+        "Резерв"
+      ],
+      "lineStates": [
+        "ON",
+        "ON",
+        "ON",
+        "ON",
+        "ON",
+        "ON",
+        "OFF",
+        "OFF"
+      ],
+      "battery": {
+        "soc": 82.76,
+        "mode": "HYBRID",
+        "error": null,
+        "grid": "AVAILABLE"
+      },
+      "temp": 25.8,
+      "hum": 32.4,
+      "co2": 1617.0,
+      "printer": {
+        "status": "printing",
+        "progress": 63.9,
+        "remainMin": 0,
+        "file": ".cache/EN4Pro_0.4_D1_Elegoo PLA _0.24_52m44s.gcode",
+        "hold": null,
+        "holdReason": null,
+        "online": true,
+        "bedClear": true
+      },
+      "cnc": {
+        "status": "idle",
+        "progress": 0.0,
+        "remainMin": 0,
+        "file": null,
+        "hold": null,
+        "holdReason": null,
+        "online": true
+      },
+      "diesel": {
+        "on": false,
+        "kw": 0.0,
+        "fuel": 75.1
+      },
+      "forecastStartHour": 12,
+      "fSun": [
+        92,
+        95,
+        92,
+        85,
+        74,
+        59,
+        41,
+        21,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fWind": [
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5
+      ],
+      "gameTime": {
+        "day": 0,
+        "hour": 11.24
+      }
+    }
+  },
+  {
+    "observed_at": "2026-10-26T09:59:36.024197+00:00",
+    "telemetry": {
+      "solarKw": 0.9445,
+      "windKw": 0.0055,
+      "windState": "ON",
+      "lines": [
+        0.0668,
+        0.0043,
+        0.1007,
+        0.0107,
+        0.011,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "lineNames": [
+        "Мастерская + вытяжка",
+        "Теплица ФабЛаб",
+        "3D-принтер",
+        "ЧПУ-фрезер",
+        "Теплица Химлаб",
+        "Освещение",
+        "Аварийный свет",
+        "Резерв"
+      ],
+      "lineStates": [
+        "ON",
+        "ON",
+        "ON",
+        "ON",
+        "ON",
+        "ON",
+        "OFF",
+        "OFF"
+      ],
+      "battery": {
+        "soc": 82.78,
+        "mode": "HYBRID",
+        "error": null,
+        "grid": "AVAILABLE"
+      },
+      "temp": 25.8,
+      "hum": 32.4,
+      "co2": 1617.0,
+      "printer": {
+        "status": "printing",
+        "progress": 64.1,
+        "remainMin": 0,
+        "file": ".cache/EN4Pro_0.4_D1_Elegoo PLA _0.24_52m44s.gcode",
+        "hold": null,
+        "holdReason": null,
+        "online": true,
+        "bedClear": true
+      },
+      "cnc": {
+        "status": "idle",
+        "progress": 0.0,
+        "remainMin": 0,
+        "file": null,
+        "hold": null,
+        "holdReason": null,
+        "online": true
+      },
+      "diesel": {
+        "on": false,
+        "kw": 0.0,
+        "fuel": 75.2
+      },
+      "forecastStartHour": 12,
+      "fSun": [
+        93,
+        95,
+        93,
+        86,
+        75,
+        60,
+        41,
+        21,
+        0,
+        0,
+        0,
+        0
+      ],
+      "fWind": [
+        4.4,
+        4.4,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5,
+        4.5
+      ],
+      "gameTime": {
+        "day": 0,
+        "hour": 11.25
+      }
+    }
+  }
+]

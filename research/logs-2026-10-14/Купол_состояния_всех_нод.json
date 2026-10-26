@@ -1,0 +1,3383 @@
+{
+  "schema_version": "1.0",
+  "source": {
+    "interface": "chatbot_only",
+    "page_url": "http://62.118.24.234:48765/static/index.html",
+    "state_origin": "JSON reported in chatbot replies; not a direct controller response"
+  },
+  "collection": {
+    "started_at_utc": "2026-10-26T10:29:38.374610+00:00",
+    "completed_at_utc": "2026-10-26T10:33:16.538499+00:00",
+    "expected_nodes": 36,
+    "simultaneous_snapshot": false,
+    "control_actions_requested": false,
+    "last_saved_at_utc": "2026-10-26T10:33:16.538499+00:00",
+    "nodes_received": 36,
+    "nodes_unavailable": []
+  },
+  "limitations": [
+    "Состояния запрошены последовательно, поэтому относятся к разным моментам времени.",
+    "Источник — ответы чатбота. Дословность результата внутреннего инструмента и полнота всех полей независимо не проверены.",
+    "Исходные имена, значения, единицы и вложенность сохраняются; отсутствующие поля не дополняются предположениями.",
+    "Время получения ответа отличается от времени измерения. updated_at и reading_delay_s сохраняются внутри state, если бот их вернул.",
+    "field_inventory описывает только реально полученные поля и типы; это не официальная схема и не перечень допустимых значений."
+  ],
+  "nodes": {
+    "solar_panels_01": {
+      "received_at_utc": "2026-10-26T10:29:38.374610+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "power_w": 385.8,
+        "pv_voltage_v": 72.35,
+        "pv_current_a": 5.33,
+        "channels_count": 2,
+        "mppt_channels_enabled": [
+          true,
+          true
+        ],
+        "mppt_channel_power_w": [
+          196.1,
+          189.7
+        ],
+        "mppt_1_enabled": true,
+        "all_mppt_enabled": true,
+        "active_mppt_count": 2,
+        "cell_temp_c": 24.5,
+        "soiling_loss_pct": 0.0,
+        "updated_at": 1793010538.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pv_voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pv_current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/channels_count",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/mppt_channels_enabled",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/mppt_channel_power_w",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/mppt_1_enabled",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/all_mppt_enabled",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/active_mppt_count",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/cell_temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/soiling_loss_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"solar_panels_01\",\n  \"data\": {\n    \"online\": true,\n    \"power_w\": 385.8,\n    \"pv_voltage_v\": 72.35,\n    \"pv_current_a\": 5.33,\n    \"channels_count\": 2,\n    \"mppt_channels_enabled\": [true, true],\n    \"mppt_channel_power_w\": [196.1, 189.7],\n    \"mppt_1_enabled\": true,\n    \"all_mppt_enabled\": true,\n    \"active_mppt_count\": 2,\n    \"cell_temp_c\": 24.5,\n    \"soiling_loss_pct\": 0.0,\n    \"updated_at\": 1793010538.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [],
+        "reported_fields_not_in_documented_list": [],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "solar_inverter_01": {
+      "request_started_at_utc": "2026-10-26T10:30:34.718675+00:00",
+      "received_at_utc": "2026-10-26T10:30:47.950013+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "pv_voltage_v": 71.67,
+        "pv_power_w": 491.6,
+        "battery_voltage_v": 26.39,
+        "battery_current_a": 0.06,
+        "battery_power_w": 1.7,
+        "battery_soc_pct": 88.92,
+        "battery_capacity_kwh": 2.56,
+        "load_power_w": 489.9,
+        "output_voltage_v": 230.7,
+        "output_limit_pct": 100.0,
+        "grid_power_w": 0.0,
+        "generator_power_w": 0.0,
+        "ac_source": "GRID",
+        "grid_state": "AVAILABLE",
+        "grid_voltage_v": 230.7,
+        "mode": "HYBRID",
+        "mppt_enabled": true,
+        "mppt_state": "TRACKING",
+        "battery_charge_blocked": false,
+        "power_deficit_w": 0.0,
+        "inverter_temp_c": 42.5,
+        "fan_mode": "AUTO",
+        "fan_state": "ON",
+        "fan_current_a": 0.252,
+        "error": false,
+        "error_code": null,
+        "error_text": null,
+        "balancing_state": "IDLE",
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/pv_voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pv_power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/battery_voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/battery_current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/battery_power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/battery_soc_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/battery_capacity_kwh",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/load_power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/output_voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/output_limit_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/grid_power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/generator_power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/ac_source",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/grid_state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/grid_voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/mode",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/mppt_enabled",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/mppt_state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/battery_charge_blocked",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/power_deficit_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/inverter_temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/fan_mode",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/fan_state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/fan_current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/error",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/error_code",
+          "observed_type": "null"
+        },
+        {
+          "pointer": "/error_text",
+          "observed_type": "null"
+        },
+        {
+          "pointer": "/balancing_state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"solar_inverter_01\",\n  \"data\": {\n    \"online\": true,\n    \"pv_voltage_v\": 71.67,\n    \"pv_power_w\": 491.6,\n    \"battery_voltage_v\": 26.39,\n    \"battery_current_a\": 0.06,\n    \"battery_power_w\": 1.7,\n    \"battery_soc_pct\": 88.92,\n    \"battery_capacity_kwh\": 2.56,\n    \"load_power_w\": 489.9,\n    \"output_voltage_v\": 230.7,\n    \"output_limit_pct\": 100.0,\n    \"grid_power_w\": 0.0,\n    \"generator_power_w\": 0.0,\n    \"ac_source\": \"GRID\",\n    \"grid_state\": \"AVAILABLE\",\n    \"grid_voltage_v\": 230.7,\n    \"mode\": \"HYBRID\",\n    \"mppt_enabled\": true,\n    \"mppt_state\": \"TRACKING\",\n    \"battery_charge_blocked\": false,\n    \"power_deficit_w\": 0.0,\n    \"inverter_temp_c\": 42.5,\n    \"fan_mode\": \"AUTO\",\n    \"fan_state\": \"ON\",\n    \"fan_current_a\": 0.252,\n    \"error\": false,\n    \"error_code\": null,\n    \"error_text\": null,\n    \"balancing_state\": \"IDLE\",\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [],
+        "reported_fields_not_in_documented_list": [],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "battery_01": {
+      "request_started_at_utc": "2026-10-26T10:30:47.951984+00:00",
+      "received_at_utc": "2026-10-26T10:30:53.492980+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "voltage_v": 26.39,
+        "current_a": 0.06,
+        "power_w": 1.7,
+        "soc_pct": 88.92,
+        "capacity_kwh": 2.56,
+        "remaining_kwh": 2.28,
+        "charge_state": "CHARGING",
+        "charge_current_a": 0.06,
+        "discharge_current_a": 0.0,
+        "cell_voltage_min_v": 3.298,
+        "cell_voltage_max_v": 3.301,
+        "cell_voltage_avg_v": 3.299,
+        "cell_temp_min_c": 23.1,
+        "cell_temp_max_c": 24.0,
+        "cell_temp_avg_c": 23.5,
+        "cycle_count": 12,
+        "soh_pct": 99.2,
+        "balancing": false,
+        "protection_ov": false,
+        "protection_uv": false,
+        "protection_oc": false,
+        "protection_ot": false,
+        "protection_ut": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/soc_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/capacity_kwh",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/remaining_kwh",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/charge_state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/charge_current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/discharge_current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/cell_voltage_min_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/cell_voltage_max_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/cell_voltage_avg_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/cell_temp_min_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/cell_temp_max_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/cell_temp_avg_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/cycle_count",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/soh_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/balancing",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/protection_ov",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/protection_uv",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/protection_oc",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/protection_ot",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/protection_ut",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"battery_01\",\n  \"data\": {\n    \"online\": true,\n    \"voltage_v\": 26.39,\n    \"current_a\": 0.06,\n    \"power_w\": 1.7,\n    \"soc_pct\": 88.92,\n    \"capacity_kwh\": 2.56,\n    \"remaining_kwh\": 2.28,\n    \"charge_state\": \"CHARGING\",\n    \"charge_current_a\": 0.06,\n    \"discharge_current_a\": 0.0,\n    \"cell_voltage_min_v\": 3.298,\n    \"cell_voltage_max_v\": 3.301,\n    \"cell_voltage_avg_v\": 3.299,\n    \"cell_temp_min_c\": 23.1,\n    \"cell_temp_max_c\": 24.0,\n    \"cell_temp_avg_c\": 23.5,\n    \"cycle_count\": 12,\n    \"soh_pct\": 99.2,\n    \"balancing\": false,\n    \"protection_ov\": false,\n    \"protection_uv\": false,\n    \"protection_oc\": false,\n    \"protection_ot\": false,\n    \"protection_ut\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "balancing_state",
+          "cell_voltage_delta_mv",
+          "charge_allowed",
+          "estimated_capacity_kwh",
+          "nominal_capacity_ah",
+          "nominal_capacity_kwh",
+          "state",
+          "temperature_c"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "balancing",
+          "capacity_kwh",
+          "cell_temp_avg_c",
+          "cell_temp_max_c",
+          "cell_temp_min_c",
+          "cell_voltage_avg_v",
+          "cell_voltage_max_v",
+          "cell_voltage_min_v",
+          "charge_current_a",
+          "charge_state",
+          "cycle_count",
+          "discharge_current_a",
+          "protection_oc",
+          "protection_ot",
+          "protection_ov",
+          "protection_ut",
+          "protection_uv",
+          "remaining_kwh",
+          "soh_pct"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "wind_turbine_01": {
+      "request_started_at_utc": "2026-10-26T10:30:53.495985+00:00",
+      "received_at_utc": "2026-10-26T10:30:57.621126+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "enabled": true,
+        "state": "RUNNING",
+        "power_w": 1.0,
+        "wind_speed_m_s": 4.1,
+        "rotor_rpm": 0.0,
+        "generator_voltage_v": 0.0,
+        "generator_current_a": 0.0,
+        "brake_engaged": false,
+        "yaw_angle_deg": 225.0,
+        "pitch_angle_deg": 0.0,
+        "cut_in_wind_m_s": 3.0,
+        "rated_wind_m_s": 12.0,
+        "cut_out_wind_m_s": 25.0,
+        "rated_power_w": 400.0,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/enabled",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/wind_speed_m_s",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/rotor_rpm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/generator_voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/generator_current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/brake_engaged",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/yaw_angle_deg",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pitch_angle_deg",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/cut_in_wind_m_s",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/rated_wind_m_s",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/cut_out_wind_m_s",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/rated_power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"wind_turbine_01\",\n  \"data\": {\n    \"online\": true,\n    \"enabled\": true,\n    \"state\": \"RUNNING\",\n    \"power_w\": 1.0,\n    \"wind_speed_m_s\": 4.1,\n    \"rotor_rpm\": 0.0,\n    \"generator_voltage_v\": 0.0,\n    \"generator_current_a\": 0.0,\n    \"brake_engaged\": false,\n    \"yaw_angle_deg\": 225.0,\n    \"pitch_angle_deg\": 0.0,\n    \"cut_in_wind_m_s\": 3.0,\n    \"rated_wind_m_s\": 12.0,\n    \"cut_out_wind_m_s\": 25.0,\n    \"rated_power_w\": 400.0,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "available",
+          "fault_code",
+          "rpm",
+          "wind_speed_ms"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "brake_engaged",
+          "cut_in_wind_m_s",
+          "cut_out_wind_m_s",
+          "enabled",
+          "generator_current_a",
+          "generator_voltage_v",
+          "pitch_angle_deg",
+          "rated_power_w",
+          "rated_wind_m_s",
+          "rotor_rpm",
+          "wind_speed_m_s",
+          "yaw_angle_deg"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "dizel_1": {
+      "request_started_at_utc": "2026-10-26T10:30:57.623486+00:00",
+      "received_at_utc": "2026-10-26T10:31:02.087850+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "state": "OFF",
+        "power_w": 0.0,
+        "voltage_v": 0.0,
+        "current_a": 0.0,
+        "frequency_hz": 0.0,
+        "engine_rpm": 0.0,
+        "engine_temp_c": 18.2,
+        "oil_pressure_bar": 0.0,
+        "fuel_level_pct": 75.0,
+        "fuel_state": "NORMAL",
+        "coolant_temp_c": 18.2,
+        "battery_voltage_v": 12.6,
+        "run_hours": 0.0,
+        "error": false,
+        "error_code": null,
+        "error_text": null,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/frequency_hz",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/engine_rpm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/engine_temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/oil_pressure_bar",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/fuel_level_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/fuel_state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/coolant_temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/battery_voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/run_hours",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/error",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/error_code",
+          "observed_type": "null"
+        },
+        {
+          "pointer": "/error_text",
+          "observed_type": "null"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"dizel_1\",\n  \"data\": {\n    \"online\": true,\n    \"state\": \"OFF\",\n    \"power_w\": 0.0,\n    \"voltage_v\": 0.0,\n    \"current_a\": 0.0,\n    \"frequency_hz\": 0.0,\n    \"engine_rpm\": 0.0,\n    \"engine_temp_c\": 18.2,\n    \"oil_pressure_bar\": 0.0,\n    \"fuel_level_pct\": 75.0,\n    \"fuel_state\": \"NORMAL\",\n    \"coolant_temp_c\": 18.2,\n    \"battery_voltage_v\": 12.6,\n    \"run_hours\": 0.0,\n    \"error\": false,\n    \"error_code\": null,\n    \"error_text\": null,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "fault_code",
+          "fault_reason",
+          "fuel_consumption_l_h",
+          "preheat_state",
+          "runtime_h",
+          "start_attempts"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "battery_voltage_v",
+          "coolant_temp_c",
+          "current_a",
+          "engine_rpm",
+          "error",
+          "error_code",
+          "error_text",
+          "frequency_hz",
+          "fuel_level_pct",
+          "fuel_state",
+          "oil_pressure_bar",
+          "run_hours",
+          "voltage_v"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "fuel_tank_01": {
+      "request_started_at_utc": "2026-10-26T10:31:02.088369+00:00",
+      "received_at_utc": "2026-10-26T10:31:06.320687+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "fuel_level_pct": 75.0,
+        "fuel_volume_l": 187.5,
+        "capacity_l": 250.0,
+        "fuel_type": "DIESEL",
+        "temp_c": 18.4,
+        "leak_detected": false,
+        "pressure_pa": 101325.0,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/fuel_level_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/fuel_volume_l",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/capacity_l",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/fuel_type",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/leak_detected",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/pressure_pa",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"fuel_tank_01\",\n  \"data\": {\n    \"online\": true,\n    \"fuel_level_pct\": 75.0,\n    \"fuel_volume_l\": 187.5,\n    \"capacity_l\": 250.0,\n    \"fuel_type\": \"DIESEL\",\n    \"temp_c\": 18.4,\n    \"leak_detected\": false,\n    \"pressure_pa\": 101325.0,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "consumption_l_h",
+          "contamination_pct",
+          "fuel_quality",
+          "fuel_temp_c",
+          "level_pct",
+          "reserve_l",
+          "state",
+          "transfer_fuel",
+          "value",
+          "volume_l",
+          "water_content_ppm"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "fuel_level_pct",
+          "fuel_type",
+          "fuel_volume_l",
+          "leak_detected",
+          "pressure_pa",
+          "temp_c"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "smart_panel_01": {
+      "request_started_at_utc": "2026-10-26T10:31:06.323330+00:00",
+      "received_at_utc": "2026-10-26T10:31:12.481126+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "total_power_w": 174.0,
+        "lines": [
+          {
+            "line": 1,
+            "name": "production_department",
+            "state": "ON",
+            "power_w": 61.0,
+            "current_a": 0.264,
+            "voltage_v": 230.7,
+            "protection": "NORMAL"
+          },
+          {
+            "line": 2,
+            "name": "greenhouse_fablab",
+            "state": "ON",
+            "power_w": 4.0,
+            "current_a": 0.017,
+            "voltage_v": 230.7,
+            "protection": "NORMAL"
+          },
+          {
+            "line": 3,
+            "name": "printer_3d",
+            "state": "ON",
+            "power_w": 66.0,
+            "current_a": 0.286,
+            "voltage_v": 230.7,
+            "protection": "NORMAL"
+          },
+          {
+            "line": 4,
+            "name": "cnc",
+            "state": "ON",
+            "power_w": 10.0,
+            "current_a": 0.043,
+            "voltage_v": 230.7,
+            "protection": "NORMAL"
+          },
+          {
+            "line": 5,
+            "name": "greenhouse_chemlab",
+            "state": "ON",
+            "power_w": 11.0,
+            "current_a": 0.048,
+            "voltage_v": 230.7,
+            "protection": "NORMAL"
+          },
+          {
+            "line": 6,
+            "name": "main_lighting",
+            "state": "OFF",
+            "power_w": 0.0,
+            "current_a": 0.0,
+            "voltage_v": 230.7,
+            "protection": "NORMAL"
+          },
+          {
+            "line": 7,
+            "name": "emergency_lighting",
+            "state": "ON",
+            "power_w": 22.0,
+            "current_a": 0.095,
+            "voltage_v": 230.7,
+            "protection": "NORMAL"
+          },
+          {
+            "line": 8,
+            "name": "reserve",
+            "state": "OFF",
+            "power_w": 0.0,
+            "current_a": 0.0,
+            "voltage_v": 230.7,
+            "protection": "NORMAL"
+          }
+        ],
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/total_power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/lines/0/line",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/lines/0/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/0/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/0/power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/0/current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/0/voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/0/protection",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/1/line",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/lines/1/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/1/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/1/power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/1/current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/1/voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/1/protection",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/2/line",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/lines/2/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/2/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/2/power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/2/current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/2/voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/2/protection",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/3/line",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/lines/3/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/3/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/3/power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/3/current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/3/voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/3/protection",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/4/line",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/lines/4/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/4/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/4/power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/4/current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/4/voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/4/protection",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/5/line",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/lines/5/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/5/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/5/power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/5/current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/5/voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/5/protection",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/6/line",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/lines/6/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/6/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/6/power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/6/current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/6/voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/6/protection",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/7/line",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/lines/7/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/7/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/lines/7/power_w",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/7/current_a",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/7/voltage_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/lines/7/protection",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"smart_panel_01\",\n  \"data\": {\n    \"online\": true,\n    \"total_power_w\": 174.0,\n    \"lines\": [\n      {\n        \"line\": 1,\n        \"name\": \"production_department\",\n        \"state\": \"ON\",\n        \"power_w\": 61.0,\n        \"current_a\": 0.264,\n        \"voltage_v\": 230.7,\n        \"protection\": \"NORMAL\"\n      },\n      {\n        \"line\": 2,\n        \"name\": \"greenhouse_fablab\",\n        \"state\": \"ON\",\n        \"power_w\": 4.0,\n        \"current_a\": 0.017,\n        \"voltage_v\": 230.7,\n        \"protection\": \"NORMAL\"\n      },\n      {\n        \"line\": 3,\n        \"name\": \"printer_3d\",\n        \"state\": \"ON\",\n        \"power_w\": 66.0,\n        \"current_a\": 0.286,\n        \"voltage_v\": 230.7,\n        \"protection\": \"NORMAL\"\n      },\n      {\n        \"line\": 4,\n        \"name\": \"cnc\",\n        \"state\": \"ON\",\n        \"power_w\": 10.0,\n        \"current_a\": 0.043,\n        \"voltage_v\": 230.7,\n        \"protection\": \"NORMAL\"\n      },\n      {\n        \"line\": 5,\n        \"name\": \"greenhouse_chemlab\",\n        \"state\": \"ON\",\n        \"power_w\": 11.0,\n        \"current_a\": 0.048,\n        \"voltage_v\": 230.7,\n        \"protection\": \"NORMAL\"\n      },\n      {\n        \"line\": 6,\n        \"name\": \"main_lighting\",\n        \"state\": \"OFF\",\n        \"power_w\": 0.0,\n        \"current_a\": 0.0,\n        \"voltage_v\": 230.7,\n        \"protection\": \"NORMAL\"\n      },\n      {\n        \"line\": 7,\n        \"name\": \"emergency_lighting\",\n        \"state\": \"ON\",\n        \"power_w\": 22.0,\n        \"current_a\": 0.095,\n        \"voltage_v\": 230.7,\n        \"protection\": \"NORMAL\"\n      },\n      {\n        \"line\": 8,\n        \"name\": \"reserve\",\n        \"state\": \"OFF\",\n        \"power_w\": 0.0,\n        \"current_a\": 0.0,\n        \"voltage_v\": 230.7,\n        \"protection\": \"NORMAL\"\n      }\n    ],\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "bus_powered",
+          "bus_voltage_v",
+          "lines_on_count",
+          "total_current_a"
+        ],
+        "reported_fields_not_in_documented_list": [],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "printer_3d_01": {
+      "request_started_at_utc": "2026-10-26T10:31:12.483826+00:00",
+      "received_at_utc": "2026-10-26T10:31:19.361759+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "state": "PRINTING",
+        "progress_pct": 9.0,
+        "current_file": ".cache/EN4Pro_0.4_D1_Elegoo PLA _0.24_52m44s.gcode",
+        "nozzle_temp_c": 210.0,
+        "bed_temp_c": 60.0,
+        "chamber_temp_c": 31.0,
+        "print_speed_mm_s": 60.0,
+        "z_height_mm": 2.4,
+        "elapsed_s": 285.0,
+        "remaining_s": 2879.0,
+        "filament_used_m": 1.24,
+        "filament_remaining_m": 318.76,
+        "files": [
+          ".cache/EN4Pro_0.4_D1_Elegoo PLA _0.24_52m44s.gcode",
+          "sda1/3.Model/01.Buddha/EN4Pro_0.4_The Buddha_PLA0.2_37m38s.gcode",
+          "sda1/3.Model/02.Nutcracker/EN4Pro_0.4_nutcracker & srew_PLA0.2_1h6m.gcode",
+          "sda1/3.Model/03.Diamond_textured planter/EN4Pro_0.4_diamond_textured_planter_PLA0.2_2h10m.gcode",
+          "sda1/3.Model/04.Tool holder/EN4Pro_0.4_Tool holder-V3.3_PLA0.2_50m5s.gcode",
+          "sda1/3.Model/05.3D Benchy/EN4Pro_0.4_3DBenchy_PLA0.25_16m42s.gcode",
+          "sda1/EN4Pro_0.4_D1_Elegoo PLA _0.24_52m44s.gcode",
+          "sda1/EN4Pro_0.4_MKI_PLA _51m11s.gcode",
+          "sda1/EN4Pro_0.4_The Buddha_PLA0.2_37m38s.gcode"
+        ],
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/progress_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/current_file",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/nozzle_temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/bed_temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/chamber_temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/print_speed_mm_s",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/z_height_mm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/elapsed_s",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/remaining_s",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/filament_used_m",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/filament_remaining_m",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/files",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"printer_3d_01\",\n  \"data\": {\n    \"online\": true,\n    \"state\": \"PRINTING\",\n    \"progress_pct\": 9.0,\n    \"current_file\": \".cache/EN4Pro_0.4_D1_Elegoo PLA _0.24_52m44s.gcode\",\n    \"nozzle_temp_c\": 210.0,\n    \"bed_temp_c\": 60.0,\n    \"chamber_temp_c\": 31.0,\n    \"print_speed_mm_s\": 60.0,\n    \"z_height_mm\": 2.4,\n    \"elapsed_s\": 285.0,\n    \"remaining_s\": 2879.0,\n    \"filament_used_m\": 1.24,\n    \"filament_remaining_m\": 318.76,\n    \"files\": [\n      \".cache/EN4Pro_0.4_D1_Elegoo PLA _0.24_52m44s.gcode\",\n      \"sda1/3.Model/01.Buddha/EN4Pro_0.4_The Buddha_PLA0.2_37m38s.gcode\",\n      \"sda1/3.Model/02.Nutcracker/EN4Pro_0.4_nutcracker & srew_PLA0.2_1h6m.gcode\",\n      \"sda1/3.Model/03.Diamond_textured planter/EN4Pro_0.4_diamond_textured_planter_PLA0.2_2h10m.gcode\",\n      \"sda1/3.Model/04.Tool holder/EN4Pro_0.4_Tool holder-V3.3_PLA0.2_50m5s.gcode\",\n      \"sda1/3.Model/05.3D Benchy/EN4Pro_0.4_3DBenchy_PLA0.25_16m42s.gcode\",\n      \"sda1/EN4Pro_0.4_D1_Elegoo PLA _0.24_52m44s.gcode\",\n      \"sda1/EN4Pro_0.4_MKI_PLA _51m11s.gcode\",\n      \"sda1/EN4Pro_0.4_The Buddha_PLA0.2_37m38s.gcode\"\n    ],\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "bed_clear",
+          "bed_heater_power_pct",
+          "bed_target_c",
+          "error_code",
+          "filament_required_g",
+          "filament_used_g",
+          "file_name",
+          "gcode_error",
+          "gcode_state",
+          "heater_power_pct",
+          "hold_level",
+          "hold_reason",
+          "homed",
+          "last_gcode",
+          "lockout_remaining_s",
+          "nozzle_target_c",
+          "part_defect",
+          "paused",
+          "power_w",
+          "print_duration_s",
+          "print_elapsed_s",
+          "print_time_left_s",
+          "real_state",
+          "resume_attempts",
+          "rotation_distance_x",
+          "speed_pct",
+          "webhook_state",
+          "x_mm",
+          "y_mm",
+          "z_mm"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "chamber_temp_c",
+          "current_file",
+          "elapsed_s",
+          "filament_remaining_m",
+          "filament_used_m",
+          "print_speed_mm_s",
+          "remaining_s",
+          "z_height_mm"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "cnc_01": {
+      "request_started_at_utc": "2026-10-26T10:31:19.365458+00:00",
+      "received_at_utc": "2026-10-26T10:31:24.034989+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "state": "IDLE",
+        "work_x_mm": -50.0,
+        "work_y_mm": -50.0,
+        "work_z_mm": 6.1,
+        "machine_x_mm": 0.0,
+        "machine_y_mm": 0.0,
+        "machine_z_mm": 0.0,
+        "spindle_rpm": 0.0,
+        "feed_rate_mm_min": 0.0,
+        "probe_connected": false,
+        "current_file": null,
+        "files": [
+          "PCB2.nc"
+        ],
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/work_x_mm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/work_y_mm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/work_z_mm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/machine_x_mm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/machine_y_mm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/machine_z_mm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/spindle_rpm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/feed_rate_mm_min",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/probe_connected",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/current_file",
+          "observed_type": "null"
+        },
+        {
+          "pointer": "/files",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"cnc_01\",\n  \"data\": {\n    \"online\": true,\n    \"state\": \"IDLE\",\n    \"work_x_mm\": -50.0,\n    \"work_y_mm\": -50.0,\n    \"work_z_mm\": 6.1,\n    \"machine_x_mm\": 0.0,\n    \"machine_y_mm\": 0.0,\n    \"machine_z_mm\": 0.0,\n    \"spindle_rpm\": 0.0,\n    \"feed_rate_mm_min\": 0.0,\n    \"probe_connected\": false,\n    \"current_file\": null,\n    \"files\": [\n      \"PCB2.nc\"\n    ],\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "alarm",
+          "alarm_code",
+          "error_code",
+          "error_text",
+          "file_name",
+          "hold_level",
+          "hold_reason",
+          "homed",
+          "job_duration_s",
+          "job_elapsed_s",
+          "job_time_left_s",
+          "last_gcode",
+          "last_probe",
+          "lockout_remaining_s",
+          "mpos_mm",
+          "part_defect",
+          "paused",
+          "power_w",
+          "progress_pct",
+          "quality_state",
+          "resume_attempts",
+          "spindle_target_rpm",
+          "spindle_temp_c",
+          "wco_mm",
+          "x_mm",
+          "y_mm",
+          "z_mm"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "current_file",
+          "feed_rate_mm_min",
+          "machine_x_mm",
+          "machine_y_mm",
+          "machine_z_mm",
+          "probe_connected",
+          "work_x_mm",
+          "work_y_mm",
+          "work_z_mm"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "material_inventory_01": {
+      "request_started_at_utc": "2026-10-26T10:31:24.038002+00:00",
+      "received_at_utc": "2026-10-26T10:31:30.431491+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "materials": [
+          {
+            "id": "PLA_WHITE_1KG",
+            "name": "PLA White 1kg",
+            "type": "FILAMENT",
+            "quantity": 1.0,
+            "unit": "spool",
+            "remaining_pct": 80.0
+          },
+          {
+            "id": "PLA_BLACK_1KG",
+            "name": "PLA Black 1kg",
+            "type": "FILAMENT",
+            "quantity": 1.0,
+            "unit": "spool",
+            "remaining_pct": 55.0
+          },
+          {
+            "id": "PETG_CLEAR_1KG",
+            "name": "PETG Clear 1kg",
+            "type": "FILAMENT",
+            "quantity": 1.0,
+            "unit": "spool",
+            "remaining_pct": 90.0
+          },
+          {
+            "id": "FR4_PCB_100X160",
+            "name": "FR4 PCB 100x160mm",
+            "type": "PCB_BLANK",
+            "quantity": 5.0,
+            "unit": "pc",
+            "remaining_pct": 100.0
+          },
+          {
+            "id": "ALUMINUM_SHEET_2MM",
+            "name": "Aluminum sheet 2mm",
+            "type": "SHEET",
+            "quantity": 2.0,
+            "unit": "pc",
+            "remaining_pct": 100.0
+          }
+        ],
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/materials",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/materials/0/id",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/0/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/0/type",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/0/quantity",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/materials/0/unit",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/0/remaining_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/materials/1/id",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/1/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/1/type",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/1/quantity",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/materials/1/unit",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/1/remaining_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/materials/2/id",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/2/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/2/type",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/2/quantity",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/materials/2/unit",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/2/remaining_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/materials/3/id",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/3/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/3/type",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/3/quantity",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/materials/3/unit",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/3/remaining_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/materials/4/id",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/4/name",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/4/type",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/4/quantity",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/materials/4/unit",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/materials/4/remaining_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"material_inventory_01\",\n  \"data\": {\n    \"online\": true,\n    \"materials\": [\n      {\n        \"id\": \"PLA_WHITE_1KG\",\n        \"name\": \"PLA White 1kg\",\n        \"type\": \"FILAMENT\",\n        \"quantity\": 1.0,\n        \"unit\": \"spool\",\n        \"remaining_pct\": 80.0\n      },\n      {\n        \"id\": \"PLA_BLACK_1KG\",\n        \"name\": \"PLA Black 1kg\",\n        \"type\": \"FILAMENT\",\n        \"quantity\": 1.0,\n        \"unit\": \"spool\",\n        \"remaining_pct\": 55.0\n      },\n      {\n        \"id\": \"PETG_CLEAR_1KG\",\n        \"name\": \"PETG Clear 1kg\",\n        \"type\": \"FILAMENT\",\n        \"quantity\": 1.0,\n        \"unit\": \"spool\",\n        \"remaining_pct\": 90.0\n      },\n      {\n        \"id\": \"FR4_PCB_100X160\",\n        \"name\": \"FR4 PCB 100x160mm\",\n        \"type\": \"PCB_BLANK\",\n        \"quantity\": 5.0,\n        \"unit\": \"pc\",\n        \"remaining_pct\": 100.0\n      },\n      {\n        \"id\": \"ALUMINUM_SHEET_2MM\",\n        \"name\": \"Aluminum sheet 2mm\",\n        \"type\": \"SHEET\",\n        \"quantity\": 2.0,\n        \"unit\": \"pc\",\n        \"remaining_pct\": 100.0\n      }\n    ],\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "cnc_blanks_count",
+          "consumables_pct",
+          "filament_g",
+          "filament_pct",
+          "low_stock_warnings",
+          "spare_spools",
+          "spool_capacity_g"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "materials"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "equipment_cooling_01": {
+      "request_started_at_utc": "2026-10-26T10:31:30.434758+00:00",
+      "received_at_utc": "2026-10-26T10:31:34.254126+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "state": "ON",
+        "speed_pct": 40.0,
+        "coolant_temp_c": 22.1,
+        "flow_rate_l_min": 6.5,
+        "pressure_bar": 1.2,
+        "pump_rpm": 1450.0,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/speed_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/coolant_temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/flow_rate_l_min",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pressure_bar",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pump_rpm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"equipment_cooling_01\",\n  \"data\": {\n    \"online\": true,\n    \"state\": \"ON\",\n    \"speed_pct\": 40.0,\n    \"coolant_temp_c\": 22.1,\n    \"flow_rate_l_min\": 6.5,\n    \"pressure_bar\": 1.2,\n    \"pump_rpm\": 1450.0,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "alarm",
+          "alarm_code",
+          "bleeding",
+          "coolant_flow_l_min",
+          "heat_exchanger_temp_c",
+          "pump_power_w"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "flow_rate_l_min",
+          "pressure_bar",
+          "pump_rpm"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "climate_sensor_01": {
+      "request_started_at_utc": "2026-10-26T10:31:34.256680+00:00",
+      "received_at_utc": "2026-10-26T10:31:37.466245+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "temp_c": 26.8,
+        "humidity_pct": 31.0,
+        "pressure_pa": 100573.0,
+        "co2_ppm": 1295.0,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/humidity_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pressure_pa",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/co2_ppm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"climate_sensor_01\",\n  \"data\": {\n    \"online\": true,\n    \"temp_c\": 26.8,\n    \"humidity_pct\": 31.0,\n    \"pressure_pa\": 100573.0,\n    \"co2_ppm\": 1295.0,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "dew_point_c",
+          "temperature_c",
+          "zone"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "pressure_pa",
+          "temp_c"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "climate_sensor_02": {
+      "request_started_at_utc": "2026-10-26T10:31:37.466760+00:00",
+      "received_at_utc": "2026-10-26T10:31:39.998374+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "temp_c": 20.5,
+        "humidity_pct": 42.0,
+        "pressure_pa": 100547.0,
+        "co2_ppm": 610.0,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/humidity_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pressure_pa",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/co2_ppm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"climate_sensor_02\",\n  \"data\": {\n    \"online\": true,\n    \"temp_c\": 20.5,\n    \"humidity_pct\": 42.0,\n    \"pressure_pa\": 100547.0,\n    \"co2_ppm\": 610.0,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "dew_point_c",
+          "temperature_c",
+          "zone"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "pressure_pa",
+          "temp_c"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "climate_sensor_03": {
+      "request_started_at_utc": "2026-10-26T10:31:39.998896+00:00",
+      "received_at_utc": "2026-10-26T10:31:43.514736+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "temp_c": 14.5,
+        "humidity_pct": 46.0,
+        "pressure_pa": 100771.0,
+        "co2_ppm": 420.0,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/humidity_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pressure_pa",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/co2_ppm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"climate_sensor_03\",\n  \"data\": {\n    \"online\": true,\n    \"temp_c\": 14.5,\n    \"humidity_pct\": 46.0,\n    \"pressure_pa\": 100771.0,\n    \"co2_ppm\": 420.0,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "dew_point_c",
+          "temperature_c",
+          "zone"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "pressure_pa",
+          "temp_c"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "air_quality_sensor_01": {
+      "request_started_at_utc": "2026-10-26T10:31:43.516260+00:00",
+      "received_at_utc": "2026-10-26T10:31:47.325851+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "co_ppm": 0.43,
+        "voc_index": 103.0,
+        "pm25_ug_m3": 12.0,
+        "pm10_ug_m3": 18.0,
+        "no2_ppm": 0.02,
+        "o3_ppm": 0.01,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/co_ppm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/voc_index",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pm25_ug_m3",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pm10_ug_m3",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/no2_ppm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/o3_ppm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"air_quality_sensor_01\",\n  \"data\": {\n    \"online\": true,\n    \"co_ppm\": 0.43,\n    \"voc_index\": 103.0,\n    \"pm25_ug_m3\": 12.0,\n    \"pm10_ug_m3\": 18.0,\n    \"no2_ppm\": 0.02,\n    \"o3_ppm\": 0.01,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "chem_ppm",
+          "warming_up",
+          "zone"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "no2_ppm",
+          "o3_ppm",
+          "pm10_ug_m3",
+          "pm25_ug_m3"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "smoke_detector_01": {
+      "request_started_at_utc": "2026-10-26T10:31:47.328406+00:00",
+      "received_at_utc": "2026-10-26T10:31:50.165396+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "smoke_detected": false,
+        "alarm": false,
+        "battery_ok": true,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/smoke_detected",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/battery_ok",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"smoke_detector_01\",\n  \"data\": {\n    \"online\": true,\n    \"smoke_detected\": false,\n    \"alarm\": false,\n    \"battery_ok\": true,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "alarm_state",
+          "false_alarm_suspected",
+          "obscuration_pct",
+          "reset_alarm",
+          "zone"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "alarm",
+          "battery_ok"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "fume_extraction_01": {
+      "request_started_at_utc": "2026-10-26T10:31:50.169774+00:00",
+      "received_at_utc": "2026-10-26T10:31:52.695211+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "state": "RUNNING",
+        "speed_pct": 100.0,
+        "filter_ok": true,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/speed_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/filter_ok",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"fume_extraction_01\",\n  \"data\": {\n    \"online\": true,\n    \"state\": \"RUNNING\",\n    \"speed_pct\": 100.0,\n    \"filter_ok\": true,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "airflow_pct",
+          "alarm_code",
+          "enabled",
+          "fan_rpm",
+          "motor_state",
+          "motor_temp_c",
+          "power_w"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "filter_ok",
+          "speed_pct",
+          "state"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "supply_ventilation_01": {
+      "request_started_at_utc": "2026-10-26T10:31:52.700025+00:00",
+      "received_at_utc": "2026-10-26T10:31:56.850916+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "state": "RUNNING",
+        "mode": "MIXED",
+        "speed_pct": 60.0,
+        "flow_m3h": 595.0,
+        "filter_ok": true,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/state",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/mode",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/speed_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/flow_m3h",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/filter_ok",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"supply_ventilation_01\",\n  \"data\": {\n    \"online\": true,\n    \"state\": \"RUNNING\",\n    \"mode\": \"MIXED\",\n    \"speed_pct\": 60.0,\n    \"flow_m3h\": 595.0,\n    \"filter_ok\": true,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "airflow_m3_h",
+          "alarm_code",
+          "filter_clog_pct",
+          "filter_state",
+          "fresh_air_m3_h",
+          "power_w",
+          "supply_humidity_pct",
+          "supply_temp_c"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "filter_ok",
+          "flow_m3h"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "dome_sealing_01": {
+      "request_started_at_utc": "2026-10-26T10:31:56.853426+00:00",
+      "received_at_utc": "2026-10-26T10:32:00.788493+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "valves_open": true,
+        "seal_zones": {
+          "zone_1": "OPEN",
+          "zone_2": "OPEN",
+          "zone_3": "OPEN"
+        },
+        "pressure_pa": 100548.0,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/valves_open",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/seal_zones",
+          "observed_type": "object"
+        },
+        {
+          "pointer": "/seal_zones/zone_1",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/seal_zones/zone_2",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/seal_zones/zone_3",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/pressure_pa",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"dome_sealing_01\",\n  \"data\": {\n    \"online\": true,\n    \"valves_open\": true,\n    \"seal_zones\": {\n      \"zone_1\": \"OPEN\",\n      \"zone_2\": \"OPEN\",\n      \"zone_3\": \"OPEN\"\n    },\n    \"pressure_pa\": 100548.0,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "fault_code",
+          "leak_detected",
+          "leak_rate_pct",
+          "pressure_diff_pa",
+          "seal_ready",
+          "sealed_zone",
+          "state",
+          "valve_positions_pct",
+          "valve_targets_pct"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "alarm",
+          "pressure_pa",
+          "seal_zones",
+          "valves_open"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "thermal_insulation_01": {
+      "request_started_at_utc": "2026-10-26T10:32:00.791010+00:00",
+      "received_at_utc": "2026-10-26T10:32:06.647700+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "temp_c": [
+          30.9,
+          30.8,
+          33.9
+        ],
+        "humidity_pct": [
+          12.0,
+          15.0,
+          14.0
+        ],
+        "pressure_pa": [
+          100562.0,
+          100559.0,
+          100772.0
+        ],
+        "fans_pwm": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "fans_rpm": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "doors": [
+          "OPEN",
+          "CLOSED"
+        ],
+        "locks": [
+          "LOCKED",
+          "LOCKED"
+        ],
+        "voc": [
+          59,
+          131
+        ],
+        "dust_v": 0.77,
+        "vacuum_on": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/temp_c",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/humidity_pct",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/pressure_pa",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/fans_pwm",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/fans_rpm",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/doors",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/locks",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/voc",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/dust_v",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/vacuum_on",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"thermal_insulation_01\",\n  \"data\": {\n    \"online\": true,\n    \"temp_c\": [30.9, 30.8, 33.9],\n    \"humidity_pct\": [12.0, 15.0, 14.0],\n    \"pressure_pa\": [100562.0, 100559.0, 100772.0],\n    \"fans_pwm\": [0, 0, 0, 0, 0, 0],\n    \"fans_rpm\": [0, 0, 0, 0, 0, 0],\n    \"doors\": [\"OPEN\", \"CLOSED\"],\n    \"locks\": [\"LOCKED\", \"LOCKED\"],\n    \"voc\": [59, 131],\n    \"dust_v\": 0.77,\n    \"vacuum_on\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "crc_errors",
+          "dust_adc",
+          "dust_voltage_v",
+          "null",
+          "poll_interval_ms",
+          "temperature_c",
+          "voc_index"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "dust_v",
+          "temp_c",
+          "voc"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "thermal_insulation_02": {
+      "request_started_at_utc": "2026-10-26T10:32:06.650220+00:00",
+      "received_at_utc": "2026-10-26T10:32:10.216828+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "temp_c": [
+          20.6,
+          20.3
+        ],
+        "humidity_pct": [
+          43.0,
+          45.0
+        ],
+        "pressure_pa": [
+          100512.0,
+          100509.0
+        ],
+        "fans_pwm": [
+          128,
+          128
+        ],
+        "fans_rpm": [
+          1520,
+          1519
+        ],
+        "doors": [
+          "CLOSED",
+          "CLOSED"
+        ],
+        "lock": "LOCKED",
+        "gas_mq2_v": [
+          0.83,
+          0.57
+        ],
+        "relay_fan_level": 0,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/temp_c",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/humidity_pct",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/pressure_pa",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/fans_pwm",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/fans_rpm",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/doors",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/lock",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/gas_mq2_v",
+          "observed_type": "array"
+        },
+        {
+          "pointer": "/relay_fan_level",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"thermal_insulation_02\",\n  \"data\": {\n    \"online\": true,\n    \"temp_c\": [20.6, 20.3],\n    \"humidity_pct\": [43.0, 45.0],\n    \"pressure_pa\": [100512.0, 100509.0],\n    \"fans_pwm\": [128, 128],\n    \"fans_rpm\": [1520, 1519],\n    \"doors\": [\"CLOSED\", \"CLOSED\"],\n    \"lock\": \"LOCKED\",\n    \"gas_mq2_v\": [0.83, 0.57],\n    \"relay_fan_level\": 0,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "gas_adc",
+          "gas_voltage_v",
+          "temperature_c"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "gas_mq2_v",
+          "temp_c"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "weather_station_01": {
+      "request_started_at_utc": "2026-10-26T10:32:10.219834+00:00",
+      "received_at_utc": "2026-10-26T10:32:13.114064+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "temp_c": 13.8,
+        "wind_mps": 5.0,
+        "wind_dir": "S",
+        "precipitation_mmh": 1.0,
+        "pressure_pa": 100772.0,
+        "humidity_pct": 78.0,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/wind_mps",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/wind_dir",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/precipitation_mmh",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pressure_pa",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/humidity_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"weather_station_01\",\n  \"data\": {\n    \"online\": true,\n    \"temp_c\": 13.8,\n    \"wind_mps\": 5.0,\n    \"wind_dir\": \"S\",\n    \"precipitation_mmh\": 1.0,\n    \"pressure_pa\": 100772.0,\n    \"humidity_pct\": 78.0,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "data_available",
+          "illuminance_lux",
+          "precipitation_mm_h",
+          "pressure_hpa",
+          "temperature_c",
+          "wind_direction",
+          "wind_direction_deg",
+          "wind_speed_ms"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "precipitation_mmh",
+          "pressure_pa",
+          "temp_c",
+          "wind_dir",
+          "wind_mps"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "seysmo_01": {
+      "request_started_at_utc": "2026-10-26T10:32:13.116574+00:00",
+      "received_at_utc": "2026-10-26T10:32:16.459499+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "magnitude": 0.0,
+        "peak_accel_mg": 1.2,
+        "rms_accel_mg": 0.4,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/magnitude",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/peak_accel_mg",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/rms_accel_mg",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"seysmo_01\",\n  \"data\": {\n    \"online\": true,\n    \"magnitude\": 0.0,\n    \"peak_accel_mg\": 1.2,\n    \"rms_accel_mg\": 0.4,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "amplitude_mm_s",
+          "epicenter_distance_km",
+          "estimated_magnitude",
+          "quake_detected",
+          "set_threshold",
+          "threshold_mm_s"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "alarm",
+          "magnitude",
+          "peak_accel_mg",
+          "rms_accel_mg"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "radiation_sensor_01": {
+      "request_started_at_utc": "2026-10-26T10:32:16.459499+00:00",
+      "received_at_utc": "2026-10-26T10:32:19.302124+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "dose_rate_usvh": 0.11,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/dose_rate_usvh",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"radiation_sensor_01\",\n  \"data\": {\n    \"online\": true,\n    \"dose_rate_usvh\": 0.11,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "alarm_state",
+          "alarm_threshold",
+          "counts_per_minute",
+          "dose_rate_usv_h",
+          "event_type",
+          "warning_threshold"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "alarm",
+          "dose_rate_usvh"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "chem_sensor_01": {
+      "request_started_at_utc": "2026-10-26T10:32:19.302688+00:00",
+      "received_at_utc": "2026-10-26T10:32:22.743395+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "co_ppm": 0.23,
+        "voc_index": 102.0,
+        "co2_ppm": 1280.0,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/co_ppm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/voc_index",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/co2_ppm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"chem_sensor_01\",\n  \"data\": {\n    \"online\": true,\n    \"co_ppm\": 0.23,\n    \"voc_index\": 102.0,\n    \"co2_ppm\": 1280.0,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "alarm_state",
+          "alarm_threshold",
+          "concentration_ppm",
+          "reset_alarm",
+          "set_thresholds",
+          "substance",
+          "warning_threshold"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "alarm",
+          "co2_ppm",
+          "co_ppm",
+          "voc_index"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "smoke_detector_02": {
+      "request_started_at_utc": "2026-10-26T10:32:22.749578+00:00",
+      "received_at_utc": "2026-10-26T10:32:27.860681+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "smoke_level": 0.0,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/smoke_level",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"smoke_detector_02\",\n  \"data\": {\n    \"online\": true,\n    \"smoke_level\": 0.0,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "alarm_state",
+          "false_alarm_suspected",
+          "obscuration_pct",
+          "reset_alarm",
+          "smoke_detected",
+          "zone"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "alarm",
+          "smoke_level"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "water_pump_01": {
+      "request_started_at_utc": "2026-10-26T10:32:27.861212+00:00",
+      "received_at_utc": "2026-10-26T10:32:33.923758+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "running": false,
+        "flow_lpm": 0.0,
+        "pressure_bar": 0.0,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/running",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/flow_lpm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pressure_bar",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"water_pump_01\",\n  \"data\": {\n    \"online\": true,\n    \"running\": false,\n    \"flow_lpm\": 0.0,\n    \"pressure_bar\": 0.0,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "alarm_code",
+          "delivered_l_min",
+          "duty_cycle_pct",
+          "flow_l_min",
+          "motor_current_a",
+          "motor_temp_c",
+          "power_limit_pct",
+          "power_w",
+          "source_level_pct",
+          "state"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "flow_lpm"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "water_tank_01": {
+      "request_started_at_utc": "2026-10-26T10:32:33.930996+00:00",
+      "received_at_utc": "2026-10-26T10:32:41.870415+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "level_pct": 70.0,
+        "status": "NORMAL",
+        "updated_at": 1793010606.06
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/level_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"water_tank_01\",\n  \"data\": {\n    \"online\": true,\n    \"level_pct\": 70.0,\n    \"status\": \"NORMAL\",\n    \"updated_at\": 1793010606.06\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "capacity_l",
+          "state",
+          "volume_l",
+          "water_temp_c"
+        ],
+        "reported_fields_not_in_documented_list": [],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "water_filter_01": {
+      "request_started_at_utc": "2026-10-26T10:32:41.870954+00:00",
+      "received_at_utc": "2026-10-26T10:32:49.584672+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "filter_active": true,
+        "filter_used_pct": 42.0,
+        "reserve_ready": true,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/filter_active",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/filter_used_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/reserve_ready",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"water_filter_01\",\n  \"data\": {\n    \"online\": true,\n    \"filter_active\": true,\n    \"filter_used_pct\": 42.0,\n    \"reserve_ready\": true,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "active_filter",
+          "filter_state",
+          "hours_to_replacement",
+          "ph",
+          "pressure_drop_bar",
+          "residual_chlorine_mg_l",
+          "source_turbidity_ntu",
+          "system_state",
+          "tds_ppm",
+          "turbidity_ntu",
+          "warning_active",
+          "wear_pct"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "alarm",
+          "filter_active",
+          "filter_used_pct",
+          "reserve_ready"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "fire_suppression_01": {
+      "request_started_at_utc": "2026-10-26T10:32:49.588234+00:00",
+      "received_at_utc": "2026-10-26T10:32:53.117665+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "agent_level_pct": 100.0,
+        "pressure_bar": 12.0,
+        "discharged": false,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/agent_level_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/pressure_bar",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/discharged",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"fire_suppression_01\",\n  \"data\": {\n    \"online\": true,\n    \"agent_level_pct\": 100.0,\n    \"pressure_bar\": 12.0,\n    \"discharged\": false,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "active_zone",
+          "automation_blocked",
+          "discharge_l_min",
+          "false_trigger_count",
+          "fault_code",
+          "ready",
+          "state",
+          "valves"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "agent_level_pct",
+          "discharged"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "access_control_01": {
+      "request_started_at_utc": "2026-10-26T10:32:53.118191+00:00",
+      "received_at_utc": "2026-10-26T10:33:01.136736+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "doors": {
+          "main_airlock": "CLOSED",
+          "fablab": "CLOSED",
+          "chemlab": "CLOSED"
+        },
+        "locks": {
+          "main_airlock": "LOCKED",
+          "fablab": "LOCKED",
+          "chemlab": "LOCKED"
+        },
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/doors",
+          "observed_type": "object"
+        },
+        {
+          "pointer": "/doors/main_airlock",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/doors/fablab",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/doors/chemlab",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/locks",
+          "observed_type": "object"
+        },
+        {
+          "pointer": "/locks/main_airlock",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/locks/fablab",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/locks/chemlab",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"access_control_01\",\n  \"data\": {\n    \"online\": true,\n    \"doors\": {\n      \"main_airlock\": \"CLOSED\",\n      \"fablab\": \"CLOSED\",\n      \"chemlab\": \"CLOSED\"\n    },\n    \"locks\": {\n      \"main_airlock\": \"LOCKED\",\n      \"fablab\": \"LOCKED\",\n      \"chemlab\": \"LOCKED\"\n    },\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```\n\n**Принципы работы и режимы купола (кратко):**\n\n- **Энергоснабжение:** солнечные панели (MPPT-каналы) и ветрогенератор питают инвертор; при нехватке — АКБ (DISCHARGING) или внешняя сеть (AVAILABLE); резерв — дизель-генератор.\n- **Инвертор:** режим HYBRID (совместная работа источников) или GRID_ONLY (только внешняя сеть).\n- **Умный щиток:** 8 линий с защитой; при срабатывании (TRIPPED/RCD_TRIP) линию возвращает reset_protection, а не включение.\n- **Теплицы:** ШИМ-вентиляторы, пылесос (ФабЛаб), релейный вентилятор (Химлаб), замки; двери открывает только Оператор физически при открытом замке.\n- **Производство:** 3D-принтер и ЧПУ — пауза/продолжение/прерывание/поиск нуля/запуск задания по файлу; ЧПУ дополнительно probe_z и set_zero.\n- **Вентиляция:** приточная (режимы RECIRCULATION/FRESH_AIR/MIXED) и вытяжка FabLab.\n- **Безопасность:** герметизация, пожаротушение, контроль доступа, дымовые датчики, сейсмодатчик, датчик радиации, химдатчик.",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "alarm_reason",
+          "lock_battery_pct",
+          "lockdown",
+          "locked",
+          "passage_events",
+          "state",
+          "system_state"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "locks"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "radio_01": {
+      "request_started_at_utc": "2026-10-26T10:33:01.137254+00:00",
+      "received_at_utc": "2026-10-26T10:33:04.432566+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "frequency_mhz": 433.92,
+        "protocol": "FSK",
+        "rssi_dbm": -72.0,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/frequency_mhz",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/protocol",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/rssi_dbm",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"radio_01\",\n  \"data\": {\n    \"online\": true,\n    \"frequency_mhz\": 433.92,\n    \"protocol\": \"FSK\",\n    \"rssi_dbm\": -72.0,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "bitrate_kbps",
+          "noise_level_dbm",
+          "reception",
+          "signal_quality_pct",
+          "snr_db",
+          "state"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "alarm",
+          "rssi_dbm"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "backup_comms_01": {
+      "request_started_at_utc": "2026-10-26T10:33:04.434065+00:00",
+      "received_at_utc": "2026-10-26T10:33:07.362032+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "channel": 1,
+        "link_quality_pct": 88.0,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/channel",
+          "observed_type": "integer"
+        },
+        {
+          "pointer": "/link_quality_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"backup_comms_01\",\n  \"data\": {\n    \"online\": true,\n    \"channel\": 1,\n    \"link_quality_pct\": 88.0,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "active_channel",
+          "available",
+          "bitrate_kbps",
+          "latency_ms",
+          "protocol",
+          "signal_quality_pct",
+          "state",
+          "traffic_priority"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "alarm",
+          "channel",
+          "link_quality_pct"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "edge_compute_01": {
+      "request_started_at_utc": "2026-10-26T10:33:07.365302+00:00",
+      "received_at_utc": "2026-10-26T10:33:10.733376+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "cpu_load_pct": 34.0,
+        "mem_used_pct": 61.0,
+        "disk_used_pct": 47.0,
+        "temp_c": 52.0,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/cpu_load_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/mem_used_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/disk_used_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/temp_c",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"edge_compute_01\",\n  \"data\": {\n    \"online\": true,\n    \"cpu_load_pct\": 34.0,\n    \"mem_used_pct\": 61.0,\n    \"disk_used_pct\": 47.0,\n    \"temp_c\": 52.0,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "clock_offset_s",
+          "free_memory_pct",
+          "gpu_load_pct",
+          "load_limit_pct",
+          "services",
+          "state",
+          "temperature_c",
+          "uptime_h"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "alarm",
+          "disk_used_pct",
+          "mem_used_pct",
+          "temp_c"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "network_link_01": {
+      "request_started_at_utc": "2026-10-26T10:33:10.734423+00:00",
+      "received_at_utc": "2026-10-26T10:33:13.529942+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "uplink": "AVAILABLE",
+        "latency_ms": 42.0,
+        "packet_loss_pct": 0.3,
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/uplink",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/latency_ms",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/packet_loss_pct",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"network_link_01\",\n  \"data\": {\n    \"online\": true,\n    \"uplink\": \"AVAILABLE\",\n    \"latency_ms\": 42.0,\n    \"packet_loss_pct\": 0.3,\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [
+          "active_path",
+          "link_flaps",
+          "link_state",
+          "panel_link_state",
+          "patchcord_replacing",
+          "reserve_link_state",
+          "rx_power_dbm"
+        ],
+        "reported_fields_not_in_documented_list": [
+          "alarm",
+          "latency_ms",
+          "uplink"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    },
+    "dome_automation_01": {
+      "request_started_at_utc": "2026-10-26T10:33:13.533380+00:00",
+      "received_at_utc": "2026-10-26T10:33:16.537981+00:00",
+      "capture_status": "parsed_chatbot_json",
+      "completeness": "not_independently_verified",
+      "state": {
+        "online": true,
+        "mode": "AUTO",
+        "alarm": false,
+        "updated_at": 1793010606.06,
+        "status": "OK"
+      },
+      "field_inventory": [
+        {
+          "pointer": "/online",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/mode",
+          "observed_type": "string"
+        },
+        {
+          "pointer": "/alarm",
+          "observed_type": "boolean"
+        },
+        {
+          "pointer": "/updated_at",
+          "observed_type": "number"
+        },
+        {
+          "pointer": "/status",
+          "observed_type": "string"
+        }
+      ],
+      "raw_reply": "```json\n{\n  \"node_id\": \"dome_automation_01\",\n  \"data\": {\n    \"online\": true,\n    \"mode\": \"AUTO\",\n    \"alarm\": false,\n    \"updated_at\": 1793010606.06,\n    \"status\": \"OK\"\n  }\n}\n```",
+      "documentation_comparison": {
+        "documented_fields_not_returned": [],
+        "reported_fields_not_in_documented_list": [
+          "alarm",
+          "mode"
+        ],
+        "notes": "Different field names may be aliases or a different version, not necessarily an error. No values synthesized."
+      }
+    }
+  },
+  "documentation_comparison": {
+    "source": "D:\\олимпиады\\лига автономных систем 2026\\doc_2026-10-26_15-14-59.git\\01_API.md",
+    "catalog_nodes": 37,
+    "scope_warning": "Chatbot and documented WebSocket system may be different interfaces/versions; do not treat chatbot replies as complete WebSocket telemetry.",
+    "not_polled_nodes": [
+      "meeting_01"
+    ]
+  }
+}
