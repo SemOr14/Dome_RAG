@@ -11,17 +11,18 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .context.telemetry import compact_telemetry
+from .monitoring import NumericMonitor
 
 # Порядок важен: при объединении поводов первыми идут более срочные
 PRIORITY = {"operator": 0, "alarm": 0, "command": 0, "conflict": 1, "stale": 1, "operation": 1,
-            "verification": 1, "review": 2}
+            "verification": 1, "numeric": 2, "review": 2}
 JOB_NODES = {"printer_3d_01": ("PRINTING",), "cnc_01": ("RUNNING",)}
 DONE_STATES = ("COMPLETED", "IDLE")
 
 
 @dataclass
 class Trigger:
-    kind: str  # alarm | conflict | stale | operation | command | operator | verification | review
+    kind: str  # alarm | conflict | stale | operation | command | operator | verification | numeric | review
     key: str  # ключ ситуации: повторы с тем же ключом объединяются и не вызывают модель чаще паузы
     text: str
     nodes: set[str] = field(default_factory=set)
@@ -35,6 +36,12 @@ class Trigger:
     def public(self) -> dict:
         return {"kind": self.kind, "key": self.key, "text": self.text, "nodes": sorted(self.nodes),
                 "event_ids": self.event_ids, **({"meta": self.meta} if self.meta else {})}
+
+
+def telemetry_age(snapshot: dict, stale_s: float) -> float | None:
+    """Возраст последнего кадра, если он старше stale_s; None — данные свежие или возраст неизвестен."""
+    age = snapshot.get("telemetry_age_s")
+    return float(age) if isinstance(age, (int, float)) and not isinstance(age, bool) and age > stale_s else None
 
 
 def _anomaly_kind(a: dict) -> str:
@@ -63,6 +70,8 @@ class TelemetryWatch:
     def __init__(self, stale_s: float, stall_s: float):
         self.stale_s = stale_s
         self.stall_s = stall_s
+        self.numeric = NumericMonitor()
+        self.numeric_active: set[str] = set()
         self.active: set[str] = set()  # ключи аномалий, уже отданных в работу; исчезнувшие снимаются
         self.frame: tuple | None = None
         self.frame_since: float | None = None
@@ -92,6 +101,14 @@ class TelemetryWatch:
             nodes_hit = {a["node"]} | ({str(value)} if isinstance(value, str) and value.startswith("IL_") else set())
             out.append(Trigger(_anomaly_kind(a), key, f"{where} = {value!r}: {a['note']}", nodes_hit))
         self.active = set(current)
+        numeric = self.numeric.observe(nodes, self.frame_mark(snapshot))
+        numeric_keys = {f"numeric|{a['node']}|{a['field']}" for a in numeric}
+        for a in numeric:
+            key = f"numeric|{a['node']}|{a['field']}"
+            if key not in self.numeric_active and not any(x['node'] == a['node'] and x.get('param') == a['field'] for x in current.values()):
+                # Статистика и рабочие пределы — гипотеза, а не авария: идёт после срочных поводов, как обзор
+                out.append(Trigger("numeric", key, f"{a['node']}.{a['field']}: {a['note']} (гипотеза для проверки)", {a['node']}))
+        self.numeric_active = numeric_keys
 
         for node, running in JOB_NODES.items():
             data = nodes.get(node) or {}
@@ -235,6 +252,13 @@ def gate_verification_trigger(rec: dict, action: dict | None, timed_out: bool, c
     what = _what(req) if req else f"действие seq {rec.get('ref')}"
     node = req.get("node_id")
     key = f"{rec.get('run_id')}|{rec.get('ref')}"
+    if rec.get("no_data"):
+        return Trigger(
+            "stale", f"command|no_data|{key}",
+            f"Команда {what} отправлена, но новых кадров телеметрии за {rec.get('waited_s', '?')} с не было: результат "
+            "не проверен. Не считай её выполненной и не повторяй вслепую", {node} if node else set(),
+            meta={"action_seq": rec.get("ref")},
+        )  # fmt: skip
     if rec.get("ok") is False:
         return Trigger(
             "command", f"command|no_effect|{key}",

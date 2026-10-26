@@ -66,6 +66,8 @@ class DomeRagRetriever:
                     lines.append(f"{title}: " + " ".join(items))
             if p.get("open_questions"):
                 lines.append("Открытые вопросы: " + " ".join(p["open_questions"]))
+            if p.get("origin"):  # оперативный сценарий: logs — признаки из истории, docs — документация, synthetic — придуман
+                lines.append(f"Класс воздействия: {p['impact_kind']}; основание: {p['origin']} ({p['reference']})")
         else:
             lines.append(p["answer"])
         for cid in record["conflict_ids"]:

@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from .agent import DomeLLMAgent
 from .prompt_builder import _dome_time
 from .schemas import AgentResponse
-from .triggers import OperatorWatch, TelemetryWatch, Trigger, command_triggers
+from .triggers import OperatorWatch, TelemetryWatch, Trigger, command_triggers, telemetry_age
 
 MAX_LISTED = 12  # поводов в тексте одного вызова; остальные — списком узлов
 
@@ -151,7 +151,7 @@ class Dispatcher:
 
         if self.busy:
             return None
-        batch = self._ready(now)
+        batch = self._ready(now, snapshot)
         if not batch:
             return None
         return self._begin(batch, snapshot, now)
@@ -174,10 +174,13 @@ class Dispatcher:
             return
         self.pending[trig.key] = _Pending(trig)
 
-    def _ready(self, now: float) -> list[_Pending]:
+    def _ready(self, now: float, snapshot: dict) -> list[_Pending]:
         if self.last_call is not None and now - self.last_call < self.settings.trigger_min_interval_s:
             return []
         ready = [p for p in self.pending.values() if p.not_before <= now]
+        if telemetry_age(snapshot, self.settings.trigger_stale_s) is not None:
+            # Проверять результат по устаревшему кадру нельзя: проверка ждёт свежих данных в очереди
+            ready = [p for p in ready if p.trigger.kind != "verification"]
         return sorted(ready, key=lambda p: p.trigger.priority)
 
     def _begin(self, batch: list[_Pending], snapshot: dict, now: float) -> Fired:

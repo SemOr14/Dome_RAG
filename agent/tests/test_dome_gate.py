@@ -131,7 +131,8 @@ def test_verification_ok_and_failure_with_cooldown(rig: Rig) -> None:
     # такая же команда, пока результат не проверен, не повторяется
     assert "ожидает проверки" in rig.go("smart_panel_01", "line_off", 8).reason
     assert rig.gate.check_pending() == []  # ещё ждём
-    rig.t += 25  # время вышло, линия не выключилась
+    rig.t += 25  # время вышло: кадры приходят, линия не выключилась
+    rig.state.updates += 1
     done = rig.gate.check_pending()
     assert len(done) == 1
     ver = rig.records("verification")[-1]
@@ -148,6 +149,19 @@ def test_verification_success_when_state_changes(rig: Rig) -> None:
     ver = rig.records("verification")[-1]
     assert ver["ok"] is True and ver["ref"] == r.action_seq
     assert rig.gate.stats["verified"] == 1
+
+
+def test_no_fresh_frame_means_unverified_not_confirmed(rig: Rig) -> None:
+    # Состояние уже совпадает с ожиданием, но после отправки не пришло ни одного кадра: это не подтверждение
+    set_path(rig.state, "smart_panel_01.lines[7].state", "OFF")
+    r = rig.go("smart_panel_01", "line_off", 8, expect=Expect.equals("smart_panel_01.lines[7].state", "OFF"))
+    assert rig.gate.check_pending() == []
+    rig.t += 25
+    assert len(rig.gate.check_pending()) == 1
+    ver = rig.records("verification")[-1]
+    assert ver["ok"] is False and ver["no_data"] is True and ver["ref"] == r.action_seq
+    assert rig.gate.stats["unverified"] == 1 and rig.gate.stats["no_effect"] == 0
+    assert not rig.gate.recently_failed(Cmd("smart_panel_01", "line_off", 8).key)  # отсутствие эффекта не доказано
 
 
 def test_timeout_leaves_command_pending_not_repeated(rig: Rig) -> None:

@@ -15,6 +15,7 @@ from .context.graph import InfluenceGraph, format_edge
 from .context.telemetry import TelemetryContext, compact_telemetry
 from .rag.base import RagDoc, Retriever
 from .schemas import output_schema_example
+from .monitoring import assess_impacts
 
 
 def _tojson(value: Any, indent: int | None = None) -> str:
@@ -43,7 +44,7 @@ class BuiltPrompt:
 class PromptBuilder:
     def __init__(self, prompt_dir: Path, catalog: NodeCatalog, graph: InfluenceGraph, hard_rules: dict,
                  retriever: Retriever, *, team_name: str = "команда 1", journal_limit: int = 15,
-                 rag_k: int = 3, graph_depth: int = 1,
+                 rag_k: int = 3, graph_depth: int = 1, stale_s: float = 30.0,
                  system_template: str = "system.md.j2", user_template: str = "user.md.j2"):
         self.env = Environment(loader=FileSystemLoader(str(prompt_dir)), undefined=StrictUndefined,
                                trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
@@ -56,6 +57,7 @@ class PromptBuilder:
         self.journal_limit = journal_limit
         self.rag_k = rag_k
         self.graph_depth = graph_depth
+        self.stale_s = stale_s
         self.system_template = system_template
         self.user_template = user_template
 
@@ -77,12 +79,13 @@ class PromptBuilder:
         except Exception:  # RAG не должен ронять агента
             rag_docs = []
         dome_time = _dome_time(snapshot.get("game_time"))
+        impacts = assess_impacts(snapshot)
 
         system = self.env.get_template(self.system_template).render(
             hard_rules=self.hard_rules, output_schema=output_schema_example(), team_name=self.team_name)
         user = self.env.get_template(self.user_template).render(
-            trigger=trigger, dome_time=dome_time, game_time=snapshot.get("game_time"),
-            observed_at=snapshot.get("observed_at"),
+            impacts=impacts, trigger=trigger, dome_time=dome_time, game_time=snapshot.get("game_time"),
+            observed_at=snapshot.get("observed_at"), telemetry_age_s=snapshot.get("telemetry_age_s"), stale_s=self.stale_s,
             telemetry=tctx.nodes, anomalies=tctx.anomalies, catalog=self.catalog.for_prompt(),
             graph_edges=edges, journal=journal, rag_docs=rag_docs)
 

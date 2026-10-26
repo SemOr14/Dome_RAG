@@ -88,13 +88,35 @@ function renderOverview(data) {
   const cards=[['СОХРАНЕНО СОБЫТИЙ',data.event_count,'В выбранном запуске'],['УЗЛЫ НА СВЯЗИ',`${online} / ${data.nodes.length}`,'online=true · status=OK'],['ПОСЛЕДНИЕ ВОЗДЕЙСТВИЯ',data.controls.length,'Человек и агент, включая отказы'],['ЛОКАЛЬНЫЕ ОТКАЗЫ',rejected,'Среди последних 30 намерений и команд']];
   $('metrics').innerHTML=cards.map(([label,value,note])=>`<div class="metric"><div class="metric-label">${label}</div><div class="metric-value">${value}</div><small>${note}</small></div>`).join('');
   $('observationTime').textContent=data.nodes.length?'Получено '+date(data.nodes.reduce((a,b)=>a.id>b.id?a:b).ingested_at):'Нет телеметрии';
-  $('nodes').innerHTML=data.nodes.length?data.nodes.map(node=>{
-    const body=node.payload;
-    const entries=Object.entries(flatten(body)).filter(([key])=>!['online','updated_at','status'].includes(key)).slice(0,4);
-    const good=body?.online===true&&body?.status==='OK';
-    return `<article class="node-card"><div class="node-heading"><h3>${esc(node.node_id)}</h3><span class="dot ${good?'good':'bad'}"></span></div><div class="node-title">${esc(nodeName(node.node_id))}</div><div class="node-values">${entries.map(([k,v])=>`<div class="node-value"><span>${esc(k)}</span><b>${esc(typeof v==='number'?Number(v.toFixed(3)):v===null?'null':v)}</b></div>`).join('')}</div><details><summary>Все поля · ${date(node.ingested_at)}</summary><pre>${esc(pretty(body))}</pre></details></article>`;
-  }).join(''):empty('Телеметрии пока нет. База пустая; включите подключение агента для получения новых данных.');
+  renderNodes(data.nodes);
   renderTimeline(data);
+}
+// Keep the actual details/pre elements mounted across polling: open state and scroll survive.
+function renderNodes(nodes) {
+  const container=$('nodes');
+  if(state.nodesRun!==state.run){container.replaceChildren();state.nodesRun=state.run;}
+  if(!nodes.length){if(!container.querySelector('.empty'))container.innerHTML=empty('Телеметрии пока нет.');return;}
+  container.querySelector('.empty')?.remove();
+  const existing=new Map([...container.children].map(el=>[el.dataset.node,el]));
+  for(const node of nodes){
+    let card=existing.get(node.node_id);
+    if(!card){
+      card=document.createElement('article');card.className='node-card';card.dataset.node=node.node_id;
+      card.innerHTML='<div class="node-heading"><h3></h3><span class="dot"></span></div><div class="node-title"></div><div class="node-values"></div><details><summary></summary><pre tabindex="0"></pre></details>';
+      card.querySelector('h3').textContent=node.node_id;container.append(card);
+    }
+    existing.delete(node.node_id);
+    const body=node.payload||{},good=body.online===true&&body.status==='OK';
+    card.querySelector('.dot').className='dot '+(good?'good':'bad');
+    card.querySelector('.node-title').textContent=nodeName(node.node_id);
+    const entries=Object.entries(flatten(body)).filter(([key])=>!['online','updated_at','status'].includes(key)).slice(0,4);
+    const values=entries.map(([k,v])=>`<div class="node-value"><span>${esc(k)}</span><b>${esc(typeof v==='number'?Number(v.toFixed(3)):v===null?'null':v)}</b></div>`).join('');
+    if(card.querySelector('.node-values').innerHTML!==values)card.querySelector('.node-values').innerHTML=values;
+    card.querySelector('summary').textContent='Все поля · '+date(node.ingested_at);
+    const pre=card.querySelector('pre'),text=pretty(body);
+    if(pre.textContent!==text){const top=pre.scrollTop,left=pre.scrollLeft;pre.textContent=text;pre.scrollTop=top;pre.scrollLeft=left;}
+  }
+  for(const card of existing.values())card.remove();
 }
 // Служебные записи вызова модели и дубли решения — во вкладке «База данных»; решение показывает agent_decision
 const TIMELINE_HIDDEN=new Set(['llm_request','llm_response','decision','agent_llm_call','control_dispatch','prompt_preview','llm_analysis_result']);
@@ -137,9 +159,11 @@ function timelineItem(e,all){
     return `<div class="event control by-operator">${time}<span><span class="badge wait">ОПЕРАТОР</span></span><div><b>Команда Оператора из панели</b> ${v?badge(v.status):''}${e.metadata?.confirmed?' <span class="badge wait">ПОДТВЕРЖДЕНА</span>':''}<p class="what"><code>${esc(p.node_id)}.${esc(p.action)}</code> ${value(p.value)}</p><p>${esc((v?.reasons||[]).join(', ')||e.metadata?.reason||'')}</p></div></div>`;
   }
   if(e.event_type==='agent_decision'){
+    const impact={base:'базовое',hidden:'скрытое',cascade:'каскадное',false:'вероятно ложное',unknown:'не определено'};
+    const classification=p.impact_kind?` · ${impact[p.impact_kind]||p.impact_kind}`:'';
     const conf=typeof p.confidence==='number'?` · уверенность ${Math.round(p.confidence*100)} %`:'';
     const plan=(p.plan||[]).map(x=>`<li>${esc(x)}</li>`).join(''),ev=(p.evidence||[]).slice(0,4).map(x=>`<li>${esc(x.node||x.detail||'')}${x.param?'.'+esc(x.param):''}${x.value!==undefined?' = '+value(x.value):''}${x.note?' — '+esc(x.note):''}</li>`).join('');
-    return `<div class="event decision-event">${time}<span><span class="badge">${esc(SOURCES[p.source]||p.source||'агент')}</span></span><div><b>Решение: ${esc(p.situation||'')}</b><p>Причина: ${esc(p.cause||'—')}${esc(conf)}</p>${plan?`<ul class="plan">${plan}</ul>`:''}${ev?`<details><summary>Основания</summary><ul class="plan">${ev}</ul></details>`:''}${p.rag_refs?.length?`<p class="tiny">RAG: ${esc(p.rag_refs.join(', '))}</p>`:''}</div></div>`;
+    return `<div class="event decision-event">${time}<span><span class="badge">${esc(SOURCES[p.source]||p.source||'агент')}</span></span><div><b>Решение: ${esc(p.situation||'')}</b><p>Причина: ${esc(p.cause||'—')}${esc(conf+classification)}</p>${p.causal_chain?.length?`<p>${esc(p.causal_chain.join(' → '))}</p>`:''}${plan?`<ul class="plan">${plan}</ul>`:''}${ev?`<details><summary>Основания</summary><ul class="plan">${ev}</ul></details>`:''}${p.rag_refs?.length?`<p class="tiny">RAG: ${esc(p.rag_refs.join(', '))}</p>`:''}</div></div>`;
   }
   const who=e.source==='operator'?'Человек':e.source==='agent'?'Агент':e.source;
   const text=p.summary||p.text||p.reason||p.action||p.event||(typeof p.message==='string'?p.message:p.message?.text)||'';
@@ -198,20 +222,46 @@ function renderDecisions(data) {
     toast(`Результат: ${result.status}. ${result.reason||''}`); await refresh();
   }));
 }
+let chartRequest=0;
 async function refreshCharts() {
-  if(!state.charts.length){$('charts').innerHTML=empty('Добавьте числовой параметр. Графики строятся только по сохранённым снимкам.');return;}
-  $('charts').innerHTML=state.charts.map((c,i)=>`<article class="panel chart"><div class="panel-heading"><div class="chart-title">${esc(c.node)}<br><span class="muted">${esc(c.field)}</span></div><button class="secondary small remove-chart" data-index="${i}">Убрать</button></div><canvas id="chart-${i}" aria-label="${esc(c.node+' '+c.field)}"></canvas><div id="chart-note-${i}" class="tiny muted"></div></article>`).join('');
-  document.querySelectorAll('.remove-chart').forEach(b=>b.onclick=()=>{state.charts.splice(Number(b.dataset.index),1);refreshCharts().catch(e=>toast(e.message,true));});
-  await Promise.all(state.charts.map(async(c,i)=>{
-    const result=await api('/control/series?'+params({run_id:state.run,node_id:c.node,field:c.field}));
-    drawChart($('chart-'+i),result.items,i);
+  const request=++chartRequest,run=state.run;
+  if(!run)return;
+  const result=await api('/control/charts?'+params({run_id:run}));
+  const extras=await Promise.all(state.charts.filter(c=>!result.items.some(x=>x.node===c.node&&x.field===c.field)).map(async c=>{
+    const series=await api('/control/series?'+params({run_id:run,node_id:c.node,field:c.field,source:result.source,session_id:result.session_id,channel:result.channel}));
+    return {...c,title:c.node+' · '+c.field,unit:'',points:series.items,default:false};
   }));
+  if(request!==chartRequest||run!==state.run)return;
+  const items=[...result.items,...extras],root=$('charts');
+  const existing=new Map([...root.children].map(el=>[el.dataset.key,el]));
+  items.forEach((c,i)=>{
+    const key=JSON.stringify([c.node,c.field]);let card=existing.get(key);
+    if(!card){
+      card=document.createElement('article');card.className='panel chart';card.dataset.key=key;
+      card.innerHTML='<div class="panel-heading"><div class="chart-title"></div><button class="secondary small remove-chart">Убрать</button></div><div class="chart-alert tiny"></div><canvas></canvas><div class="chart-note tiny muted"></div>';
+    }
+    existing.delete(key);
+    card.classList.toggle('chart-anomaly',!!c.anomaly);
+    card.querySelector('.chart-title').textContent=c.title+(c.unit?' · '+c.unit:'');
+    card.querySelector('.chart-alert').textContent=c.anomaly?'⚠ '+c.anomaly.note:'';
+    card.querySelector('.chart-alert').hidden=!c.anomaly;
+    card.querySelector('canvas').setAttribute('aria-label',c.node+' '+c.field+(c.anomaly?' · аномалия':''));
+    const remove=card.querySelector('button');remove.hidden=c.default||!!c.anomaly;
+    remove.onclick=()=>{state.charts=state.charts.filter(x=>x.node!==c.node||x.field!==c.field);refreshCharts().catch(e=>toast(e.message,true));};
+    if(root.children[i]!==card)root.insertBefore(card,root.children[i]||null);
+    drawChart(card.querySelector('canvas'),c.points,card.querySelector('.chart-note'),!!c.anomaly);
+  });
+  for(const card of existing.values())card.remove();
+  $('chartSummary').textContent=`20 основных графиков · аномалий: ${result.anomalies.length} · проверено числовых рядов: ${result.fields_checked} · ${result.source||'данных пока нет'}${result.catching_up?' · обрабатывается накопленная телеметрия':''}`;
+  const kind={base:'Базовое',hidden:'Скрытое',cascade:'Каскадное',false:'Вероятно ложное',unknown:'Не определено'};
+  $('impactSummary').textContent=result.impacts.map(x=>`${kind[x.kind]||x.kind}: ${x.cause}. Проверка: ${x.check}`).join(' · ');
 }
-function drawChart(canvas, points, index) {
+function drawChart(canvas, points, note, anomaly=false) {
   const w=canvas.clientWidth||400,h=240,ratio=window.devicePixelRatio||1;
   canvas.width=w*ratio;canvas.height=h*ratio;
   const ctx=canvas.getContext('2d');ctx.scale(ratio,ratio);
-  const values=points.filter(p=>typeof p.value==='number');
+  const values=points.filter(p=>Number.isFinite(p.value));
+  note.textContent='Нет числовых измерений';
   if(!values.length){ctx.fillStyle='#8796ab';ctx.font='12px sans-serif';ctx.fillText('Нет числовых измерений',45,110);return;}
   let min=Math.min(...values.map(p=>p.value)),max=Math.max(...values.map(p=>p.value));
   const pad=(max-min)*.12||Math.abs(max)*.05||1;min-=pad;max+=pad;
@@ -221,11 +271,11 @@ function drawChart(canvas, points, index) {
   const times=points.map(p=>Date.parse(p.received_at));const first=times[0],last=times[times.length-1];
   const xFor=i=>first===last?(l+r)/2:l+(times[i]-first)/(last-first)*(r-l);
   const yFor=v=>b-(v-min)/(max-min)*(b-t);
-  ctx.strokeStyle='#d8ed83';ctx.lineWidth=2;ctx.beginPath();let gap=true;
-  points.forEach((p,i)=>{if(p.value===null){gap=true;return;}const x=xFor(i),y=yFor(p.value);if(gap)ctx.moveTo(x,y);else ctx.lineTo(x,y);gap=false;});ctx.stroke();
-  if(values.length===1){const i=points.indexOf(values[0]);ctx.fillStyle='#d8ed83';ctx.beginPath();ctx.arc(xFor(i),yFor(values[0].value),3,0,2*Math.PI);ctx.fill();}
+  ctx.strokeStyle=anomaly?'#fff000':'#d8ed83';ctx.lineWidth=2;ctx.beginPath();let gap=true;
+  points.forEach((p,i)=>{if(!Number.isFinite(p.value)){gap=true;return;}const x=xFor(i),y=yFor(p.value);if(gap)ctx.moveTo(x,y);else ctx.lineTo(x,y);gap=false;});ctx.stroke();
+  if(values.length===1){const i=points.indexOf(values[0]);ctx.fillStyle=anomaly?'#fff000':'#d8ed83';ctx.beginPath();ctx.arc(xFor(i),yFor(values[0].value),3,0,2*Math.PI);ctx.fill();}
   ctx.fillStyle='#8796ab';ctx.fillText(new Date(first).toLocaleTimeString('ru-RU'),l,h-10);ctx.textAlign='right';ctx.fillText(new Date(last).toLocaleTimeString('ru-RU'),r,h-10);
-  $('chart-note-'+index).textContent=`${points.length} снимков · последнее: ${values[values.length-1].value}`;
+  note.textContent=`${points.length} снимков · последнее: ${values[values.length-1].value}`;
   canvas.onmousemove=event=>{const fraction=Math.max(0,Math.min(1,(event.offsetX-l)/(r-l))),target=first+fraction*(last-first);let best=0;times.forEach((time,i)=>{if(Math.abs(time-target)<Math.abs(times[best]-target))best=i;});const p=points[best];canvas.title=`${date(p.received_at)} · ${p.value===null?'null':p.value}\nИсходная метка: ${p.source_timestamp??'не задана'}`;};
 }
 async function loadEvents(reset=true) {

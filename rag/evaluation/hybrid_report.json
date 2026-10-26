@@ -7,7 +7,7 @@
     "design_cases": {
       "cases": 31,
       "hit_rate_at_5": 1.0,
-      "mean_reciprocal_rank": 0.9516129032258065,
+      "mean_reciprocal_rank": 0.9086021505376345,
       "cases_detail": [
         {
           "id": "E01",
@@ -18,9 +18,9 @@
           "retrieved_ids": [
             "F06",
             "S01",
-            "F09",
+            "OS-B04",
             "F05",
-            "F07"
+            "F09"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 0.5
@@ -32,14 +32,14 @@
             "S02"
           ],
           "retrieved_ids": [
+            "F10",
             "F12",
             "S02",
-            "F10",
-            "S16",
-            "S08"
+            "OS-C01",
+            "OS-F01"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 0.5
+          "reciprocal_rank": 0.3333333333333333
         },
         {
           "id": "E03",
@@ -49,10 +49,10 @@
           ],
           "retrieved_ids": [
             "S03",
-            "F32",
+            "OS-B02",
+            "OS-C02",
             "S07",
-            "S15",
-            "S04"
+            "F32"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -81,10 +81,10 @@
           ],
           "retrieved_ids": [
             "S05",
+            "OS-F03",
+            "OS-H03",
             "F19",
-            "F03",
-            "F28",
-            "F22"
+            "F03"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -97,10 +97,10 @@
           ],
           "retrieved_ids": [
             "S06",
+            "OS-F01",
+            "OS-F04",
             "F19",
-            "S02",
-            "F22",
-            "F10"
+            "S02"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -114,9 +114,9 @@
           "retrieved_ids": [
             "S07",
             "F32",
-            "S15",
             "S04",
-            "S03"
+            "S03",
+            "S15"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -128,14 +128,14 @@
             "S08"
           ],
           "retrieved_ids": [
-            "S08",
+            "OS-B01",
             "F10",
-            "S16",
-            "F12",
-            "S15"
+            "S08",
+            "OS-C01",
+            "OS-C05"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.3333333333333333
         },
         {
           "id": "E09",
@@ -160,14 +160,14 @@
             "S10"
           ],
           "retrieved_ids": [
+            "OS-B04",
             "S10",
             "F06",
             "S09",
-            "S01",
             "F09"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.5
         },
         {
           "id": "E11",
@@ -177,10 +177,10 @@
           ],
           "retrieved_ids": [
             "S11",
+            "OS-C02",
             "F12",
             "F24",
-            "S02",
-            "F13"
+            "OS-C04"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -193,10 +193,10 @@
           ],
           "retrieved_ids": [
             "S12",
+            "OS-C04",
             "F16",
             "F30",
-            "S13",
-            "F11"
+            "S13"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -209,10 +209,10 @@
           ],
           "retrieved_ids": [
             "S13",
+            "OS-C04",
             "F15",
             "F16",
-            "F30",
-            "S12"
+            "F30"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -226,8 +226,9 @@
           "retrieved_ids": [
             "S14",
             "F11",
-            "S12",
-            "F12"
+            "OS-C03",
+            "OS-B02",
+            "S12"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -240,10 +241,10 @@
           ],
           "retrieved_ids": [
             "S15",
-            "S16",
-            "S09",
-            "F32",
-            "S04"
+            "OS-H02",
+            "OS-C03",
+            "OS-B05",
+            "S16"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -255,14 +256,14 @@
             "S16"
           ],
           "retrieved_ids": [
+            "OS-B01",
             "S16",
             "F10",
-            "S08",
-            "F12",
-            "S15"
+            "OS-C01",
+            "OS-C05"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.5
         },
         {
           "id": "E17",
@@ -273,8 +274,8 @@
           "retrieved_ids": [
             "S17",
             "F31",
-            "F07",
-            "S04",
+            "OS-B05",
+            "F24",
             "F17"
           ],
           "hit_at_5": true,
@@ -289,9 +290,9 @@
           "retrieved_ids": [
             "S18",
             "S09",
+            "OS-H06",
             "F03",
-            "S11",
-            "F24"
+            "OS-C02"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -303,14 +304,14 @@
             "S19"
           ],
           "retrieved_ids": [
-            "S20",
             "S19",
             "F20",
+            "S20",
             "S17",
-            "F32"
+            "OS-C06"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 0.5
+          "reciprocal_rank": 1.0
         },
         {
           "id": "E20",
@@ -321,9 +322,9 @@
           "retrieved_ids": [
             "S20",
             "S07",
-            "S09",
             "S17",
-            "S16"
+            "S09",
+            "OS-H05"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -337,9 +338,9 @@
           "retrieved_ids": [
             "S21",
             "F03",
-            "F02",
-            "F05",
-            "S09"
+            "OS-H06",
+            "OS-F06",
+            "OS-H05"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -368,10 +369,10 @@
           ],
           "retrieved_ids": [
             "S23",
+            "OS-F02",
+            "OS-F05",
             "S11",
-            "S17",
-            "S12",
-            "S16"
+            "S17"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -386,8 +387,8 @@
             "S24",
             "S19",
             "F19",
-            "S12",
-            "F02"
+            "OS-H04",
+            "OS-H03"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -401,10 +402,10 @@
           ],
           "retrieved_ids": [
             "F13",
-            "S11",
             "F12",
-            "S07",
-            "F15"
+            "S11",
+            "OS-C02",
+            "S07"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -417,10 +418,10 @@
           ],
           "retrieved_ids": [
             "F05",
+            "OS-B04",
             "F04",
             "F08",
-            "F09",
-            "F06"
+            "F09"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -435,8 +436,8 @@
             "F21",
             "S13",
             "F30",
-            "S01",
-            "S02"
+            "OS-H03",
+            "S01"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -450,10 +451,10 @@
           ],
           "retrieved_ids": [
             "F10",
-            "S08",
+            "OS-B01",
+            "OS-C01",
             "S02",
-            "S16",
-            "F12"
+            "S08"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -467,10 +468,10 @@
           ],
           "retrieved_ids": [
             "F07",
+            "OS-B04",
             "S01",
             "S10",
-            "F06",
-            "F05"
+            "F06"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -499,9 +500,9 @@
           ],
           "retrieved_ids": [
             "F03",
+            "OS-F03",
             "S09",
             "S05",
-            "F15",
             "F24"
           ],
           "hit_at_5": true,
@@ -512,7 +513,7 @@
     "paraphrases": {
       "cases": 20,
       "hit_rate_at_5": 1.0,
-      "mean_reciprocal_rank": 0.925,
+      "mean_reciprocal_rank": 0.7875,
       "cases_detail": [
         {
           "id": "P01",
@@ -525,8 +526,8 @@
             "S01",
             "S15",
             "S09",
-            "S16",
-            "S10"
+            "OS-F06",
+            "OS-B06"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -539,14 +540,14 @@
             "S02"
           ],
           "retrieved_ids": [
+            "OS-C01",
+            "OS-B01",
+            "OS-F01",
             "F10",
-            "F12",
-            "S02",
-            "S16",
-            "S08"
+            "S02"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.25
         },
         {
           "id": "P03",
@@ -559,7 +560,7 @@
             "F32",
             "S07",
             "F30",
-            "S04"
+            "S19"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -586,14 +587,14 @@
             "S05"
           ],
           "retrieved_ids": [
-            "S05",
+            "OS-F03",
             "F22",
+            "S05",
             "S02",
-            "F27",
             "F19"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.3333333333333333
         },
         {
           "id": "P06",
@@ -604,9 +605,9 @@
           "retrieved_ids": [
             "S06",
             "F32",
+            "OS-C05",
             "S16",
-            "S07",
-            "S15"
+            "OS-F02"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -637,10 +638,10 @@
           ],
           "retrieved_ids": [
             "S09",
+            "OS-H05",
+            "OS-H06",
             "F03",
-            "S22",
-            "S24",
-            "F04"
+            "OS-C01"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -656,9 +657,9 @@
           "retrieved_ids": [
             "F18",
             "F07",
-            "S08",
             "S01",
-            "S09"
+            "S08",
+            "OS-B04"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 0.5
@@ -672,10 +673,10 @@
           ],
           "retrieved_ids": [
             "F13",
+            "OS-C02",
             "S11",
-            "S16",
-            "S15",
-            "F12"
+            "OS-C01",
+            "S16"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -690,9 +691,9 @@
           "retrieved_ids": [
             "S12",
             "F15",
+            "OS-C04",
             "F16",
-            "S13",
-            "S21"
+            "S13"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -707,9 +708,9 @@
           "retrieved_ids": [
             "F15",
             "S13",
-            "F03",
-            "F04",
-            "F31"
+            "OS-C03",
+            "OS-H06",
+            "F03"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -726,7 +727,7 @@
             "F11",
             "S04",
             "S12",
-            "F32"
+            "OS-C04"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -738,14 +739,14 @@
             "S15"
           ],
           "retrieved_ids": [
-            "S15",
+            "OS-C05",
             "S08",
-            "F32",
-            "S07",
-            "F15"
+            "S15",
+            "OS-C03",
+            "OS-H02"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.3333333333333333
         },
         {
           "id": "P15",
@@ -755,14 +756,14 @@
             "S17"
           ],
           "retrieved_ids": [
+            "OS-F02",
+            "OS-B05",
             "S17",
             "F31",
-            "S16",
-            "F17",
-            "F13"
+            "OS-C05"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.3333333333333333
         },
         {
           "id": "P16",
@@ -774,9 +775,9 @@
           "retrieved_ids": [
             "S09",
             "S18",
-            "S21",
+            "OS-H06",
             "F03",
-            "S13"
+            "S21"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 0.5
@@ -794,7 +795,7 @@
             "S21",
             "S13",
             "S19",
-            "F04"
+            "OS-C06"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -825,9 +826,9 @@
           "retrieved_ids": [
             "F29",
             "S22",
-            "F31",
             "F05",
-            "F01"
+            "OS-F06",
+            "F31"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -840,11 +841,11 @@
             "S24"
           ],
           "retrieved_ids": [
-            "F30",
+            "OS-H01",
             "S24",
-            "S03",
-            "F19",
-            "F03"
+            "F30",
+            "OS-C06",
+            "S03"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 0.5

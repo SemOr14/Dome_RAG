@@ -16,7 +16,7 @@ import time
 import traceback
 from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from kupol.dome.agentlog import AgentLog
 from kupol.dome.catalog import Catalog
@@ -132,19 +132,26 @@ class Runner:
             client.recorder = recorder or client.recorder
         if recorder is not None:
             # Решения, действия и проверки эффекта — в ту же БД; action ссылается на control через request_id
-            log.sink = lambda kind, rec: recorder.event(
-                f"agent_{kind}", rec, session_id=self.client.session_id, metadata={"log_run_id": rec.get("run_id"), "log_seq": rec.get("seq")}
-            )  # fmt: skip
+            def record_log(kind: str, rec: dict[str, Any]) -> None:
+                assert self.recorder is not None
+                self.recorder.event(f"agent_{kind}", rec, session_id=self.client.session_id,
+                                    metadata={"log_run_id": rec.get("run_id"), "log_seq": rec.get("seq")})
+            log.sink = record_log
         if brain is not None and not hasattr(brain, "step"):
             brain = brain(self)  # фабрике нужны состояние, клиент и рекордер этого рантайма
-        self.brain = brain
+        self.brain = cast("LlmBrain | None", brain)
         self.llm_enabled = True  # панель может временно отдать решения плейбукам
         self.manual = ManualControls(recorder) if recorder is not None else None  # команды Оператора из БД
         self._manual_task: asyncio.Task[Any] | None = None
         self.manual_done: set[str] = set()  # исполненные намерения: прямой вызов и опрос очереди не дублируют команду
-        if brain is not None:
+        if self.brain is not None:
             db_sink = log.sink
-            log.sink = lambda kind, rec: (db_sink and db_sink(kind, rec), brain.on_log(kind, rec))  # журнал для промпта
+            def combined_log(kind: str, rec: dict[str, Any]) -> None:
+                if db_sink is not None:
+                    db_sink(kind, rec)
+                assert self.brain is not None
+                self.brain.on_log(kind, rec)
+            log.sink = combined_log
         self.catalog = Catalog()
         self._catalog_msg: dict[str, Any] | None = None
         self.gate = Gate(
@@ -277,8 +284,10 @@ class Runner:
         self.ticks += 1
 
     async def _idle(self) -> None:
-        """Нет телеметрии: раз в минуту отмечаем это в наблюдениях, ничего не решаем."""
+        """Нет новых кадров: модель продолжает следить за поводами (в т.ч. устаревание), данные не обновляем."""
         now = self.clock()
+        if self.client.connected and self.state.role == "team" and self.brain is not None and self.llm_enabled and self.brain.healthy:
+            self.brain.step([], lambda intent: self.execute(intent, self.clock()))
         if self.client.connected and now - self._last_observation >= self.cfg.runtime.observation_interval_s:
             self._last_observation = now
             self.log.write("observation", summary="телеметрия не приходит", metrics={"connected": True}, anomalies=["нет телеметрии"])
@@ -352,6 +361,7 @@ class Runner:
                 self.log.write("error", where="rag", error=repr(exc))
         fields: dict[str, Any] = {
             "situation": intent.situation, "cause": intent.cause, "confidence": intent.confidence, "evidence": intent.evidence,
+            "impact_kind": intent.impact_kind, "authenticity": intent.authenticity, "causal_chain": intent.causal_chain,
             "plan": intent.plan, "source": "mixed" if refs and intent.source == "rules" else intent.source, "priority": intent.priority,
         }  # fmt: skip
         if refs or intent.rag_refs:

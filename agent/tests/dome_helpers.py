@@ -89,7 +89,7 @@ def state_from(name: str = "quiet", wall: float = 1000.0, **overrides: Any) -> D
 
 
 def set_path(st: DomeState, path: str, value: Any) -> None:
-    """Записать значение по пути в состояние (для сценариев тестов)."""
+    """Записать значение по пути в состояние (для сценариев тестов) — как новый кадр телеметрии."""
     from kupol.dome.state import split_path
 
     parts = split_path(path)
@@ -97,6 +97,7 @@ def set_path(st: DomeState, path: str, value: Any) -> None:
     for part in parts[:-1]:
         current = current[part]
     current[parts[-1]] = value
+    st.updates += 1
 
 
 def make_ctx(st: DomeState, tmp_path: "Path", now: float = 1000.0, mem: dict[str, Any] | None = None, texts: list[str] | None = None) -> Any:

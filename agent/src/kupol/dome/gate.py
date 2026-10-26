@@ -105,6 +105,7 @@ class Pending:
     action_seq: int
     deadline: float
     sent_at: float
+    frames: int = 0  # DomeState.updates на момент отправки: эффект подтверждает только более поздний кадр
 
 
 @dataclass
@@ -190,7 +191,7 @@ class Gate:
         self._chat_times: deque[float] = deque()
         self._failed_until: dict[str, float] = {}
         self._resume_attempts: dict[str, int] = {}
-        self.stats = {"sent": 0, "dry_run": 0, "rejected": 0, "failed": 0, "verified": 0, "no_effect": 0}
+        self.stats = {"sent": 0, "dry_run": 0, "rejected": 0, "failed": 0, "verified": 0, "no_effect": 0, "unverified": 0}
 
     # ------------------------------------------------------------------ публичный API
 
@@ -272,7 +273,8 @@ class Gate:
             if exp is None:
                 self.pending.remove(p)
                 continue
-            if exp.check(self._state):
+            fresh = self._state.updates > p.frames  # кадр, пришедший после отправки
+            if fresh and exp.check(self._state):
                 ok = True
             elif now >= p.deadline:
                 ok = False
@@ -280,12 +282,12 @@ class Gate:
                 continue
             self.pending.remove(p)
             done.append(p)
-            self.stats["verified" if ok else "no_effect"] += 1
-            if not ok:
+            self.stats["verified" if ok else "no_effect" if fresh else "unverified"] += 1
+            if not ok and fresh:  # без новых данных отсутствие эффекта не доказано: команду не блокируем
                 self._failed_until[p.cmd.key] = now + self._cfg.policy.no_effect_cooldown_s
             self._log.write(
                 "verification", ref=p.action_seq, expected=exp.description, observed=exp.observe(self._state), ok=ok,
-                waited_s=round(now - p.sent_at, 1),
+                waited_s=round(now - p.sent_at, 1), **({} if fresh else {"no_data": True}),
             )  # fmt: skip
         return done
 
@@ -396,7 +398,7 @@ class Gate:
             return
         now = self._clock()
         timeout = cmd.expect.timeout_s or self._cfg.runtime.verify_timeout_s
-        self.pending.append(Pending(cmd, seq, now + timeout, now))
+        self.pending.append(Pending(cmd, seq, now + timeout, now, self._state.updates))
 
     # ------------------------------------------------------------------ защитные правила по состоянию
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 import json
 from .common import DATA, INDEX, digest, read_json, source_path, write_json
 
-PRIMARY_FILES = ['faq_curated.json', 'situations.json', 'conflicts.json', 'api_constraints.json']
+PRIMARY_FILES = ['faq_curated.json', 'situations.json', 'operational_scenarios.json', 'conflicts.json', 'api_constraints.json']
 
 
 def fingerprint():
@@ -14,7 +14,8 @@ def fingerprint():
 
 def approved_records():
     records = []
-    for filename, kind in [('faq_curated.json', 'faq'), ('situations.json', 'situation')]:
+    # Оперативные сценарии (OS-*) — карточки того же формата, что и ситуации S*
+    for filename, kind in [('faq_curated.json', 'faq'), ('situations.json', 'situation'), ('operational_scenarios.json', 'situation')]:
         for item in read_json(DATA / 'knowledge_base' / filename):
             if item.get('review_status') != 'APPROVED':
                 continue

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Купол · Центр управления</title>
-  <link rel="stylesheet" href="/ui/style.css?v=3">
-  <script src="/ui/app.js?v=3" defer></script>
+  <link rel="stylesheet" href="/ui/style.css?v=4">
+  <script src="/ui/app.js?v=4" defer></script>
 </head>
 <body>
 <aside>
@@ -42,7 +42,9 @@
     </section>
     <section id="page-charts" class="page hidden">
       <div class="panel form-row"><label>Узел<select id="chartNode"></select></label><label class="grow">Параметр<select id="chartField"></select></label><button id="addChart">Добавить график</button></div>
-      <p class="muted tiny">Последние 240 снимков. Пропуски и null показаны разрывами. Ось времени — получение сервером, исходная метка доступна при наведении.</p>
+      <p class="muted tiny">20 основных графиков. Аномалии всех числовых рядов появляются сверху жёлтым; это повод для проверки. Последние 240 снимков. Пропуски и null показаны разрывами. Ось времени — получение сервером, исходная метка доступна при наведении.</p>
+      <p id="chartSummary" class="muted tiny" role="status"></p>
+      <p id="impactSummary" class="tiny"></p>
       <div id="charts" class="chart-grid"></div>
     </section>
     <section id="page-commands" class="page hidden">
@@ -71,7 +73,7 @@
         <label>Задача или наблюдение<textarea id="trigger" rows="3">Оцени актуальную телеметрию, объясни отклонения и предложи проверяемые действия.</textarea></label>
         <div class="form-row"><button id="buildPrompt" class="secondary">Показать промпт</button><button id="askAgent">Запросить решение</button><span class="muted tiny">Разовый запрос: решение записывается, команды не исполняются</span></div>
         <details id="promptDetails"><summary>Промпт и структурированный результат</summary><pre id="llmOutput">Пока нет запроса.</pre></details>
-        <div class="auto-row"><label class="checkbox"><input id="agentControl" type="checkbox">Агент управляет Куполом (иначе — только сообщения и рекомендации; ваши команды уходят всегда)</label><button id="applyAgentControl" class="secondary">Применить</button></div><div class="auto-row"><label class="checkbox"><input id="autoAnalysis" type="checkbox">Автономные решения LLM-агента (иначе — плейбуки); команды идут через Gate</label><label>Плановый обзор, с<input id="autoInterval" type="number" min="30" max="3600" value="120"></label><button id="applyAuto" class="secondary">Применить</button></div>
+        <div class="auto-row"><label class="checkbox"><input id="agentControl" type="checkbox">Агент управляет Куполом (иначе — только сообщения и рекомендации; ваши команды уходят всегда)</label><button id="applyAgentControl" class="secondary">Применить</button></div><div class="auto-row"><label class="checkbox"><input id="autoAnalysis" type="checkbox">Автономные решения LLM-агента (иначе — плейбуки); команды идут через Gate</label><label>Плановый обзор, с<input id="autoInterval" type="number" min="30" max="3600" value="180"></label><button id="applyAuto" class="secondary">Применить</button></div>
       </div>
       <div class="section-heading"><h2>Решения и предложения агента</h2><span class="muted">Автономные решения агент исполняет сам; кнопка — ручное подтверждение разового решения</span></div><div id="decisions"></div>
     </section>

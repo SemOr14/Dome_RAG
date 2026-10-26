@@ -295,14 +295,15 @@ def test_operator_request_refused_by_model_is_marked_not_done() -> None:
     from llm_agent.schemas import ActionVerdict, AgentDecision, AgentResponse, LLMCallInfo, ProposedAction
     from llm_agent.triggers import Trigger
 
-    def intent(status: Any, actions: list[ProposedAction] = ()):
+    def intent(status: Any, actions: list[ProposedAction] = (), age: float | None = None):
         text = "Линию 3 не отключаю: идёт печать."
         decision = AgentDecision(situation="Оператор просит отключить линию 3", actions=list(actions),
                                  operator_message={"needed": True, "text": text, "request_status": status})
         verdicts = [ActionVerdict(action=a, accepted=True) for a in actions]
         verdicts.append(ActionVerdict(action=ProposedAction(node_id="meeting_01", action="post_message", value={"text": text}), accepted=True))
         response = AgentResponse(ok=True, decision=decision, decision_id="d1", llm_call=LLMCallInfo(model="fake", ok=True), verdicts=verdicts)
-        return to_intent(response, Fired([Trigger("operator", "op|1", "Требование Оператора (веб-панель): «Отключи линию 3»")], ""))
+        trigger = Trigger("operator", "op|1", "Требование Оператора (веб-панель): «Отключи линию 3»")
+        return to_intent(response, Fired([trigger], "", snapshot={"telemetry_age_s": age}), stale_s=30)
 
     assert intent("refused").refused == ["требование Оператора — агент отказался выполнять"]
     assert intent("PARTIAL").refused == ["требование Оператора — выполнено только частично"]
@@ -310,6 +311,9 @@ def test_operator_request_refused_by_model_is_marked_not_done() -> None:
     line = ProposedAction(node_id="smart_panel_01", action="line_off", value={"line": 3})
     assert intent("executing", [line]).refused == []
     assert intent("already_done").refused == intent("answered").refused == intent("что-то").refused == []
+    assert intent("already_done", age=12).refused == []
+    # «Уже выполнено» по кадру минутной давности — не подтверждено
+    assert intent("already_done", age=75).refused == ["требование Оператора — выполнение не подтверждено: телеметрия устарела (75 с)"]
 
 
 def test_operator_request_refusal_reaches_operator_even_without_text(tmp_path: Path) -> None:

@@ -46,6 +46,9 @@ class Intent:
     rag_query: str = ""
     cooldown_s: float | None = None
     llm_question: str | None = None  # свободный вопрос Оператора: ответ попробует дать модель (say — запасной текст)
+    impact_kind: str = "unknown"
+    authenticity: str = "unknown"
+    causal_chain: list[str] = field(default_factory=list)
     source: str = "rules"  # rules | llm | rag | mixed (поле source записи decision)
     rag_refs: list[str] = field(default_factory=list)  # источники RAG, на которые опирается решение модели
     say_always: bool = False  # ответ на требование Оператора: отправить и при отказе части шагов (с пояснением)

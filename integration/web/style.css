@@ -18,3 +18,9 @@
 .event.message-event.not-done{border-left-color:var(--red);background:#251a1b}
 .event.message-event .what{color:var(--text);font-size:12px;margin-top:6px}
 .event .plan.missed{color:#f0b4ab}
+
+/* Keep node details mounted and locally scrollable while telemetry changes. */
+.node-card details pre{max-height:340px;overflow:auto;overflow-anchor:none;white-space:pre}
+.chart-anomaly{border:2px solid #fff000;background:#282600;box-shadow:0 0 16px #fff00030}
+.chart-anomaly .chart-title,.chart-anomaly .chart-alert{color:#fff000}
+.chart-alert{margin-bottom:12px}

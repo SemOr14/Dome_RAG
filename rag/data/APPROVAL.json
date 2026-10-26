@@ -5,8 +5,10 @@
   "approved_ids": {
     "faq": "F01-F32",
     "situations": "S01-S24",
-    "conflicts": "C01-C12"
+    "conflicts": "C01-C12",
+    "operational_scenarios": "OS-F01-F06, OS-H01-H06, OS-C01-C06, OS-B01-B06"
   },
   "unreviewed_source_candidates": "reference_only",
-  "editorial_update": "F01 describes the runtime. F03 clarifies operation-specific waiting and asynchronous probe_z, citing API 7.6."
+  "editorial_update": "F01 describes the runtime. F03 clarifies operation-specific waiting and asynchronous probe_z, citing API 7.6.",
+  "operational_scenarios_update": "2026-10-27: 24 оперативных сценария из ветки fix/overnight-telemetry-patrol перенесены в knowledge_base/operational_scenarios.json по указанию пользователя. Ссылки на источники — текстом в поле reference, без построчных source_refs; origin=logs — признаки без причинной разметки, synthetic — непроверенная комбинация."
 }

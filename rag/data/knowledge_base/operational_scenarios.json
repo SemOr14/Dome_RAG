@@ -1,0 +1,1704 @@
+[
+  {
+    "id": "OS-F01",
+    "title": "Одиночный ложный CO₂",
+    "category": "false_signal",
+    "nodes": [
+      "co2_ppm",
+      "IL_CO2",
+      "climate_sensor"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_signals_unlabeled",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "false",
+    "origin": "logs",
+    "reference": "https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-14/events.jsonl @ 12:51:04; причина ложности требует проверки телеметрией",
+    "observation": {
+      "signals": [
+        "Один датчик скачет, два свежих датчика той же зоны согласуются и показывают норму."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Ложный сигнал: Одиночный ложный CO₂."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Проверить online/status, задержку, доверие и зону всех трёх; минимум два независимых подтверждения нормы.",
+        "Сначала допустимая коррекция доверия и выбор исправного источника; защиту снимать лишь по подтверждённой причине."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Новые показания, корректный основной датчик, интерлок не возникает снова."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Признаки наблюдались в истории, но причинной разметки нет: причина остаётся гипотезой."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-F02",
+    "title": "Ложный дым или настоящий пожар",
+    "category": "false_signal",
+    "nodes": [
+      "smoke",
+      "IL_SMOKE",
+      "obscuration",
+      "co_ppm",
+      "voc"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_signals_unlabeled",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "false",
+    "origin": "logs",
+    "reference": "https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-16/events.jsonl @ 12:10:04; IL_SMOKE и удержания, ложность не доказана",
+    "observation": {
+      "signals": [
+        "Дискретная тревога дыма без подтверждённых физических признаков."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Ложный сигнал: Ложный дым или настоящий пожар."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сопоставить CO, VOC, оптическое затемнение, второй извещатель и осмотр Оператора; отсутствие данных не равно норме.",
+        "При подтверждённом пожаре сохранить защиту; при подтверждённой ложной тревоге действовать только в рамках прав."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Новый независимый замер и отсутствие повторной тревоги; не отключать пожаротушение по одному датчику."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Признаки наблюдались в истории, но причинной разметки нет: причина остаётся гипотезой."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-F03",
+    "title": "Неверная метка времени",
+    "category": "false_signal",
+    "nodes": [
+      "updated_at",
+      "reading_delay_s",
+      "clock",
+      "timestamp"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "false",
+    "origin": "docs",
+    "reference": "knowledge/04_telemetry.md; 01_API.md",
+    "observation": {
+      "signals": [
+        "Несколько узлов внезапно оказываются старыми или из будущего."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Ложный сигнал: Неверная метка времени."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сравнить часы edge, timestamp кадра и серверное время получения; не смешивать часы игры и реальные секунды.",
+        "Восстановить источник времени разрешённым действием, дождаться свежих кадров."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Возраст узлов считается корректно по нескольким кадрам, команды не подтверждены старыми данными."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-F04",
+    "title": "Деградация датчика запаса воды",
+    "category": "false_signal",
+    "nodes": [
+      "water_tank",
+      "level_pct",
+      "sensor_state",
+      "confidence"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_signals_unlabeled",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "false",
+    "origin": "logs",
+    "reference": "https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-12/events.jsonl @ 16:01:04",
+    "observation": {
+      "signals": [
+        "Уровень резко меняется одновременно с DEGRADED."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Ложный сигнал: Деградация датчика запаса воды."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить расход, насос, историю и осмотр бака; не делать вывод об утечке только по скачку.",
+        "Передать осмотр Оператору, ограничить решения по недостоверному показанию."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Уровень и расход согласуются после восстановления датчика."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Признаки наблюдались в истории, но причинной разметки нет: причина остаётся гипотезой."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-F05",
+    "title": "Тревога показания после смены режима",
+    "category": "false_signal",
+    "nodes": [
+      "power_w",
+      "temperature_c",
+      "set_speed",
+      "set_mode"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "synthetic_combination",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "false",
+    "origin": "synthetic",
+    "reference": "Проверочная гипотеза, не историческое событие",
+    "observation": {
+      "signals": [
+        "Статистический скачок сразу после разрешённого изменения режима."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Ложный сигнал: Тревога показания после смены режима."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить журнал команды, цель, время и физически ожидаемый отклик.",
+        "Наблюдать переходный процесс; не компенсировать штатный переход обратной командой."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Отклик соответствует команде и стабилизируется; при отсутствии эффекта причина остаётся неизвестной."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Комбинация придумана и на логах или симуляторе не подтверждена."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-F06",
+    "title": "Завершение webhook против реального состояния",
+    "category": "false_signal",
+    "nodes": [
+      "printer",
+      "webhook_state",
+      "real_state",
+      "COMPLETED"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_signals_unlabeled",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "false",
+    "origin": "logs",
+    "reference": "https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-14/events.jsonl; сопоставлять webhook с telemetry",
+    "observation": {
+      "signals": [
+        "Webhook=COMPLETED, но real_state=PRINTING и растёт progress_pct."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Ложный сигнал: Завершение webhook против реального состояния."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить реальное состояние, ход прогресса, мощность и стол.",
+        "Не считать изделие готовым, не запускать следующую работу; восстановить сервис только разрешённым способом."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Физическое завершение, остывание и снятие детали подтверждаются отдельно."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Признаки наблюдались в истории, но причинной разметки нет: причина остаётся гипотезой."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-H01",
+    "title": "Медленный дрейф CO₂",
+    "category": "hidden_fault",
+    "nodes": [
+      "co2_ppm",
+      "climate_sensor",
+      "DEGRADED"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_signals_unlabeled",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "hidden",
+    "origin": "logs",
+    "reference": "https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-12/events.jsonl @ 05:02:12 и 09:20:16; DEGRADED не доказывает дрейф",
+    "observation": {
+      "signals": [
+        "Показание остаётся в допустимом диапазоне, но постепенно отходит от двух других."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Скрытое воздействие: Медленный дрейф CO₂."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Проверить одинаковую зону, свежесть, тренд разности и калибровку.",
+        "Ограничить доверие только после проверки; доступную калибровку сверить с каталогом."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Разность возвращается в устойчивый коридор без подавления реальной тревоги."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Признаки наблюдались в истории, но причинной разметки нет: причина остаётся гипотезой."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-H02",
+    "title": "Неучтённая нагрузка",
+    "category": "hidden_fault",
+    "nodes": [
+      "load_power_w",
+      "total_power_w",
+      "soc_pct",
+      "power_w"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "synthetic_combination",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "hidden",
+    "origin": "synthetic",
+    "reference": "Физическая гипотеза по энергетическому балансу",
+    "observation": {
+      "signals": [
+        "Сумма линий не объясняет нагрузку инвертора и разряд АКБ."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Скрытое воздействие: Неучтённая нагрузка."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Учесть потери, зарядный ток, разные точки измерения и одновременность; проверить устойчивость невязки.",
+        "Проверить линии по одной через каталог и правила; критические потребители не отключать вслепую."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Невязка снижается, подтверждён источник потребления, сохранены нужные потребители."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Комбинация придумана и на логах или симуляторе не подтверждена."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-H03",
+    "title": "Застывшее значение при живом соединении",
+    "category": "hidden_fault",
+    "nodes": [
+      "updated_at",
+      "progress_pct",
+      "frozen",
+      "stale"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "hidden",
+    "origin": "docs",
+    "reference": "knowledge/04_telemetry.md; 03_Требования_к_агенту.md",
+    "observation": {
+      "signals": [
+        "Соединение есть, но timestamp узла или ход операции не обновляется."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Скрытое воздействие: Застывшее значение при живом соединении."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить другие узлы, возраст кадра, reading_delay_s и историю операции.",
+        "Восстановить связь или запросить осмотр; не повторять управляющую команду на старом кадре."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Несколько новых source timestamps и изменение независимого физического показателя."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-H04",
+    "title": "Тихий брак печати или фрезеровки",
+    "category": "hidden_fault",
+    "nodes": [
+      "part_defect",
+      "quality_state",
+      "progress_pct",
+      "rotation_distance"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "hidden",
+    "origin": "docs",
+    "reference": "knowledge/05_production.md; 02_Задание_и_оценка.md",
+    "observation": {
+      "signals": [
+        "Прогресс и статус нормальны, но качество или калибровка подозрительны."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Скрытое воздействие: Тихий брак печати или фрезеровки."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить part_defect, quality_state, материал, калибровку и осмотр изделия.",
+        "Не объявлять выполнение задания по одному progress=100; физическую проверку поручить Оператору."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Годность подтверждена независимым осмотром и проверкой требований задания."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-H05",
+    "title": "Исполнитель принял команду без эффекта",
+    "category": "hidden_fault",
+    "nodes": [
+      "verification",
+      "no_effect",
+      "fan_state",
+      "current_a"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "hidden",
+    "origin": "docs",
+    "reference": "contracts/manual-control.md; agent/src/kupol/dome/gate.py",
+    "observation": {
+      "signals": [
+        "success=true, но физическое показание не изменилось за контрольное окно."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Скрытое воздействие: Исполнитель принял команду без эффекта."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить запрошенную уставку и измеренный ток/обороты/поток на свежем кадре.",
+        "Не дублировать команду в cooldown; искать питание, защиту или неисправность."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Отдельная verification подтверждает измеренный эффект, а не только ответ API."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-H06",
+    "title": "Задержанное исполнение после таймаута",
+    "category": "hidden_fault",
+    "nodes": [
+      "request_timeout",
+      "verification",
+      "ambiguous"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "hidden",
+    "origin": "docs",
+    "reference": "01_API.md; contracts/event.schema.json",
+    "observation": {
+      "signals": [
+        "На команду нет ответа; исполнение могло уже начаться."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Скрытое воздействие: Задержанное исполнение после таймаута."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Проверить request_id, журнал и свежую телеметрию; таймаут не означает отказ.",
+        "Не отправлять ту же команду повторно до выяснения результата."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Итог связан с исходной командой; поздний ответ не вызывает второе действие."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-C01",
+    "title": "CO₂ → интерлок → удержание двух станков",
+    "category": "cascade",
+    "nodes": [
+      "co2_ppm",
+      "IL_CO2",
+      "hold_reason"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_signals_unlabeled",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "cascade",
+    "origin": "logs",
+    "reference": "https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-14/events.jsonl @ 12:51:04",
+    "observation": {
+      "signals": [
+        "IL_CO2=TRIPPED и hold_reason=IL_CO2 у принтера/ЧПУ."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Каскад: CO₂ → интерлок → удержание двух станков."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Отдельно определить истинность исходного CO₂ и факт каскада; две копии одного сигнала не независимы.",
+        "Причина → восстановление воздуха/доверия → подтверждение → разрешённый сброс → проверка станков по очереди."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "CO₂ в норме, защита готова, удержание снято допустимым способом, прогресс возобновился."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Признаки наблюдались в истории, но причинной разметки нет: причина остаётся гипотезой."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-C02",
+    "title": "Конденсат → автоматика → остановка ЧПУ",
+    "category": "cascade",
+    "nodes": [
+      "IL_CONDENSATE",
+      "humidity_pct",
+      "dew_point_c",
+      "E09"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_signals_unlabeled",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "cascade",
+    "origin": "logs",
+    "reference": "https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-15/events.jsonl @ 09:36:00; 2026-10-13 @ 06:41:00",
+    "observation": {
+      "signals": [
+        "Высокая влажность/малая разность точки росы и температуры, удержание IL_CONDENSATE."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Каскад: Конденсат → автоматика → остановка ЧПУ."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Проверить несколько климатических источников, влажность шкафа и условия запуска инвертора.",
+        "Устранить источник влажности и проверить вентиляцию; reset/resume не применять до разрешённых условий."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Влажность и точка росы безопасны, код ошибки не возвращается, ЧПУ движется."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Признаки наблюдались в истории, но причинной разметки нет: причина остаётся гипотезой."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-C03",
+    "title": "Разряд АКБ → разгрузка → потеря питания",
+    "category": "cascade",
+    "nodes": [
+      "soc_pct",
+      "IL_LOAD_SHED",
+      "UNDERVOLTAGE"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_signals_unlabeled",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "cascade",
+    "origin": "logs",
+    "reference": "https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-15/events.jsonl @ 19:12:00; 2026-10-12 @ 13:51:32",
+    "observation": {
+      "signals": [
+        "Заряд падает, IL_LOAD_SHED срабатывает, потребители теряют питание."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Каскад: Разряд АКБ → разгрузка → потеря питания."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить АКБ и инвертор, генерацию, режим питания и зависимость линий.",
+        "Восстановить доступный источник по правилам; разгружать только разрешённые некритические линии, затем проверять станки."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Заряд стабилизируется, напряжение восстановлено, повторного каскада нет."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Признаки наблюдались в истории, но причинной разметки нет: причина остаётся гипотезой."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-C04",
+    "title": "Перегрузка линии → защита → зависимые узлы",
+    "category": "cascade",
+    "nodes": [
+      "IL_OVERCURRENT",
+      "TRIPPED",
+      "smart_panel",
+      "current_a"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_signals_unlabeled",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "cascade",
+    "origin": "logs",
+    "reference": "https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-12/events.jsonl @ 16:12:00",
+    "observation": {
+      "signals": [
+        "Рост тока и защитное отключение линии."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Каскад: Перегрузка линии → защита → зависимые узлы."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить линию, потребителей, lockout и журнал переключений.",
+        "Найти нагрузку/КЗ, не снимать защиту повторно без устранения причины и разрешённых условий."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Ток в норме, блокировка не возвращается, зависимые узлы дают свежие данные."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Признаки наблюдались в истории, но причинной разметки нет: причина остаётся гипотезой."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-C05",
+    "title": "Вентиляция перегружает энергосистему",
+    "category": "cascade",
+    "nodes": [
+      "supply_ventilation",
+      "co2_ppm",
+      "soc_pct",
+      "load_power_w"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "synthetic_combination",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "cascade",
+    "origin": "synthetic",
+    "reference": "Комбинация воздушного и энергетического сценариев",
+    "observation": {
+      "signals": [
+        "Борьба с высоким CO₂ увеличивает нагрузку при недостаточной генерации."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Каскад: Вентиляция перегружает энергосистему."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сравнить безопасность воздуха, запас энергии и разрешённые альтернативы.",
+        "Сохранять безопасный воздух; искать другой источник и снижать допустимые вторичные нагрузки."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Одновременно CO₂ снижается и запас энергии не уходит ниже защитного минимума."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Комбинация придумана и на логах или симуляторе не подтверждена."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-C06",
+    "title": "Падение связи выглядит как множество аварий",
+    "category": "cascade",
+    "nodes": [
+      "edge_compute",
+      "online",
+      "UNKNOWN",
+      "stale"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "synthetic_combination",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "cascade",
+    "origin": "synthetic",
+    "reference": "Гипотеза общей причины в графе влияний",
+    "observation": {
+      "signals": [
+        "Группа зависимых узлов становится UNKNOWN одновременно."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Каскад: Падение связи выглядит как множество аварий."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Проверить общий edge/сеть/питание и timestamps прежде чем считать каждый узел отдельным отказом.",
+        "Восстановить общую зависимость по правам; не отправлять массовые сбросы."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Каждый узел снова отдаёт свежие физические данные, старые ошибки перепроверены."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Комбинация придумана и на логах или симуляторе не подтверждена."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-B01",
+    "title": "Подтверждённый рост CO₂",
+    "category": "base_incident",
+    "nodes": [
+      "co2_ppm",
+      "supply_ventilation"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "base",
+    "origin": "docs",
+    "reference": "knowledge/06_microclimate.md; knowledge/08_safety.md",
+    "observation": {
+      "signals": [
+        "Два свежих независимых датчика одной зоны подтверждают высокий CO₂."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Прямое воздействие: Подтверждённый рост CO₂."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить реальные обороты/поток вентиляции и питание.",
+        "Допустимая вентиляция с проверкой энергетики; Оператору сообщить при угрозе людям."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Свежие независимые значения снижаются; защита не подавлена."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-B02",
+    "title": "Инвертор E09",
+    "category": "base_incident",
+    "nodes": [
+      "solar_inverter",
+      "E09",
+      "humidity_pct"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_signals_unlabeled",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "base",
+    "origin": "logs",
+    "reference": "https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-14/events.jsonl @ 04:30:04",
+    "observation": {
+      "signals": [
+        "Инвертор сообщает E09."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Прямое воздействие: Инвертор E09."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "По документации уточнить условия reset, влажность и подтверждённую причину; не угадывать смысл неизвестного кода.",
+        "Устранить причину и выдержать cooldown; один допустимый reset с проверкой, затем эскалация."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Ошибка не возвращается, выходное напряжение и нагрузка восстановлены."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Признаки наблюдались в истории, но причинной разметки нет: причина остаётся гипотезой."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-B03",
+    "title": "Неизвестный код E07",
+    "category": "base_incident",
+    "nodes": [
+      "solar_inverter",
+      "E07",
+      "error_code"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "historical_signals_unlabeled",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "base",
+    "origin": "logs",
+    "reference": "https://github.com/WhiteDots/Dome_RAG/blob/5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438/Logs/2026-10-17/events.jsonl @ 14:01:36",
+    "observation": {
+      "signals": [
+        "Код инвертора отсутствует в проверенном плейбуке."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Прямое воздействие: Неизвестный код E07."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Запросить справку, error_text и физические параметры; не переносить рецепт E09 на E07.",
+        "Наблюдение и Оператор с указанием кода; управление только по подтверждённым условиям."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Причина установлена и подтверждён эффект разрешённого восстановления."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Признаки наблюдались в истории, но причинной разметки нет: причина остаётся гипотезой."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-B04",
+    "title": "Занятый стол принтера",
+    "category": "base_incident",
+    "nodes": [
+      "bed_clear",
+      "BED_COLLISION",
+      "printer"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "base",
+    "origin": "docs",
+    "reference": "knowledge/05_production.md; 01_API.md",
+    "observation": {
+      "signals": [
+        "COMPLETED/IDLE, но bed_clear=false."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Прямое воздействие: Занятый стол принтера."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Убедиться, что печать завершена и стол остыл, проверить наличие детали.",
+        "Попросить Оператора снять деталь; не пытаться заменить физическое действие командой."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Свежий bed_clear=true и подтверждение Оператора до следующей работы."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-B05",
+    "title": "Перегрев оборудования",
+    "category": "base_incident",
+    "nodes": [
+      "temperature_c",
+      "inverter_temp_c",
+      "spindle_temp_c",
+      "fan_state"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "documented_possible_situation",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "base",
+    "origin": "docs",
+    "reference": "knowledge/03_energy.md; knowledge/08_safety.md",
+    "observation": {
+      "signals": [
+        "Температура растёт при недостаточном охлаждении."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Прямое воздействие: Перегрев оборудования."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Сверить второй источник, ток/обороты вентилятора, нагрузку и засорение.",
+        "Разрешённое охлаждение/снижение нагрузки; аппаратную защиту сохранить."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Температура устойчиво снижается на свежих кадрах, вентилятор физически работает."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  },
+  {
+    "id": "OS-B06",
+    "title": "Просроченная операция без явной ошибки",
+    "category": "base_incident",
+    "nodes": [
+      "progress_pct",
+      "print_time_left_s",
+      "job_time_left_s"
+    ],
+    "scope": "competition_agent",
+    "review_status": "APPROVED",
+    "retrieval_policy": "approved_for_advisory_retrieval",
+    "evidence_class": "synthetic_combination",
+    "historical_window": null,
+    "current_state_claim": false,
+    "impact_kind": "base",
+    "origin": "synthetic",
+    "reference": "Гипотеза зависшей операции",
+    "observation": {
+      "signals": [
+        "Работа RUNNING/PRINTING, но прогресс не меняется и ETA вышла."
+      ],
+      "require_freshness": true,
+      "missing_data": "Без свежих данных телеметрии гипотезу не подтверждать.",
+      "source_refs": []
+    },
+    "interpretation": {
+      "hypotheses": [
+        "Прямое воздействие: Просроченная операция без явной ошибки."
+      ],
+      "certainty": "hypothesis_until_verified",
+      "alternatives_required": true,
+      "source_refs": []
+    },
+    "decision": {
+      "proposed_steps": [
+        "Проверить возраст данных, hold_reason, физическое движение, материал, питание и журнал.",
+        "Не запускать работу заново; сначала причина и разрешённое восстановление; при неизвестности — осмотр."
+      ],
+      "executable": false,
+      "action_gate": [
+        "Действия только по текущему каталогу describe_nodes и жёстким правилам Gate."
+      ],
+      "source_refs": []
+    },
+    "verification": {
+      "expected_and_checks": [
+        "Прогресс растёт и ETA пересчитана по фактическим новым измерениям."
+      ],
+      "observed_result": null,
+      "result": "not_run",
+      "timeout_policy": "Нет новых кадров телеметрии — результат не подтверждён.",
+      "source_refs": []
+    },
+    "correction": {
+      "on_failed_or_uncertain": [
+        "Эффект не подтверждён свежими данными — не повторять команду вслепую, пересмотреть гипотезу и при необходимости обратиться к Оператору."
+      ],
+      "retry_command_by_default": false,
+      "reevaluation_limit": "Повторная оценка — только по новым данным.",
+      "source_refs": []
+    },
+    "open_questions": [
+      "Комбинация придумана и на логах или симуляторе не подтверждена."
+    ],
+    "prohibited_inferences": [
+      "Карточка — гипотеза и способ проверки, а не наблюдение текущего запуска."
+    ],
+    "conflict_ids": [],
+    "source_refs": []
+  }
+]

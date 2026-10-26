@@ -52,7 +52,7 @@ from llm_agent import Settings as LlmSettings  # noqa: E402
 from llm_agent.agent import make_retriever  # noqa: E402
 from llm_agent.context.catalog import NodeCatalog  # noqa: E402
 from llm_agent.dispatcher import Dispatcher, Fired  # noqa: E402
-from llm_agent.triggers import Trigger, gate_action_trigger, gate_verification_trigger  # noqa: E402
+from llm_agent.triggers import Trigger, gate_action_trigger, gate_verification_trigger, telemetry_age  # noqa: E402
 from llm_agent.schemas import AgentResponse, LLMCallInfo, ProposedAction  # noqa: E402
 from llm_agent.storage.data_api import ApiControlChecker, DataApiClient, journal_record  # noqa: E402
 
@@ -62,15 +62,17 @@ Execute = Callable[[Intent], Awaitable[None]]
 class StateTelemetry:
     """Снимок для промпта из ``DomeState`` рантайма; ``timestamp`` — время кадра Купола."""
 
-    def __init__(self, state: DomeState, frame: Callable[[], dict[str, Any] | None]) -> None:
+    def __init__(self, state: DomeState, frame: Callable[[], dict[str, Any] | None], clock: Callable[[], float] = time.time) -> None:
         self.state = state
         self.frame = frame
+        self.clock = clock
 
     def latest(self) -> dict[str, Any]:
         msg = self.frame() or {}
         observed = datetime.fromtimestamp(self.state.wall, timezone.utc).isoformat() if self.state.wall else None
         return {"timestamp": msg.get("timestamp"), "game_time": dict(self.state.game_time or {}),
-                "nodes": dict(self.state.nodes), "observed_at": observed}
+                "nodes": dict(self.state.nodes), "observed_at": observed,
+                "telemetry_age_s": max(0.0, self.clock() - self.state.wall) if self.state.wall else None}
 
     def history(self, node_id: str, param: str, limit: int = 20) -> list[dict[str, Any]]:
         return []
@@ -146,7 +148,7 @@ def _value(v: Any) -> str:
     return "" if v is None else json.dumps(v, ensure_ascii=False, default=str)[:80]
 
 
-def to_intent(response: AgentResponse, fired: Fired) -> Intent:
+def to_intent(response: AgentResponse, fired: Fired, stale_s: float = 30.0) -> Intent:
     """Решение модели → намерение рантайма. Сообщение Оператору уходит, только если все шаги приняты Gate."""
     d = response.decision
     assert d is not None
@@ -175,10 +177,14 @@ def to_intent(response: AgentResponse, fired: Fired) -> Intent:
             refused.insert(0, f"требование Оператора — {REQUEST_MISSED[status]}")
         elif status == "executing" and not steps and not refused:
             refused.insert(0, "требование Оператора — агент не предложил команд для него")
+        elif status == "already_done" and (age := telemetry_age(fired.snapshot or {}, stale_s)) is not None:
+            # «Уже выполнено» по старому кадру — догадка, а не факт
+            refused.insert(0, f"требование Оператора — выполнение не подтверждено: телеметрия устарела ({age:.0f} с)")
     return Intent(
         key=f"llm:{response.decision_id}", situation=d.situation, cause=d.cause or "не установлена", confidence=d.confidence,
         evidence=[e.model_dump(exclude_none=True) for e in d.evidence] or [{"trigger": t.text[:300]} for t in fired.triggers],
         plan=plan or ["наблюдать"], steps=steps, say=say, priority=SEVERITY_PRIORITY.get(d.severity, 5),
+        impact_kind=d.impact_kind, authenticity=d.authenticity, causal_chain=list(d.causal_chain),
         cooldown_s=0.0, source="mixed" if d.rag_refs else "llm", rag_refs=list(d.rag_refs),
         say_always=operator, refused=refused,
     )  # fmt: skip
@@ -216,7 +222,7 @@ class LlmBrain:
             client = data_client or DataApiClient(settings.data_api_url, settings.data_api_token or None, s.data_api_timeout_s)
             checker = _SessionChecker(ApiControlChecker(client, recorder.run_id, ""), session)
         self.agent = DomeLLMAgent(
-            s, StateTelemetry(state, frame), self.journal, _Catalog([]), retriever=make_retriever(s), llm=llm,
+            s, StateTelemetry(state, frame, clock), self.journal, _Catalog([]), retriever=make_retriever(s), llm=llm,
             events=_Sink(recorder, session, self.journal), control_checker=checker,
         )  # fmt: skip
         self.dispatcher = Dispatcher(self.agent, clock=clock)
@@ -258,6 +264,8 @@ class LlmBrain:
                 self.dispatcher.submit(trig)
         elif kind == "verification":
             ref = rec.get("ref")
+            if not isinstance(ref, int):
+                return
             trig = gate_verification_trigger(rec, self._actions.get(ref), ref in self._timed_out, self.no_effect_cooldown_s)
             self._timed_out.discard(ref)
             if trig is not None:  # нет эффекта или итог после таймаута — по факту проверки Gate
@@ -316,7 +324,7 @@ class LlmBrain:
             return
         self.failures = 0
         try:
-            await execute(to_intent(response, fired))
+            await execute(to_intent(response, fired, self.settings.trigger_stale_s))
         except Exception as exc:  # noqa: BLE001 - фоновая задача: ошибка исполнения не должна потеряться
             self.log.write("error", where="llm_brain.execute", error=repr(exc))
 

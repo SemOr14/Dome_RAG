@@ -58,6 +58,9 @@ class AgentDecision(BaseModel):
     cause: str = ""
     severity: Literal["info", "warning", "critical"] = "info"
     confidence: float = Field(0.5, ge=0.0, le=1.0)
+    impact_kind: Literal["base", "hidden", "cascade", "false", "unknown"] = "unknown"
+    authenticity: Literal["real", "suspected_false", "unknown"] = "unknown"
+    causal_chain: list[str] = []
     false_alarm: bool | None = None
     evidence: list[Evidence] = []
     actions: list[ProposedAction] = []
@@ -112,6 +115,9 @@ def output_schema_example() -> dict:
         "cause": "предполагаемая причина",
         "severity": "info | warning | critical",
         "confidence": 0.8,
+        "impact_kind": "base | hidden | cascade | false | unknown",
+        "authenticity": "real | suspected_false | unknown",
+        "causal_chain": ["первопричина → автоматика → зависимое оборудование (если подтверждено)"],
         "false_alarm": "true | false | null (если не про тревогу)",
         "evidence": [{"node": "climate_sensor_02", "param": "co2_ppm", "value": 781, "note": "почему важно"}],
         "actions": [{

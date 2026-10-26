@@ -69,7 +69,7 @@ class DomeLLMAgent:
         self.builder = PromptBuilder(
             settings.prompt_dir, self.catalog, InfluenceGraph.load(settings.data_dir / "influence_graph.yaml"),
             self.hard_rules, retriever or NullRetriever(), journal_limit=settings.journal_limit,
-            rag_k=settings.rag_k, graph_depth=settings.graph_depth)
+            rag_k=settings.rag_k, graph_depth=settings.graph_depth, stale_s=settings.trigger_stale_s)
         self._llm = llm
 
     @classmethod
@@ -206,6 +206,7 @@ class DomeLLMAgent:
     def decision_payload(self, response: AgentResponse, dome_time: str | None = None) -> dict:
         """Решение в формате services/data_api/AGENT_INTERFACE.md плюс text для журнала промпта."""
         d = response.decision
+        assert d is not None
         accepted = [f"{a.node_id}.{a.action}" for a in response.accepted_actions]
         return {
             "actor": "agent", "kind": "decision", "dome_time": dome_time, "source": "llm",
@@ -214,6 +215,7 @@ class DomeLLMAgent:
             "observation_event_ids": list(getattr(self.telemetry, "event_ids", [])),
             "summary": d.situation,
             "hypotheses": [{"description": d.cause, "confidence": d.confidence}] if d.cause else [],
+            "impact_kind": d.impact_kind, "authenticity": d.authenticity, "causal_chain": d.causal_chain,
             "false_alarm": d.false_alarm, "severity": d.severity, "confidence": d.confidence,
             "proposed_controls": [{"node_id": v.action.node_id, "action": v.action.action, "value": v.action.value,
                                    "accepted": v.accepted, "reasons": v.reasons} for v in response.verdicts],
