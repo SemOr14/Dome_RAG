@@ -134,3 +134,38 @@ def test_outbox_keeps_events_while_db_is_down(api, tmp_path):
     assert http.get(f"/v1/events/{ev['event_id']}").status_code == 200
     assert down.outbox.read_text(encoding="utf-8") == ""
     assert isinstance(down.http, httpx.Client)
+
+
+def test_dispatcher_over_db_records_trigger_decision_and_verification(api, tmp_path):
+    from llm_agent.dispatcher import Dispatcher
+    from llm_agent.storage.data_api import ApiEventFeed
+
+    client, http = api
+    agent = make_agent(client, FakeLLM(json.dumps(DECISION, ensure_ascii=False),
+                                       json.dumps({"situation": "IL_CO2 снят", "actions": []}, ensure_ascii=False)),
+                       tmp_path)
+    clock = [1000.0]
+    dispatcher = Dispatcher(agent, ApiEventFeed(client, RUN), clock=lambda: clock[0])
+    [fired] = dispatcher.tick()  # все тревоги кадра — один вызов
+    # Сообщение Оператора в БД раньше старта ленты — история, не повод (в живой телеметрии оно в recent_messages)
+    assert {t.kind for t in fired.triggers} == {"alarm", "conflict"}
+
+    def stored(event_type):
+        return http.get("/v1/events", params={"run_id": RUN, "event_type": event_type}).json()["items"]
+
+    [trigger] = stored("llm_trigger")
+    assert trigger["payload"]["text"] == fired.text
+    [decision] = stored("decision")
+    assert dispatcher.checks and dispatcher.checks[0].decision_event_id == decision["event_id"]
+
+    # Новый кадр телеметрии → проверка результата вторым вызовом и событие verification со ссылкой на решение
+    frame = json.loads((ROOT / "data" / "samples" / "scenarios" / "co2_false_alarm.json").read_text(encoding="utf-8"))
+    client.deliver([event("telemetry", {"type": "telemetry", "timestamp": frame["timestamp"] + 10, "role": "team",
+                                        "data": {"nodes": frame["nodes"], "game_time": frame["game_time"]}},
+                          metadata={"observed_at": datetime.now(timezone.utc).isoformat()})])
+    clock[0] += 11
+    [check] = dispatcher.tick()
+    assert [t.kind for t in check.triggers] == ["verification"]
+    [verification] = stored("verification")
+    assert verification["payload"]["decision_event_id"] == decision["event_id"]
+    assert verification["payload"]["status"] == "reassessed"

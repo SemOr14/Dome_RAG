@@ -1,6 +1,8 @@
-"""Главный цикл агента: телеметрия → плейбуки → решения → Gate → проверка → лог.
+"""Главный цикл агента: телеметрия → решения → Gate → проверка → лог.
 
-Один asyncio-цикл. Правила безопасности отрабатывают на каждой телеметрии и никогда не ждут модель.
+Решения принимает LLM-агент Купола (``brain.py``: диспетчер поводов → DeepSeek → проверенное решение);
+без модели или при её сбоях — плейбуки. Один asyncio-цикл: модель работает в фоновом потоке, а такт,
+Gate и проверка эффекта отрабатывают на каждой телеметрии и никогда её не ждут.
 Состояние (память плейбуков, кулдауны, обработанные сообщения чата) сохраняется в файл: после
 перезапуска агент продолжает с того же места и не повторяет решения вслепую.
 """
@@ -14,7 +16,7 @@ import time
 import traceback
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 from kupol.dome.agentlog import AgentLog
 from kupol.dome.catalog import Catalog
@@ -23,7 +25,9 @@ from kupol.dome.client import DomeClient
 from kupol.dome.config import DomeConfig
 from kupol.dome.datalog import DataApiRecorder
 from kupol.dome.env import Settings
+from kupol.dome.expects import expect_for
 from kupol.dome.gate import Cmd, Gate, GateResult
+from kupol.dome.manual import ManualControls
 from kupol.dome.playbooks.air import Co2Playbook, CondensatePlaybook
 from kupol.dome.playbooks.base import Ctx, Intent, Playbook
 from kupol.dome.playbooks.devices import AlarmPlaybook, ClockPlaybook, NetworkPlaybook, StalePlaybook
@@ -33,6 +37,9 @@ from kupol.dome.playbooks.machines import ResumePlaybook, SmokePlaybook
 from kupol.dome.playbooks.production import PrinterPlaybook
 from kupol.dome.playbooks.tasks import TasksPlaybook, unanswered_operator_messages
 from kupol.dome.state import DomeState
+
+if TYPE_CHECKING:  # LLM-слой нужен только в режиме AGENT_BRAIN=llm
+    from kupol.dome.brain import LlmBrain
 
 AGENT_NAME = "kupol-dome"
 STALE_TELEMETRY_S = 20.0
@@ -99,6 +106,7 @@ class Runner:
         models: list[str] | None = None,
         clock: Callable[[], float] = time.time,
         recorder: DataApiRecorder | None = None,
+        brain: LlmBrain | Callable[[Runner], LlmBrain] | None = None,  # None — только плейбуки
     ) -> None:
         self.settings = settings
         self.cfg = cfg
@@ -119,6 +127,14 @@ class Runner:
             log.sink = lambda kind, rec: recorder.event(
                 f"agent_{kind}", rec, session_id=self.client.session_id, metadata={"log_run_id": rec.get("run_id"), "log_seq": rec.get("seq")}
             )  # fmt: skip
+        if brain is not None and not hasattr(brain, "step"):
+            brain = brain(self)  # фабрике нужны состояние, клиент и рекордер этого рантайма
+        self.brain = brain
+        self.manual = ManualControls(recorder) if recorder is not None else None  # команды Оператора из БД
+        self._manual_task: asyncio.Task[Any] | None = None
+        if brain is not None:
+            db_sink = log.sink
+            log.sink = lambda kind, rec: (db_sink and db_sink(kind, rec), brain.on_log(kind, rec))  # журнал для промпта
         self.catalog = Catalog()
         self._catalog_msg: dict[str, Any] | None = None
         self.gate = Gate(
@@ -157,6 +173,7 @@ class Runner:
             config={
                 "dome_url": self.settings.dome_url, "dry_run": self.settings.dry_run, "allow_control": self.settings.allow_control,
                 "can_control": self.settings.can_control, "key_sources": self.settings.sources, "playbooks": [p.name for p in self.playbooks],
+                "brain": "llm" if self.brain is not None else "rules",
             },
         )  # fmt: skip
         reason = "завершение работы"
@@ -179,6 +196,10 @@ class Runner:
             self.client.stop()
             for bg in self._bg:
                 bg.cancel()
+            if self._manual_task is not None:
+                self._manual_task.cancel()
+            if self.brain is not None:
+                await self.brain.close()
             try:
                 await asyncio.wait_for(task, timeout=5)
             except (asyncio.TimeoutError, asyncio.CancelledError, Exception):  # noqa: BLE001
@@ -216,8 +237,15 @@ class Runner:
         chat_new = self._collect_chat(now)
         await self._ensure_catalog(now)
         self.gate.check_pending()
+        await self._manual_step()  # ручные команды Оператора — раньше автоматических решений
         intents: list[Intent] = []
-        if self.state.role == "team":
+        use_llm = self.brain is not None and self.brain.healthy
+        if self.state.role == "team" and use_llm:
+            assert self.brain is not None
+            self.brain.step(chat_new, lambda intent: self.execute(intent, self.clock()))
+        elif self.state.role == "team":
+            if self.brain is not None:
+                self.brain.mark_seen(chat_new + list(self.state.get("meeting_01.recent_messages", []) or []))
             for pb in self.playbooks:
                 ctx = Ctx(self.state, self.cfg, self.gate, self.mem.setdefault(pb.name, {}), now, self._operator_texts, chat_new)
                 try:
@@ -227,7 +255,8 @@ class Runner:
         intents.sort(key=lambda i: i.priority)
         for intent in intents:
             await self.execute(intent, now)
-        self._diagnose_uncovered(now)
+        if not use_llm:  # модель-основа сама разбирает непокрытые ситуации
+            self._diagnose_uncovered(now)
         self._observe(now)
         self._save_state()
         self._bg = [t for t in self._bg if not t.done()]
@@ -247,6 +276,8 @@ class Runner:
         if msg is not None and msg is not self._catalog_msg:
             self._catalog_msg = msg
             self.catalog = Catalog.from_response(msg)
+            if self.brain is not None:
+                self.brain.set_catalog([n for n in msg.get("nodes") or [] if isinstance(n, dict)])
 
     async def _ensure_catalog(self, now: float) -> None:
         if self.catalog or not self.client.connected or now - self._last_catalog_try < CATALOG_RETRY_S:
@@ -309,8 +340,8 @@ class Runner:
             "situation": intent.situation, "cause": intent.cause, "confidence": intent.confidence, "evidence": intent.evidence,
             "plan": intent.plan, "source": "mixed" if refs and intent.source == "rules" else intent.source, "priority": intent.priority,
         }  # fmt: skip
-        if refs:
-            fields["rag_refs"] = [r["ref"] for r in refs]
+        if refs or intent.rag_refs:
+            fields["rag_refs"] = intent.rag_refs + [r["ref"] for r in refs]
         decision = self.log.write("decision", **fields)
         results: list[GateResult] = []
         for step in intent.steps:
@@ -327,6 +358,56 @@ class Runner:
         if res.ok:
             self.log.write("message", ref=ref, direction="out", to="operator", text=text, dry_run=(res.status == "dry_run") or None)
         return res
+
+    # ------------------------------------------------------------------ ручные команды Оператора
+
+    async def _manual_step(self) -> None:
+        """Забрать результат фонового опроса очереди ручных команд, исполнить их и начать следующий опрос."""
+        if self.manual is None:
+            return
+        task = self._manual_task
+        if task is not None and task.done():
+            self._manual_task = None
+            try:
+                fresh, stale = task.result()
+            except Exception as exc:  # noqa: BLE001 - БД недоступна: команды подождут в очереди сервиса
+                self.log.write("error", where="manual_controls", error=repr(exc))
+                fresh, stale = [], []
+            for item in stale:
+                self._dispatch_event(item, "skipped", f"команда старше {self.manual.max_age_s:.0f} с: состояние могло измениться, не исполнена")
+            for item in fresh:
+                await self.manual_command(item)
+        if self._manual_task is None:
+            self._manual_task = asyncio.create_task(asyncio.to_thread(self.manual.poll))
+
+    async def manual_command(self, item: dict[str, Any]) -> GateResult:
+        """Ручная команда Оператора: решение ``source=operator`` → Gate (те же правила) → Купол → проверка эффекта."""
+        ev = item["event"]
+        p, meta = ev["payload"], ev.get("metadata") or {}
+        node, action, value = str(p.get("node_id")), str(p.get("action")), p.get("value")
+        label = f"{node}.{action}" + (f"({json.dumps(value, ensure_ascii=False, default=str)})" if value is not None else "")
+        decision = self.log.write(
+            "decision", situation=f"Ручная команда Оператора: {label}", cause=str(meta.get("reason") or "команда из веб-интерфейса"),
+            confidence=1.0, evidence=[{"intent_event_id": ev["event_id"], "server_validation": (item.get("validation") or {}).get("status")}],
+            plan=[f"{label} через Gate"], source="operator", priority=1, intent_event_id=ev["event_id"], operator=meta.get("operator"),
+        )  # fmt: skip
+        res = await self.gate.submit(Cmd(node, action, value, "ручная команда Оператора", decision, expect_for(node, action, value)))
+        self._dispatch_event(item, res.status, res.reason, decision=decision, result=res)
+        return res
+
+    def _dispatch_event(self, item: dict[str, Any], status: str, reason: str, decision: int | None = None, result: GateResult | None = None) -> None:
+        """Итог ручной команды для интерфейса: отправлена / dry_run / отклонена Gate / сбой / пропущена."""
+        if self.recorder is None:
+            return
+        ev = item["event"]
+        response = (result.response if result else None) or {}
+        self.recorder.event(
+            "control_dispatch",
+            {"intent_event_id": ev["event_id"], "status": status, "reason": reason or None, "decision_seq": decision,
+             "action_seq": result.action_seq if result else None, "response": response or None},
+            session_id=self.client.session_id, request_id=response.get("request_id"), node_id=(ev.get("payload") or {}).get("node_id"),
+            metadata={"intent_event_id": ev["event_id"], "log_run_id": self.log.run_id},
+        )  # fmt: skip
 
     # ------------------------------------------------------------------ модель (только советы и текст)
 
@@ -465,7 +546,7 @@ class Runner:
         payload = {
             "saved_at": now, "mem": self.mem, "last_decision": self.last_decision,
             "seen_msgs": sorted(self.seen_msgs)[-200:], "operator_log": self.operator_log[-40:],
-            "failed_until": self.gate.export_failed(),
+            "failed_until": self.gate.export_failed(), "manual_cursor": self.manual.cursor if self.manual else None,
         }  # fmt: skip
         try:
             self._state_path.parent.mkdir(parents=True, exist_ok=True)
@@ -485,6 +566,8 @@ class Runner:
             self.seen_msgs = {int(x) for x in data.get("seen_msgs") or []}
             self.operator_log = [(float(t), str(x)) for t, x in data.get("operator_log") or []]
             self.gate.import_failed(data.get("failed_until") or {})
+            if self.manual is not None and isinstance(data.get("manual_cursor"), int):
+                self.manual.cursor = data["manual_cursor"]  # команды, пришедшие за время перезапуска, не теряются
             self.log.write("observation", summary="состояние восстановлено после перезапуска", metrics={"saved_at": data.get("saved_at")}, anomalies=[])
         except (OSError, ValueError, TypeError) as exc:
             self.log.write("error", where="load_state", error=repr(exc))

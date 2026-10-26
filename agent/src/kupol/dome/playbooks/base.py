@@ -47,6 +47,7 @@ class Intent:
     cooldown_s: float | None = None
     llm_question: str | None = None  # свободный вопрос Оператора: ответ попробует дать модель (say — запасной текст)
     source: str = "rules"  # rules | llm | rag | mixed (поле source записи decision)
+    rag_refs: list[str] = field(default_factory=list)  # источники RAG, на которые опирается решение модели
 
     @classmethod
     def from_evidence(cls, evidence: list[Ev], **kw: Any) -> Intent:

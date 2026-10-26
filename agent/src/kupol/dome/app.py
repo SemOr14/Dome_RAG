@@ -22,6 +22,8 @@ from kupol.dome.llm import DeepSeek, LlmAdvisor
 from kupol.dome.rag import build_rag
 from kupol.dome.runner import Runner
 
+BRAINS = ("llm", "rules")
+
 EXIT_USAGE = 2
 
 
@@ -78,8 +80,22 @@ def main(argv: Sequence[str] | None = None) -> int:
     log = AgentLog(settings.log_dir, secrets=[settings.dome_key, settings.deepseek_key])
     mode = "ТОЛЬКО ЧТЕНИЕ (команды не отправляются)" if not settings.can_control else "УПРАВЛЕНИЕ ВКЛЮЧЕНО"
     print(f"Агент Штаба: {settings.dome_url}, режим: {mode}, лог: {Path(log.path)}")
+    if settings.brain not in BRAINS:
+        print(f"AGENT_BRAIN={settings.brain!r}: допустимо {', '.join(BRAINS)}")
+        return EXIT_USAGE
     advisor, models = build_advisor(settings, cfg, log)
-    runner = Runner(settings, cfg, log, advisor=advisor, models=models)
+    brain = None
+    if settings.brain == "llm" and settings.deepseek_key:
+        from kupol.dome.brain import LlmBrain
+
+        def brain(r: Runner) -> LlmBrain:
+            return LlmBrain(settings, log, r.state, lambda: r.client.telemetry, lambda: r.client.session_id, r.recorder)
+
+        print("Решения: LLM-агент Купола (llm_agent/), при недоступности модели — плейбуки")
+    else:
+        why = "AGENT_BRAIN=rules" if settings.brain == "rules" else "нет ключа DeepSeek"
+        print(f"Решения: плейбуки ({why})")
+    runner = Runner(settings, cfg, log, advisor=advisor, models=models, brain=brain)
     _install_signals()
     try:
         asyncio.run(runner.run(max_ticks=args.max_ticks))

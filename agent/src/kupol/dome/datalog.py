@@ -108,6 +108,12 @@ class DataApiRecorder:
         self._queue.put(None)
         self._thread.join(timeout)
 
+    def get(self, path: str, **params: Any) -> Any:
+        """Чтение из сервиса БД (блокирующее; в асинхронном коде — в потоке)."""
+        resp = self._http.get(path, params={k: v for k, v in params.items() if v is not None})
+        resp.raise_for_status()
+        return resp.json()
+
     # ------------------------------------------------------------------ доставка
 
     def _worker(self) -> None:

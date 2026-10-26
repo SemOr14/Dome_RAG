@@ -16,7 +16,7 @@ import httpx
 
 JOURNAL_TYPES = ("decision", "control", "control_response", "verification", "meeting_message", "action",
                  # копия лога агентной системы (agent/src/kupol/dome/datalog.py)
-                 "agent_decision", "agent_action", "agent_verification")
+                 "agent_decision", "agent_action", "agent_verification", "agent_message")
 
 
 def envelope(run_id: str, event_type: str, payload, *, session_id: str | None = None, source: str = "agent",
@@ -178,6 +178,8 @@ def journal_record(ev: dict) -> dict:
            "actor": p.get("actor") if ev["source"] == "import" else ev["source"], "kind": kind}
     if kind == "agent_decision":
         rec["text"] = f"{p.get('situation')}; причина: {p.get('cause')}; план: {p.get('plan') or 'наблюдать'}"
+        src = p.get("source")
+        rec["actor"] = "operator" if src == "operator" else f"agent:{src}" if src else rec["actor"]
     elif kind == "agent_action":
         req = p.get("request") if isinstance(p.get("request"), dict) else {}
         resp = p.get("response") if isinstance(p.get("response"), dict) else {}
@@ -186,6 +188,9 @@ def journal_record(ev: dict) -> dict:
     elif kind == "agent_verification":
         rec.update(text=p.get("expected"), outcome=f"{'подтверждено' if p.get('ok') else 'НЕ подтверждено'}: "
                                                    f"{json.dumps(p.get('observed'), ensure_ascii=False, default=str)}")
+    elif kind == "agent_message":  # переписка с Оператором из лога агентной системы
+        rec["actor"] = "operator" if p.get("direction") == "in" else "agent"
+        rec["text"] = p.get("text")
     elif kind == "meeting_message":
         msg = p.get("message") if isinstance(p.get("message"), dict) else p
         sender = msg.get("sender") if isinstance(msg.get("sender"), dict) else {}
@@ -241,6 +246,48 @@ class ApiEventSink:
         event = envelope(self.run_id, event_type, payload, session_id=self.session_id, **kwargs)
         self.client.deliver([event])
         return event["event_id"]
+
+
+class ApiEventFeed:
+    """Новые события запуска для диспетчера: ответы Купола, таймауты, чат, проверки агентной системы.
+
+    Без сохранённых курсоров начинает с конца истории: старые события не повод вызывать модель.
+    """
+
+    TYPES = ("control_response", "request_timeout", "meeting_message", "agent_verification")
+
+    def __init__(self, client: DataApiClient, run_id: str, cursors: dict[str, int] | None = None):
+        self.client = client
+        self.run_id = run_id
+        self.cursors = dict(cursors or {})
+        for kind in self.TYPES:
+            if kind not in self.cursors:
+                last = client.last_event(run_id, kind)
+                self.cursors[kind] = last["id"] if last else 0
+
+    def poll(self) -> list[dict]:
+        events = []
+        for kind in self.TYPES:
+            for ev in self.client.pages("/v1/events", "after_id", "next_after_id", start=self.cursors[kind],
+                                        run_id=self.run_id, event_type=kind, limit=1000):
+                self.cursors[kind] = ev["id"]
+                if kind == "control_response" and isinstance(ev["payload"], dict) \
+                        and ev["payload"].get("success") is False:
+                    ev["request"] = self._request(ev)
+                events.append(ev)
+        return sorted(events, key=lambda e: e["id"])
+
+    def _request(self, ev: dict) -> dict:
+        """Какую команду отклонил Купол: в ответе нет node_id/action, берём их из пары запрос-ответ."""
+        if not ev.get("session_id") or ev.get("request_id") is None:
+            return {}
+        try:
+            pair = self.client.get("/v1/exchanges", run_id=self.run_id, session_id=ev["session_id"],
+                                   request_id=json.dumps(ev["request_id"]))
+        except httpx.HTTPError:
+            return {}
+        requests = (pair or {}).get("requests") or []
+        return requests[-1]["payload"] if requests and isinstance(requests[-1].get("payload"), dict) else {}
 
 
 class ApiControlChecker:

@@ -63,6 +63,38 @@ python run_example.py --source data-api --dry-run   # данные запуск�
 | Телеметрия, каталог, журнал решений | Сервис БД/API ([llm_agent/storage/data_api.py](llm_agent/storage/data_api.py)) или файлы `data/samples/` | Задан `DATA_API_URL` — данные запуска `DATA_API_RUN_ID` из БД, иначе файловые заглушки. Каталог — последний `describe_nodes_response`, запасной — [data/catalog_static.json](data/catalog_static.json) |
 | RAG (примеры ситуаций, FAQ) | [rag/](rag/README.md) | Агент берёт согласованные FAQ и карточки ситуаций RAG Купола вместе с конфликтами источников ([llm_agent/rag/dome.py](llm_agent/rag/dome.py)). Без ONNX-модели (`rag/setup.ps1`) поиск идёт только по BM25. Если индекса нет, используется запасной BM25 по `data/rag/`. Выбор задаёт `RAG_BACKEND` |
 
+### Когда вызывается модель: диспетчер
+
+[llm_agent/dispatcher.py](llm_agent/dispatcher.py) реализует [rag/AGENT_TRIGGERS.md](rag/AGENT_TRIGGERS.md): пороги и смены
+состояния считает код ([llm_agent/triggers.py](llm_agent/triggers.py)), модель получает только сформированный повод и контекст.
+
+```
+python run_dispatcher.py --dry-run --once     # какие поводы видны сейчас, без вызова DeepSeek
+python run_dispatcher.py                      # постоянная работа; данные из БД, если задан DATA_API_URL
+```
+
+| Повод | Откуда | Когда |
+|---|---|---|
+| `alarm`, `conflict`, `stale` | Эвристики телеметрии (интерлоки, защиты линий, удержание станков, ошибки узлов, расхождение датчиков CO2, пропавшие и устаревшие показания) | Аномалия появилась или сменила состояние (`TRIPPED` → `BLOCKED`); исчезнувшая и вернувшаяся — снова повод |
+| `conflict` | Принтер/фрезер в `COMPLETED`/`IDLE`, а `progress_pct` растёт | Сразу: изделие не считается готовым |
+| `operation` | `PRINTING`/`RUNNING`, прогресс не меняется `TRIGGER_STALL_S` | Операция превысила ожидаемое время |
+| `stale` | Нет новых кадров телеметрии `TRIGGER_STALE_S` | Один раз до возобновления кадров |
+| `command` | События БД: `control_response` с `success=false`, `request_timeout`, `agent_verification` с `ok=false` | Сразу; команда восстанавливается из пары запрос-ответ |
+| `operator` | Сообщения Оператора: `meeting_01.recent_messages` и события `meeting_message` | Каждое новое, один раз (последний `id` хранится в `state/`) |
+| `verification` | Таймер после решения с принятыми действиями (`verify_after_s`) | Пришли новые данные — модель оценивает результат по журналу и телеметрии |
+| `review` | Таймер `TRIGGER_REVIEW_S` | Только при затишье |
+
+- Поводы одного цикла объединяются в один вызов (сначала срочные). Модель вызывается не чаще `TRIGGER_MIN_INTERVAL_S`,
+  та же ситуация — не чаще `TRIGGER_COOLDOWN_S`. Новое состояние — новая ситуация.
+- Сбой модели не засчитывается: повод остаётся в очереди с растущей паузой (`TRIGGER_LLM_RETRIES` повторов), в журнал
+  пишется `failed`.
+- Нет новых кадров после действия — проверка ждёт ещё `TRIGGER_VERIFY_RETRIES` периодов. Затем пишется событие
+  `verification` со статусом `unverified` и ставится повод `stale`. Успехом это не считается.
+- Каждый вызов пишется событием `llm_trigger` (поводы, их `event_ids`), оценка результата — событием `verification`
+  со ссылкой на `decision_event_id`.
+- Команды диспетчер не отправляет и не повторяет: принятые действия исполняет агентная система после своего Gate.
+- Численные значения в [.env.example](.env.example) предварительные, их нужно подобрать на испытаниях.
+
 ### Работа с сервисом БД/API
 
 Формат обмена — [AGENT_INTERFACE.md](services/data_api/AGENT_INTERFACE.md). При подключённой БД LLM-слой:
@@ -79,6 +111,16 @@ python run_example.py --source data-api --dry-run   # данные запуск�
   сессия последнего `auth_response`);
 - при недоступной БД складывает события в `state/data_api_outbox.jsonl` и досылает их с прежними `event_id`.
   События с ответом 409/422 сохраняются в `state/data_api_rejected.jsonl`.
+
+### LLM-агент как основа агентной системы
+
+`python agent/main.py` с ключом DeepSeek и `AGENT_BRAIN=llm` (по умолчанию) принимает решения LLM-агентом
+([agent/src/kupol/dome/brain.py](agent/src/kupol/dome/brain.py)). Диспетчер находит поводы по живой телеметрии, чату и
+результатам команд, а модель решает. Решение проходит `llm_agent/validate.py` и становится намерением рантайма. Шаги идут
+только через Gate: политика `dome.yaml`, защитные правила, «только чтение» без `DOME_ALLOW_CONTROL=1`. Эффект
+проверяется по телеметрии. Сообщение Оператору уходит, если все шаги приняты. Модель работает в фоновом потоке и такт
+не задерживает. Без ключа, при `AGENT_BRAIN=rules` или после трёх сбоев модели подряд (на 5 минут) решения принимают
+плейбуки. Журнал агента (решения, команды, проверки, чат) попадает в промпт, вызовы модели пишутся в лог как `llm_call`.
 
 Агентная система (`agent/`) при заданном `DATA_API_URL` пишет в ту же БД каждый кадр WebSocket в обе стороны
 ([agent/src/kupol/dome/datalog.py](agent/src/kupol/dome/datalog.py)): `auth` (ключ скрыт), `describe_nodes`,
