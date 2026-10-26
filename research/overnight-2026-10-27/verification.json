@@ -1,0 +1,49 @@
+{
+  "implementation_commit": "222135e46a4da9a5c42dce1ec80911c5fde98d81",
+  "base_commit": "c1773175e8cdad90b521b13b0d36bc5559957616",
+  "python": "3.12.14",
+  "pytest": "9.1.1",
+  "playwright": "1.64.1",
+  "suites": [
+    {
+      "name": "agent_default",
+      "passed": 733,
+      "deselected_slow": 52,
+      "seconds": 637.3,
+      "core_coverage_pct": 97.34
+    },
+    {
+      "name": "web_api_rag_dispatcher",
+      "passed": 91,
+      "seconds": 14.96,
+      "real_browser": "/usr/bin/chromium"
+    },
+    {
+      "name": "simulator_integration_regression_slow",
+      "passed": 37,
+      "seconds": 483.65,
+      "other_slow_not_run": 15
+    },
+    {
+      "name": "patrol_core_after_final_log_metrics",
+      "passed": 14
+    }
+  ],
+  "types": {
+    "changed_agent_modules": "passed (5 files)",
+    "new_monitor_strict": "passed",
+    "whole_project_standard": "baseline failure retained; no configuration suppression",
+    "baseline_errors": 21,
+    "current_errors": 11
+  },
+  "javascript_syntax": "passed",
+  "git_diff_check": "passed",
+  "live_equipment_connected": false,
+  "external_llm_called": false,
+  "historical_replay": {
+    "days": 7,
+    "frames": 10080,
+    "numeric_values_checked": 3518051,
+    "ground_truth_available": false
+  }
+}
