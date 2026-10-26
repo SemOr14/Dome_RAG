@@ -47,6 +47,7 @@ from llm_agent import Settings as LlmSettings  # noqa: E402
 from llm_agent.agent import make_retriever  # noqa: E402
 from llm_agent.context.catalog import NodeCatalog  # noqa: E402
 from llm_agent.dispatcher import Dispatcher, Fired  # noqa: E402
+from llm_agent.triggers import Trigger  # noqa: E402
 from llm_agent.schemas import AgentResponse, LLMCallInfo, ProposedAction  # noqa: E402
 from llm_agent.storage.data_api import ApiControlChecker, DataApiClient, journal_record  # noqa: E402
 
@@ -160,11 +161,16 @@ def to_intent(response: AgentResponse, fired: Fired) -> Intent:
     say = d.operator_message.text.strip() if d.operator_message.needed and d.operator_message.text.strip() else None
     if say and not any(v.accepted for v in response.verdicts if v.action.node_id == "meeting_01"):
         say = None  # сообщение не прошло проверку LLM-слоя (длина, пустота)
+    refused = [f"{v.action.node_id}.{v.action.action} — {'; '.join(v.reasons)}" for v in response.verdicts
+               if not v.accepted and v.action.node_id != "meeting_01"]
+    if say and refused:  # модель пишет «делаю», а команда не прошла проверку: Оператор должен это видеть
+        say = f"{say} Не выполнено: {'; '.join(refused)}."
     return Intent(
         key=f"llm:{response.decision_id}", situation=d.situation, cause=d.cause or "не установлена", confidence=d.confidence,
         evidence=[e.model_dump(exclude_none=True) for e in d.evidence] or [{"trigger": t.text[:300]} for t in fired.triggers],
         plan=plan or ["наблюдать"], steps=steps, say=say, priority=SEVERITY_PRIORITY.get(d.severity, 5),
         cooldown_s=0.0, source="mixed" if d.rag_refs else "llm", rag_refs=list(d.rag_refs),
+        say_always=any(t.kind == "operator" for t in fired.triggers),
     )  # fmt: skip
 
 
@@ -228,6 +234,15 @@ class LlmBrain:
 
     def on_log(self, kind: str, rec: dict[str, Any]) -> None:
         self.journal.on_log(kind, rec)
+
+    def operator_request(self, text: str, event_id: str | None = None) -> None:
+        """Требование Оператора из веб-панели: срочный повод для модели, ответ — рекомендация Оператору."""
+        self.dispatcher.submit(Trigger(
+            "operator", f"panel|{event_id or uuid.uuid4()}",
+            f"Требование Оператора (веб-панель): «{text}». Выполни, если это допускают права и правила, и ответь "
+            "Оператору в operator_message: что сделано, что нельзя и почему, что рекомендуешь дальше",
+            {"meeting_01"}, [event_id] if event_id else [],
+        ))  # fmt: skip
 
     def mark_seen(self, messages: list[dict[str, Any]]) -> None:
         """Сообщения чата, обработанные плейбуками (запасной режим): модель не отвечает на них повторно."""

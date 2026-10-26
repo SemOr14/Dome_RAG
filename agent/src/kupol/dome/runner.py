@@ -352,6 +352,9 @@ class Runner:
             self._spawn(self._answer_operator(intent, decision))
         elif intent.say and all(r.ok for r in results):
             await self.say(intent.say, decision)
+        elif intent.say and intent.say_always:
+            failed = "; ".join(f"{s.node}.{s.action} — {r.reason}" for s, r in zip(intent.steps, results) if not r.ok)
+            await self.say(f"{intent.say} Не выполнено: {failed}.", decision)
 
     async def say(self, text: str, ref: int) -> GateResult:
         """Сообщение Оператору: команда ``post_message`` через Gate и запись ``message``."""
@@ -398,9 +401,11 @@ class Runner:
         decision = self.log.write(
             "decision", situation=f"Ручная команда Оператора: {label}", cause=str(meta.get("reason") or "команда из веб-интерфейса"),
             confidence=1.0, evidence=[{"intent_event_id": ev["event_id"], "server_validation": (item.get("validation") or {}).get("status")}],
-            plan=[f"{label} через Gate"], source="operator", priority=1, intent_event_id=ev["event_id"], operator=meta.get("operator"),
+            plan=[f"{label} через Gate" + (" (подтверждено человеком)" if meta.get("confirmed") is True else "")], source="operator", priority=1, intent_event_id=ev["event_id"], operator=meta.get("operator"),
         )  # fmt: skip
-        res = await self.gate.submit(Cmd(node, action, value, "ручная команда Оператора", decision, expect_for(node, action, value)))
+        confirmed = meta.get("confirmed") is True
+        reason = "ручная команда Оператора" + (" (подтверждена: без политики агента и защитных правил Gate)" if confirmed else "")
+        res = await self.gate.submit(Cmd(node, action, value, reason, decision, expect_for(node, action, value), confirmed=confirmed))
         self._dispatch_event(item, res.status, res.reason, decision=decision, result=res)
         return res
 

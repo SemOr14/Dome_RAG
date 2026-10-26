@@ -24,6 +24,12 @@ class ProposedAction(BaseModel):
     verify_after_s: float = 8.0
     priority: int = 1
 
+    @field_validator("value")
+    @classmethod
+    def _empty_is_none(cls, v: Any) -> Any:
+        # Модель пишет {} / "" вместо «без значения»; сервер и Купол такое значение отклоняют
+        return None if v in ({}, [], "") else v
+
 
 class OperatorMessage(BaseModel):
     needed: bool = False

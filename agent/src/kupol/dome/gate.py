@@ -74,6 +74,7 @@ class Cmd:
     reason: str = ""
     ref: int | None = None  # seq записи decision
     expect: Expect | None = None
+    confirmed: bool = False  # человек подтвердил ручную команду: только роль и каталог, без политики и защитных правил
 
     @property
     def key(self) -> str:
@@ -300,7 +301,7 @@ class Gate:
             return "команда без решения (нет ref на decision)"
         if self._state.role and self._state.role != "team":
             return f"роль соединения '{self._state.role}': управление недоступно"
-        if self.max_telemetry_age_s is not None and self._state.wall and self._clock() - self._state.wall > self.max_telemetry_age_s:
+        if not cmd.confirmed and self.max_telemetry_age_s is not None and self._state.wall and self._clock() - self._state.wall > self.max_telemetry_age_s:
             return f"телеметрия устарела (> {self.max_telemetry_age_s:g} с): решаем по неизвестному состоянию нельзя"
         catalog = self._catalog()
         if not catalog:
@@ -310,6 +311,8 @@ class Gate:
             if catalog.is_operator_only(cmd.node_id, cmd.action):
                 return "физическое действие Оператора: агент может только попросить"
             return f"действие '{cmd.action}' недоступно узлу {cmd.node_id} по describe_nodes"
+        if cmd.confirmed:
+            return None  # ответственность за команду на человеке, подтвердившем её в панели
         allowed = self._cfg.policy.allowed
         spec = (allowed.get(cmd.node_id) or {}).get(canonical)
         if spec is None:

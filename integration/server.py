@@ -30,6 +30,7 @@ class CommandIn(BaseModel):
     action: str = Field(min_length=1, max_length=200)
     value: Any = None
     reason: str = Field(default="Команда человека из веб-панели", max_length=2000)
+    confirmed: bool = False  # галка подтверждения: Gate не применяет политику агента и защитные правила
 
 
 class AnalysisIn(BaseModel):
@@ -44,8 +45,7 @@ class ExecuteIn(BaseModel):
 class ChatIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     operation_id: UUID
-    text: str = Field(min_length=1, max_length=1000)
-    to: str = Field(default="operator", max_length=64)
+    text: str = Field(min_length=1, max_length=2000)
 
 
 class AutoIn(BaseModel):
@@ -125,11 +125,8 @@ def create_app(db_path=None, token=None):
 
     @app.post("/control/chat")
     async def chat_send(body: ChatIn):
-        # Сообщение человека — та же ручная команда meeting_01.post_message: сервер, Gate, лимиты чата
-        return await hub.command(
-            operation_id=str(body.operation_id), node_id="meeting_01", action="post_message",
-            value={"text": body.text, "to": body.to or "operator", "name": "Штаб"}, reason="сообщение из веб-панели",
-        )
+        # Пользователь панели — Оператор: его сообщение — требование LLM-агенту, ответ агента — рекомендация
+        return await hub.request(str(body.operation_id), body.text)
 
     @app.post("/control/prompt")
     async def prompt(body: AnalysisIn):
@@ -179,7 +176,7 @@ def create_app(db_path=None, token=None):
         with store.connection() as conn:
             rows = conn.execute(
                 "SELECT * FROM events WHERE run_id=? AND event_type!='telemetry' "
-                "ORDER BY id DESC LIMIT 80",
+                "ORDER BY id DESC LIMIT 300",
                 (selected,),
             ).fetchall()
             controls = conn.execute(

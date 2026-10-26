@@ -102,3 +102,27 @@ def test_operator_command_goes_through_gate_to_dome(tmp_path: Path) -> None:
                 assert len(h.sent()) == 1
 
     run(scenario())
+
+
+def test_confirmed_command_bypasses_agent_policy_only_when_confirmed(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        w = World()
+        start_work(w)
+        with testclient.TestClient(create_app(tmp_path / "db.sqlite3", token=TOKEN)) as http:
+            http.headers["Authorization"] = f"Bearer {TOKEN}"
+            async with DbHarness(tmp_path, w, http) as h:
+                await h.settle(2)
+                assert h.runner is not None
+
+                def item(confirmed: bool) -> dict:
+                    payload = {"type": "control", "node_id": "solar_panels_01", "action": "disable_all_mppt"}
+                    return {"event": {"event_id": str(uuid.uuid4()), "payload": payload, "metadata": {"confirmed": confirmed}},
+                            "validation": {"status": "accepted"}}
+
+                plain = await h.runner.manual_command(item(False))  # нет в политике dome.yaml
+                assert plain is not None and plain.status == "rejected" and "политикой" in plain.reason
+                confirmed = await h.runner.manual_command(item(True))
+                assert confirmed is not None and confirmed.status == "sent", confirmed.reason
+                assert [m["action"] for m in h.sent()] == ["disable_all_mppt"]
+
+    run(scenario())

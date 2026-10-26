@@ -6,6 +6,8 @@ from .codec import dumps
 from .control_rules import ALIASES, value_errors
 
 MACHINES = ("printer_3d_01", "cnc_01")
+CHAT_NODE = "meeting_01"
+CLOCK_TOLERANCE_S = 1.0
 
 
 def is_control(event):
@@ -158,13 +160,18 @@ def preflight(store, conn, event, now):
             or not -5 <= observed_age <= store.max_state_age
         ):
             reject("state_stale:" + target)
+        if target == CHAT_NODE:
+            # Чат работает всегда (01_API §6): у meeting_01 нет status/updated_at, проверять нечего
+            states[target] = state
+            return state
         if state.get("online") is not True or state.get("status") != "OK":
             reject("state_unavailable:" + target)
         frame = snapshot["event"]["payload"]
         tick = frame.get("timestamp")
         updated = state.get("updated_at")
         if type(tick) in (int, float) and type(updated) in (int, float):
-            if not 0 <= tick - updated <= store.max_state_age:
+            # Купол округляет updated_at до мс, а timestamp кадра — нет: свежий узел бывает «позже» кадра
+            if not -CLOCK_TOLERANCE_S <= tick - updated <= store.max_state_age:
                 reject("measurement_stale:" + target)
         else:
             reject("measurement_time_unknown:" + target)

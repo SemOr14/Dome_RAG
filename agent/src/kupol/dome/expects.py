@@ -54,6 +54,8 @@ def expect_for(node: str, action: str, value: Any) -> Expect:
         return Expect.custom(f"{node} включён", lambda s: s.get(f"{node}.state") == "ON" or s.get(f"{node}.enabled") is True, [f"{node}.state", f"{node}.enabled"])
     if a == "reset_alarm":
         return Expect.custom(f"{node}: авария сброшена", lambda s: s.get(f"{node}.alarm") in (False, None, "NONE", "NORMAL"), [f"{node}.alarm", f"{node}.alarm_state"])
+    if a in ("enable_all_mppt", "disable_all_mppt") and node == "solar_panels_01":
+        return Expect.equals(f"{node}.all_mppt_enabled", a == "enable_all_mppt")
     if a in ("set_mode_grid_only", "set_mode_hybrid"):
         return Expect.equals(f"{node}.mode", "GRID_ONLY" if a == "set_mode_grid_only" else "HYBRID")
     if a in ("set_speed", "set_mode") and value is not None and not isinstance(value, dict):

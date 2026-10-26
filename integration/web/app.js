@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pretty = value => JSON.stringify(value, null, 2);
 const date = value => value ? new Date(value).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—';
-const labels = {overview:'Обзор системы', charts:'Графики телеметрии', commands:'Управление', agent:'LLM-агент', chat:'Чат с Оператором', database:'База данных'};
+const labels = {overview:'Обзор системы', charts:'Графики телеметрии', commands:'Управление', agent:'LLM-агент и чат', database:'База данных'};
 const state = {page:'overview', runtime:{}, run:'', overview:null, charts:[], dbCursor:0, dbNext:0, dbItems:[], busy:false, commandOperation:null};
 $('token').value = sessionStorage.getItem('dome-api-token') || '';
 
@@ -71,11 +71,12 @@ async function refresh() {
     $('askAgent').disabled=!runtime.llm_configured || !isActive();
     $('buildPrompt').disabled=!isActive();
     $('autoAnalysis').checked=runtime.auto_analysis;
+    if(document.activeElement!==$('autoInterval')&&runtime.review_s)$('autoInterval').value=Math.round(runtime.review_s);
     renderOverview(data); renderControls(data); renderDecisions(data); updateSelectors(data);
     if(state.page==='charts') await refreshCharts();
     $('lastRefresh').textContent='Обновлено '+new Date().toLocaleTimeString('ru-RU');
     $('runtimeDetails').innerHTML=`<p class="tiny muted">Run: <code>${esc(runtime.run_id)}</code><br>Session: <code>${esc(runtime.session_id||'не создана')}</code><br>Роль: ${esc(runtime.role||'не авторизован')}<br>LLM: ${runtime.llm_configured?'ключ настроен':'ключ не настроен'}<br>Решения: ${esc(runtime.brain||'агент не запущен')}</p>`;
-    if(state.page==='chat') await loadChat();
+    if(state.page==='agent') await loadChat();
   } catch(error) { $('apiState').textContent='API недоступен'; toast(error.message,true); }
   finally {state.busy=false;}
 }
@@ -91,7 +92,43 @@ function renderOverview(data) {
     const good=body?.online===true&&body?.status==='OK';
     return `<article class="node-card"><div class="node-heading"><h3>${esc(node.node_id)}</h3><span class="dot ${good?'good':'bad'}"></span></div><div class="node-title">${esc(nodeName(node.node_id))}</div><div class="node-values">${entries.map(([k,v])=>`<div class="node-value"><span>${esc(k)}</span><b>${esc(typeof v==='number'?Number(v.toFixed(3)):v===null?'null':v)}</b></div>`).join('')}</div><details><summary>Все поля · ${date(node.ingested_at)}</summary><pre>${esc(pretty(body))}</pre></details></article>`;
   }).join(''):empty('Телеметрии пока нет. База пустая; включите подключение агента для получения новых данных.');
-  $('timeline').innerHTML=data.events.length?data.events.slice(0,15).map(e=>`<div class="event"><span class="muted">${date(e.ingested_at)}</span><span>${esc(e.source==='operator'?'Человек':e.source==='agent'?'Агент':e.source)}</span><div><b>${esc(e.event_type)}</b><p>${esc(e.payload?.summary||e.payload?.reason||e.payload?.action||e.payload?.event||e.payload?.message||'')}</p></div></div>`).join(''):empty('События ещё не записаны.');
+  renderTimeline(data);
+}
+// Служебные записи вызова модели и дубли решения — во вкладке «База данных»; решение показывает agent_decision
+const TIMELINE_HIDDEN=new Set(['llm_request','llm_response','decision','agent_llm_call','control_dispatch','prompt_preview','llm_analysis_result']);
+const SOURCES={llm:'LLM-агент',mixed:'LLM-агент + RAG',rules:'Плейбуки',rag:'RAG',operator:'Оператор'};
+const value=v=>v===undefined||v===null?'':esc(typeof v==='string'?v:JSON.stringify(v));
+function actionStatus(p){
+  const r=p.response||{};
+  if(p.rejected)return ['bad','Отклонено Gate',r.error];
+  if(p.dry_run)return ['wait','Не отправлено · только чтение',''];
+  return r.success?['good','Принято Куполом','']:['bad','Ошибка Купола',r.error];
+}
+function timelineItem(e,all){
+  const p=e.payload||{},time=`<span class="muted">${date(e.ingested_at)}</span>`;
+  if(e.event_type==='agent_action'&&p.request){
+    const req=p.request,dec=all.find(x=>x.event_type==='agent_decision'&&x.payload?.seq===p.ref&&x.payload?.run_id===p.run_id)?.payload;
+    const operator=dec?.source==='operator',[cls,status,why]=actionStatus(p),chat=req.node_id==='meeting_01';
+    const what=chat?`Сообщение Оператору: ${esc(req.value?.text||req.value||'')}`:`<code>${esc(req.node_id)}.${esc(req.action)}</code> ${value(req.value)}`;
+    return `<div class="event control ${operator?'by-operator':'by-agent'}">${time}<span><span class="badge ${operator?'wait':'good'}">${operator?'ОПЕРАТОР':'АГЕНТ'}</span></span><div><b>${chat?'Сообщение в чат':'Управляющее воздействие'}</b> <span class="badge ${cls}">${esc(status)}</span><p class="what">${what}</p><p>${esc(why||p.reason||'')}</p></div></div>`;
+  }
+  if(e.event_type==='control_intent'&&e.source==='operator'){
+    const c=all.__controls?.find(x=>x.event.event_id===e.event_id),v=c?.validation;
+    return `<div class="event control by-operator">${time}<span><span class="badge wait">ОПЕРАТОР</span></span><div><b>Команда Оператора из панели</b> ${v?badge(v.status):''}${e.metadata?.confirmed?' <span class="badge wait">ПОДТВЕРЖДЕНА</span>':''}<p class="what"><code>${esc(p.node_id)}.${esc(p.action)}</code> ${value(p.value)}</p><p>${esc((v?.reasons||[]).join(', ')||e.metadata?.reason||'')}</p></div></div>`;
+  }
+  if(e.event_type==='agent_decision'){
+    const conf=typeof p.confidence==='number'?` · уверенность ${Math.round(p.confidence*100)} %`:'';
+    const plan=(p.plan||[]).map(x=>`<li>${esc(x)}</li>`).join(''),ev=(p.evidence||[]).slice(0,4).map(x=>`<li>${esc(x.node||x.detail||'')}${x.param?'.'+esc(x.param):''}${x.value!==undefined?' = '+value(x.value):''}${x.note?' — '+esc(x.note):''}</li>`).join('');
+    return `<div class="event decision-event">${time}<span><span class="badge">${esc(SOURCES[p.source]||p.source||'агент')}</span></span><div><b>Решение: ${esc(p.situation||'')}</b><p>Причина: ${esc(p.cause||'—')}${esc(conf)}</p>${plan?`<ul class="plan">${plan}</ul>`:''}${ev?`<details><summary>Основания</summary><ul class="plan">${ev}</ul></details>`:''}${p.rag_refs?.length?`<p class="tiny">RAG: ${esc(p.rag_refs.join(', '))}</p>`:''}</div></div>`;
+  }
+  const who=e.source==='operator'?'Человек':e.source==='agent'?'Агент':e.source;
+  const text=p.summary||p.text||p.reason||p.action||p.event||(typeof p.message==='string'?p.message:p.message?.text)||'';
+  return `<div class="event">${time}<span>${esc(who)}</span><div><b>${esc(e.event_type)}</b><p>${esc(text)}</p></div></div>`;
+}
+function renderTimeline(data){
+  const all=Object.assign([...data.events],{__controls:data.controls});
+  const shown=data.events.filter(e=>!TIMELINE_HIDDEN.has(e.event_type)).slice(0,30);
+  $('timeline').innerHTML=shown.length?shown.map(e=>timelineItem(e,all)).join(''):empty('События ещё не записаны.');
 }
 function renderControls(data) {
   $('controls').innerHTML=data.controls.length?`<table><thead><tr><th>Время / автор</th><th>Узел / действие</th><th>Проверка БД</th><th>Отправка / Gate</th><th>Ответ Купола</th></tr></thead><tbody>${data.controls.map(c=>{
@@ -175,10 +212,8 @@ async function loadEvents(reset=true) {
 async function loadChat() {
   const result=await api('/control/chat?'+params({run_id:state.run}));
   const log=$('chatLog'),bottom=log.scrollHeight-log.scrollTop-log.clientHeight<40;
-  log.innerHTML=result.items.length?result.items.map(m=>{const role=m.sender?.role,own=role==='team';
-    const who=role==='operator'?'Оператор':own?(m.sender?.name||'наша команда'):`${role||'?'} ${m.sender?.team??''}`;
-    const when=typeof m.time==='number'?new Date(m.time*1000).toLocaleTimeString('ru-RU'):date(m.time);
-    return `<div class="chat-msg ${own?'own':''} ${m.not_sent?'not-sent':''}"><small>${esc(who)}${m.to?' → '+esc(m.to):''} · ${esc(when)}${m.not_sent?' · не отправлено (только чтение)':''}</small>${esc(m.text)}</div>`;}).join(''):empty('Сообщений пока нет. Чат появится после подключения агента к Куполу.');
+  const label=m=>m.from==='operator'?(m.via==='panel'?'Оператор → агент · требование':'Оператор (чат Купола) → агент'):m.from==='agent'?'Агент → Оператор · рекомендация':`Команда ${m.team??'?'} (${m.name||'чат Купола'})`;
+  log.innerHTML=result.items.length?result.items.map(m=>`<div class="chat-msg ${m.from==='operator'?'own':m.from==='agent'?'agent':''} ${m.not_sent?'not-sent':''}"><small>${esc(label(m))} · ${esc(date(m.time))}${m.not_sent?' · не отправлено в Купол (только чтение)':''}</small>${esc(m.text)}</div>`).join(''):empty('Переписки пока нет. Напишите требование агенту.');
   if(bottom)log.scrollTop=log.scrollHeight;
 }
 async function loadAudit() {
@@ -194,14 +229,15 @@ document.querySelectorAll('nav button').forEach(button=>button.onclick=()=>{
   $('heading').textContent=$('pageName').textContent=labels[state.page];
   if(state.page==='charts')refreshCharts().catch(e=>toast(e.message,true));
   if(state.page==='database')loadEvents().catch(e=>toast(e.message,true));
-  if(state.page==='chat')loadChat().catch(e=>toast(e.message,true));
+  if(state.page==='agent')loadChat().catch(e=>toast(e.message,true));
 });
 $('chatForm').onsubmit=event=>{event.preventDefault();action($('chatSend'),async()=>{
   if(!isActive())throw new Error('Выбран другой запуск');
   const text=$('chatText').value.trim();if(!text)return;
-  const result=await api('/control/chat',{method:'POST',body:{operation_id:crypto.randomUUID(),text,to:$('chatTo').value.trim()||'operator'}});
-  if(['sent','dry_run'].includes(result.status))$('chatText').value='';
-  toast(`Сообщение: ${result.status}. ${result.reason||''}`,!['sent','dry_run'].includes(result.status));await loadChat();
+  const result=await api('/control/chat',{method:'POST',body:{operation_id:crypto.randomUUID(),text}});
+  const ok=result.status==='queued';
+  if(ok)$('chatText').value='';
+  toast(ok?'Требование передано агенту, ответ появится в ленте':`${result.status}: ${result.reason||''}`,!ok);await loadChat();
 });};
 $('login').onclick=()=>{sessionStorage.setItem('dome-api-token',$('token').value);refresh();};
 $('refresh').onclick=()=>refresh();
@@ -218,7 +254,7 @@ $('commandForm').onsubmit=event=>{event.preventDefault();action($('sendCommand')
   const content={node_id:$('commandNode').value,action:$('commandAction').value,value,reason:$('commandReason').value};
   const signature=JSON.stringify(content);
   if(!state.commandOperation||state.commandOperation.signature!==signature)state.commandOperation={signature,id:crypto.randomUUID()};
-  const result=await api('/control/commands',{method:'POST',body:{...content,operation_id:state.commandOperation.id}});
+  const result=await api('/control/commands',{method:'POST',body:{...content,confirmed:$('confirmControl').checked,operation_id:state.commandOperation.id}});
   state.commandOperation=null;$('confirmControl').checked=false;
   $('commandResult').textContent=pretty(result);$('commandResult').classList.remove('hidden');
   toast(`Результат: ${result.status}. ${result.reason||''}`);await refresh();

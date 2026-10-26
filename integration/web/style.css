@@ -4,5 +4,13 @@
 .chat-log{display:flex;flex-direction:column;gap:8px;max-height:460px;overflow:auto;margin-bottom:12px}
 .chat-msg{padding:8px 10px;border-radius:8px;background:#1b2433;max-width:80%}
 .chat-msg.own{align-self:flex-end;background:#25331f}
+.chat-msg.agent{background:#1d2b40;border-left:3px solid #d8ed83}
 .chat-msg.not-sent{opacity:.65;border:1px dashed #8796ab}
 .chat-msg small{display:block;color:#8796ab;margin-bottom:2px}
+.event.control{border-left:3px solid var(--accent);padding-left:12px;background:#17221a;border-radius:6px;margin:4px 0}
+.event.control.by-operator{border-left-color:var(--yellow);background:#241f15}
+.event.control .what{color:var(--text);font-size:12px}
+.event.decision-event{border-left:3px solid #5b7fb8;padding-left:12px;background:#151d2a;border-radius:6px;margin:4px 0}
+.event.decision-event b{font-size:12px}
+.event .plan{margin:6px 0 0;padding-left:18px;color:var(--text)}
+.event .plan li{margin:2px 0}

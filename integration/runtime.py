@@ -13,6 +13,7 @@ import contextlib
 import os
 import time
 from dataclasses import replace
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -70,6 +71,7 @@ class Hub:
             "control_enabled": self.settings.can_control,
             "last_error": self.last_error,
             "auto_analysis": bool(runner and brain is not None and runner.llm_enabled),
+            "review_s": brain.settings.trigger_review_s if brain else LLMSettings.from_env().trigger_review_s,
             "brain": mode,
             "llm_configured": bool(self.settings.deepseek_key or LLMSettings.from_env().deepseek_api_key),
             "mode": "live" if self.settings.can_control else "dry_run",
@@ -84,10 +86,13 @@ class Hub:
             raise HTTPException(409, "Задайте DOME_KEY на сервере")
         url = os.getenv("DATA_API_URL", "http://127.0.0.1:8080")
         s.data_api_url, s.data_api_token, s.data_api_run_id = url, os.getenv("DATA_API_TOKEN", ""), self.run_id
-        s.state_dir = str(ROOT / "state" / "web-agent")
+        # Состояние (прочитанный чат, курсор ручных команд, паузы Gate) — своё у каждого запуска:
+        # чужие id сообщений и строк БД из другого запуска или эмулятора привели бы к пропуску команд
+        state = ROOT / "state" / "web-agent" / self.run_id
+        s.state_dir = str(state)
         cfg = load_dome_config(ROOT / "agent/dome.yaml")
-        cfg.runtime.state_file = str(ROOT / "state" / "web-agent" / "agent_state.json")
-        log = AgentLog(ROOT / "state" / "web-agent" / "logs", secrets=[s.dome_key, s.deepseek_key])
+        cfg.runtime.state_file = str(state / "agent_state.json")
+        log = AgentLog(state / "logs", secrets=[s.dome_key, s.deepseek_key])
         recorder = DataApiRecorder(url, s.data_api_token, self.run_id, s.state_dir)
         brain = None
         if s.brain == "llm" and s.deepseek_key:
@@ -130,7 +135,7 @@ class Hub:
                 return None
             after = page["next_after_id"]
 
-    async def command(self, *, operation_id, node_id, action, value=None, reason="", decision_event_id=None):
+    async def command(self, *, operation_id, node_id, action, value=None, reason="", decision_event_id=None, confirmed=False):
         """Команда человека: намерение в БД → проверка сервера → агент исполняет через Gate → итог."""
         payload = {"type": "control", "request_id": "web-" + operation_id, "node_id": node_id, "action": action}
         if value is not None:
@@ -141,7 +146,8 @@ class Hub:
         if prior is None:  # повтор HTTP-запроса не создаёт вторую команду
             self.emit("control_intent", payload, event_id=operation_id, channel="websocket",
                       request_id=payload["request_id"], node_id=node_id,
-                      metadata={"reason": reason, "operator": "веб-панель", "decision_event_id": decision_event_id})
+                      metadata={"reason": reason, "operator": "веб-панель", "decision_event_id": decision_event_id,
+                                "confirmed": confirmed})
         check = self.store.control(operation_id)
         outcome = {"intent_event_id": operation_id, "validation": check["validation"], "status": "rejected",
                    "reason": "; ".join(check["validation"]["reasons"])}
@@ -159,15 +165,28 @@ class Hub:
             await asyncio.sleep(0.3)
         return {**outcome, "status": "pending", "reason": "агент ещё не обработал команду; итог — событие control_dispatch"}
 
+    async def request(self, operation_id, text):
+        """Требование Оператора (пользователь панели) агенту: срочный повод для LLM, ответ — рекомендация в чат."""
+        brain = self.runner.brain if self.runner else None
+        if self.store.event(operation_id):
+            return {"status": "duplicate", "event_id": operation_id}  # повтор HTTP-запроса
+        self.emit("operator_request", {"text": text}, event_id=operation_id, metadata={"operator": "веб-панель"})
+        if not (self.client and self.client.connected):
+            return {"status": "not_connected", "event_id": operation_id, "reason": "агент не подключён к Куполу"}
+        if brain is None or not self.runner.llm_enabled or not brain.healthy:
+            return {"status": "no_llm", "event_id": operation_id,
+                    "reason": "LLM-агент выключен или недоступен: требование записано, но решения сейчас принимают плейбуки"}
+        brain.operator_request(text, operation_id)
+        return {"status": "queued", "event_id": operation_id}
+
     def chat(self, run_id):
-        """Переписка в meeting_01: сообщения Купола, последние сообщения из телеметрии, неотправленные (dry-run)."""
-        messages = {}
+        """Лента переписки: требования Оператора из панели, ответы-рекомендации агента, чат Купола meeting_01."""
+        items, seen = [], {}
         for item in self.store.latest_telemetry(run_id, "meeting_01")["items"]:
             for m in item["payload"].get("recent_messages") or []:
                 if isinstance(m, dict) and isinstance(m.get("id"), int):
-                    messages[m["id"]] = m
-        local = []
-        for kind in ("meeting_message", "control_response", "agent_message"):
+                    seen[m["id"]] = m
+        for kind in ("operator_request", "meeting_message", "control_response", "agent_message"):
             after = 0
             while True:
                 page = self.store.events(after_id=after, limit=1000, run_id=run_id, event_type=kind)
@@ -177,12 +196,22 @@ class Hub:
                 for e in page["items"]:
                     p = e.get("payload") or {}
                     m = p.get("message")
-                    if isinstance(m, dict) and isinstance(m.get("id"), int):
-                        messages[m["id"]] = m
+                    if kind == "operator_request":
+                        items.append({"from": "operator", "via": "panel", "time": e["ingested_at"], "text": p.get("text")})
+                    elif isinstance(m, dict) and isinstance(m.get("id"), int):
+                        seen[m["id"]] = m
                     elif kind == "agent_message" and p.get("direction") == "out" and p.get("dry_run"):
-                        local.append({"id": None, "time": e["ingested_at"], "to": p.get("to"), "text": p.get("text"),
-                                      "sender": {"role": "team", "name": "агент"}, "not_sent": True})
-        return {"items": sorted(messages.values(), key=lambda m: m["id"]) + local}
+                        items.append({"from": "agent", "via": "dome_chat", "time": e["ingested_at"], "text": p.get("text"),
+                                      "not_sent": True})
+        for m in seen.values():
+            sender = m.get("sender") or {}
+            who = {"operator": "operator", "team": "agent"}.get(sender.get("role"), "other")
+            t = m.get("time")
+            items.append({"from": who, "via": "dome_chat", "id": m["id"], "to": m.get("to"), "text": m.get("text"),
+                          "name": sender.get("name"), "team": sender.get("team"),
+                          "time": datetime.fromtimestamp(t, timezone.utc).isoformat() if isinstance(t, (int, float)) else t})
+        items.sort(key=lambda x: str(x.get("time") or ""))
+        return {"items": items}
 
     def _agent(self):
         settings = replace(
@@ -220,8 +249,10 @@ class Hub:
             return await asyncio.to_thread(work)
 
     async def set_auto(self, enabled, interval=60):
-        """Автономные решения LLM-агента: выключено — агент работает на плейбуках."""
+        """Автономные решения LLM-агента (выключено — плейбуки) и интервал планового обзора, с."""
         if self.runner:
             self.runner.llm_enabled = enabled
+            if self.runner.brain is not None:
+                self.runner.brain.settings.trigger_review_s = float(interval)
         return self.status()
 

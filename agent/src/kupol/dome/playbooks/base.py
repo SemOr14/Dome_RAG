@@ -48,6 +48,7 @@ class Intent:
     llm_question: str | None = None  # свободный вопрос Оператора: ответ попробует дать модель (say — запасной текст)
     source: str = "rules"  # rules | llm | rag | mixed (поле source записи decision)
     rag_refs: list[str] = field(default_factory=list)  # источники RAG, на которые опирается решение модели
+    say_always: bool = False  # ответ на требование Оператора: отправить и при отказе части шагов (с пояснением)
 
     @classmethod
     def from_evidence(cls, evidence: list[Ev], **kw: Any) -> Intent:

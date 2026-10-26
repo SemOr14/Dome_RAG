@@ -162,3 +162,47 @@ def test_playbooks_take_over_when_llm_fails(tmp_path: Path) -> None:
             assert all(not c["ok"] for c in h.records("llm_call"))
 
     run(scenario())
+
+
+def test_panel_operator_request_gets_recommendation_even_if_gate_rejects(tmp_path: Path) -> None:
+    def answer(trigger: str) -> dict[str, Any]:
+        if "Требование Оператора" in trigger:
+            return {"situation": "Оператор требует снизить приток", "actions": [
+                        {"node_id": "supply_ventilation_01", "action": "set_speed", "value": 5, "reason": "требование"}],
+                    "operator_message": {"needed": True, "text": "Скорость притока снизить до 5 % нельзя, рекомендую 10 %."}}
+        return QUIET
+
+    async def scenario() -> None:
+        w = World()
+        start_work(w)
+        llm = FakeLLM(answer)
+        async with LlmHarness(tmp_path, w, llm) as h:
+            await h.step(2)
+            assert h.brain is not None
+            h.brain.operator_request("Снизь приток до 5 %", "req-1")
+            await h.step(8)  # не раньше паузы между вызовами модели (10 с)
+            assert any("Снизь приток до 5 %" in t for t in llm.triggers)
+            assert not h.sent("set_speed")  # Gate: политика 10..100
+            assert len(w.posted) == 1 and w.posted[0].startswith("Скорость притока снизить до 5 % нельзя")
+            assert "Не выполнено: supply_ventilation_01.set_speed" in w.posted[0]
+
+    run(scenario())
+
+
+def test_empty_value_is_none_and_refused_action_is_reported_to_operator() -> None:
+    from kupol.dome.brain import to_intent
+    from llm_agent.dispatcher import Fired
+    from llm_agent.schemas import ActionVerdict, AgentDecision, AgentResponse, LLMCallInfo, ProposedAction
+
+    action = ProposedAction(node_id="solar_panels_01", action="enable_all_mppt", value={})
+    assert action.value is None  # {} от модели — «без значения»
+    decision = AgentDecision(situation="Оператор просит включить панели", actions=[action],
+                             operator_message={"needed": True, "text": "Включаю панели."})
+    response = AgentResponse(
+        ok=True, decision=decision, decision_id="d1", llm_call=LLMCallInfo(model="fake", ok=True),
+        verdicts=[ActionVerdict(action=action, accepted=False, reasons=["БД/API: invalid_value"]),
+                  ActionVerdict(action=ProposedAction(node_id="meeting_01", action="post_message", value={"text": "Включаю панели."}), accepted=True)],
+    )
+    intent = to_intent(response, Fired([], ""))
+    assert not intent.steps
+    assert intent.say == "Включаю панели. Не выполнено: solar_panels_01.enable_all_mppt — БД/API: invalid_value."

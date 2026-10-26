@@ -241,6 +241,22 @@ def test_control_context_rejections(store, change, reason):
     assert reason in store.control(cmd["event_id"])["validation"]["reasons"]
 
 
+def test_dome_rounded_updated_at_is_fresh(store):
+    # Купол: updated_at округлён до мс и может быть на доли секунды «позже» timestamp кадра
+    context(store, state={"updated_at": 1000.0005})
+    cmd = command()
+    store.append([cmd])
+    assert store.control(cmd["event_id"])["validation"]["accepted"] is True
+
+
+def test_chat_node_has_no_status_but_is_available(store):
+    context(store, node="meeting_01", actions=["post_message"], state={"status": None, "updated_at": None})
+    cmd = command(node="meeting_01", action="post_message", value={"text": "Проверка"})
+    store.append([cmd])
+    check = store.control(cmd["event_id"])["validation"]
+    assert check["accepted"] is True, check["reasons"]
+
+
 def test_revoked_session_and_physical_operator_permission(store):
     context(store, operators=["physical_action"])
     cmd = command(action="physical_action")

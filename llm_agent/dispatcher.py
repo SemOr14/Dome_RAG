@@ -156,6 +156,10 @@ class Dispatcher:
             return None
         return self._begin(batch, snapshot, now)
 
+    def submit(self, trig: Trigger) -> None:
+        """Повод извне (например, требование Оператора из веб-панели) — в очередь, как найденный детектором."""
+        self._add(trig, self.clock())
+
     def _add(self, trig: Trigger, now: float) -> None:
         self.stats["triggers"] += 1
         last = self.fired_at.get(trig.key)
