@@ -52,13 +52,15 @@ class PromptBuilder:
                  retriever: Retriever, *, team_name: str = "команда 1", journal_limit: int = 15,
                  rag_k: int = 3, graph_depth: int = 1, stale_s: float = 30.0,
                  system_template: str = "system.md.j2", user_template: str = "user.md.j2",
-                 hierarchy: Hierarchy | None = None):
+                 hierarchy: Hierarchy | None = None, scenario_hints: list[dict] | None = None):
         self.env = Environment(loader=FileSystemLoader(str(prompt_dir)), undefined=StrictUndefined,
                                trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
         self.env.filters["tojson"] = _tojson
+        self.env.filters["defang"] = lambda v: re.sub(r"</?\s*untrusted", "< untrusted", str(v), flags=re.I)  # данные не закрывают свой тег
         self.catalog = catalog
         self.graph = graph
         self.hierarchy = hierarchy or Hierarchy()
+        self.scenario_hints = [dict(h, _re=re.compile(h['match'], re.I)) for h in (scenario_hints or []) if h.get('match') and h.get('text')]
         self.hard_rules = hard_rules
         self.retriever = retriever
         self.team_name = team_name
@@ -68,6 +70,19 @@ class PromptBuilder:
         self.stale_s = stale_s
         self.system_template = system_template
         self.user_template = user_template
+
+    @staticmethod
+    def load_hints(path: Path) -> list[dict]:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) if path.is_file() else {}
+        return list((data or {}).get("hints") or [])
+
+    def pick_hints(self, trigger: str, anomalies: list[dict]) -> list[str]:
+        """Сценарные правила, чьё условие совпало с поводом или аномалиями (порядок файла)."""
+        text = trigger.split(ALGORITHMS_MARK)[0] + " " + " ".join(f"{a.get('node')} {a.get('param')} {a.get('note')}" for a in anomalies)
+        return [h["text"] for h in self.scenario_hints if h["_re"].search(text)]
+
+    def limits(self) -> dict:
+        return {"max_state_changes_per_decision": 1, "max_suspicions_per_decision": 1, **(self.hard_rules.get("limits") or {})}
 
     @staticmethod
     def load_rules(path: Path) -> dict:
@@ -150,14 +165,14 @@ class PromptBuilder:
 
         system = self.env.get_template(self.system_template).render(
             hard_rules=self.hard_rules, output_schema=output_schema_example(), team_name=self.team_name,
-            hierarchy=self.hierarchy.outline())
+            hierarchy=self.hierarchy.outline(), limits=self.limits())
         user = self.env.get_template(self.user_template).render(
             trigger=trigger, dome_time=dome_time, game_time=snapshot.get("game_time"),
             observed_at=snapshot.get("observed_at"), telemetry_age_s=snapshot.get("telemetry_age_s"), stale_s=self.stale_s,
             telemetry=tctx.nodes, anomalies=tctx.anomalies, catalog=self.catalog.for_prompt(),
             graph_edges=edges, journal=journal, rag_docs=rag_docs,
             forecasts=snapshot.get("forecasts") or [], peers=peers,
-            hierarchy_focus=self.hierarchy.context(seeds), suspicions=snapshot.get("suspicions") or [])
+            hierarchy_focus=self.hierarchy.context(seeds), scenario_hints=self.pick_hints(trigger, tctx.anomalies), suspicions=snapshot.get("suspicions") or [])
         if pattern_context:
             user += '\n\n# Диагностические стратегии (проверки и анализ, не команды)\n' + pattern_context
         user += ('\n\nКарточки RAG — примеры и возможные аналогии, а не диагноз текущего сбоя. '

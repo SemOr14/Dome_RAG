@@ -71,7 +71,8 @@ class DomeLLMAgent:
             settings.prompt_dir, self.catalog, InfluenceGraph.load(settings.data_dir / "influence_graph.yaml"),
             self.hard_rules, retriever or NullRetriever(), journal_limit=settings.journal_limit,
             rag_k=settings.rag_k, graph_depth=settings.graph_depth, stale_s=settings.trigger_stale_s,
-            hierarchy=Hierarchy.load(settings.data_dir / "node_hierarchy.yaml"))
+            hierarchy=Hierarchy.load(settings.data_dir / "node_hierarchy.yaml"),
+            scenario_hints=PromptBuilder.load_hints(settings.data_dir / "scenario_hints.yaml"))
         self._llm = llm
 
     @classmethod
