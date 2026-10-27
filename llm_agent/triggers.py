@@ -85,7 +85,7 @@ class TelemetryWatch:
         self.progress: dict[str, tuple[float, float]] = {}  # node -> (progress_pct, с какого момента)
         self.stalled: set[str] = set()
         self.done_progress: dict[str, tuple[str, str | None, float]] = {}
-        self.target_wait: dict[tuple[str, str], tuple[float, float, Any, int]] = {}
+        self.target_wait: dict[tuple[str, str], dict] = {}
         self.target_active: set[tuple[str, str]] = set()
 
     @staticmethod
@@ -109,7 +109,8 @@ class TelemetryWatch:
             where = f"{a['node']}.{a['param']}" if a.get("param") else a["node"]
             nodes_hit = {a["node"]} | set(a.get("affected_nodes") or ()) | ({str(value)} if isinstance(value, str) and value.startswith("IL_") else set())
             out.append(Trigger(_anomaly_kind(a), key, f"{where} = {value!r}: {a['note']}", nodes_hit,
-                               meta={"affected_nodes": a['affected_nodes']} if a.get('affected_nodes') else {}))
+                               meta={"evidence": {"node": a['node'], "field": a.get('param'), "kind": _anomaly_kind(a)},
+                                     **({"affected_nodes": a['affected_nodes']} if a.get('affected_nodes') else {})}))
         self.active = set(current)
         numeric = self.numeric.observe(nodes, self.frame_mark(snapshot))
         numeric_keys = {f"numeric|{a['node']}|{a['field']}" for a in numeric}
@@ -119,7 +120,7 @@ class TelemetryWatch:
                 # Статистика и рабочие пределы — гипотеза, а не авария: идёт после срочных поводов, как обзор
                 kind = 'conflict' if a['kind'] in ('stuck', 'conflict') else 'numeric'
                 text = f"{a['node']}.{a['field']}={a['value']}: {a['note']} (гипотеза для проверки)"
-                out.append(Trigger(kind, key, text, {a['node']}))
+                out.append(Trigger(kind, key, text, {a['node']}, meta={'evidence': {'node':a['node'], 'field':a['field'], 'kind':a['kind']}}))
         self.numeric_active = numeric_keys
 
         for node, data in nodes.items():
@@ -152,23 +153,38 @@ class TelemetryWatch:
             if actual_field is None:
                 continue
             actual = _num(data[actual_field])
-            if abs(actual) > abs(target) * .01:
-                continue  # ordinary ramp-up/tracking is not a no-response fault
+            tolerance = max(abs(target) * .2, .02)
+            if unit == 'c':
+                tolerance = max(10, abs(target) * .15)
+            error = abs(target - actual)
             key = (node, actual_field)
+            if error <= tolerance:
+                continue
             live.add(key)
             mark = data.get('updated_at', frame)
+            regime = (target, data.get('state'), data.get('mode'), data.get('file_name'))
             before = self.target_wait.get(key)
-            if before is None or before[0] != target:
-                self.target_wait[key] = target, now, mark, 1
+            if (before is None or before['regime'] != regime
+                    or (mark != before['mark'] and now - before['last_seen'] > max(self.stale_s * 2, 120))):
+                self.target_wait[key] = dict(regime=regime, since=now, mark=mark, count=1,
+                                            best=error, last_seen=now)
                 self.target_active.discard(key)
                 continue
-            count = before[3] + (mark != before[2])
-            self.target_wait[key] = target, before[1], mark, count
-            if now - before[1] >= self.stall_s and count >= 4 and key not in self.target_active:
+            fresh_update = mark != before['mark']
+            if fresh_update:
+                before['count'] += 1
+                before['mark'] = mark
+                before['last_seen'] = now
+                if error < before['best'] - tolerance * .25:
+                    # A ramp that is converging to its target gets more settling time.
+                    before.update(best=error, since=now, count=1)
+                    self.target_active.discard(key)
+            if fresh_update and now - before['since'] >= self.stall_s and before['count'] >= 4 and key not in self.target_active:
                 self.target_active.add(key)
                 out.append(Trigger('conflict', f'tracking|{node}|{actual_field}',
                     f'{node}: задано {field}={target:g}, но {actual_field}={actual:g} при {data.get("state")} '
-                    f'не реагирует {now - before[1]:.0f} с по {count} новым измерениям; проверить привод, датчик и эффект команды', {node}))
+                    f'устойчиво расходится с уставкой {now - before["since"]:.0f} с по {before["count"]} новым измерениям; '
+                    'проверить режим, привод, датчик и эффект команды', {node}))
         for key in [k for k in self.target_wait if k[0] == node and k not in live]:
             self.target_wait.pop(key, None)
             self.target_active.discard(key)

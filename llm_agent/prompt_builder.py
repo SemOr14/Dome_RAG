@@ -16,6 +16,7 @@ from .context.graph import InfluenceGraph, format_edge
 from .context.telemetry import TelemetryContext, compact_telemetry
 from .rag.base import RagDoc, Retriever
 from .schemas import output_schema_example
+from .patterns import MARK as PATTERNS_MARK, END_MARK as PATTERNS_END
 
 ALGORITHMS_MARK = "Алгоритмы (плейбуки)"  # с этих слов в тексте повода начинается раздел о работе плейбуков
 LISTED = re.compile(r"^\d+\. \[(\w+)\] ")  # строка повода в объединённом тексте диспетчера
@@ -71,7 +72,7 @@ class PromptBuilder:
     def rag_query(self, trigger: str, tctx: TelemetryContext) -> str:
         # Поиск по существу повода: числовые гипотезы и обзор не заслоняют срочные поводы, а одинаковые
         # строки (десятки узлов UNKNOWN разом) идут в запрос один раз
-        lines = trigger.split(ALGORITHMS_MARK)[0].splitlines()  # раздел «Алгоритмы» в запрос к RAG не входит
+        lines = trigger.split(ALGORITHMS_MARK)[0].split(PATTERNS_MARK)[0].splitlines()  # раздел «Алгоритмы» в запрос к RAG не входит
         listed = [line for line in lines if LISTED.match(line)]
         urgent = [line for line in listed if LISTED.match(line).group(1) not in ("numeric", "review")]
         seen: set[str] = set()
@@ -87,7 +88,7 @@ class PromptBuilder:
 
     def retrieve(self, trigger: str, tctx: TelemetryContext) -> list[RagDoc]:
         """Retrieve per independent reason; one verbose fault cannot consume every slot."""
-        raw = trigger.split(ALGORITHMS_MARK)[0].split('\n\nРежим:')[0]
+        raw = trigger.split(ALGORITHMS_MARK)[0].split(PATTERNS_MARK)[0].split('\n\nРежим:')[0]
         listed = [line for line in raw.splitlines() if LISTED.match(line)]
         urgent = [line for line in listed if LISTED.match(line).group(1) not in ('numeric', 'review')]
         queries = [LISTED.sub('', line) for line in (urgent or listed)] or [self.rag_query(raw, tctx)]
@@ -127,6 +128,11 @@ class PromptBuilder:
         return query + ('\nСвязанные измерения: ' + '; '.join(evidence) if evidence else '')
 
     def build(self, trigger: str, snapshot: dict, journal: list[dict], focus_nodes: set[str] | None = None) -> BuiltPrompt:
+        pattern_context = ''
+        if PATTERNS_MARK in trigger and PATTERNS_END in trigger:
+            before, rest = trigger.split(PATTERNS_MARK, 1)
+            pattern_context, _, after = rest.partition(PATTERNS_END)
+            trigger = before.rstrip() + after
         tctx = compact_telemetry(snapshot, self.catalog.by_id)
         seeds = set(tctx.hot_nodes) | set(focus_nodes or ())
         edges = [format_edge(e) for e in self.graph.subgraph(seeds, self.graph_depth)]
@@ -144,6 +150,8 @@ class PromptBuilder:
             observed_at=snapshot.get("observed_at"), telemetry_age_s=snapshot.get("telemetry_age_s"), stale_s=self.stale_s,
             telemetry=tctx.nodes, anomalies=tctx.anomalies, catalog=self.catalog.for_prompt(),
             graph_edges=edges, journal=journal, rag_docs=rag_docs)
+        if pattern_context:
+            user += '\n\n# Диагностические стратегии (проверки и анализ, не команды)\n' + pattern_context
         user += ('\n\nКарточки RAG — примеры и возможные аналогии, а не диагноз текущего сбоя. '
                  'Проверь совпадение характерных признаков и противоречащие данные. Новая аномалия может '
                  'не иметь карточки: опиши фактические сигналы, оставь неподтверждённую причину неизвестной, '

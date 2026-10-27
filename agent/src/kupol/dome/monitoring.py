@@ -53,10 +53,10 @@ def leaves(value: Any, path: str = '') -> Iterator[tuple[str, float | None]]:
 
 
 def contextual_note(node: str, field: str, value: float, body: dict, nodes: dict | None = None) -> str:
-    if field in ('nozzle_temp_c', 'bed_temp_c'):
-        prefix = 'nozzle' if field.startswith('nozzle') else 'bed'
+    if field.endswith('_temp_c'):
+        prefix = field[:-len('_temp_c')]
         target = number(body.get(prefix + '_target_c'))
-        power = number(body.get('heater_power_pct' if prefix == 'nozzle' else 'bed_heater_power_pct'))
+        power = number(body.get(prefix + '_heater_power_pct', body.get('heater_power_pct')))
         # Cooling after a disabled heater and normal warm-up are expected.
         if target is not None and target > 0 and power is not None and power > 5 and value > target + max(10, target * .15):
             return f'Температура {field} выше цели {target:g} °C при включённом нагревателе {power:g} %; рассогласование температуры и мощности'
@@ -97,6 +97,9 @@ class NumericMonitor:
         self.values_seen = 0
         self.stuck: dict[tuple[str, str], tuple[float, float, int]] = {}
         self.frozen_signals: dict[tuple[str, str], tuple[float, float, int]] = {}
+        self.regimes: dict[str, tuple] = {}
+        self.peer_bias: dict[tuple[str, str, tuple], deque] = {}
+        self.peer_pending: dict[tuple[str, str, tuple], int] = {}
 
     def _limits(self, node: str, field: str, body: dict | None = None):
         if field.endswith('.leakage_ma') or field == 'leakage_ma':
@@ -148,9 +151,20 @@ class NumericMonitor:
                 if stamp < previous_stamp:
                     continue
                 if stamp - previous_stamp > 300:
+                    for key in [k for k in self.peer_pending if k[0] == node]:
+                        self.peer_pending.pop(key, None)
                     for state in (self.stuck, self.frozen_signals):
                         for key in [k for k in state if k[0] == node]:
                             state.pop(key, None)
+            regime = (body.get('state'), body.get('mode'), body.get('file_name'),
+                      tuple(sorted((k, v) for k, v in body.items() if '_target_' in k and number(v) is not None)))
+            if node in self.regimes and regime != self.regimes[node]:
+                for key in [k for k in self.baselines if k[0] == node]:
+                    self.baselines[key].clear()
+                    self.frozen_signals.pop(key, None)
+                    if self.active.get(key, {}).get('kind') == 'candidate':
+                        self.active.pop(key, None)
+            self.regimes[node] = regime
             self.marks[node] = mark
             present = dict(leaves(body))
             for n, field in self.baselines:
@@ -171,6 +185,8 @@ class NumericMonitor:
                 value = number(raw)
                 note, kind = '', 'candidate'
                 if value is None:
+                    for peer_key in [k for k in self.peer_pending if k[:2] == key]:
+                        self.peer_pending.pop(peer_key, None)
                     note, kind = 'Измерение отсутствует или не является конечным числом', 'missing'
                 else:
                     note = contextual_note(node, field, value, body, nodes)
@@ -199,6 +215,10 @@ class NumericMonitor:
                             self.stuck[key] = (value, start, count)
                             if count >= 12 and stamp - start >= 20 * 60:
                                 note, kind = 'Флюгер застыл: направление ветра не меняется ≥20 минут при живом узле и ненулевом ветре', 'stuck'
+                if value is not None and stamp is not None and not note:
+                    disagreement = self._peer_disagreement(node, field, value, stamp, body, nodes)
+                    if disagreement:
+                        note, kind = disagreement, 'conflict'
                 if value is not None and stamp is not None and not note:
                     frozen = self._frozen_peer(node, field, value, stamp, body, nodes)
                     if frozen:
@@ -248,4 +268,56 @@ class NumericMonitor:
             scale = unit_floor(field)
             if max(values) - min(values) > 3 * scale and abs(value - center) > max(6 * scale, abs(center) * .35):
                 return f'Зависшее измерение {field}: не меняется ≥20 минут при живом узле, сопоставимый датчик {peer} меняется и показывает другое; проверить независимым источником'
+        return ''
+
+
+    def _peer_disagreement(self, node, field, value, stamp, body, nodes):
+        """Learn normal offsets, then compare with two agreeing independent peers.
+
+        Zone/group and exact field/unit are required; a shared drift is not resolvable
+        without an independent reference. Confirmation counts source updates, not polls.
+        """
+        group = body.get('sensor_group') or body.get('zone')
+        stamp -= max(0, number(body.get('reading_delay_s')) or 0)
+        if not group or not self._statistical(node, field) or not re.search(r'_(?:c|ppm|pa|bar|pct)$', field):
+            return ''
+        peers = []
+        for peer, other in nodes.items():
+            if peer == node or not isinstance(other, dict) or (other.get('sensor_group') or other.get('zone')) != group:
+                continue
+            t, v = number(other.get('updated_at')), number(other.get(field))
+            if t is not None:
+                t -= max(0, number(other.get('reading_delay_s')) or 0)
+            if (v is not None and t is not None and abs(t - stamp) <= 30
+                    and other.get('online') is not False and other.get('status') != 'UNKNOWN'
+                    and other.get('sensor_state') in (None, 'OK')):
+                peers.append((peer, v))
+        if len(peers) < 2:
+            for key in [k for k in self.peer_pending if k[:2] == (node, field)]:
+                self.peer_pending.pop(key, None)
+            return ''
+        center = median(v for _, v in peers)
+        scale = unit_floor(field)
+        tolerance = max(3 * scale, abs(center) * .05)
+        if max(v for _, v in peers) - min(v for _, v in peers) > tolerance:
+            for key in [k for k in self.peer_pending if k[:2] == (node, field)]:
+                self.peer_pending.pop(key, None)
+            return ''  # no reference majority; do not choose a sensor arbitrarily
+        key = (node, field, (repr(body.get('mode')), repr(body.get('state')),
+                             tuple(sorted((p, repr(nodes[p].get('mode')), repr(nodes[p].get('state'))) for p, _ in peers))))
+        history = self.peer_bias.setdefault(key, deque(maxlen=60))
+        residual = value - center
+        if len(history) < 12:
+            history.append(residual)
+            return ''
+        normal = median(history)
+        mad = median(abs(x - normal) for x in history)
+        band = max(tolerance, 6 * 1.4826 * mad)
+        if abs(residual - normal) > band:
+            self.peer_pending[key] = self.peer_pending.get(key, 0) + 1
+            if self.peer_pending[key] >= 3:
+                return f'{field}: устойчивое расхождение с согласованными датчиками {", ".join(p for p, _ in peers)}; отклонение от обычной разницы {residual - normal:.4g}, допуск {band:.4g}; проверить датчик и условия измерения'
+        else:
+            self.peer_pending.pop(key, None)
+            history.append(residual)
         return ''

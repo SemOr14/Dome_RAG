@@ -1,0 +1,38 @@
+12.10: новых предупреждений 234, кадров с подсветкой 140 из 1440
+13.10: новых предупреждений 10, кадров с подсветкой 87 из 1440
+    S31 УЗО 10:31: smart_panel_01.lines[3].leakage_ma — первая подсветка 10:27
+    S08 рост CO2: climate_sensor_01.co2_ppm — первая подсветка 20:17
+    S29 +50 °C: weather_station_01.temperature_c — первая подсветка 02:01
+14.10: новых предупреждений 17, кадров с подсветкой 193 из 1440
+15.10: новых предупреждений 14, кадров с подсветкой 894 из 1440
+    S36 залип 68 °C: thermal_insulation_01.temperature_c[1] — первая подсветка 16:44
+    S38 SOC 20 %: battery_01.soc_pct — первая подсветка 19:11
+    S37 флюгер: weather_station_01.wind_direction_deg — первая подсветка 08:49
+16.10: новых предупреждений 12, кадров с подсветкой 1380 из 1440
+    S41 заниженный CO2: climate_sensor_01.co2_ppm — первая подсветка 13:41
+    S42 вентилятор: solar_inverter_01.fan_current_a — первая подсветка 19:31
+    S42 температура: solar_inverter_01.inverter_temp_c — первая подсветка 19:35
+    S47 вода в топливе: fuel_tank_01.water_content_ppm — первая подсветка 05:01
+17.10: новых предупреждений 19, кадров с подсветкой 1434 из 1440
+    S31 утечка 10:14: smart_panel_01.lines[3].leakage_ma — первая подсветка 10:14
+    S44 сопло 280 °C: printer_3d_01.nozzle_temp_c — первая подсветка 09:51
+    S45 SFP: network_link_01.rx_power_dbm — первая подсветка 11:21
+18.10: новых предупреждений 15, кадров с подсветкой 227 из 1440
+    S50 пожар: smoke_detector_02.obscuration_pct — первая подсветка 15:01
+    S48 балансировка: battery_01.cell_voltage_delta_mv — первая подсветка 08:01
+по типу: {'фон': 57, 'пропуск': 236, 'предел': 28} | всего: 321 по рядам: 56
+   15     79  thermal_insulation_01.fans_rpm[4]
+   15     79  thermal_insulation_01.fans_rpm[1]
+   15     79  thermal_insulation_01.fans_rpm[5]
+   15     79  thermal_insulation_01.fans_rpm[2]
+   15     79  thermal_insulation_01.fans_rpm[3]
+   15     79  thermal_insulation_01.fans_rpm[0]
+   13     93  thermal_insulation_01.humidity_pct[0]
+   13     74  thermal_insulation_01.pressure_pa[0]
+   13     74  thermal_insulation_01.pressure_pa[2]
+   13     74  thermal_insulation_01.pressure_pa[1]
+   13     83  thermal_insulation_01.voc_index[1]
+   13     83  thermal_insulation_01.voc_index[0]
+   12     90  thermal_insulation_01.humidity_pct[2]
+   12     90  thermal_insulation_01.humidity_pct[1]
+   10     82  thermal_insulation_01.temperature_c[1]

@@ -23,6 +23,8 @@ def state_fields(body: dict, prefix: str = '', depth: int = 0):
             for i, item in enumerate(value):
                 if isinstance(item, dict):
                     yield from state_fields(item, f'{path}[{i}]', depth + 1)
+        elif field in ('error_code', 'fault_code', 'alarm_code', 'error', 'alarm') and value not in (None, False, 0) and str(value).strip().upper() not in ('', '0', 'NONE', 'OK', 'NORMAL', 'NO_ERROR', 'NO_ALARM'):
+            yield path, value
         elif (field in ('state', 'status', 'health') or field.endswith('_state')) and isinstance(value, str):
             state = value.upper()
             if state in BAD_STATES or (not state.startswith(('NO_', 'NOT_')) and

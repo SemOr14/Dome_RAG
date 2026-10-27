@@ -21,6 +21,7 @@ from .prompt_builder import _dome_time
 from .schemas import AgentResponse
 from .triggers import OperatorWatch, TelemetryWatch, Trigger, command_triggers, telemetry_age
 from .event_watch import EventWatch
+from .patterns import DiagnosticPatterns, MARK as PATTERNS_MARK, END_MARK as PATTERNS_END
 
 MAX_LISTED = 12  # поводов в тексте одного вызова; остальные — списком узлов
 
@@ -70,6 +71,7 @@ class Dispatcher:
         saved = self._load_state()
         self.telemetry = TelemetryWatch(s.trigger_stale_s, s.trigger_stall_s)
         self.source_events = EventWatch()
+        self.patterns = DiagnosticPatterns(s.trigger_stale_s)
         self.operator = OperatorWatch(saved.get("operator_last_id", 0))
         self.pending: dict[str, _Pending] = {}
         self.fired_at: dict[str, float] = {}  # ключ ситуации -> когда по ней звали модель
@@ -153,6 +155,14 @@ class Dispatcher:
                 and not self.pending:
             found.append(Trigger("review", "review", "Плановый обзор: оцени состояние купола и риски на ближайшее "
                                                      "время. Если всё штатно — действий не нужно"))
+        active = self.telemetry.active | self.telemetry.numeric_active
+        active |= {f'tracking|{node}|{field}' for node, field in self.telemetry.target_active}
+        active |= {f"{node}|stall|{(snapshot.get('nodes', {}).get(node) or {}).get('file_name')}" for node in self.telemetry.stalled}
+        pattern_snapshot = dict(snapshot)
+        if self.telemetry.frame_stale and self.telemetry.frame_since is not None:
+            pattern_snapshot['telemetry_age_s'] = max(snapshot.get('telemetry_age_s') or 0, now - self.telemetry.frame_since)
+        for plan in self.patterns.observe(pattern_snapshot, found, active, self.agent.catalog.by_id, now):
+            self.agent.events.emit('diagnostic_pattern', plan)
         for trig in found:
             self._add(trig, now)
         self._save_state()
@@ -194,6 +204,10 @@ class Dispatcher:
     def _begin(self, batch: list[_Pending], snapshot: dict, now: float) -> Fired:
         triggers = [p.trigger for p in batch]
         text = self.compose(triggers)
+        plans = self.patterns.plans()
+        if plans:
+            text += '\n\n' + PATTERNS_MARK + ' (только проверка и наблюдения, не разрешение на управление):\n'
+            text += json.dumps(plans, ensure_ascii=False, default=str) + '\n' + PATTERNS_END
         kinds = sorted({t.kind for t in triggers})
         fired = Fired(triggers, text, nodes=set().union(*(t.nodes for t in triggers)),
                       purpose=f"диспетчер: {', '.join(kinds)}", snapshot=snapshot, batch=batch)

@@ -1,0 +1,878 @@
+{
+  "anomalies": 60,
+  "detected": 35,
+  "normal": 30,
+  "false_triggers": 5,
+  "cases": [
+    {
+      "seed": 0,
+      "case": "nested_fault",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "alarm",
+          "diagnostic|extension_0_not_in_catalog|parts[0].driver_state|OVERHEAT"
+        ]
+      ]
+    },
+    {
+      "seed": 0,
+      "case": "pressure_spike",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_0_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 0,
+      "case": "lost_reading",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_0_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 0,
+      "case": "motor_zero_response",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          23,
+          "conflict",
+          "tracking|extension_0_not_in_catalog|motor_rpm"
+        ]
+      ]
+    },
+    {
+      "seed": 0,
+      "case": "motor_partial_response",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 0,
+      "case": "motor_wrong_direction",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 0,
+      "case": "slow_drift",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 0,
+      "case": "heater_bad_at_start",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 0,
+      "case": "nested_error_code",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 0,
+      "case": "frozen_sensor",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          40,
+          "conflict",
+          "numeric|extension_0_not_in_catalog|temperature_c"
+        ]
+      ]
+    },
+    {
+      "seed": 0,
+      "case": "stale_timestamp",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "stale",
+          "extension_0_not_in_catalog|updated_at|данные не обновлялись дольше порога, сек|"
+        ]
+      ]
+    },
+    {
+      "seed": 0,
+      "case": "progress_stall",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          22,
+          "operation",
+          "extension_0_not_in_catalog|stall|part"
+        ]
+      ]
+    },
+    {
+      "seed": 0,
+      "case": "normal_steady",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 0,
+      "case": "normal_startup",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 0,
+      "case": "normal_mode_change",
+      "anomaly": false,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_0_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 0,
+      "case": "normal_regulated",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 0,
+      "case": "normal_power_cycle",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 0,
+      "case": "normal_angle_wrap",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 1,
+      "case": "nested_fault",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "alarm",
+          "diagnostic|extension_1_not_in_catalog|parts[0].driver_state|OVERHEAT"
+        ]
+      ]
+    },
+    {
+      "seed": 1,
+      "case": "pressure_spike",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_1_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 1,
+      "case": "lost_reading",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_1_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 1,
+      "case": "motor_zero_response",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          23,
+          "conflict",
+          "tracking|extension_1_not_in_catalog|motor_rpm"
+        ]
+      ]
+    },
+    {
+      "seed": 1,
+      "case": "motor_partial_response",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 1,
+      "case": "motor_wrong_direction",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 1,
+      "case": "slow_drift",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 1,
+      "case": "heater_bad_at_start",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 1,
+      "case": "nested_error_code",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 1,
+      "case": "frozen_sensor",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          40,
+          "conflict",
+          "numeric|extension_1_not_in_catalog|temperature_c"
+        ]
+      ]
+    },
+    {
+      "seed": 1,
+      "case": "stale_timestamp",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "stale",
+          "extension_1_not_in_catalog|updated_at|данные не обновлялись дольше порога, сек|"
+        ]
+      ]
+    },
+    {
+      "seed": 1,
+      "case": "progress_stall",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          22,
+          "operation",
+          "extension_1_not_in_catalog|stall|part"
+        ]
+      ]
+    },
+    {
+      "seed": 1,
+      "case": "normal_steady",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 1,
+      "case": "normal_startup",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 1,
+      "case": "normal_mode_change",
+      "anomaly": false,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_1_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 1,
+      "case": "normal_regulated",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 1,
+      "case": "normal_power_cycle",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 1,
+      "case": "normal_angle_wrap",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 2,
+      "case": "nested_fault",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "alarm",
+          "diagnostic|extension_2_not_in_catalog|parts[0].driver_state|OVERHEAT"
+        ]
+      ]
+    },
+    {
+      "seed": 2,
+      "case": "pressure_spike",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_2_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 2,
+      "case": "lost_reading",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_2_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 2,
+      "case": "motor_zero_response",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          23,
+          "conflict",
+          "tracking|extension_2_not_in_catalog|motor_rpm"
+        ]
+      ]
+    },
+    {
+      "seed": 2,
+      "case": "motor_partial_response",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 2,
+      "case": "motor_wrong_direction",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 2,
+      "case": "slow_drift",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 2,
+      "case": "heater_bad_at_start",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 2,
+      "case": "nested_error_code",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 2,
+      "case": "frozen_sensor",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          40,
+          "conflict",
+          "numeric|extension_2_not_in_catalog|temperature_c"
+        ]
+      ]
+    },
+    {
+      "seed": 2,
+      "case": "stale_timestamp",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "stale",
+          "extension_2_not_in_catalog|updated_at|данные не обновлялись дольше порога, сек|"
+        ]
+      ]
+    },
+    {
+      "seed": 2,
+      "case": "progress_stall",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          22,
+          "operation",
+          "extension_2_not_in_catalog|stall|part"
+        ]
+      ]
+    },
+    {
+      "seed": 2,
+      "case": "normal_steady",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 2,
+      "case": "normal_startup",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 2,
+      "case": "normal_mode_change",
+      "anomaly": false,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_2_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 2,
+      "case": "normal_regulated",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 2,
+      "case": "normal_power_cycle",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 2,
+      "case": "normal_angle_wrap",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 3,
+      "case": "nested_fault",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "alarm",
+          "diagnostic|extension_3_not_in_catalog|parts[0].driver_state|OVERHEAT"
+        ]
+      ]
+    },
+    {
+      "seed": 3,
+      "case": "pressure_spike",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_3_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 3,
+      "case": "lost_reading",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_3_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 3,
+      "case": "motor_zero_response",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          23,
+          "conflict",
+          "tracking|extension_3_not_in_catalog|motor_rpm"
+        ]
+      ]
+    },
+    {
+      "seed": 3,
+      "case": "motor_partial_response",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 3,
+      "case": "motor_wrong_direction",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 3,
+      "case": "slow_drift",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 3,
+      "case": "heater_bad_at_start",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 3,
+      "case": "nested_error_code",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 3,
+      "case": "frozen_sensor",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          40,
+          "conflict",
+          "numeric|extension_3_not_in_catalog|temperature_c"
+        ]
+      ]
+    },
+    {
+      "seed": 3,
+      "case": "stale_timestamp",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "stale",
+          "extension_3_not_in_catalog|updated_at|данные не обновлялись дольше порога, сек|"
+        ]
+      ]
+    },
+    {
+      "seed": 3,
+      "case": "progress_stall",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          22,
+          "operation",
+          "extension_3_not_in_catalog|stall|part"
+        ]
+      ]
+    },
+    {
+      "seed": 3,
+      "case": "normal_steady",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 3,
+      "case": "normal_startup",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 3,
+      "case": "normal_mode_change",
+      "anomaly": false,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_3_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 3,
+      "case": "normal_regulated",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 3,
+      "case": "normal_power_cycle",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 3,
+      "case": "normal_angle_wrap",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 4,
+      "case": "nested_fault",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "alarm",
+          "diagnostic|extension_4_not_in_catalog|parts[0].driver_state|OVERHEAT"
+        ]
+      ]
+    },
+    {
+      "seed": 4,
+      "case": "pressure_spike",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_4_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 4,
+      "case": "lost_reading",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_4_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 4,
+      "case": "motor_zero_response",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          23,
+          "conflict",
+          "tracking|extension_4_not_in_catalog|motor_rpm"
+        ]
+      ]
+    },
+    {
+      "seed": 4,
+      "case": "motor_partial_response",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 4,
+      "case": "motor_wrong_direction",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 4,
+      "case": "slow_drift",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 4,
+      "case": "heater_bad_at_start",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 4,
+      "case": "nested_error_code",
+      "anomaly": true,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 4,
+      "case": "frozen_sensor",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          40,
+          "conflict",
+          "numeric|extension_4_not_in_catalog|temperature_c"
+        ]
+      ]
+    },
+    {
+      "seed": 4,
+      "case": "stale_timestamp",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "stale",
+          "extension_4_not_in_catalog|updated_at|данные не обновлялись дольше порога, сек|"
+        ]
+      ]
+    },
+    {
+      "seed": 4,
+      "case": "progress_stall",
+      "anomaly": true,
+      "detected": true,
+      "first": [
+        [
+          22,
+          "operation",
+          "extension_4_not_in_catalog|stall|part"
+        ]
+      ]
+    },
+    {
+      "seed": 4,
+      "case": "normal_steady",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 4,
+      "case": "normal_startup",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 4,
+      "case": "normal_mode_change",
+      "anomaly": false,
+      "detected": true,
+      "first": [
+        [
+          20,
+          "numeric",
+          "numeric|extension_4_not_in_catalog|pressure_bar"
+        ]
+      ]
+    },
+    {
+      "seed": 4,
+      "case": "normal_regulated",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 4,
+      "case": "normal_power_cycle",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    },
+    {
+      "seed": 4,
+      "case": "normal_angle_wrap",
+      "anomaly": false,
+      "detected": false,
+      "first": []
+    }
+  ]
+}
