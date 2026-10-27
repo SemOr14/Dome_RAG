@@ -476,3 +476,27 @@ git diff origin/main origin/fix/overnight-telemetry-patrol
 Последняя команда дополнительно покажет этот документ и все будущие изменения.
 PR [#3](https://github.com/SemOr14/Dome_RAG/pull/3) направлен в agent/llm-layer и
 показывает более узкую разницу; данный файл сравнивает именно с main.
+
+## 6. Дополнение: чтение датчиков во время запроса (27.10.2026)
+
+После закреплённого выше снимка добавлен native function calling `read_sensor`:
+модель может уточнить показания во время формирования решения, но не более трёх
+обращений на весь запрос. Данные читаются из последней телеметрии, с метками времени,
+свежестью и регистрацией попыток; принудительный опрос оборудования не имитируется.
+Основной перечень 170 файлов выше относится к указанным там хешам и не пересчитан.
+Дополнительные отличия этого этапа:
+
+| Файл | Дополнение |
+|---|---|
+| [contracts/sensor-reads.md](contracts/sensor-reads.md) | Новый контракт инструмента и лимита |
+| [llm_agent/sensor_tools.py](llm_agent/sensor_tools.py) | Новый исполнитель чтений и общий бюджет запроса |
+| [llm_agent/llm_client.py](llm_agent/llm_client.py) | Native tools в запросах и ответах DeepSeek |
+| [llm_agent/agent.py](llm_agent/agent.py) | Ограниченные раунды assistant/tool, аудит, итоговое решение |
+| [llm_agent/schemas.py](llm_agent/schemas.py) | Сведения о чтениях в AgentResponse |
+| [prompts/system.md.j2](prompts/system.md.j2) | Инструкция модели по уточнению показаний |
+| [integration/README.md](integration/README.md) | Описание нового поведения |
+| [integration/test_smoke.py](integration/test_smoke.py) | Поддержка tools в тестовой модели |
+| [tests/test_sensor_tools.py](tests/test_sensor_tools.py) | Лимиты, поля, свежесть, ошибки и протокол модели |
+| [tests/test_data_api_integration.py](tests/test_data_api_integration.py) | Новые показания и ссылки чтений в реальной временной БД |
+| [agent/tests/test_dome_sensor_reads.py](agent/tests/test_dome_sensor_reads.py) | Чтение через LlmBrain/Runner на эмуляторе в режиме советника |
+| [DIFFERENCES_FROM_MAIN.md](DIFFERENCES_FROM_MAIN.md) | Это дополнение к исходному снимку |

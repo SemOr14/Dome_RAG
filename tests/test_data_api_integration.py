@@ -170,3 +170,34 @@ def test_dispatcher_over_db_records_trigger_decision_and_verification(api, tmp_p
     [verification] = stored("verification")
     assert verification["payload"]["decision_event_id"] == decision["event_id"]
     assert verification["payload"]["status"] == "reassessed"
+
+
+def test_native_sensor_reads_use_new_snapshot_and_are_linked_to_decision(api, tmp_path):
+    client, http = api
+    class ReadingLLM:
+        def __init__(self): self.calls = 0
+        def chat(self, messages, **kwargs):
+            self.calls += 1
+            if self.calls == 1:
+                frame = json.loads((ROOT / 'data/samples/scenarios/co2_false_alarm.json').read_text())
+                frame['nodes']['climate_sensor_01']['co2_ppm'] = 1234
+                frame['nodes']['climate_sensor_01']['updated_at'] = frame['timestamp'] + 1
+                client.deliver([event('telemetry', {'type': 'telemetry', 'timestamp': frame['timestamp'] + 1,
+                    'data': {'nodes': frame['nodes'], 'game_time': frame['game_time']}},
+                    metadata={'observed_at': datetime.now(timezone.utc).isoformat()})])
+                return LLMResult(ok=True, text=None, model='fake', tool_calls=[{
+                    'id': 'read-1', 'type': 'function', 'function': {'name': 'read_sensor',
+                    'arguments': json.dumps({'node_id': 'climate_sensor_01', 'fields': ['co2_ppm']})}}])
+            reading = json.loads(next(m['content'] for m in messages if m['role'] == 'tool'))
+            assert reading['readings']['co2_ppm'] == 1234
+            return LLMResult(ok=True, text=json.dumps({'situation': 'Показание уточнено', 'actions': []}), model='fake')
+    agent = make_agent(client, ReadingLLM(), tmp_path)
+    response = agent.decide('Уточни CO₂ сейчас')
+    assert response.ok
+    reads = http.get('/v1/events', params={'run_id': RUN, 'event_type': 'sensor_read'}).json()['items']
+    assert len(reads) == 1 and reads[0]['session_id'] == SESSION
+    assert reads[0]['payload']['result']['readings'] == {'co2_ppm': 1234}
+    decision = http.get('/v1/events/' + response.decision_event_id).json()
+    assert decision['payload']['sensor_read_event_ids'] == [reads[0]['event_id']]
+    responses = http.get('/v1/events', params={'run_id': RUN, 'event_type': 'llm_response'}).json()['items']
+    assert responses[0]['payload']['tool_calls'][0]['id'] == 'read-1'
