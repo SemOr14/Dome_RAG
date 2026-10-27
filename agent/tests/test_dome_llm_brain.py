@@ -298,7 +298,7 @@ def test_no_effect_is_an_immediate_trigger_with_repeat_block(tmp_path: Path) -> 
             ver = [v for v in h.records("verification") if not v["ok"]]
             assert ver and "data_trust" in ver[0]["expected"]
             hits = [t for t in llm.triggers if "dome_automation_01.set_data_trust" in t and "не подтвердился" in t]
-            assert hits and "заблокирована Gate на 120 с" in hits[0]
+            assert hits and "заблокирована Gate на 60 с" in hits[0]
 
     run(scenario())
 

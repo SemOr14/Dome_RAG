@@ -41,7 +41,7 @@ class PolicyCfg(_Cfg):
     # узел (или "*") -> действие -> спецификация значения
     allowed: dict[str, dict[str, dict[str, Any]]] = Field(default_factory=dict)
     line_switch_limit: LineSwitchLimit = LineSwitchLimit()
-    no_effect_cooldown_s: float = Field(default=120.0, ge=0)
+    no_effect_cooldown_s: float = Field(default=60.0, ge=0)
     algorithm_hold_s: float = Field(default=30.0, ge=0)  # узел, которым занят плейбук, команды модели не исполняются
     resume_max_attempts: int = Field(default=1, ge=0)
 
@@ -123,8 +123,17 @@ class AdvisorCfg(_Cfg):
     enabled: bool = True
     model: str = "deepseek-chat"
     min_interval_s: float = Field(default=60.0, ge=0)
-    max_calls_per_hour: int = Field(default=60, ge=1)
+    max_calls_per_hour: int = Field(default=0, ge=0)  # 0 — без часового лимита
     timeout_s: float = Field(default=20.0, gt=0)
+
+
+class ForecastCfg(_Cfg):
+    window_s: float = Field(default=1800.0, gt=0)  # окно подгонки тренда, реальные секунды
+    min_points: int = Field(default=6, ge=2)
+    min_span_s: float = Field(default=120.0, ge=0)
+    min_r2: float = Field(default=0.6, ge=0, le=1)  # хуже — тренд не отличим от шума
+    horizon_h: float = Field(default=48.0, gt=0)  # дальше не прогнозируем
+    every_s: float = Field(default=60.0, gt=0)  # как часто писать событие forecast в БД
 
 
 class DomeConfig(_Cfg):
@@ -133,6 +142,7 @@ class DomeConfig(_Cfg):
     checks: ChecksCfg = ChecksCfg()
     rag: RagCfg = RagCfg()
     advisor: AdvisorCfg = AdvisorCfg()
+    forecast: ForecastCfg = ForecastCfg()
 
 
 class DomeConfigError(Exception):

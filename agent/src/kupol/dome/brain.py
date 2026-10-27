@@ -272,7 +272,7 @@ class LlmBrain:
         self.down_until = 0.0
         self.calls = 0
         self.policy: Any = None  # рантайм подставляет ControlPolicy
-        self.no_effect_cooldown_s = 120.0  # рантайм подставляет policy.no_effect_cooldown_s
+        self.no_effect_cooldown_s = 60.0  # рантайм подставляет policy.no_effect_cooldown_s
         self._actions: dict[int, dict[str, Any]] = {}  # seq записи action → запись (для поводов по verification)
         self._timed_out: set[int] = set()
         self._feedback_cases: dict[Any, Trigger] = {}

@@ -14,12 +14,16 @@ from collections import deque
 from dataclasses import dataclass
 from typing import Any
 
-WINDOW_S = 1800.0  # окно подгонки, секунды
-MIN_POINTS = 6
-MIN_SPAN_S = 120.0
-MIN_R2 = 0.6  # хуже — тренд не отличим от шума
-HORIZON_H = 48.0  # дальше этого не прогнозируем
 KEEP_POINTS = 600
+
+
+class _Defaults:
+    """Значения по умолчанию, если конфиг не передан (совпадают с ForecastCfg)."""
+    window_s = 1800.0
+    min_points = 6
+    min_span_s = 120.0
+    min_r2 = 0.6
+    horizon_h = 48.0
 CRITICAL_SOC_PCT = 25.0  # IL_LOAD_SHED, как soc_critical_pct в dome.yaml
 
 
@@ -86,7 +90,9 @@ def fit(points: list[tuple[float, float]]) -> tuple[float, float, float] | None:
 class Forecaster:
     """Ряды показаний и расчёт прогнозов. ``observe`` вызывается на каждой телеметрии."""
 
-    def __init__(self) -> None:
+    def __init__(self, cfg: Any = None) -> None:
+        # cfg — ForecastCfg из dome.yaml (window_s, min_points, min_span_s, min_r2, horizon_h)
+        self.cfg = cfg or _Defaults()
         self._series: dict[tuple[str, str], deque[tuple[float, float]]] = {}
         self._marks: dict[tuple[str, str], Any] = {}
 
@@ -109,7 +115,7 @@ class Forecaster:
         dq = self._series.get(source)
         if not dq:
             return []
-        cutoff = dq[-1][0] - WINDOW_S
+        cutoff = dq[-1][0] - self.cfg.window_s
         return [p for p in dq if p[0] >= cutoff]
 
     def compute(self, nodes: dict[str, Any]) -> list[dict[str, Any]]:
@@ -126,8 +132,8 @@ class Forecaster:
             item: dict[str, Any] = {"id": spec.id, "label": spec.label, "node_id": source[0], "param": source[1],
                                     "unit": spec.unit, "now": round(now, 2), "trend": "нет данных для тренда"}
             span = points[-1][0] - points[0][0]
-            line = fit(points) if len(points) >= MIN_POINTS and span >= MIN_SPAN_S else None
-            if line is not None and line[2] >= MIN_R2:
+            line = fit(points) if len(points) >= self.cfg.min_points and span >= self.cfg.min_span_s else None
+            if line is not None and line[2] >= self.cfg.min_r2:
                 slope, _, r2 = line
                 per_h = slope * 3600.0
                 item.update(rate_per_h=round(per_h, 3), fit={"points": len(points), "span_min": round(span / 60, 1), "r2": round(r2, 2)})
@@ -136,7 +142,7 @@ class Forecaster:
                 etas = []
                 for threshold, name in targets:
                     reach = (threshold - now) / per_h if per_h else None
-                    if reach is not None and 0 < reach <= HORIZON_H:
+                    if reach is not None and 0 < reach <= self.cfg.horizon_h:
                         etas.append({"threshold": threshold, "name": name, "eta_h": round(reach, 2)})
                 if etas:
                     item["reaches"] = etas

@@ -110,7 +110,7 @@ class DeepSeek:
         with self._lock:
             while self._calls and now - self._calls[0] > 3600:
                 self._calls.popleft()
-            if len(self._calls) >= self._cfg.max_calls_per_hour:
+            if self._cfg.max_calls_per_hour and len(self._calls) >= self._cfg.max_calls_per_hour:
                 return False
             last = self._last_topic.get(topic)
             return last is None or now - last >= (self._cfg.min_interval_s if min_interval_s is None else min_interval_s)

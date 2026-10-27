@@ -49,7 +49,7 @@ def flatten_numbers(value: Any, prefix: str = "", depth: int = 0) -> Iterator[tu
 class DomeState:
     """Последний снимок телеметрии и ряды чисел."""
 
-    def __init__(self, history_len: int = 900, stale_age_s: float = 30.0) -> None:
+    def __init__(self, history_len: int = 900, stale_age_s: float = 30.0, forecast: Any = None) -> None:
         """Создать пустое состояние.
 
         Args:
@@ -65,7 +65,7 @@ class DomeState:
         self._stale_age_s = stale_age_s
         self._series: dict[str, deque[tuple[float, float]]] = {}
         self._progress_wall: dict[str, float] = {}
-        self.forecaster = Forecaster()  # прогноз времени до порогов (заряд АКБ, топливо, климат)
+        self.forecaster = Forecaster(forecast)  # прогноз времени до порогов (заряд АКБ, топливо, климат)
 
     # ------------------------------------------------------------------ запись
 

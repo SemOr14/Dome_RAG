@@ -55,7 +55,6 @@ if TYPE_CHECKING:  # LLM-слой нужен только в режиме AGENT_
 
 AGENT_NAME = "kupol-dome"
 STALE_TELEMETRY_S = 20.0
-FORECAST_EVERY_S = 60.0  # как часто прогнозы пишутся в БД
 STATE_SAVE_EVERY_S = 10.0
 CATALOG_RETRY_S = 30.0
 OPERATOR_TEXTS_KEEP_S = 1800.0
@@ -136,7 +135,7 @@ class Runner:
         self.clock = clock
         self.advisor = advisor
         self.models = models or []
-        self.state = DomeState(stale_age_s=cfg.checks.stale.node_age_s)
+        self.state = DomeState(stale_age_s=cfg.checks.stale.node_age_s, forecast=cfg.forecast)
         if recorder is None and settings.data_api_url:
             recorder = DataApiRecorder(settings.data_api_url, settings.data_api_token, settings.data_api_run_id or None, settings.state_dir)
         self.recorder = recorder
@@ -295,7 +294,7 @@ class Runner:
 
     def _record_forecast(self, now: float) -> None:
         """Прогнозы важных параметров — в БД событием ``forecast`` раз в ``FORECAST_EVERY_S`` секунд."""
-        if self.recorder is None or now - self._last_forecast < FORECAST_EVERY_S:
+        if self.recorder is None or now - self._last_forecast < self.cfg.forecast.every_s:
             return
         items = self.state.forecaster.compute(self.state.nodes)
         if not items:
