@@ -1,0 +1,136 @@
+{
+  "source_base": "184294c559ab00463792cff69869176745cfbad6",
+  "main_checked_at_finish": "876d52be0c101dabf7f676aca4eaff83674c2e04",
+  "main_advance": "Only root Logs/ additions; no overlapping code changes",
+  "logs_source": "https://github.com/WhiteDots/Dome_RAG/tree/main/Logs",
+  "logs_commit": "5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438",
+  "numeric_before": {
+    "days": [
+      {
+        "day": "2026-10-12",
+        "new_warnings": 467,
+        "frames_with_warning": 1189
+      },
+      {
+        "day": "2026-10-13",
+        "new_warnings": 303,
+        "frames_with_warning": 1414
+      },
+      {
+        "day": "2026-10-14",
+        "new_warnings": 299,
+        "frames_with_warning": 1272
+      },
+      {
+        "day": "2026-10-15",
+        "new_warnings": 331,
+        "frames_with_warning": 1346
+      },
+      {
+        "day": "2026-10-16",
+        "new_warnings": 250,
+        "frames_with_warning": 1363
+      },
+      {
+        "day": "2026-10-17",
+        "new_warnings": 331,
+        "frames_with_warning": 1242
+      },
+      {
+        "day": "2026-10-18",
+        "new_warnings": 271,
+        "frames_with_warning": 1426
+      }
+    ],
+    "warnings": 2252,
+    "frames_with_warning": 9252,
+    "frames": 10080
+  },
+  "numeric_after": {
+    "days": [
+      {
+        "day": "2026-10-12",
+        "new_warnings": 236,
+        "frames_with_warning": 175
+      },
+      {
+        "day": "2026-10-13",
+        "new_warnings": 11,
+        "frames_with_warning": 116
+      },
+      {
+        "day": "2026-10-14",
+        "new_warnings": 19,
+        "frames_with_warning": 257
+      },
+      {
+        "day": "2026-10-15",
+        "new_warnings": 17,
+        "frames_with_warning": 894
+      },
+      {
+        "day": "2026-10-16",
+        "new_warnings": 13,
+        "frames_with_warning": 1380
+      },
+      {
+        "day": "2026-10-17",
+        "new_warnings": 23,
+        "frames_with_warning": 1437
+      },
+      {
+        "day": "2026-10-18",
+        "new_warnings": 17,
+        "frames_with_warning": 252
+      }
+    ],
+    "warnings": 336,
+    "frames_with_warning": 4511,
+    "frames": 10080
+  },
+  "warning_reduction_pct": 85.08,
+  "highlighted_frame_reduction_pct": 51.24,
+  "historical_episode_cards": {
+    "baseline_original_test": 12,
+    "after": 24,
+    "total": 24,
+    "harness_changes": [
+      "Include chronological source events",
+      "Count early detection in warm-up window"
+    ]
+  },
+  "runtime_windows": {
+    "total": 18,
+    "recognized": 18,
+    "allow_early_detection_of_persistent_spare_line": true
+  },
+  "test_groups": {
+    "dispatcher": {
+      "tests": 138,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "runtime": {
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "charts-storage": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "passed_tests": 165,
+  "live_llm_used": false,
+  "real_hardware_used": false,
+  "not_claimed": [
+    "precision",
+    "recall over all anomalies",
+    "F1",
+    "correct live model diagnosis"
+  ]
+}

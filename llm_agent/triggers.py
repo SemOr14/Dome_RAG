@@ -7,6 +7,8 @@
 from __future__ import annotations
 
 import json
+import math
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -45,6 +47,8 @@ def telemetry_age(snapshot: dict, stale_s: float) -> float | None:
 
 
 def _anomaly_kind(a: dict) -> str:
+    if a.get("kind"):
+        return a["kind"]
     note = a["note"]
     if "расходятся" in note:
         return "conflict"
@@ -57,11 +61,13 @@ def _anomaly_key(a: dict) -> str:
     # Значение входит в ключ только у состояний: TRIPPED → BLOCKED — новая ситуация, 3001 → 3005 ppm — нет
     value = a.get("value")
     state = value if isinstance(value, (str, bool)) else ""
+    if a.get("kind"):
+        return f"diagnostic|{a['node']}|{a.get('param') or ''}|{state}"
     return f"{a['node']}|{a.get('param') or ''}|{a['note']}|{state}"
 
 
 def _num(value: Any) -> float | None:
-    return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
+    return float(value) if type(value) in (int, float) and math.isfinite(value) else None
 
 
 class TelemetryWatch:
@@ -78,7 +84,9 @@ class TelemetryWatch:
         self.frame_stale = False
         self.progress: dict[str, tuple[float, float]] = {}  # node -> (progress_pct, с какого момента)
         self.stalled: set[str] = set()
-        self.done_progress: dict[str, float] = {}
+        self.done_progress: dict[str, tuple[str, str | None, float]] = {}
+        self.target_wait: dict[tuple[str, str], dict] = {}
+        self.target_active: set[tuple[str, str]] = set()
 
     @staticmethod
     def frame_mark(snapshot: dict) -> tuple:
@@ -94,12 +102,15 @@ class TelemetryWatch:
         current = {}
         for a in compact_telemetry(snapshot, catalog).anomalies:
             current.setdefault(_anomaly_key(a), a)
-        for key in current.keys() - self.active:
-            a = current[key]
+        for key, a in current.items():
+            if key in self.active:
+                continue
             value = a.get("value")
             where = f"{a['node']}.{a['param']}" if a.get("param") else a["node"]
-            nodes_hit = {a["node"]} | ({str(value)} if isinstance(value, str) and value.startswith("IL_") else set())
-            out.append(Trigger(_anomaly_kind(a), key, f"{where} = {value!r}: {a['note']}", nodes_hit))
+            nodes_hit = {a["node"]} | set(a.get("affected_nodes") or ()) | ({str(value)} if isinstance(value, str) and value.startswith("IL_") else set())
+            out.append(Trigger(_anomaly_kind(a), key, f"{where} = {value!r}: {a['note']}", nodes_hit,
+                               meta={"evidence": {"node": a['node'], "field": a.get('param'), "kind": _anomaly_kind(a)},
+                                     **({"affected_nodes": a['affected_nodes']} if a.get('affected_nodes') else {})}))
         self.active = set(current)
         numeric = self.numeric.observe(nodes, self.frame_mark(snapshot))
         numeric_keys = {f"numeric|{a['node']}|{a['field']}" for a in numeric}
@@ -107,12 +118,76 @@ class TelemetryWatch:
             key = f"numeric|{a['node']}|{a['field']}"
             if key not in self.numeric_active and not any(x['node'] == a['node'] and x.get('param') == a['field'] for x in current.values()):
                 # Статистика и рабочие пределы — гипотеза, а не авария: идёт после срочных поводов, как обзор
-                out.append(Trigger("numeric", key, f"{a['node']}.{a['field']}: {a['note']} (гипотеза для проверки)", {a['node']}))
+                kind = 'conflict' if a['kind'] in ('stuck', 'conflict') else 'numeric'
+                text = f"{a['node']}.{a['field']}={a['value']}: {a['note']} (гипотеза для проверки)"
+                out.append(Trigger(kind, key, text, {a['node']}, meta={'evidence': {'node':a['node'], 'field':a['field'], 'kind':a['kind']}}))
         self.numeric_active = numeric_keys
 
-        for node, running in JOB_NODES.items():
-            data = nodes.get(node) or {}
-            out += self._job(node, data, running, now)
+        for node, data in nodes.items():
+            if not isinstance(data, dict) or data.get('online') is False or data.get('status') == 'UNKNOWN':
+                self.progress.pop(node, None)
+                self.done_progress.pop(node, None)
+                for key in [k for k in self.target_wait if k[0] == node]:
+                    self.target_wait.pop(key, None)
+                    self.target_active.discard(key)
+                continue
+            if isinstance(data, dict) and ('progress_pct' in data or node in self.progress or node in self.done_progress):
+                running = JOB_NODES.get(node, ('PRINTING', 'RUNNING', 'PROCESSING', 'MOVING'))
+                out += self._job(node, data, running, now)
+            out += self._targets(node, data, self.frame_mark(snapshot), now)
+        return out
+
+    def _targets(self, node: str, data: dict, frame, now: float) -> list[Trigger]:
+        """No response to an active setpoint: unit-independent, with a startup grace period."""
+        out = []
+        live = set()
+        running = data.get('state') in ('RUNNING', 'PRINTING', 'PROCESSING', 'MOVING', 'ACTIVE', 'ON')
+        for field, raw in data.items():
+            match = re.fullmatch(r'(.+)_target_(.+)', field)
+            target = _num(raw)
+            if not match or target is None or target == 0 or not running:
+                continue
+            prefix, unit = match.groups()
+            actual_field = next((f for f in (f'{prefix}_{unit}', f'{prefix}_actual_{unit}', f'{prefix}_temp_{unit}')
+                                 if _num(data.get(f)) is not None), None)
+            if actual_field is None:
+                continue
+            actual = _num(data[actual_field])
+            tolerance = max(abs(target) * .2, .02)
+            if unit == 'c':
+                tolerance = max(10, abs(target) * .15)
+            error = abs(target - actual)
+            key = (node, actual_field)
+            if error <= tolerance:
+                continue
+            live.add(key)
+            mark = data.get('updated_at', frame)
+            regime = (target, data.get('state'), data.get('mode'), data.get('file_name'))
+            before = self.target_wait.get(key)
+            if (before is None or before['regime'] != regime
+                    or (mark != before['mark'] and now - before['last_seen'] > max(self.stale_s * 2, 120))):
+                self.target_wait[key] = dict(regime=regime, since=now, mark=mark, count=1,
+                                            best=error, last_seen=now)
+                self.target_active.discard(key)
+                continue
+            fresh_update = mark != before['mark']
+            if fresh_update:
+                before['count'] += 1
+                before['mark'] = mark
+                before['last_seen'] = now
+                if error < before['best'] - tolerance * .25:
+                    # A ramp that is converging to its target gets more settling time.
+                    before.update(best=error, since=now, count=1)
+                    self.target_active.discard(key)
+            if fresh_update and now - before['since'] >= self.stall_s and before['count'] >= 4 and key not in self.target_active:
+                self.target_active.add(key)
+                out.append(Trigger('conflict', f'tracking|{node}|{actual_field}',
+                    f'{node}: задано {field}={target:g}, но {actual_field}={actual:g} при {data.get("state")} '
+                    f'устойчиво расходится с уставкой {now - before["since"]:.0f} с по {before["count"]} новым измерениям; '
+                    'проверить режим, привод, датчик и эффект команды', {node}))
+        for key in [k for k in self.target_wait if k[0] == node and k not in live]:
+            self.target_wait.pop(key, None)
+            self.target_active.discard(key)
         return out
 
     def _frames(self, snapshot: dict, now: float) -> list[Trigger]:
@@ -134,11 +209,11 @@ class TelemetryWatch:
         # Завершение при продолжающемся росте прогресса — противоречие, а не готовое изделие
         if state in DONE_STATES and progress is not None:
             before = self.done_progress.get(node)
-            if before is not None and progress > before:
+            if before is not None and before[:2] == (state, data.get('file_name')) and progress > before[2]:
                 out.append(Trigger("conflict", f"{node}|done_but_progress",
-                                   f"{node}: состояние {state}, но progress_pct растёт ({before} → {progress}). "
-                                   "Не считать изделие готовым, проверить данные принтера", {node}))
-            self.done_progress[node] = progress
+                                   f"{node}: состояние {state}, но progress_pct растёт ({before[2]} → {progress}). "
+                                   "Не считать изделие готовым, проверить фактическое состояние устройства", {node}))
+            self.done_progress[node] = (state, data.get('file_name'), progress)
         else:
             self.done_progress.pop(node, None)
 

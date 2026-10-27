@@ -296,6 +296,7 @@ class Runner:
         msg = self.client.telemetry
         if not msg:
             return
+        source_events = self._source_events()
         now = self.clock()
         data = msg.get("data") or {}
         self.state.update(data, str(msg.get("role") or self.client.role), now)
@@ -359,7 +360,8 @@ class Runner:
                         return
                     await self.execute(intent, self.clock())
             self.brain.step(chat_new, current_result, algorithms=self._algorithm_lines(now),
-                handled_operator_ids=route.handled_message_ids | self._history_message_ids)
+                handled_operator_ids=route.handled_message_ids | self._history_message_ids,
+                **({'source_events': source_events} if source_events else {}))
         elif self.brain is not None:
             self.brain.mark_seen(chat_new)
         if self._incident_delivery is None or self._incident_delivery.done():
@@ -421,8 +423,10 @@ class Runner:
     async def _idle(self) -> None:
         """Нет новых кадров: модель продолжает следить за поводами (в т.ч. устаревание), данные не обновляем."""
         now = self.clock()
+        source_events = self._source_events()
         if self.client.connected and self.state.role == "team" and self.brain is not None and self.llm_enabled and self.brain.healthy:
-            self.brain.step([], lambda intent: self.execute(intent, self.clock()), algorithms=self._algorithm_lines(now))
+            self.brain.step([], lambda intent: self.execute(intent, self.clock()), algorithms=self._algorithm_lines(now),
+                            **({'source_events': source_events} if source_events else {}))
         classify_live(self.state, self.cfg, self.incidents, now)
         if self._incident_delivery is None or self._incident_delivery.done():
             self._incident_delivery = asyncio.create_task(self._deliver_incidents())
@@ -430,6 +434,13 @@ class Runner:
         if self.client.connected and now - self._last_observation >= self.cfg.runtime.observation_interval_s:
             self._last_observation = now
             self.log.write("observation", summary="телеметрия не приходит", metrics={"connected": True}, anomalies=["нет телеметрии"])
+
+    def _source_events(self) -> list[dict]:
+        queue = getattr(self.client, 'source_events', None)
+        events = []
+        while queue is not None and not queue.empty():
+            events.append(queue.get_nowait())
+        return events
 
     # ------------------------------------------------------------------ каталог и чат
 

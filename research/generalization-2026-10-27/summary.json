@@ -1,0 +1,17 @@
+{
+  "previous_numeric_warnings": 336,
+  "numeric_warnings_now": 321,
+  "before": {
+    "anomalies": 60,
+    "detected": 35,
+    "normal": 30,
+    "false_triggers": 5
+  },
+  "after": {
+    "anomalies": 60,
+    "detected": 60,
+    "normal": 30,
+    "false_triggers": 0
+  },
+  "scope": "12 synthetic failure families x 5 variants; not independent field recall. Detector triggers only, no live LLM."
+}

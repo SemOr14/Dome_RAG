@@ -114,6 +114,7 @@ class DomeClient:
         self.telemetry_seq = 0
         self.telemetry_event = asyncio.Event()
         self.chat: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
+        self.source_events: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
         self.catalog_message: dict[str, Any] | None = None
         self.connect_count = 0
         self._auth_error = ""
@@ -217,6 +218,8 @@ class DomeClient:
                 self.telemetry_event.set()
             elif kind == "meeting_message":
                 self.chat.put_nowait(msg)
+            elif kind in ("change", "state_change", "node_change", "automation"):
+                self.source_events.put_nowait(msg)
             elif kind == "meeting_cleared":
                 self._emit("meeting_cleared")
             elif kind == "session_revoked":

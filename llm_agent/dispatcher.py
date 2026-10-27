@@ -20,6 +20,8 @@ from .agent import DomeLLMAgent
 from .prompt_builder import _dome_time
 from .schemas import AgentResponse
 from .triggers import OperatorWatch, TelemetryWatch, Trigger, command_triggers, telemetry_age
+from .event_watch import EventWatch
+from .patterns import DiagnosticPatterns, MARK as PATTERNS_MARK, END_MARK as PATTERNS_END
 
 MAX_LISTED = 12  # поводов в тексте одного вызова; остальные — списком узлов
 
@@ -68,6 +70,8 @@ class Dispatcher:
         self.state_file = s.state_dir / "dispatcher_state.json"
         saved = self._load_state()
         self.telemetry = TelemetryWatch(s.trigger_stale_s, s.trigger_stall_s)
+        self.source_events = EventWatch()
+        self.patterns = DiagnosticPatterns(s.trigger_stale_s)
         self.operator = OperatorWatch(saved.get("operator_last_id", 0))
         self.pending: dict[str, _Pending] = {}
         self.fired_at: dict[str, float] = {}  # ключ ситуации -> когда по ней звали модель
@@ -117,7 +121,8 @@ class Dispatcher:
             self.finish(fired, self.decide(fired))
         return [fired]
 
-    def poll(self, chat: list[dict] | None = None, *, handled_operator_ids=None) -> Fired | None:
+    def poll(self, chat: list[dict] | None = None, *, handled_operator_ids=None,
+             source_events: list[dict] | None = None) -> Fired | None:
         """Собрать поводы; если пора звать модель — вернуть объединённый вызов (модель здесь не вызывается).
 
         chat — сообщения meeting_message.message, полученные вызывающим кодом напрямую из WebSocket.
@@ -125,6 +130,8 @@ class Dispatcher:
         now = self.clock()
         snapshot = self.agent.telemetry.latest()
         found = self.telemetry.observe(snapshot, self.agent.catalog.by_id, now)
+        found += self.source_events.from_snapshot(snapshot)
+        found += self.source_events.observe(source_events or [], snapshot)
         found += self.operator.from_snapshot(snapshot, handled_ids=handled_operator_ids)
         found += self.operator.messages(chat or [], handled_ids=handled_operator_ids)
         if self.feed is not None:
@@ -134,6 +141,7 @@ class Dispatcher:
                 print(f"события БД не прочитаны ({type(exc).__name__})", file=sys.stderr)
                 events = []
             found += command_triggers(events)
+            found += self.source_events.observe(events, snapshot)
             msgs = {}
             for ev in events:
                 if ev["event_type"] == "meeting_message" and isinstance(ev["payload"], dict):
@@ -147,6 +155,14 @@ class Dispatcher:
                 and not self.pending:
             found.append(Trigger("review", "review", "Плановый обзор: оцени состояние купола и риски на ближайшее "
                                                      "время. Если всё штатно — действий не нужно"))
+        active = self.telemetry.active | self.telemetry.numeric_active
+        active |= {f'tracking|{node}|{field}' for node, field in self.telemetry.target_active}
+        active |= {f"{node}|stall|{(snapshot.get('nodes', {}).get(node) or {}).get('file_name')}" for node in self.telemetry.stalled}
+        pattern_snapshot = dict(snapshot)
+        if self.telemetry.frame_stale and self.telemetry.frame_since is not None:
+            pattern_snapshot['telemetry_age_s'] = max(snapshot.get('telemetry_age_s') or 0, now - self.telemetry.frame_since)
+        for plan in self.patterns.observe(pattern_snapshot, found, active, self.agent.catalog.by_id, now):
+            self.agent.events.emit('diagnostic_pattern', plan)
         for trig in found:
             self._add(trig, now)
         self._save_state()
@@ -188,6 +204,10 @@ class Dispatcher:
     def _begin(self, batch: list[_Pending], snapshot: dict, now: float) -> Fired:
         triggers = [p.trigger for p in batch]
         text = self.compose(triggers)
+        plans = self.patterns.plans()
+        if plans:
+            text += '\n\n' + PATTERNS_MARK + ' (только проверка и наблюдения, не разрешение на управление):\n'
+            text += json.dumps(plans, ensure_ascii=False, default=str) + '\n' + PATTERNS_END
         kinds = sorted({t.kind for t in triggers})
         fired = Fired(triggers, text, nodes=set().union(*(t.nodes for t in triggers)),
                       purpose=f"диспетчер: {', '.join(kinds)}", snapshot=snapshot, batch=batch)

@@ -84,7 +84,8 @@ def test_alarms_coalesced_into_one_call_and_not_repeated(tmp_path):
     fired = d.tick()
     assert len(fired) == 1 and len(llm.calls) == 1
     kinds = {t.kind for t in fired[0].triggers}
-    assert kinds == {"alarm", "conflict"}
+    assert kinds == {"alarm", "conflict", "numeric"}
+    assert any("rx_power_dbm" in t.text for t in fired[0].triggers if t.kind == "numeric")
     assert "IL_CO2" in prompt_trigger(llm.calls[0]) and "расходятся" in prompt_trigger(llm.calls[0])
     assert fired[0].response.accepted_actions  # set_data_trust прошло локальную проверку
 
