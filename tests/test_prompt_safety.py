@@ -47,3 +47,10 @@ def test_limits_come_from_config():
     b.hard_rules = {**b.hard_rules, "limits": {**b.hard_rules["limits"], "max_state_changes_per_decision": 2}}
     system = b.build("x", {"nodes": {}, "timestamp": 1.0}, []).messages[0]["content"]
     assert "не более 2 команды" in system
+
+
+def test_request_human_scale_in_severity_does_not_drop_decision():
+    from llm_agent.schemas import AgentDecision
+    assert AgentDecision(situation="s", severity="yellow").severity == "warning"
+    assert AgentDecision(situation="s", severity="RED").severity == "critical"
+    assert AgentDecision(situation="s", severity="critical").severity == "critical"

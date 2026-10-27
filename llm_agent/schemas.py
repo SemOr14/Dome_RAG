@@ -89,6 +89,13 @@ class AgentDecision(BaseModel):
     rag_refs: list[str] = []
     risks: list[str] = []
 
+    @field_validator("severity", mode="before")
+    @classmethod
+    def _severity(cls, v: Any) -> str:
+        # Шкала request_human (yellow/red) в общей оценке — не повод отбросить всё решение
+        v = str(v or "").strip().lower()
+        return {"yellow": "warning", "red": "critical"}.get(v, v if v in ("info", "warning", "critical") else "warning")
+
     @field_validator("impact_kind", "authenticity", mode="before")
     @classmethod
     def _label(cls, v: Any, info: Any) -> str:

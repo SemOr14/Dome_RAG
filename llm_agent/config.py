@@ -49,7 +49,7 @@ class Settings:
     timeout_s: float = 30.0
     max_retries: int = 2
     temperature: float = 0.2
-    max_tokens: int = 2000
+    max_tokens: int = 4000
     prompt_dir: Path = field(default_factory=lambda: ROOT / "prompts")
     data_dir: Path = field(default_factory=lambda: ROOT / "data")
     journal_limit: int = 15
@@ -88,7 +88,7 @@ class Settings:
             timeout_s=float(os.getenv("LLM_TIMEOUT_S", "30")),
             max_retries=int(os.getenv("LLM_MAX_RETRIES", "2")),
             temperature=float(os.getenv("LLM_TEMPERATURE", "0.2")),
-            max_tokens=int(os.getenv("LLM_MAX_TOKENS", "2000")),
+            max_tokens=int(os.getenv("LLM_MAX_TOKENS", "4000")),
             prompt_dir=_path("PROMPT_TEMPLATE_DIR", "prompts"),
             data_dir=_path("DATA_DIR", "data"),
             journal_limit=int(os.getenv("PROMPT_JOURNAL_LIMIT", "15")),

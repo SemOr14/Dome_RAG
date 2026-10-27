@@ -66,6 +66,7 @@ class AuditMiddleware:
                 await self.app(scope, replay, capture)
             except Exception as exc:
                 failure = type(exc).__name__
+                import logging; logging.getLogger("data_api").exception("request failed")  # трассировка только в лог сервера
                 messages.clear()
                 await JSONResponse({"detail": "Internal server error"}, status_code=500)(
                     scope, replay, capture

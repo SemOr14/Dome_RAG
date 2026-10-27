@@ -55,7 +55,8 @@ async function refresh() {
   if(state.busy||state.exiting)return; state.busy=true;
   try {
     const runtime=await api('/control/status'); state.runtime=runtime;
-    if(!state.run)state.run=runtime.run_id;
+    if(!state.run||state.run===state.liveRun)state.run=runtime.run_id; // после перезапуска сервера остаёмся на текущем запуске
+    state.liveRun=runtime.run_id;
     const runs=await api('/v1/runs?limit=1000');
     if(!runs.items.some(x=>x.run_id===runtime.run_id))runs.items.unshift({run_id:runtime.run_id});
     selectOptions($('runSelect'),runs.items,x=>x.run_id,x=>x.run_id===runtime.run_id?'Текущий · '+x.run_id:x.run_id);
