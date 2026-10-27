@@ -1,5 +1,6 @@
 """Bounded chart history and analysis for every numeric field, isolated by run/source/session."""
 import math
+import re
 from collections import OrderedDict, deque
 from threading import Lock
 
@@ -81,7 +82,18 @@ class ChartFeed:
 
     @staticmethod
     def _result(series, monitor, key, run_id):
-        anomalies = {(a['node'], a['field']): a for a in monitor.active.values()}
+        # Элементы одного массива (fans_rpm[0..5]) — один жёлтый график: показываем первый и число затронутых
+        anomalies = {}
+        for a in sorted(monitor.active.values(), key=lambda x: (x['node'], x['field'])):
+            base = re.sub(r'\[\d+\]', '', a['field'])
+            group = [x for x in anomalies.values() if x['node'] == a['node'] and x.get('_base') == base]
+            if group:
+                group[0]['members'] += 1
+                continue
+            anomalies[(a['node'], a['field'])] = dict(a, _base=base, members=1)
+        for a in anomalies.values():
+            if a['members'] > 1:
+                a['note'] = f"{a['note']} (затронуто элементов: {a['members']})"
         defaults = {(n, f) for n, f, _, _ in DEFAULT_CHARTS}
         specs = [(*k, f'{k[0]} · {k[1]}', '') for k in sorted(anomalies) if k not in defaults] + DEFAULT_CHARTS
         items = [{'node': n, 'field': f, 'title': title, 'unit': unit, 'points': list(series.get((n, f), [])),

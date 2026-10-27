@@ -56,3 +56,25 @@ def test_tracking_timeout_cannot_confirm_from_a_frozen_last_sample():
         snapshot = {'timestamp':stamp,'nodes':{'axis':{'state':'RUNNING','axis_target_rpm':1000,'axis_rpm':500,'updated_at':stamp}}}
         watch.observe(snapshot, {}, stamp)
     assert not any(t.key.startswith('tracking|') for t in watch.observe(snapshot, {}, 180))
+
+
+def test_array_elements_are_one_trigger_and_repeats_are_quiet():
+    from llm_agent.triggers import REPEAT_QUIET_S, TelemetryWatch
+
+    def frame(t, rpm):
+        return {"timestamp": t, "observed_at": t, "nodes": {"fan_box_01": {"online": True, "updated_at": t, "fans_rpm": rpm}}}
+
+    watch = TelemetryWatch(stale_s=30, stall_s=300)
+    now, t = 0.0, 1000.0
+    for _ in range(15):
+        watch.observe(frame(t, [1200.0] * 6), {}, now)
+        now, t = now + 60, t + 60
+    first = [x for x in watch.observe(frame(t, [None] * 6), {}, now) if x.kind in ("numeric", "conflict")]
+    assert len(first) == 1  # шесть элементов массива — один повод
+    now, t = now + 60, t + 60
+    watch.observe(frame(t, [1200.0] * 6), {}, now)
+    for _ in range(4):  # условие снялось и вернулось
+        now, t = now + 60, t + 60
+        watch.observe(frame(t, [1200.0] * 6), {}, now)
+    again = [x for x in watch.observe(frame(t + 60, [None] * 6), {}, now + 60) if x.kind in ("numeric", "conflict")]
+    assert again == [] and now < REPEAT_QUIET_S  # повтор в пределах паузы не отдаётся модели

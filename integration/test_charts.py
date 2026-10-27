@@ -72,3 +72,14 @@ def test_charts_do_not_classify_impacts_in_code(tmp_path):
         data = client.get('/control/charts?run_id=run').json()
         assert 'impacts' not in data
         assert {(c['node'], c['field']) for c in data['items'] if c['anomaly']} == {('climate_sensor_01', 'co2_ppm')}
+
+
+def test_array_anomalies_collapse_into_one_chart():
+    from integration.charts import ChartFeed
+    from llm_agent.monitoring import NumericMonitor
+    monitor = NumericMonitor()
+    monitor.active = {("box", f"fans_rpm[{i}]"): {"node": "box", "field": f"fans_rpm[{i}]", "value": None, "note": "нет", "kind": "missing", "frame": 1}
+                      for i in range(6)}
+    result = ChartFeed._result({}, monitor, None, "run")
+    flagged = [i for i in result["items"] if i["anomaly"]]
+    assert len(flagged) == 1 and "элементов: 6" in flagged[0]["anomaly"]["note"]
