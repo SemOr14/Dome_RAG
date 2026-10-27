@@ -70,6 +70,10 @@ def _num(value: Any) -> float | None:
     return float(value) if type(value) in (int, float) and math.isfinite(value) else None
 
 
+REPEAT_QUIET_S = 1800.0  # повтор того же несрочного повода раньше этого срока не отдаётся модели
+QUIET_KINDS = ('numeric', 'conflict')
+
+
 class TelemetryWatch:
     """Смены телеметрии между кадрами: новые аномалии, противоречия, застывшие операции и кадры."""
 
@@ -87,6 +91,7 @@ class TelemetryWatch:
         self.done_progress: dict[str, tuple[str, str | None, float]] = {}
         self.target_wait: dict[tuple[str, str], dict] = {}
         self.target_active: set[tuple[str, str]] = set()
+        self.last_emitted: dict[str, float] = {}
 
     @staticmethod
     def frame_mark(snapshot: dict) -> tuple:
@@ -113,13 +118,15 @@ class TelemetryWatch:
                                      **({"affected_nodes": a['affected_nodes']} if a.get('affected_nodes') else {})}))
         self.active = set(current)
         numeric = self.numeric.observe(nodes, self.frame_mark(snapshot))
-        numeric_keys = {f"numeric|{a['node']}|{a['field']}" for a in numeric}
+        numeric_keys = {f"numeric|{a['node']}|{re.sub(r'\[\d+\]', '', a['field'])}" for a in numeric}
+        flagged = set()
         for a in numeric:
-            key = f"numeric|{a['node']}|{a['field']}"
-            if key not in self.numeric_active and not any(x['node'] == a['node'] and x.get('param') == a['field'] for x in current.values()):
+            key = f"numeric|{a['node']}|{re.sub(r'\[\d+\]', '', a['field'])}"
+            if key not in self.numeric_active and key not in flagged and not any(x['node'] == a['node'] and x.get('param') == a['field'] for x in current.values()):
                 # Статистика и рабочие пределы — гипотеза, а не авария: идёт после срочных поводов, как обзор
                 kind = 'conflict' if a['kind'] in ('stuck', 'conflict') else 'numeric'
                 text = f"{a['node']}.{a['field']}={a['value']}: {a['note']} (гипотеза для проверки)"
+                flagged.add(key)  # элементы одного массива (fans_rpm[0..5]) — один повод
                 out.append(Trigger(kind, key, text, {a['node']}, meta={'evidence': {'node':a['node'], 'field':a['field'], 'kind':a['kind']}}))
         self.numeric_active = numeric_keys
 
@@ -135,6 +142,21 @@ class TelemetryWatch:
                 running = JOB_NODES.get(node, ('PRINTING', 'RUNNING', 'PROCESSING', 'MOVING'))
                 out += self._job(node, data, running, now)
             out += self._targets(node, data, self.frame_mark(snapshot), now)
+        return self._quiet(out, now)
+
+    def _quiet(self, triggers: list[Trigger], now: float) -> list[Trigger]:
+        """Несрочный повод (числовая гипотеза, расхождение) с тем же ключом не повторяется чаще REPEAT_QUIET_S.
+
+        Аварии, операции, устаревшие данные и всё остальное проходят без задержки.
+        """
+        out = []
+        for t in triggers:
+            if t.kind in QUIET_KINDS:
+                last = self.last_emitted.get(t.key)
+                if last is not None and 0 <= now - last < REPEAT_QUIET_S:
+                    continue
+                self.last_emitted[t.key] = now
+            out.append(t)
         return out
 
     def _targets(self, node: str, data: dict, frame, now: float) -> list[Trigger]:
