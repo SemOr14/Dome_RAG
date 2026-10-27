@@ -27,6 +27,17 @@ payload={model,raw_response,parsed_output,usage,error}. Один run_id/session_
 разные event_id. Секреты не включать в промпт; сохранять весь ответ, включая ошибочный JSON.
 Номер запроса передавать с исходным JSON-типом.
 
+## Прогнозы и подозрения агента
+
+Два дополнительных типа событий source=agent, direction=internal (агентная система, `agent/src/kupol/dome/`):
+
+- `forecast` — раз в минуту: `payload={items:[{id,label,node_id,param,unit,now,trend,rate_per_h,fit,reaches:[{threshold,name,eta_h}],by_power}],dome_time,basis}`.
+  Время до порога (заряд АКБ до 25 % и до 0, топливо, температура, CO2, влажность) в часах реального времени по линейному
+  тренду; для АКБ ещё оценка по мощности разряда (`by_power`). Это экстраполяция, а не измерение.
+- `agent_suspicion` — подозрительное наблюдение «на будущее», не более одного за решение модели:
+  `payload={id,text,node_id,param,why,check,status,dome_time,decision_id}`. Те же записи хранятся в `state/suspicions.jsonl`,
+  возвращаются модели в промпте (24 часа) и не создают команд в Купол.
+
 ## Структура результата
 
 Рекомендуемый payload события source=agent, direction=internal, event_type=decision:

@@ -28,6 +28,8 @@ from kupol.dome.agentlog import AgentLog
 from kupol.dome.datalog import DataApiRecorder
 from kupol.dome.env import Settings
 from kupol.dome.expects import expect_for
+from kupol.dome.forecast import forecast_lines
+from kupol.dome.suspicions import SuspicionStore
 from kupol.dome.playbooks.base import Intent, Step
 from kupol.dome.state import DomeState
 from kupol.dome.control import DECISION_POLICY_EPOCH
@@ -78,16 +80,20 @@ Execute = Callable[[Intent], Awaitable[None]]
 class StateTelemetry:
     """Снимок для промпта из ``DomeState`` рантайма; ``timestamp`` — время кадра Купола."""
 
-    def __init__(self, state: DomeState, frame: Callable[[], dict[str, Any] | None], clock: Callable[[], float] = time.time) -> None:
+    def __init__(self, state: DomeState, frame: Callable[[], dict[str, Any] | None], clock: Callable[[], float] = time.time,
+                 suspicions: Callable[[], list[dict[str, Any]]] | None = None) -> None:
         self.state = state
         self.frame = frame
         self.clock = clock
+        self.suspicions = suspicions  # открытые подозрения, записанные моделью раньше
 
     def latest(self) -> dict[str, Any]:
         msg = self.frame() or {}
         observed = datetime.fromtimestamp(self.state.wall, timezone.utc).isoformat() if self.state.wall else None
         return {"timestamp": msg.get("timestamp"), "game_time": dict(self.state.game_time or {}),
                 "nodes": dict(self.state.nodes), "observed_at": observed,
+                "forecasts": forecast_lines(self.state.forecaster.compute(self.state.nodes)),
+                "suspicions": self.suspicions() if self.suspicions else [],
                 "telemetry_age_s": max(0.0, self.clock() - self.state.wall) if self.state.wall else None}
 
     def history(self, node_id: str, param: str, limit: int = 20) -> list[dict[str, Any]]:
@@ -254,8 +260,9 @@ class LlmBrain:
         if settings.data_api_url and recorder is not None and recorder.run_id and s.data_api_check_controls:
             client = data_client or DataApiClient(settings.data_api_url, settings.data_api_token or None, s.data_api_timeout_s)
             checker = _SessionChecker(ApiControlChecker(client, recorder.run_id, ""), session)
+        self.suspicions = SuspicionStore(Path(settings.state_dir) / "suspicions.jsonl", clock)
         self.agent = DomeLLMAgent(
-            s, StateTelemetry(state, frame, clock), self.journal, _Catalog([]), retriever=make_retriever(s), llm=llm,
+            s, StateTelemetry(state, frame, clock, self.suspicions.open), self.journal, _Catalog([]), retriever=make_retriever(s), llm=llm,
             events=_Sink(recorder, session, self.journal, lambda: self.policy), control_checker=checker,
         )  # fmt: skip
         self.dispatcher = Dispatcher(self.agent, clock=clock)
@@ -265,7 +272,7 @@ class LlmBrain:
         self.down_until = 0.0
         self.calls = 0
         self.policy: Any = None  # рантайм подставляет ControlPolicy
-        self.no_effect_cooldown_s = 120.0  # рантайм подставляет policy.no_effect_cooldown_s
+        self.no_effect_cooldown_s = 60.0  # рантайм подставляет policy.no_effect_cooldown_s
         self._actions: dict[int, dict[str, Any]] = {}  # seq записи action → запись (для поводов по verification)
         self._timed_out: set[int] = set()
         self._feedback_cases: dict[Any, Trigger] = {}
@@ -434,6 +441,7 @@ class LlmBrain:
                 self.log.write("error", where="llm_brain", error=f"модель не отвечает {FAILURES_TO_FALLBACK} раза подряд: решения на плейбуках {FALLBACK_S:.0f} с")
             return
         self.failures = 0
+        self._note_suspicion(response)
         try:
             intent = to_intent(response, fired, self.settings.trigger_stale_s)
             if intent.steps:
@@ -450,6 +458,17 @@ class LlmBrain:
             for trigger in fired.triggers:
                 if trigger.kind != 'verification' and (trigger.meta.get('pipeline_feedback') or trigger.meta.get('playbook')):
                     self.on_human(trigger)
+
+    def _note_suspicion(self, response: AgentResponse) -> None:
+        """Подозрительное наблюдение «на будущее»: в память агента, лог и БД. Не более одного за решение."""
+        suspicion = response.decision.suspicion if response.decision else None
+        if suspicion is None:
+            return
+        item = self.suspicions.add(suspicion.model_dump(exclude_none=True), dome_time=self.log.dome_time, decision_id=response.decision_id)
+        if item is None:
+            return
+        self.log.write("observation", summary=f"Подозрение: {item['text']}"[:300], metrics={}, anomalies=[item["text"]], suspicion=item)
+        self.agent.events.emit("agent_suspicion", item, node_id=item.get("node_id"), metadata={"decision_id": response.decision_id})
 
     async def close(self) -> None:
         if self.task is not None and not self.task.done():

@@ -62,6 +62,15 @@ class HumanEscalation(BaseModel):
     required_action: str = Field(min_length=1, max_length=1200)
 
 
+class Suspicion(BaseModel):
+    """Подозрительное наблюдение «на будущее»: не повод действовать сейчас, а то, к чему стоит вернуться."""
+    text: str = Field(min_length=1, max_length=500)
+    node_id: str | None = Field(None, max_length=200)
+    param: str | None = Field(None, max_length=200)
+    why: str = Field("", max_length=500, description="почему это подозрительно")
+    check: str = Field("", max_length=300, description="что проверить позже, чтобы подтвердить или снять подозрение")
+
+
 class AgentDecision(BaseModel):
     situation: str
     cause: str = ""
@@ -75,6 +84,7 @@ class AgentDecision(BaseModel):
     actions: list[ProposedAction] = []
     operator_message: OperatorMessage = OperatorMessage()
     request_human: HumanEscalation | None = None
+    suspicion: Suspicion | None = None  # не более одного за решение
     wait_and_watch: list[str] = []
     rag_refs: list[str] = []
     risks: list[str] = []
@@ -86,6 +96,18 @@ class AgentDecision(BaseModel):
         allowed = ("base", "hidden", "cascade", "false") if info.field_name == "impact_kind" else ("real", "suspected_false")
         v = str(v or "").strip().lower()
         return v if v in allowed else "unknown"
+
+    @field_validator("suspicion", mode="before")
+    @classmethod
+    def _one_suspicion(cls, v: Any) -> Any:
+        # Не более одного за решение; пустое или негодное подозрение не должно ронять всё решение
+        if isinstance(v, (list, tuple)):
+            v = v[0] if v else None
+        if isinstance(v, str):
+            v = {"text": v}
+        if not isinstance(v, dict):
+            return None
+        return v if str(v.get("text") or "").strip() else None
 
     @field_validator("causal_chain", mode="before")
     @classmethod
@@ -155,6 +177,7 @@ def output_schema_example() -> dict:
                              "request_status": "только на требование Оператора: answered | executing | already_done | "
                                                "partial | refused; иначе пусто"},
         "request_human": None,
+        "suspicion": None,  # или {"text": "что подозрительно", "node_id": "...", "param": "...", "why": "...", "check": "что проверить позже"}
         "wait_and_watch": ["что отслеживать дальше"],
         "rag_refs": ["id использованных документов базы знаний"],
         "risks": ["что может пойти не так"],
