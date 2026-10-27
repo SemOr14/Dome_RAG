@@ -1,5 +1,6 @@
 """Read-only preflight, shared by operator and agent commands. Never sends commands."""
 
+import os
 from datetime import datetime
 
 from .codec import dumps
@@ -180,7 +181,7 @@ def preflight(store, conn, event, now):
 
     state = state_for(node)
     if not reasons:
-        _state_rules(node, canonical, value, state, state_for, reject)
+        _state_rules(node, canonical, value, state, state_for, reject, who)
 
     # Check global/session limits against commands already recorded, not against validation calls.
     recent = store.recent_outbound(conn, event, seconds=120, now=now)
@@ -220,7 +221,7 @@ def preflight(store, conn, event, now):
     return result()
 
 
-def _state_rules(node, action, value, state, state_for, reject):
+def _state_rules(node, action, value, state, state_for, reject, who=None):
     if node == "solar_panels_01" and action in ("enable_mppt", "disable_mppt"):
         count = state.get("channels_count")
         if type(count) is not int or value > count:
@@ -268,7 +269,9 @@ def _state_rules(node, action, value, state, state_for, reject):
         if action == "delete_file" and state.get("file_name") == value:
             reject("file_in_use")
         if action in ("move", "set_zero", "probe_z"):
-            if state.get("state") != "IDLE" or state.get("homed") is not True:
+            # service: человек сам отвечает за привязку (реальные станки не сообщают homed)
+            manual = who == "operator" and os.getenv("DEPLOYMENT_PROFILE") == "service"
+            if state.get("state") != "IDLE" or (state.get("homed") is not True and not manual):
                 reject("machine_not_idle_or_homed")
         if action == "upload_file" and len(value["content"].encode("utf-8")) > 16 * 1024 * 1024:
             reject("file_too_large")

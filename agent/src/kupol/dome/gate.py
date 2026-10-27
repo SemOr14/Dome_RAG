@@ -577,7 +577,8 @@ class Gate:
                 return 'Автоматическое восстановление принтера принадлежит серверному supervisor'
             return self._resume_reason(node, prepared=any(p.cmd is cmd for p in self.pending))
         if node in MACHINES and canonical == "start_job":
-            return self._start_job_reason(node, value)
+            manual = cmd.actor == 'operator' and self.policy is not None and self.policy.profile == 'service'
+            return self._start_job_reason(node, value, require_homed=not manual)
         if node == "thermal_insulation_01" and canonical == "set_lock":
             if isinstance(value, dict) and value.get("locked") is False:
                 if not measurement_usable(st, "printer_3d_01"):
@@ -645,7 +646,7 @@ class Gate:
             return "сервер уже насчитал 2 попытки resume: третья даст ALARM на 20 минут"
         return None
 
-    def _start_job_reason(self, node: str, value: Any) -> str | None:
+    def _start_job_reason(self, node: str, value: Any, require_homed: bool = True) -> str | None:
         st = self._state
         name = value.get("file_name") if isinstance(value, dict) else value
         if not isinstance(name, str) or not name:
@@ -658,7 +659,7 @@ class Gate:
         state = str(st.get(f"{node}.state", "")).upper()
         if state not in ("IDLE", "COMPLETED"):
             return f"станок занят (state = {state})"
-        if st.get(f"{node}.homed") is not True:
+        if require_homed and st.get(f"{node}.homed") is not True:  # реальный принтер может не сообщать homed; человек в service решает сам
             return "координаты станка неизвестны: сначала разрешённая процедура home и проверка"
         if node == "printer_3d_01" and st.get("printer_3d_01.bed_clear") is not True:
             return "стол принтера занят деталью (bed_clear != true): будет BED_COLLISION"
