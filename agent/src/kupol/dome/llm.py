@@ -1,6 +1,7 @@
 """Советник на DeepSeek: диагностика непонятных ситуаций и ответы Оператору. Только DeepSeek, строгий JSON.
 
-Правила безопасности остаются в коде: модель ничего не отправляет в купол. Её ответ — гипотеза и
+Модель обязана соблюдать общую политику безопасности; код дополнительно ограничивает исполнение.
+Советник ничего не отправляет в купол. Её ответ — гипотеза и
 текст; команды выбирают плейбуки. Любой сбой (таймаут, лимит, плохой JSON) — это просто «нет
 подсказки», агент продолжает на правилах. Каждый вызов пишется в лог (``llm_call``).
 """
@@ -12,6 +13,7 @@ import re
 import threading
 import time
 from collections import deque
+from pathlib import Path
 from typing import Any, ClassVar, TypeVar
 
 import httpx
@@ -69,8 +71,10 @@ updated_at и reading_delay_s: задержанные резервы не опр
 resume без снятия причины и сохранённого задания или новый start_job вслепую после потери питания.
 Состояние ручного подтверждения не может присваиваться моделью. При нехватке доказательств
 явно укажи неопределённость и недостающую проверку; не утверждай, что восстановление уже выполнено."""
-SYSTEM_DIAGNOSE += EVIDENCE_POLICY
-SYSTEM_REPLY += EVIDENCE_POLICY
+# Same mandatory policy as the main model prompt; fail closed if deployment omitted it.
+SAFETY_POLICY = (Path(__file__).resolve().parents[4] / 'prompts' / 'safety.md.j2').read_text(encoding='utf-8')
+SYSTEM_DIAGNOSE = SAFETY_POLICY + SYSTEM_DIAGNOSE + EVIDENCE_POLICY
+SYSTEM_REPLY = SAFETY_POLICY + SYSTEM_REPLY + EVIDENCE_POLICY
 
 
 def _trim(text: str) -> str:

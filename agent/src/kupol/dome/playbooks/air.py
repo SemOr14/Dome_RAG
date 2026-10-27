@@ -1,9 +1,8 @@
 """Воздух: ложный и настоящий CO₂ (``IL_CO2``), ложный и настоящий конденсат (``IL_CONDENSATE``).
 
-Главная идея: интерлок срабатывает через 60 с после начала условия (``pending_s``), поэтому ложный
-выброс основного датчика надо опередить — пометить его недостоверным и сменить основной датчик, пока
-станки ещё не встали. Если интерлок всё же сработал — снять его после проверки и продолжить станки
-(это делает ``ResumePlaybook``). Настоящий рост на нескольких датчиках не «лечим» сбросами.
+Исключение источника требует свежих сопоставимых независимых подтверждений и разрешённых
+действий. Снятие интерлока — отдельное решение после проверки безопасных условий. При
+неизвестной независимости сохранить защиту и запросить диагностику.
 """
 
 from __future__ import annotations
@@ -11,7 +10,8 @@ from __future__ import annotations
 import statistics
 from typing import Any
 
-from kupol.dome.checks import SENSORS, assess_co2, assess_condensate, is_untrusted
+from kupol.dome.checks import (SENSORS, assess_co2, assess_condensate, is_untrusted,
+                               co2_recovery_safe, condensate_recovery_safe)
 from kupol.dome.gate import Expect
 from kupol.dome.playbooks.base import Ctx, Intent, Playbook, Step, interlock_pending_s, interlock_state, trust_step
 from kupol.dome.state import DomeState
@@ -107,7 +107,7 @@ class Co2Playbook(Playbook):
 
         if il == "TRIPPED":
             live = {s: v for s, v in a.values.items() if s not in a.untrusted}
-            if len(live) >= 2 and primary in live and max(live.values()) < c.recovered_ppm:
+            if co2_recovery_safe(st, cfg):
                 out.append(
                     Intent(
                         key="co2:reset_interlock",
@@ -165,32 +165,9 @@ class Co2Playbook(Playbook):
         ]
 
     def _restore_trust(self, ctx: Ctx, a: Any) -> list[Intent]:
-        """Вернуть доверие датчику, который устойчиво согласуется с остальными."""
-        agree = ctx.mem.setdefault("agree_since", {})
-        out: list[Intent] = []
-        for s in sorted(a.untrusted):
-            v, ref = a.values.get(s), a.reference
-            if v is None or ref is None or s in a.spikes or abs(v - ref) > ctx.cfg.checks.co2.agree_diff_ppm:
-                agree.pop(s, None)
-                continue
-            since = agree.setdefault(s, ctx.now)
-            if ctx.now - since >= ctx.cfg.checks.co2.trust_back_s:
-                out.append(
-                    Intent(
-                        key=f"co2:trust_back:{s}",
-                        situation=f"{s} согласуется с остальными уже {ctx.now - since:.0f} с ({v:.0f} против {ref:.0f} ppm)",
-                        cause="сбой датчика прошёл",
-                        confidence=0.8,
-                        evidence=[_ev(s, v).as_log()],
-                        plan=["вернуть доверие датчику"],
-                        steps=[trust_step(s, "co2_ppm", "TRUSTED")],
-                        priority=6,
-                    )
-                )
-        for s in list(agree):
-            if s not in a.untrusted:
-                agree.pop(s, None)
-        return out
+        # A stable value is useful evidence for inspection, not proof of a repaired sensor.
+        # The present API has no repair/acceptance record for critical source reinstatement.
+        return []
 
 
 def _ev(sensor: str, value: float) -> Any:
@@ -239,7 +216,7 @@ class CondensatePlaybook(Playbook):
                 )
         if il == "TRIPPED":
             live_hot = [s for s in a.rh if a.trigger(s, cfg.condensate.rh_interlock_pct, cfg.condensate.dew_gap_c) and not is_untrusted(st, s, "humidity_pct")]
-            if not live_hot and a.rh:
+            if condensate_recovery_safe(st, cfg):
                 out.append(
                     Intent(
                         key="condensate:reset_interlock",

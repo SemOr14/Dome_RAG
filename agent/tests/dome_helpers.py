@@ -93,6 +93,7 @@ def synchronous_snapshot(name: str = "quiet") -> dict[str, Any]:
     msg = snapshot(name)
     for node in ("climate_sensor_01", "climate_sensor_02", "climate_sensor_03"):
         msg["data"]["nodes"][node]["reading_delay_s"] = 0
+        msg["data"]["nodes"][node]["failure_domain"] = f"synthetic-domain:{node}"
     return msg
 
 

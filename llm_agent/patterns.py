@@ -111,18 +111,22 @@ class DiagnosticPatterns:
                 self.cases[key] = c
             self.cases.move_to_end(key)
             c.trigger_keys.add(t.key)
-            if c.status in ('recovering', 'recovered'):
+            if c.status in ('recovering', 'stabilized'):
                 c.flaps += 1
             c.status, c.healthy = 'observing', 0
             touched.add(key)
         transitions = []
-        blocked = {n for c in self.cases.values() if c.status != 'recovered' and c.pattern in ('sensor_conflict', 'source_missing', 'device_fault', 'common_failure') for n in c.nodes}
+        trust = {k: str(v).upper() for b in nodes.values() if isinstance(b, dict)
+                 and isinstance(b.get('data_trust'), dict) for k, v in b['data_trust'].items()}
+        blocked = {n for c in self.cases.values() if c.status != 'stabilized' and c.pattern in ('sensor_conflict', 'source_missing', 'device_fault', 'common_failure') for n in c.nodes}
         for key, c in list(self.cases.items()):
-            if c.status == 'recovered' and key not in touched and not c.trigger_keys & active:
+            if c.status == 'stabilized' and key not in touched and not c.trigger_keys & active:
                 continue
             mark = tuple((n, (nodes.get(n) or {}).get('updated_at', snapshot.get('observed_at', snapshot.get('timestamp')))) for n in sorted(c.nodes))
             available = all(n in nodes and self._healthy(n, nodes[n], newest, nodes)
-                            and all(number(dict(leaves(nodes[n])).get(f)) is not None for f in c.fields[n]) for n in c.nodes)
+                            and all(number(dict(leaves(nodes[n])).get(f)) is not None
+                                    and trust.get(f'{n}.{f}', trust.get(f'{n}.*', 'TRUSTED')) == 'TRUSTED'
+                                    for f in c.fields[n]) for n in c.nodes)
             if key in touched or c.trigger_keys & active:
                 c.healthy = 0
                 c.recovery_marks = mark
@@ -130,7 +134,7 @@ class DiagnosticPatterns:
             elif available and (c.recovery_marks is None or all(a != b for a, b in zip(mark, c.recovery_marks))):
                 c.healthy += 1
                 c.recovery_marks = mark
-                c.status = 'recovered' if c.healthy >= min(6, 3 + c.flaps) and (not c.selected or now - c.selected_at >= min(600, self.hold_s * (1 + c.flaps))) else 'recovering'
+                c.status = 'stabilized' if c.healthy >= min(6, 3 + c.flaps) and (not c.selected or now - c.selected_at >= min(600, self.hold_s * (1 + c.flaps))) else 'recovering'
             elif not available:
                 c.status = 'observing'
                 c.healthy = 0
@@ -146,7 +150,7 @@ class DiagnosticPatterns:
             if chosen is None and alternatives:
                 chosen = alternatives[0]
                 c.selected_at = now
-            if c.status == 'recovered' and now - c.selected_at >= min(600, self.hold_s * (1 + c.flaps)):
+            if c.status == 'stabilized' and now - c.selected_at >= min(600, self.hold_s * (1 + c.flaps)):
                 chosen = None
             c.selected = chosen or {}
             c.plan = dict(case_id=key, pattern=c.pattern, status=c.status,
@@ -154,9 +158,10 @@ class DiagnosticPatterns:
                 (['Повторные сбои: удерживать резерв дольше, проверить общую причину нестабильности; не повторять сбросы вслепую'] if c.flaps >= 2 else []),
                 alternatives=alternatives[:8], selected_observation=copy.deepcopy(c.selected) or None,
                 uncovered_fields={n:[f for f in c.fields[n] if not any(a['field']==f for a in alternatives)] for n in c.nodes},
-                source_use='analysis_only',
+                source_use='analysis_only', incident_closed=False, root_cause_status='unverified',
+                residual_risks=['Стабилизация измерений не подтверждает устранение физического дефекта'],
                 escalation='Запросить человека, если нет независимого подтверждения, наблюдаемости или допустимого проверяемого действия',
-                recovery='Три новых здоровых обновления своего источника; возврат с резерва после периода удержания')
+                recovery='Не менее трёх новых здоровых обновлений подтверждают лишь стабилизацию наблюдений; закрытие инцидента требует отдельной проверки причины, зависимостей, остаточных рисков и последующих действий')
             if old != (c.status, c.selected.get('node'), c.selected.get('field')):
                 transitions.append(copy.deepcopy(c.plan))
         while len(self.cases) > self.capacity:
@@ -237,5 +242,5 @@ class DiagnosticPatterns:
 
     def plans(self):
         priorities = {'common_failure':0, 'command_uncertain':1, 'source_missing':2, 'actuator_mismatch':3}
-        cases = sorted((c for c in self.cases.values() if c.status != 'recovered'), key=lambda c:priorities.get(c.pattern, 4))
+        cases = sorted((c for c in self.cases.values() if c.status != 'stabilized'), key=lambda c:priorities.get(c.pattern, 4))
         return copy.deepcopy([c.plan for c in cases][:4])

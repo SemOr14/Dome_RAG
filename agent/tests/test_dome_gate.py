@@ -138,9 +138,9 @@ def test_verification_ok_and_failure_with_cooldown(rig: Rig) -> None:
     assert len(done) == 1
     ver = rig.records("verification")[-1]
     assert ver["ok"] is False and ver["ref"] == r.action_seq and "OFF" in ver["expected"]
-    assert "не дала эффекта" in rig.go("smart_panel_01", "line_off", 8).reason
+    assert "диагностика" in rig.go("smart_panel_01", "line_off", 8).reason
     rig.t += 130  # пауза после «нет эффекта» прошла
-    assert rig.go("smart_panel_01", "line_off", 8).ok  # запрет повтора снят, окно дребезга тоже прошло
+    assert rig.go("smart_panel_01", "line_off", 8).status == "rejected"  # истечение таймера не даёт допуска
 
 
 def test_verification_success_when_state_changes(rig: Rig) -> None:
@@ -165,14 +165,14 @@ def test_no_fresh_frame_means_unverified_not_confirmed(rig: Rig) -> None:
     ver = rig.records("verification")[-1]
     assert ver["ok"] is False and ver["no_data"] is True and ver["ref"] == r.action_seq
     assert rig.gate.stats["unverified"] == 1 and rig.gate.stats["no_effect"] == 0
-    assert not rig.gate.recently_failed(Cmd("smart_panel_01", "line_off", 8).key)  # отсутствие эффекта не доказано
+    assert rig.go("smart_panel_01", "line_off", 8).status == "rejected"  # неизвестный итог требует диагностики
 
 
 def test_timeout_leaves_command_pending_not_repeated(rig: Rig) -> None:
     rig.reply = RequestTimeout("нет ответа")
-    r = rig.go("smart_panel_01", "line_off", 7, expect=Expect.equals("smart_panel_01.lines[6].state", "OFF"))
+    r = rig.go("smart_panel_01", "line_off", 8, expect=Expect.equals("smart_panel_01.lines[7].state", "OFF"))
     assert r.status == "ambiguous" and rig.gate.is_pending("smart_panel_01", "line_off")  # ответа нет: итог неизвестен
-    assert "ожидает проверки" in rig.go("smart_panel_01", "line_off", 7).reason
+    assert "ожидает проверки" in rig.go("smart_panel_01", "line_off", 8).reason
 
 
 def test_server_error_is_logged_as_failed(rig: Rig) -> None:
@@ -208,6 +208,8 @@ def test_resume_refused_while_interlock_tripped_and_allowed_after(tmp_path: Path
     rig = Rig(tmp_path, state_from("co2_tripped"))
     assert "IL_CO2" in rig.go("cnc_01", "resume").reason
     set_path(rig.state, "dome_automation_01.interlocks.IL_CO2.state", "ARMED")
+    set_path(rig.state, "dome_automation_01.data_trust", {"climate_sensor_01.co2_ppm": "UNRELIABLE"})
+    set_path(rig.state, "dome_automation_01.primary_co2_sensor", "climate_sensor_02")
     assert rig.go("cnc_01", "resume").status == "sent"
     rig.t += 5
     assert "supervisor" in rig.go("printer_3d_01", "resume").reason  # принтер возобновляет только серверный supervisor
@@ -216,6 +218,8 @@ def test_resume_refused_while_interlock_tripped_and_allowed_after(tmp_path: Path
 def test_resume_one_attempt_per_cause(tmp_path: Path) -> None:
     rig = Rig(tmp_path, state_from("co2_tripped"))
     set_path(rig.state, "dome_automation_01.interlocks.IL_CO2.state", "ARMED")
+    set_path(rig.state, "dome_automation_01.data_trust", {"climate_sensor_01.co2_ppm": "UNRELIABLE"})
+    set_path(rig.state, "dome_automation_01.primary_co2_sensor", "climate_sensor_02")
     assert rig.go("cnc_01", "resume").ok
     rig.t += 60
     r = rig.go("cnc_01", "resume")
@@ -239,6 +243,8 @@ def test_resume_blocked_for_alarm_operator_causes_and_unknown(tmp_path: Path) ->
 def test_resume_blocked_when_server_counted_two_attempts(tmp_path: Path) -> None:
     rig = Rig(tmp_path, state_from("co2_tripped"))
     set_path(rig.state, "dome_automation_01.interlocks.IL_CO2.state", "ARMED")
+    set_path(rig.state, "dome_automation_01.data_trust", {"climate_sensor_01.co2_ppm": "UNRELIABLE"})
+    set_path(rig.state, "dome_automation_01.primary_co2_sensor", "climate_sensor_02")
     set_path(rig.state, "cnc_01.resume_attempts", 2)
     assert "ALARM на 20 минут" in rig.go("cnc_01", "resume").reason
 
@@ -276,7 +282,7 @@ def test_last_trusted_co2_sensor_cannot_be_marked(rig: Rig) -> None:
     set_path(rig.state, "dome_automation_01.data_trust", trust)
     r = rig.go("dome_automation_01", "set_data_trust", {"node": "climate_sensor_03", "param": "co2_ppm", "trust": "UNRELIABLE"})
     assert "последний доверенный" in r.reason
-    assert rig.go("dome_automation_01", "set_data_trust", {"node": "climate_sensor_01", "param": "co2_ppm", "trust": "TRUSTED"}).ok
+    assert rig.go("dome_automation_01", "set_data_trust", {"node": "climate_sensor_01", "param": "co2_ppm", "trust": "TRUSTED"}).status == "rejected"  # нужен допуск после проверки дефекта
 
 
 def test_primary_sensor_must_be_trusted(rig: Rig) -> None:

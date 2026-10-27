@@ -10,13 +10,13 @@ from __future__ import annotations
 from typing import Any
 
 from kupol.dome.checks import assess_energy
+from kupol.dome.evidence import measurement_usable
 from kupol.dome.gate import Expect
 from kupol.dome.playbooks.base import Ctx, Intent, Playbook, Step, interlock_state
 
 INV = "solar_inverter_01"
 HOUR_S = 3600.0
 DAYLIGHT_LUX = 2000.0
-E09_MIN_WAIT_S = 600.0  # даже при сухой погоде: сначала подождать, потом сбрасывать
 
 
 def _recent(times: list[float], now: float, window: float) -> list[float]:
@@ -30,7 +30,7 @@ class EnergyPlaybook(Playbook):
 
     def step(self, ctx: Ctx) -> list[Intent]:
         st = ctx.state
-        if not st.has(INV):
+        if not measurement_usable(st, INV):
             return []
         out: list[Intent] = []
         out += self._mode(ctx)
@@ -67,7 +67,7 @@ class EnergyPlaybook(Playbook):
                     rag_query="SOC низкий перевести инвертор GRID_ONLY IL_LOAD_SHED",
                 )
             ]
-        if e.mode == "GRID_ONLY" and e.soc >= cfg.soc_to_hybrid_pct and e.pv_w >= cfg.min_pv_for_hybrid_w:
+        if e.mode == "GRID_ONLY" and e.soc >= cfg.soc_to_hybrid_pct and e.pv_w is not None and e.pv_w >= cfg.min_pv_for_hybrid_w:
             ctx.mem["mode_changed_at"] = ctx.now
             return [
                 Intent(
@@ -119,18 +119,17 @@ class EnergyPlaybook(Playbook):
                     cooldown_s=1200.0,
                 )
             ]
-        return [
-            Intent(
-                key="energy:load_shed_reset",
-                situation=f"IL_LOAD_SHED сработал, но SOC уже {e.soc:.0f} %",
-                cause="нехватка энергии устранена",
-                confidence=0.85,
-                evidence=[{"node": INV, "param": "battery_soc_pct", "value": e.soc}],
-                plan=["снять IL_LOAD_SHED — вернуть отключённые линии"],
-                steps=[Step("dome_automation_01", "reset_interlock", "IL_LOAD_SHED", Expect.equals("dome_automation_01.interlocks.IL_LOAD_SHED.state", "ARMED"), "энергия восстановлена")],
-                priority=1,
-            )
-        ]
+        facts = [{'node': INV, 'param': 'battery_soc_pct', 'value': e.soc},
+                 {'node': INV, 'param': 'load_power_w', 'value': st.num(f'{INV}.load_power_w')},
+                 {'node': 'dome_automation_01', 'param': 'interlocks.IL_LOAD_SHED.shed_lines',
+                  'value': st.get('dome_automation_01.interlocks.IL_LOAD_SHED.shed_lines')}]
+        return [Intent(key='energy:load_shed_review', situation=f'IL_LOAD_SHED: SOC восстановился до {e.soc:.0f} %',
+            cause='заряд восстановился, но допустимость возвращаемой нагрузки не подтверждена', confidence=0.0,
+            evidence=facts, plan=['сохранить разгрузку', 'проверить доступную мощность и схему возврата'],
+            human_escalation=dict(node_id=INV, incident='IL_LOAD_SHED', severity='yellow', facts=facts,
+                already_done=['SOC проверен; интерлок не сбрасывался'],
+                required_action='Сверьте доступную мощность, резерв, суммарную и пусковую нагрузку отключённых линий; восстановите их по утверждённой схеме. SOC сам по себе не является допуском.'),
+            priority=1, cooldown_s=900.0)]
 
     # ------------------------------------------------------------------ ошибка инвертора
 

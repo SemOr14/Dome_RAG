@@ -62,18 +62,19 @@ def test_real_co2_ventilates_and_does_not_reset(tmp_path: Path) -> None:
     assert out[0].priority == 1 and "реально" in (out[0].say or "")
 
 
-def test_trust_is_restored_only_after_long_agreement(tmp_path: Path) -> None:
+def test_long_agreement_does_not_restore_trust_without_repair_review(tmp_path: Path) -> None:
     st = state_from("co2_after")
     set_path(st, "climate_sensor_01.co2_ppm", 790)  # датчик пришёл в норму
     mem: dict = {}
     assert Co2Playbook().step(make_ctx(st, tmp_path, now=1000.0, mem=mem)) == []
     assert Co2Playbook().step(make_ctx(st, tmp_path, now=1300.0, mem=mem)) == []
     out = Co2Playbook().step(make_ctx(st, tmp_path, now=1700.0, mem=mem))
-    assert actions(out) == [("dome_automation_01", "set_data_trust", {"node": "climate_sensor_01", "param": "co2_ppm", "trust": "TRUSTED"})]
+    assert actions(out) == []
+    assert st.get("dome_automation_01.data_trust")["climate_sensor_01.co2_ppm"] == "UNRELIABLE"
     # снова разошёлся — отсчёт сбрасывается
     set_path(st, "climate_sensor_01.co2_ppm", 3000)
     Co2Playbook().step(make_ctx(st, tmp_path, now=1800.0, mem=mem))
-    assert "climate_sensor_01" not in mem["agree_since"]
+    assert "climate_sensor_01" not in mem.get("agree_since", {})
 
 
 # --------------------------------------------------------------------------- конденсат
@@ -98,7 +99,7 @@ def test_real_condensate_is_reported_not_reset(tmp_path: Path) -> None:
 # --------------------------------------------------------------------------- продолжение станков
 
 
-def test_resume_machines_after_interlock_is_armed_again(tmp_path: Path) -> None:
+def test_armed_interlock_does_not_replace_independent_recovery_evidence(tmp_path: Path) -> None:
     st = seq_state("co2_tripped")
     set_path(st, "dome_automation_01.interlocks.IL_CO2.state", "ARMED")
     set_path(st, "dome_automation_01.interlocks.IL_CO2.pending_s", 0.0)
@@ -106,7 +107,7 @@ def test_resume_machines_after_interlock_is_armed_again(tmp_path: Path) -> None:
     mem: dict = {}
     assert ResumePlaybook().step(make_ctx(st, tmp_path, now=1000.0, mem=mem)) == []  # выдерживаем паузу «причина снята»
     out = ResumePlaybook().step(make_ctx(st, tmp_path, now=1010.0, mem=mem))
-    assert sorted(actions(out)) == [("cnc_01", "resume", None), ("printer_3d_01", "resume", None)]
+    assert not actions(out)  # ARMED alone is not fresh independent confirmation.
 
 
 def test_no_resume_while_cause_is_real(tmp_path: Path) -> None:
@@ -148,12 +149,11 @@ def smoke_state(**quiet: object):  # type: ignore[no-untyped-def]
     return st
 
 
-def test_false_smoke_is_acknowledged(tmp_path: Path) -> None:
+def test_smoke_preserves_fire_response_and_escalates(tmp_path: Path) -> None:
     out = SmokePlaybook().step(make_ctx(smoke_state(), tmp_path))
-    assert actions(out) == [
-        ("dome_automation_01", "acknowledge", {"event_id": "AUT-0007"}),
-        ("smoke_detector_01", "reset_alarm", None),
-    ]
+    assert not actions(out)
+    assert out[0].human_escalation["severity"] == "red"
+    assert out[0].human_escalation["required_action"]
     assert out[0].priority == 1
 
 
@@ -161,21 +161,21 @@ def test_real_signs_prevent_acknowledge(tmp_path: Path) -> None:
     st = smoke_state()
     set_path(st, "air_quality_sensor_01.co_ppm", 35.0)
     out = SmokePlaybook().step(make_ctx(st, tmp_path))
-    assert not actions(out) and "пожаротушение сработает штатно" in (out[0].say or "")
+    assert not actions(out) and out[0].human_escalation["severity"] == "red"
 
 
-def test_operator_says_false_alarm_counts_as_evidence(tmp_path: Path) -> None:
+def test_generic_operator_statement_does_not_authorize_fire_reset(tmp_path: Path) -> None:
     st = smoke_state()
     for p in ("smoke_detector_01.obscuration_pct", "air_quality_sensor_01.co_ppm", "air_quality_sensor_01.voc_index"):
         set_path(st, p, None)
     assert not actions(SmokePlaybook().step(make_ctx(st, tmp_path)))
     out = SmokePlaybook().step(make_ctx(st, tmp_path, texts=["Дыма нет, это ложная тревога"]))
-    assert ("dome_automation_01", "acknowledge", {"event_id": "AUT-0007"}) in actions(out)
+    assert not actions(out) and out[0].human_escalation["required_action"]
 
 
-def test_smoke_interlock_reset_after_quiet(tmp_path: Path) -> None:
+def test_quiet_interval_does_not_authorize_smoke_interlock_reset(tmp_path: Path) -> None:
     st = state_from("quiet")
     set_path(st, "dome_automation_01.interlocks.IL_SMOKE.state", "TRIPPED")
     out = SmokePlaybook().step(make_ctx(st, tmp_path, now=1100.0, mem={"false_confirmed_at": 1000.0}))
-    assert actions(out) == [("dome_automation_01", "reset_interlock", "IL_SMOKE")]
+    assert not actions(out)
     assert SmokePlaybook().step(make_ctx(st, tmp_path, now=2000.0, mem={"false_confirmed_at": 1000.0})) == []

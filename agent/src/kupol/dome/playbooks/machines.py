@@ -8,17 +8,16 @@
 
 from __future__ import annotations
 
-import re
 from typing import Any
 
-from kupol.dome.checks import assess_co2, assess_condensate, assess_smoke, is_untrusted
+from kupol.dome.checks import (assess_co2, assess_condensate, assess_smoke, is_untrusted,
+                               co2_recovery_safe, condensate_recovery_safe)
 from kupol.dome.gate import Expect
 from kupol.dome.playbooks.base import Ctx, Intent, Playbook, Step, interlock_pending_s, interlock_state
 
 MACHINES = ("printer_3d_01", "cnc_01")
 TITLES = {"printer_3d_01": "принтер", "cnc_01": "фрезер"}
 SETTLE_S = 6.0  # причина должна оставаться снятой столько секунд, прежде чем продолжать станок
-FALSE_ALARM = re.compile(r"ложн|дыма нет|нет дыма|не горит|всё норм|все норм", re.IGNORECASE)
 
 
 def working(node: str) -> Expect:
@@ -36,29 +35,17 @@ def cause_cleared(ctx: Ctx, reason: str) -> tuple[bool, str]:
     if reason.startswith("IL_"):
         if interlock_state(st, reason) != "ARMED" or interlock_pending_s(st, reason) > 0:
             return False, f"{reason}: интерлок ещё не взведён заново"
-    if reason == "IL_CO2":
-        live = {s: v for s, v in assess_co2(st, cfg).values.items() if not is_untrusted(st, s, "co2_ppm")}
-        if len(live) < 2:
-            return False, "нет двух актуальных доверенных датчиков CO₂"
-        if max(live.values()) >= cfg.co2.recovered_ppm:
-            return False, f"CO₂ ещё высокий ({max(live.values()):.0f} ppm)"
-        return True, "CO₂ в норме на доверенных датчиках"
-    if reason == "IL_CONDENSATE":
-        a = assess_condensate(st, cfg)
-        if len(a.rh) < 2 or a.kind == "unknown":
-            return False, "нет актуального подтверждения безопасной влажности"
-        hot = [s for s in a.rh if a.trigger(s, cfg.condensate.rh_interlock_pct, cfg.condensate.dew_gap_c) and not is_untrusted(st, s, "humidity_pct")]
-        return (not hot, "влажность в норме на доверенных датчиках" if not hot else f"влажность высокая: {', '.join(hot)}")
-    if reason == "IL_SMOKE":
-        since = ctx.mem.get("smoke_clear_since")
-        if since is None or ctx.now - float(since) < 120:
-            return False, "после тревоги дыма ещё не прошло 2 минуты тишины"
-        return True, "дым не фиксируется 2+ минуты"
+    if reason == 'IL_CO2':
+        return co2_recovery_safe(st, cfg), 'CO₂: нужны актуальные независимые согласованные безопасные измерения'
+    if reason == 'IL_CONDENSATE':
+        return condensate_recovery_safe(st, cfg), 'Конденсат: нужны актуальные независимые безопасные измерения RH и точки росы'
+    if reason == 'IL_SMOKE':
+        return False, 'После дыма нужна разрешённая процедура проверки текущей зоны и события Оператором'
     if reason == "UNDERVOLTAGE":
         v = st.num("smart_panel_01.bus_voltage_v")
         return (v is not None and v >= 200, f"напряжение шины {v}")
     if reason.startswith("IL_"):
-        return True, f"интерлок {reason} взведён заново"
+        return False, f"{reason}: ARMED не доказывает устранение причины; нужна разрешённая процедура"
     return False, f"причина {reason} не распознана"
 
 
@@ -147,92 +134,24 @@ class ResumePlaybook(Playbook):
 
 
 class SmokePlaybook(Playbook):
-    """Тревога дыма: по умолчанию — реальная; квитирование только при убедительных свидетельствах ложной."""
+    """No automatic cancellation of a fire response from indirect or chat evidence."""
 
-    name = "smoke"
+    name = 'smoke'
 
     def step(self, ctx: Ctx) -> list[Intent]:
-        st = ctx.state
-        out: list[Intent] = []
-        for det, zone in (("smoke_detector_01", "FABLAB"), ("smoke_detector_02", "STORAGE")):
-            a = assess_smoke(st, ctx.cfg.checks, det)
+        out = []
+        for det in ('smoke_detector_01', 'smoke_detector_02'):
+            a = assess_smoke(ctx.state, ctx.cfg.checks, det)
             if not a.alarm:
-                ctx.mem.pop(f"since:{det}", None)
                 continue
-            since = ctx.mem.setdefault(f"since:{det}", ctx.now)
-            told_false = any(FALSE_ALARM.search(t) for t in ctx.operator_texts(since))
-            kind = "false" if (a.kind == "false" or (told_false and a.real_sources == 0)) else ("real" if a.kind == "real" else "unknown")
-            evidence = [e.as_log() for e in a.evidence]
-            if told_false:
-                evidence.append({"supports": "false", "weight": 0.9, "detail": "Оператор сообщил, что тревога ложная"})
-            if kind == "false":
-                event = self._unacked_event(st)
-                steps: list[Step] = []
-                if event:
-                    steps.append(Step("dome_automation_01", "acknowledge", {"event_id": event}, self._acked_expect(event), "отмена автопуска пожаротушения"))
-                steps.append(Step(det, "reset_alarm", None, Expect.equals(f"{det}.alarm_state", "NORMAL"), "сброс тревоги датчика"))
-                ctx.mem["false_confirmed_at"] = ctx.now
-                out.append(
-                    Intent(
-                        key=f"smoke:false:{det}",
-                        situation=f"{det} ({zone}): тревога дыма, но свидетельства ложности: " + "; ".join(e.detail for e in a.evidence if e.supports == "false"),
-                        cause="ложная тревога датчика дыма",
-                        confidence=0.85,
-                        evidence=evidence,
-                        plan=["квитировать событие (отменяет пожаротушение)", "сбросить тревогу датчика", "когда датчик успокоится — снять IL_SMOKE, продолжить станки"],
-                        steps=steps,
-                        say=f"Тревога дыма в {zone} похожа на ложную (CO, VOC, задымлённость в норме) — квитировал, пожаротушение не запускается. Если вы видите дым, напишите.",
-                        priority=1,
-                        cooldown_s=45.0,
-                        rag_query="ложная пожарная тревога датчик дыма CO VOC",
-                    )
-                )
-            else:
-                out.append(
-                    Intent(
-                        key=f"smoke:{kind}:{det}",
-                        situation=f"{det} ({zone}): тревога дыма; признаков ложности недостаточно ({a.false_sources} из {a.needs})",
-                        cause="возможен реальный дым" if kind == "real" else "причина не установлена",
-                        confidence=0.7 if kind == "real" else 0.5,
-                        evidence=evidence,
-                        plan=["автоматику не блокировать, не квитировать", "сообщить Оператору"],
-                        say=f"Тревога дыма в {zone}. Подтверждений ложности нет — ничего не блокирую, пожаротушение сработает штатно. Проверьте визуально; если дыма нет, напишите «ложная тревога».",
-                        priority=1,
-                        cooldown_s=300.0,
-                    )
-                )
-        quiet = not any(assess_smoke(st, ctx.cfg.checks, d).alarm for d in ("smoke_detector_01", "smoke_detector_02"))
-        confirmed = ctx.mem.get("false_confirmed_at")
-        if quiet and confirmed is not None and ctx.now - float(confirmed) < 600 and interlock_state(st, "IL_SMOKE") == "TRIPPED":
-            out.append(
-                Intent(
-                    key="smoke:reset_interlock",
-                    situation="тревога дыма подтверждена как ложная и снята, IL_SMOKE ещё сработал",
-                    cause="ложная тревога дыма прошла",
-                    confidence=0.85,
-                    evidence=[{"detail": "ложность подтверждена ранее, датчики спокойны"}],
-                    plan=["снять IL_SMOKE (вернуть линию 1), затем продолжить станки"],
-                    steps=[Step("dome_automation_01", "reset_interlock", "IL_SMOKE", Expect.equals("dome_automation_01.interlocks.IL_SMOKE.state", "ARMED"), "снятие IL_SMOKE")],
-                    priority=1,
-                )
-            )
+            zone = ctx.state.get(f'{det}.zone', 'неизвестна')
+            facts = [{'node': det, 'param': 'alarm_state', 'value': ctx.state.get(f'{det}.alarm_state')},
+                     {'node': det, 'param': 'zone', 'value': zone}] + [e.as_log() for e in a.evidence]
+            out.append(Intent(key=f'smoke:inspect:{det}', situation=f'{det}: тревога дыма, зона {zone}',
+                cause='пожарная тревога; ложность и безопасность отмены реакции не подтверждены', confidence=0.0,
+                evidence=facts, plan=['сохранить штатную пожарную реакцию', 'немедленная проверка зоны Оператором'],
+                human_escalation=dict(node_id=det, incident='Тревога дыма', severity='red', facts=facts,
+                    already_done=['Квитирование, сброс и отмена пожарной реакции не выполнялись'],
+                    required_action=f'Немедленно проверьте зону {zone} и текущее событие по пожарной процедуре. Сохраняйте штатную защиту; общая фраза о ложной тревоге не является допуском.'),
+                priority=1, cooldown_s=300.0))
         return out
-
-    @staticmethod
-    def _unacked_event(st: Any) -> str | None:
-        events = st.get("dome_automation_01.events", []) or []
-        for ev in reversed(events):
-            if isinstance(ev, dict) and ev.get("interlock") == "IL_SMOKE" and ev.get("type") == "TRIP" and not ev.get("acknowledged"):
-                return str(ev.get("event_id"))
-        return None
-
-    @classmethod
-    def _acked_expect(cls, event_id: str) -> Expect:
-        return Expect.custom(f"событие {event_id} квитировано", lambda st: cls._acked(st, event_id), ["dome_automation_01.events"])
-
-    @staticmethod
-    def _acked(st: Any, event_id: str) -> bool:
-        for ev in st.get("dome_automation_01.events", []) or []:
-            if isinstance(ev, dict) and str(ev.get("event_id")) == event_id:
-                return bool(ev.get("acknowledged"))
-        return False

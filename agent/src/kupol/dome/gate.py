@@ -25,7 +25,7 @@ from kupol.dome.catalog import Catalog
 from kupol.dome.client import DomeError, PolicyRejected
 from kupol.dome.control import SEND_GUARD, COMMAND_ACTOR
 from kupol.dome.config import DomeConfig
-from kupol.dome.evidence import finite_number, measurement_usable
+from kupol.dome.evidence import finite_number, measurement_usable, independent_group
 from kupol.dome.state import DomeState
 
 OPERATOR_NAME = "Агент Штаба"
@@ -219,12 +219,14 @@ class Gate:
         self._line_switches: dict[int, deque[float]] = {}
         self._chat_times: deque[float] = deque()
         self._failed_until: dict[str, float] = {}
+        self._failure_holds: dict[str, str] = {}  # unresolved effects cannot be retried just because a timer expired
         self._resume_attempts: dict[str, int] = {}
         self.stats = {"sent": 0, "dry_run": 0, "rejected": 0, "failed": 0, "verified": 0, "no_effect": 0, "unverified": 0}
         self.checkpoint: Callable[[], bool] | None = None
 
     def export_runtime(self) -> dict[str, Any]:
-        return {"resume_attempts": dict(self._resume_attempts),
+        return {"failure_holds": dict(self._failure_holds),
+                "resume_attempts": dict(self._resume_attempts),
                 "line_switches": {str(k): list(v) for k, v in self._line_switches.items()},
                 "pending": [{"node": p.cmd.node_id, "action": p.cmd.action, "value": p.cmd.value,
                              "ref": p.cmd.ref, "seq": p.action_seq, "deadline": p.deadline,
@@ -233,6 +235,7 @@ class Gate:
 
     def import_runtime(self, data: dict[str, Any]) -> None:
         from kupol.dome.expects import expect_for
+        self._failure_holds = {str(k): str(v) for k, v in data.get("failure_holds", {}).items()}
         self._resume_attempts = {str(k): int(v) for k, v in data.get("resume_attempts", {}).items()}
         self._line_switches = {int(k): deque(float(t) for t in v) for k, v in data.get("line_switches", {}).items()}
         for p in data.get("pending", []):
@@ -326,6 +329,7 @@ class Gate:
             self.stats["failed"] += 1
             seq = self._log.write("action", ref=cmd.ref, request=request, response={"success": False, "error": str(exc)}, reason=cmd.reason, **self._audit(cmd))
             # Состояние неизвестно: повтор вслепую запрещён — ставим на проверку, если есть чем.
+            self._failure_holds[cmd.key] = "unknown_delivery"
             self._failed_until[cmd.key] = self._clock() + self._cfg.policy.no_effect_cooldown_s
             for p in self.pending:
                 if p.cmd is cmd:
@@ -341,6 +345,7 @@ class Gate:
             if p.cmd is cmd:
                 p.action_seq = seq
         if not ok:
+            self._failure_holds[cmd.key] = "command_failed"
             self.pending = [p for p in self.pending if p.cmd is not cmd]
             self.stats["failed"] += 1
             return GateResult("failed", str(response.get("error", "")), response, seq)
@@ -376,8 +381,11 @@ class Gate:
             p.verified = ok
             done.append(p)
             self.stats["verified" if ok else "no_effect" if fresh else "unverified"] += 1
-            if not ok and fresh:  # без новых данных отсутствие эффекта не доказано: команду не блокируем
+            if not ok:
+                self._failure_holds[p.cmd.key] = "no_effect" if fresh else "unknown_effect"
                 self._failed_until[p.cmd.key] = now + self._cfg.policy.no_effect_cooldown_s
+            else:
+                self._failure_holds.pop(p.cmd.key, None)
             self._log.write(
                 "verification", ref=p.action_seq, expected=exp.description, observed=exp.observe(self._state), ok=ok,
                 waited_s=round(now - p.sent_at, 1), **({} if fresh else {"no_data": True}),
@@ -440,6 +448,8 @@ class Gate:
             return "такая же команда ещё ожидает проверки результата"
         if self.is_pending(cmd.node_id):
             return "узел ожидает проверки предыдущей команды; требуется новый кадр"
+        if cmd.key in self._failure_holds:
+            return "результат предыдущей попытки не подтверждён или получен отказ; нужна диагностика и разрешённая процедура, таймер не даёт допуска"
         if self.recently_failed(cmd.key):
             return "такая же команда недавно не дала эффекта: повтор вслепую запрещён"
         if canonical in LINE_ACTIONS:
@@ -533,34 +543,32 @@ class Gate:
             return "нет актуального состояния целевого узла"
         if node != "meeting_01" and canonical != "reconnect" and not finite_number(st.get(f"{node}.updated_at")):
             return "неизвестно время измерения целевого узла"
-        if node == "solar_inverter_01" and canonical == "reset_error" and st.get(f"{node}.error_code") == "E09":
-            return "E09: исправность изоляции не подтверждается текущим API; нужна проверка Оператора"
-        if node == "dome_automation_01" and canonical == "reset_interlock" and value == "IL_OVERCURRENT":
-            return "устранение перегрузки не подтверждено; таймер не даёт допуска на повторное включение"
+        devices = ('supply_ventilation_01', 'fume_extraction_01', 'equipment_cooling_01', 'water_pump_01')
+        if node == 'smart_panel_01' and canonical == 'line_on':
+            line = st.line(_line_number(value))
+            if line.get('state') not in ('ON', 'OFF') or line.get('protection_state') in ('TRIPPED', 'RCD_TRIPPED'):
+                return 'Нет подтверждения допустимости включения линии; сработавшую защиту через line_on не обходить'
+        if node == 'smart_panel_01' and canonical == 'line_off' and _line_number(value) == 7:
+            return 'Аварийное освещение: отключение линии 7 запрещено'
+        if canonical in ('reset_protection', 'reset_line_error') or (node == 'solar_inverter_01' and canonical == 'reset_error'):
+            return 'Устранение физической причины электрической аварии не подтверждается API; нужна проверка Оператора по процедуре'
+        if canonical == 'reset_alarm' and node in devices + ('smoke_detector_01', 'smoke_detector_02'):
+            return 'Нет подтверждения устранения причины и разрешённой процедуры сброса; сохранить защиту, запросить Оператора'
+        if canonical == 'turn_on' and node in devices and (not measurement_usable(st, node) or st.get(f'{node}.alarm') is not False):
+            return 'Безопасность включения не подтверждена: нужны свежие данные и отсутствие аварии'
+        if node == 'dome_automation_01' and canonical == 'reset_interlock' and value not in ('IL_CO2', 'IL_CONDENSATE'):
+            return 'Нет разрешённой проверяемой процедуры снятия этого интерлока; ARMED/SOC/таймер не доказывают устранение причины'
         if node == "dome_automation_01" and canonical == "acknowledge":
             event_id = value.get("event_id") if isinstance(value, dict) else value
             events = st.get("dome_automation_01.events", []) or []
             event = next((e for e in events if isinstance(e, dict) and str(e.get("event_id")) == str(event_id)), None)
             if not event or event.get("interlock") == "IL_SMOKE":
                 return "нет проверенного подтверждения текущего события и зоны; отменять пожарную реакцию нельзя"
-        if node in ("smoke_detector_01", "smoke_detector_02") and canonical == "reset_alarm":
-            if not measurement_usable(st, node) or st.get(f"{node}.smoke_detected") is not False:
-                return "отсутствие дыма не подтверждено актуальным измерением"
-        if node == "dome_automation_01" and canonical == "reset_interlock" and value in ("IL_CO2", "IL_CONDENSATE"):
-            from kupol.dome.checks import assess_co2, assess_condensate
-            if value == "IL_CO2":
-                a = assess_co2(st, self._cfg.checks)
-                good = a.good()
-                primary = st.get("dome_automation_01.primary_co2_sensor")
-                if len(good) < 2 or primary not in good or max(good.values()) >= self._cfg.checks.co2.recovered_ppm:
-                    return "IL_CO2: нет двух актуальных согласованных безопасных источников"
-            else:
-                from kupol.dome.checks import is_untrusted
-                a = assess_condensate(st, self._cfg.checks)
-                live = [s for s in a.rh if not is_untrusted(st, s, "humidity_pct")]
-                if len(live) < 2 or any(s not in a.gap or a.trigger(s, self._cfg.checks.condensate.rh_interlock_pct,
-                                                                self._cfg.checks.condensate.dew_gap_c) for s in live):
-                    return "IL_CONDENSATE: безопасные условия не подтверждены актуальными источниками"
+        if node == 'dome_automation_01' and canonical == 'reset_interlock':
+            from kupol.dome.checks import co2_recovery_safe, condensate_recovery_safe
+            safe = co2_recovery_safe(st, self._cfg.checks) if value == 'IL_CO2' else condensate_recovery_safe(st, self._cfg.checks)
+            if not safe:
+                return f'{value}: нет актуального независимого подтверждения безопасных условий'
         if node in MACHINES and canonical == "resume":
             explicit_operator_request = cmd.actor == 'operator' or (cmd.actor == 'agent' and cmd.operator_requested)
             if not explicit_operator_request and not st.get(f'{node}.hold_reason'):
@@ -572,6 +580,8 @@ class Gate:
             return self._start_job_reason(node, value)
         if node == "thermal_insulation_01" and canonical == "set_lock":
             if isinstance(value, dict) and value.get("locked") is False:
+                if not measurement_usable(st, "printer_3d_01"):
+                    return "Без свежего состояния принтера открытие бокса запрещено"
                 printer_state = str(st.get("printer_3d_01.state", "")).upper()
                 if printer_state in ("PRINTING", "PAUSED") or str(st.get("printer_3d_01.real_state", "")).upper() == "PRINTING":
                     return "принтер печатает: бокс открывать нельзя"
@@ -581,20 +591,16 @@ class Gate:
                 if bed is not None and bed >= self._cfg.checks.printer.cool_bed_c:
                     return f"стол ещё горячий ({bed:.0f} °C)"
             return None
-        if node == "dome_automation_01" and canonical == "reset_interlock" and value == "IL_SMOKE":
-            for det in ("smoke_detector_01", "smoke_detector_02"):
-                if (not measurement_usable(st, det) or st.get(f"{det}.smoke_detected") is not False
-                        or str(st.get(f"{det}.alarm_state", "")).upper() != "NORMAL"):
-                    return f"{det} ещё в тревоге: IL_SMOKE не снимаем"
-            return None
         if node == "dome_automation_01" and canonical == "set_data_trust":
             return self._trust_reason(value)
         if node == "dome_automation_01" and canonical == "set_primary_sensor":
             trust = st.get("dome_automation_01.data_trust", {}) or {}
             if str(trust.get(f"{value}.co2_ppm", "")).upper() in ("UNRELIABLE", "FAILED"):
                 return f"датчик {value} помечен недостоверным"
-            if not measurement_usable(st, str(value)):
-                return f"данные {value} устарели, задержаны или недостоверны"
+            from kupol.dome.checks import assess_co2
+            good = assess_co2(st, self._cfg.checks).good()
+            if value not in good or not independent_group(st, good):
+                return 'Новый основной источник не подтверждён независимыми актуальными измерениями'
         return None
 
     def _resume_reason(self, node: str, prepared: bool = False) -> str | None:
@@ -618,12 +624,15 @@ class Gate:
                 il = st.get(f"dome_automation_01.interlocks.{reason}.state")
                 if il != "ARMED":
                     return f"интерлок {reason} в состоянии {il}: причина не снята"
-                if reason == "IL_CO2":
-                    from kupol.dome.checks import assess_co2
-                    a = assess_co2(st, self._cfg.checks)
-                    good = a.good()
-                    if len(good) < 2 or max(good.values()) >= self._cfg.checks.co2.recovered_ppm:
-                        return "CO2: актуальные безопасные измерения не подтверждены"
+                from kupol.dome.checks import co2_recovery_safe, condensate_recovery_safe
+                if reason == 'IL_CO2':
+                    if not co2_recovery_safe(st, self._cfg.checks):
+                        return 'CO2: актуальные независимые безопасные измерения не подтверждены'
+                elif reason == 'IL_CONDENSATE':
+                    if not condensate_recovery_safe(st, self._cfg.checks):
+                        return 'Конденсат: актуальные независимые безопасные измерения не подтверждены'
+                else:
+                    return f'{reason}: нет проверяемой процедуры устранения причины; автоматически resume не отправляем'
             elif reason == "UNDERVOLTAGE":
                 v = st.num("smart_panel_01.bus_voltage_v")
                 if v is None or v < 200:
@@ -660,15 +669,34 @@ class Gate:
             return None
         trust = str(value.get("trust", "")).upper()
         node, param = str(value.get("node", "")), str(value.get("param", ""))
+        if not self._state.has(node) or not param or not all(isinstance(value.get(k), str) for k in ("node", "param", "trust")):
+            return "Нужны существующий узел и строковые node/param/trust"
         if trust not in ("UNRELIABLE", "FAILED", "TRUSTED"):
             return "trust: UNRELIABLE, FAILED или TRUSTED"
         if param == "*":
             return "помечать целый узел недоверенным нельзя"
-        if trust != "TRUSTED" and node in self._cfg.checks.co2.sensors and param in CLIMATE_PARAMS:
-            same = [s for s in self._cfg.checks.co2.sensors if s != node]
-            data_trust = self._state.get("dome_automation_01.data_trust", {}) or {}
-            bad = [s for s in same if str(data_trust.get(f"{s}.{param}", "")).upper() in ("UNRELIABLE", "FAILED")
-                   or not measurement_usable(self._state, s) or self._state.num(f"{s}.{param}") is None]
-            if len(bad) >= len(same):
-                return f"это последний доверенный датчик ({param}): интерлок остался бы без источника"
+        from kupol.dome.checks import assess_co2, assess_condensate, is_untrusted
+        if trust == 'TRUSTED':
+            if is_untrusted(self._state, node, param):
+                return 'Возврат критического источника требует проверки ремонта и допуска; стабильность и таймер не доказывают исправность'
+            return None
+        if node not in self._cfg.checks.co2.sensors:
+            return 'Нет проверяемой процедуры исключения этого источника из управляющих решений'
+        if param == 'co2_ppm' and not any(s != node and not is_untrusted(self._state, s, param)
+                and measurement_usable(self._state, s) and self._state.num(f'{s}.{param}') is not None
+                for s in self._cfg.checks.co2.sensors):
+            return 'Это последний доверенный датчик: исключать его из защиты нельзя'
+        if param == 'co2_ppm':
+            a = assess_co2(self._state, self._cfg.checks)
+            if a.kind != 'false_sensor' or node not in a.suspects or not independent_group(self._state, a.good(), target=node):
+                return 'Ложность CO2 не подтверждена свежими независимыми источниками'
+        elif param in ('humidity_pct', 'dew_point_c'):
+            a = assess_condensate(self._state, self._cfg.checks)
+            good = [s for s in a.rh if s not in a.bad and s in a.gap
+                    and not is_untrusted(self._state, s, 'humidity_pct')
+                    and not is_untrusted(self._state, s, 'dew_point_c')]
+            if a.kind != 'false_sensor' or node not in a.bad or not independent_group(self._state, good, target=node):
+                return 'Ложность конденсата не подтверждена свежими независимыми источниками'
+        else:
+            return 'Нет проверяемой процедуры исключения этого параметра из защиты'
         return None

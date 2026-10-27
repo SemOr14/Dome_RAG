@@ -105,11 +105,12 @@ def test_e09_gives_up_after_repeats_and_other_errors_are_not_reset(tmp_path: Pat
     assert not acts(other) and other[0].say
 
 
-def test_load_shed_reset_only_when_soc_recovered(tmp_path: Path) -> None:
+def test_soc_recovery_does_not_authorize_load_shed_reset(tmp_path: Path) -> None:
     low = state_from("quiet", **{"dome_automation_01.interlocks.IL_LOAD_SHED.state": "TRIPPED", "solar_inverter_01.battery_soc_pct": 22.0})
     assert not acts(EnergyPlaybook().step(make_ctx(low, tmp_path)))
     ok = state_from("quiet", **{"dome_automation_01.interlocks.IL_LOAD_SHED.state": "TRIPPED", "solar_inverter_01.battery_soc_pct": 41.0})
-    assert acts(EnergyPlaybook().step(make_ctx(ok, tmp_path))) == [("dome_automation_01", "reset_interlock", "IL_LOAD_SHED")]
+    out = EnergyPlaybook().step(make_ctx(ok, tmp_path))
+    assert not acts(out) and out[0].human_escalation["required_action"]
 
 
 def test_mppt_enabled_in_daylight(tmp_path: Path) -> None:
@@ -137,15 +138,15 @@ def test_phantom_timer_resets_when_power_drops(tmp_path: Path) -> None:
     assert "since:8" not in mem
 
 
-def test_overcurrent_reset_once_then_only_notify(tmp_path: Path) -> None:
+def test_overcurrent_never_reset_by_elapsed_time(tmp_path: Path) -> None:
     st = state_from("quiet")
     st.nodes["dome_automation_01"]["interlocks"]["IL_OVERCURRENT"].update({"state": "TRIPPED", "shed_lines": [1]})
     mem: dict = {}
     assert not acts(OvercurrentPlaybook().step(make_ctx(st, tmp_path, now=1000.0, mem=mem)))
     out = OvercurrentPlaybook().step(make_ctx(st, tmp_path, now=1200.0, mem=mem))
-    assert acts(out) == [("dome_automation_01", "reset_interlock", "IL_OVERCURRENT")]
+    assert not acts(out) and out[0].human_escalation["required_action"]
     again = OvercurrentPlaybook().step(make_ctx(st, tmp_path, now=1500.0, mem=mem))
-    assert not acts(again) and "снова отключилась" in (again[0].say or "")
+    assert not acts(again) and again[0].human_escalation["required_action"]
 
 
 def test_tripped_line_protection_is_not_reset(tmp_path: Path) -> None:
@@ -157,28 +158,28 @@ def test_tripped_line_protection_is_not_reset(tmp_path: Path) -> None:
 # --------------------------------------------------------------------------- устройства
 
 
-def test_alarm_reset_and_turn_on(tmp_path: Path) -> None:
+def test_alarm_requires_inspection_not_reset_or_automatic_restart(tmp_path: Path) -> None:
     st = state_from("quiet", **{"supply_ventilation_01.alarm": True, "supply_ventilation_01.alarm_code": "FAN_MOTOR", "supply_ventilation_01.state": "FAULT"})
     mem: dict = {}
     out = AlarmPlaybook().step(make_ctx(st, tmp_path, now=1000.0, mem=mem))
-    assert acts(out) == [("supply_ventilation_01", "reset_alarm", None)]
+    assert not acts(out) and out[0].human_escalation["required_action"]
     set_path(st, "supply_ventilation_01.alarm", False)
     set_path(st, "supply_ventilation_01.state", "OFF")
     out2 = AlarmPlaybook().step(make_ctx(st, tmp_path, now=1010.0, mem=mem))
-    assert acts(out2) == [("supply_ventilation_01", "turn_on", None)]
+    assert not acts(out2)
 
 
 def test_fume_motor_alarm_asks_operator_first(tmp_path: Path) -> None:
     st = state_from("quiet", **{"fume_extraction_01.alarm": True, "fume_extraction_01.alarm_code": "MOTOR_OVERHEAT"})
     out = AlarmPlaybook().step(make_ctx(st, tmp_path))
-    assert not acts(out) and "фильтр" in (out[0].say or "")
+    assert not acts(out) and "фильтр" in out[0].human_escalation["required_action"]
 
 
 def test_alarm_giveup_after_repeated_resets(tmp_path: Path) -> None:
     st = state_from("quiet", **{"water_pump_01.alarm": True, "water_pump_01.alarm_code": "DRY_RUN"})
     mem = {"water_pump_01": [100.0, 500.0, 900.0]}
     out = AlarmPlaybook().step(make_ctx(st, tmp_path, now=1500.0, mem=mem))
-    assert not acts(out) and out[0].key == "alarm:giveup:water_pump_01"
+    assert not acts(out) and out[0].human_escalation["node_id"] == "water_pump_01"
 
 
 def test_stale_node_gets_limited_reconnects(tmp_path: Path) -> None:

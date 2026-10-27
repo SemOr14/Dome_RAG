@@ -57,6 +57,7 @@ def test_current_independent_backups_can_detect_outlier():
     st = state_from("co2_pending")
     for n in CFG.checks.co2.sensors:
         st.nodes[n]["reading_delay_s"] = 0  # explicit synthetic simultaneous measurements
+        st.nodes[n]["failure_domain"] = f"synthetic-domain:{n}"
     a = assess_co2(st, CFG.checks)
     assert a.kind == "false_sensor" and a.outliers == {"climate_sensor_01"}
 

@@ -27,3 +27,29 @@ def measurement_usable(state: Any, node: str, max_delay_s: float = 30.0) -> bool
         return False
     delay = body.get("reading_delay_s", 0)
     return finite_number(delay) and 0 <= delay <= max_delay_s
+
+
+def independent_group(state: Any, nodes: Any, *, target: str | None = None) -> bool:
+    """Explicit, contemporaneous same-zone sources in distinct failure domains.
+
+    Missing topology is unknown. Telemetry is never enriched with guessed independence.
+    The target must also belong to the comparison group and a separate domain.
+    """
+    ids = list(dict.fromkeys(nodes))
+    if len(ids) < 2:
+        return False
+    if target is not None and target not in ids:
+        ids.append(target)
+    groups, domains, stamps = [], [], []
+    for node in ids:
+        body = state.node(node)
+        if not measurement_usable(state, node):
+            return False
+        group = body.get('sensor_group') or body.get('zone')
+        domain = body.get('failure_domain')
+        if not isinstance(group, str) or not group.strip() or not isinstance(domain, str) or not domain.strip():
+            return False
+        groups.append(group)
+        domains.append(domain)
+        stamps.append(body['updated_at'] - body.get('reading_delay_s', 0))
+    return len(set(groups)) == 1 and len(set(domains)) == len(domains) and max(stamps) - min(stamps) <= 30

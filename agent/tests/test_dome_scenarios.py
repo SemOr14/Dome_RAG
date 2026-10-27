@@ -319,7 +319,7 @@ def test_false_smoke_is_acknowledged_in_time_real_smoke_is_not(tmp_path: Path) -
         async with Harness(tmp_path / "r", w) as h:
             await h.step(10)
             assert not h.sent() and w.nodes["dome_automation_01"]["events"][-1]["acknowledged"] is False
-            assert any("пожаротушение сработает штатно" in p for p in w.posted)
+            await h.until(lambda: any("защит" in p.lower() and "проверьте" in p.lower() for p in w.posted))
 
     run(false_alarm())
     run(real_alarm())

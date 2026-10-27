@@ -55,54 +55,24 @@ class PhantomLinePlaybook(Playbook):
 
 
 class OvercurrentPlaybook(Playbook):
-    """``IL_OVERCURRENT`` отключил линию: один осторожный возврат, при повторе — только Оператору."""
+    """Keep protection until the cause and safe load are established."""
 
     name = "overcurrent"
 
     def step(self, ctx: Ctx) -> list[Intent]:
-        st = ctx.state
-        out: list[Intent] = []
-        il = interlock_state(st, "IL_OVERCURRENT")
-        if il != "TRIPPED":
-            ctx.mem.pop("tripped_since", None)
+        out = []
+        if interlock_state(ctx.state, 'IL_OVERCURRENT') != 'TRIPPED':
             self._warn_protection(ctx, out)
             return out
-        shed = st.get("dome_automation_01.interlocks.IL_OVERCURRENT.shed_lines", []) or []
-        since = ctx.mem.setdefault("tripped_since", ctx.now)
-        last = float(ctx.mem.get("last_reset", 0.0))
-        lines = ", ".join(str(x) for x in shed) or "?"
-        if ctx.now - last < OVERCURRENT_RETRY_S and last > 0:
-            out.append(
-                Intent(
-                    key="overcurrent:repeat",
-                    situation=f"IL_OVERCURRENT сработал повторно после нашего сброса, линии: {lines}",
-                    cause="реальная перегрузка линии",
-                    confidence=0.85,
-                    evidence=[{"node": "dome_automation_01", "param": "interlocks.IL_OVERCURRENT.shed_lines", "value": shed}],
-                    plan=["больше не сбрасывать", "Оператору проверить нагрузку на линии"],
-                    say=f"Линия {lines} снова отключилась по перегрузке. Не возвращаю: проверьте, что подключено на этой линии.",
-                    priority=2,
-                    cooldown_s=1800.0,
-                )
-            )
-            return out
-        if ctx.now - since >= OVERCURRENT_WAIT_S:
-            ctx.mem["last_reset"] = ctx.now
-            out.append(
-                Intent(
-                    key="overcurrent:reset",
-                    situation=f"IL_OVERCURRENT отключил линии {lines} {ctx.now - since:.0f} с назад",
-                    cause="кратковременная перегрузка (пуск оборудования); попробуем вернуть один раз",
-                    confidence=0.7,
-                    evidence=[{"node": "dome_automation_01", "param": "interlocks.IL_OVERCURRENT.shed_lines", "value": shed}],
-                    plan=["снять IL_OVERCURRENT один раз", "при повторе — сообщить Оператору"],
-                    steps=[Step("dome_automation_01", "reset_interlock", "IL_OVERCURRENT", Expect.equals("dome_automation_01.interlocks.IL_OVERCURRENT.state", "ARMED"), "возврат линий после перегрузки")],
-                    say=f"Линия {lines} отключалась по перегрузке — вернул один раз. Если повторится, проверьте нагрузку.",
-                    priority=2,
-                    rag_query="IL_OVERCURRENT линия отключена перегрузка вернуть",
-                )
-            )
-        return out
+        shed = ctx.state.get('dome_automation_01.interlocks.IL_OVERCURRENT.shed_lines', []) or []
+        facts = [{'node': 'dome_automation_01', 'param': 'interlocks.IL_OVERCURRENT.shed_lines', 'value': shed}]
+        return [Intent(key='overcurrent:inspect', situation=f'IL_OVERCURRENT: отключены линии {shed}',
+            cause='причина перегрузки не установлена; ожидание не подтверждает безопасность', confidence=0.0,
+            evidence=facts, plan=['сохранить защиту', 'проверить нагрузку и физические причины'],
+            human_escalation=dict(node_id='smart_panel_01', incident='IL_OVERCURRENT', severity='yellow',
+                facts=facts, already_done=['Автоматическое повторное включение запрещено'],
+                required_action='Проверьте нагрузки, кабели и защиту отключённых линий; устраните причину и подтвердите безопасный баланс перед восстановлением по процедуре.'),
+            priority=1, cooldown_s=900.0)]
 
     @staticmethod
     def _warn_protection(ctx: Ctx, out: list[Intent]) -> None:
