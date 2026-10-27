@@ -18,6 +18,7 @@ pytest.importorskip("openai")
 from kupol.dome.agentlog import AgentLog  # noqa: E402
 from kupol.dome.brain import LlmBrain  # noqa: E402
 from kupol.dome.config import load_dome_config  # noqa: E402
+from kupol.dome.control import ADVISORY_REASON  # noqa: E402
 from kupol.dome.env import Settings  # noqa: E402
 from kupol.dome.runner import Runner  # noqa: E402
 from llm_agent import Settings as LlmSettings  # noqa: E402
@@ -61,9 +62,10 @@ class FakeLLM:
 
 
 class LlmHarness(Harness):
-    def __init__(self, tmp_path: Path, world: World, llm: FakeLLM) -> None:
+    def __init__(self, tmp_path: Path, world: World, llm: FakeLLM, playbooks: list | None = ()) -> None:
         super().__init__(tmp_path, world)
         self.llm = llm
+        self.playbooks = None if playbooks is None else list(playbooks)  # по умолчанию решает одна модель, плейбуков нет
         self.brain: LlmBrain | None = None
 
     async def __aenter__(self) -> LlmHarness:
@@ -79,7 +81,7 @@ class LlmHarness(Harness):
                                   llm=self.llm, llm_settings=lst, clock=self.world.clock)
             return self.brain
 
-        self.runner = Runner(st, cfg, self.log, clock=self.world.clock, brain=factory)
+        self.runner = Runner(st, cfg, self.log, clock=self.world.clock, brain=factory, playbooks=self.playbooks)
         self._task = asyncio.create_task(self.runner.run())
         await self.until(lambda: self.runner is not None and self.runner.client.connected and bool(self.runner.client.catalog_message))
         return self
@@ -100,7 +102,17 @@ def test_llm_decides_and_gate_executes_with_verification(tmp_path: Path) -> None
         w = World()
         start_work(w)
         w.at(10, spike("climate_sensor_01"))
-        llm = FakeLLM(co2_answer)
+        def staged_answer(trigger: str) -> dict:
+            import copy
+            if "расходятся" not in trigger and "Проверка результата" not in trigger:
+                return QUIET
+            auto = w.nodes["dome_automation_01"]
+            index = 0 if not auto["data_trust"] else 1 if auto["primary_co2_sensor"] != "climate_sensor_02" else 2
+            answer = copy.deepcopy(FALSE_CO2)
+            answer["actions"] = [answer["actions"][index]]
+            answer["operator_message"] = {"needed": False, "text": ""}
+            return answer
+        llm = FakeLLM(staged_answer)
         async with LlmHarness(tmp_path, w, llm) as h:
             await h.step(30)
             auto = w.nodes["dome_automation_01"]
@@ -109,10 +121,12 @@ def test_llm_decides_and_gate_executes_with_verification(tmp_path: Path) -> None
             assert [m["action"] for m in h.sent()] == ["set_data_trust", "set_primary_sensor"]  # set_speed=5 не ушёл
             assert w.posted == []  # Gate отклонил один из шагов — «всё сделано» Оператору не пишем (правило рантайма)
 
-            [dec] = [r for r in h.records("decision") if r["situation"] == FALSE_CO2["situation"]]
+            decisions = [r for r in h.records("decision") if r["situation"] == FALSE_CO2["situation"]]
+            dec = decisions[0]
             assert dec["source"] == "llm" and dec["confidence"] == 0.9
-            assert not [r for r in h.records("decision") if r["source"] in ("rules", "mixed")]  # плейбуки молчат
-            actions = [r for r in h.records("action") if r.get("ref") == dec["seq"]]
+            stray = [(r["situation"], r["source"]) for r in h.records("decision") if r["source"] in ("rules", "mixed") and r["situation"] != "Вызов человека"]
+            assert not stray, stray  # плейбуки молчат
+            actions = [r for r in h.records("action") if r.get("ref") in {d["seq"] for d in decisions}]
             assert {a["request"]["action"] for a in actions} == {"set_data_trust", "set_primary_sensor", "set_speed"}
             rejected = next(a for a in actions if a["request"]["action"] == "set_speed")
             assert rejected["rejected"] and "Gate" in rejected["response"]["error"]
@@ -152,7 +166,7 @@ def test_playbooks_take_over_when_llm_fails(tmp_path: Path) -> None:
         w = World()
         start_work(w)
         w.at(10, spike("climate_sensor_01"))
-        async with LlmHarness(tmp_path, w, FakeLLM(lambda _t: None)) as h:
+        async with LlmHarness(tmp_path, w, FakeLLM(lambda _t: None), playbooks=None) as h:
             await h.step(60)
             assert h.brain is not None and not h.brain.healthy
             errors = [r for r in h.records("error") if r.get("where") == "llm_brain"]
@@ -219,17 +233,17 @@ def test_advisory_mode_sends_messages_but_not_agent_commands(tmp_path: Path) -> 
         llm = FakeLLM(lambda t: advice if "расходятся" in t else QUIET)
         async with LlmHarness(tmp_path, w, llm) as h:
             assert h.runner is not None
-            h.runner.gate.agent_control = False
+            h.runner.set_mode("recommendation", True)
             await h.step(12)
             assert not h.sent()  # команда агента не ушла в Купол
             assert w.nodes["dome_automation_01"]["data_trust"] == {}
-            assert len(w.posted) == 1 and "управление агента выключено" in w.posted[0] and "set_data_trust" in w.posted[0]
+            assert len(w.posted) == 1 and ADVISORY_REASON in w.posted[0] and "set_data_trust" in w.posted[0]
             assert any("управление агента выключено" in t for t in llm.triggers)  # модель знает о режиме
-            act = next(a for a in h.records("action") if a["request"]["action"] == "set_data_trust")
-            assert act["dry_run"] and "только рекомендация" in act["response"]["skipped"]
+            assert any(r.get("source") == "llm" for r in h.records("decision"))  # решение записано, команд нет
             # ручная команда Оператора в этом режиме уходит
             item = {"event": {"event_id": "op-1", "payload": {"node_id": "dome_automation_01", "action": "set_primary_sensor",
-                                                             "value": "climate_sensor_02"}, "metadata": {}}, "validation": {"status": "accepted"}}
+                                                             "value": "climate_sensor_02"},
+                              "metadata": {"policy_epoch": h.runner.policy.policy_epoch}}, "validation": {"status": "accepted"}}
             res = await h.runner.manual_command(item)
             assert res is not None and res.status == "sent"
 
@@ -284,6 +298,53 @@ def test_no_effect_is_an_immediate_trigger_with_repeat_block(tmp_path: Path) -> 
             ver = [v for v in h.records("verification") if not v["ok"]]
             assert ver and "data_trust" in ver[0]["expected"]
             hits = [t for t in llm.triggers if "dome_automation_01.set_data_trust" in t and "не подтвердился" in t]
-            assert hits and "заблокирована Gate на 120 с" in hits[0]
+            assert hits and "заблокирована Gate на 60 с" in hits[0]
+
+    run(scenario())
+
+
+def test_operator_request_refused_by_model_is_marked_not_done() -> None:
+    from kupol.dome.brain import to_intent
+    from llm_agent.dispatcher import Fired
+    from llm_agent.schemas import ActionVerdict, AgentDecision, AgentResponse, LLMCallInfo, ProposedAction
+    from llm_agent.triggers import Trigger
+
+    def intent(status: Any, actions: list[ProposedAction] = (), age: float | None = None):
+        text = "Линию 3 не отключаю: идёт печать."
+        decision = AgentDecision(situation="Оператор просит отключить линию 3", actions=list(actions),
+                                 operator_message={"needed": True, "text": text, "request_status": status})
+        verdicts = [ActionVerdict(action=a, accepted=True) for a in actions]
+        verdicts.append(ActionVerdict(action=ProposedAction(node_id="meeting_01", action="post_message", value={"text": text}), accepted=True))
+        response = AgentResponse(ok=True, decision=decision, decision_id="d1", llm_call=LLMCallInfo(model="fake", ok=True), verdicts=verdicts)
+        trigger = Trigger("operator", "op|1", "Требование Оператора (веб-панель): «Отключи линию 3»")
+        return to_intent(response, Fired([trigger], "", snapshot={"telemetry_age_s": age}), stale_s=30)
+
+    assert intent("refused").refused == ["требование Оператора — агент отказался выполнять"]
+    assert intent("PARTIAL").refused == ["требование Оператора — выполнено только частично"]
+    assert intent("executing").refused == ["требование Оператора — агент не предложил команд для него"]
+    line = ProposedAction(node_id="smart_panel_01", action="line_off", value={"line": 3})
+    assert intent("executing", [line]).refused == []
+    assert intent("already_done").refused == intent("answered").refused == intent("что-то").refused == []
+    assert intent("already_done", age=12).refused == []
+    # «Уже выполнено» по кадру минутной давности — не подтверждено
+    assert intent("already_done", age=75).refused == ["требование Оператора — выполнение не подтверждено: телеметрия устарела (75 с)"]
+
+
+def test_operator_request_refusal_reaches_operator_even_without_text(tmp_path: Path) -> None:
+    def answer(trigger: str) -> dict[str, Any]:
+        if "Требование Оператора" in trigger:
+            return {"situation": "Оператор просит отключить линию принтера", "actions": [],
+                    "operator_message": {"needed": False, "text": "", "request_status": "refused"}}
+        return QUIET
+
+    async def scenario() -> None:
+        w = World()
+        start_work(w)
+        async with LlmHarness(tmp_path, w, FakeLLM(answer)) as h:
+            await h.step(2)
+            assert h.brain is not None
+            h.brain.operator_request("Отключи линию питания принтера", "req-2")
+            await h.step(8)
+            assert w.posted == ["НЕ ВЫПОЛНЕНО: требование Оператора — агент отказался выполнять."]
 
     run(scenario())

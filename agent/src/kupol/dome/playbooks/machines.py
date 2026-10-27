@@ -38,13 +38,15 @@ def cause_cleared(ctx: Ctx, reason: str) -> tuple[bool, str]:
             return False, f"{reason}: интерлок ещё не взведён заново"
     if reason == "IL_CO2":
         live = {s: v for s, v in assess_co2(st, cfg).values.items() if not is_untrusted(st, s, "co2_ppm")}
-        if not live:
-            return False, "нет доверенных датчиков CO₂"
+        if len(live) < 2:
+            return False, "нет двух актуальных доверенных датчиков CO₂"
         if max(live.values()) >= cfg.co2.recovered_ppm:
             return False, f"CO₂ ещё высокий ({max(live.values()):.0f} ppm)"
         return True, "CO₂ в норме на доверенных датчиках"
     if reason == "IL_CONDENSATE":
         a = assess_condensate(st, cfg)
+        if len(a.rh) < 2 or a.kind == "unknown":
+            return False, "нет актуального подтверждения безопасной влажности"
         hot = [s for s in a.rh if a.trigger(s, cfg.condensate.rh_interlock_pct, cfg.condensate.dew_gap_c) and not is_untrusted(st, s, "humidity_pct")]
         return (not hot, "влажность в норме на доверенных датчиках" if not hot else f"влажность высокая: {', '.join(hot)}")
     if reason == "IL_SMOKE":

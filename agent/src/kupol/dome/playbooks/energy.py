@@ -1,7 +1,7 @@
 """Энергия: режим инвертора по SOC (упреждение ``IL_LOAD_SHED``), ошибки инвертора, MPPT.
 
 По журналу 14.10: при SOC 34–35 % режим переводили в ``GRID_ONLY``, при 77 % и солнце возвращали в
-``HYBRID``; ошибка E09 (изоляция PV) появляется в тумане и сбрасывается после просыхания. Если
+``HYBRID``; E09 требует проверки изоляции, погода не даёт допуска на сброс. Если
 дожить до SOC < 25 %, автоматика отключает линии 8, 1, затем 3 и 4 — то есть останавливает работу.
 """
 
@@ -135,13 +135,13 @@ class EnergyPlaybook(Playbook):
     # ------------------------------------------------------------------ ошибка инвертора
 
     def _inverter_error(self, ctx: Ctx) -> list[Intent]:
-        st, cfg = ctx.state, ctx.cfg.checks.inverter
+        st = ctx.state
         if st.get(f"{INV}.error") is not True:
             ctx.mem.pop("error_since", None)
             return []
         code = str(st.get(f"{INV}.error_code", ""))
         text = str(st.get(f"{INV}.error_text", ""))
-        since = ctx.mem.setdefault("error_since", ctx.now)
+        ctx.mem.setdefault("error_since", ctx.now)
         ev = [{"node": INV, "param": "error_code", "value": code}, {"node": INV, "param": "error_text", "value": text}]
         if code != "E09":
             return [
@@ -157,70 +157,13 @@ class EnergyPlaybook(Playbook):
                     cooldown_s=1800.0,
                 )
             ]
-        # E09 (изоляция PV): туман/сырость. Сброс при влажном воздухе тут же вернёт ошибку.
-        rh = st.num("weather_station_01.humidity_pct")
-        weather_ok = rh is not None and not st.is_frozen("weather_station_01")
-        dry = weather_ok and rh is not None and rh < cfg.humidity_ok_pct
-        waited = ctx.now - since
-        resets = _recent([float(t) for t in ctx.mem.get("resets", [])], ctx.now, HOUR_S)
-        ctx.mem["resets"] = resets
-        if (dry and waited >= E09_MIN_WAIT_S) or (not weather_ok and waited >= 4 * E09_MIN_WAIT_S):
-            if resets and ctx.now - resets[-1] < cfg.reset_min_gap_s:
-                return []
-            if len(resets) >= cfg.reset_max_per_hour:
-                return [
-                    Intent(
-                        key="energy:e09_giveup",
-                        situation=f"E09 повторяется: {len(resets)} сброса за час",
-                        cause="сброс не помогает — нужна проверка изоляции",
-                        confidence=0.8,
-                        evidence=ev,
-                        plan=["больше не сбрасывать"],
-                        say="Ошибка инвертора E09 (изоляция PV) возвращается после сброса — нужна проверка панелей/кабелей.",
-                        priority=2,
-                        cooldown_s=3600.0,
-                    )
-                ]
-            resets.append(ctx.now)
-            return [
-                Intent(
-                    key="energy:e09_reset",
-                    situation=f"E09 (изоляция PV) держится {waited / 60:.0f} мин, влажность снаружи "
-                    + (f"{rh:.0f} %" if rh is not None else "неизвестна"),
-                    cause="ложная ошибка изоляции из-за тумана/сырости (как в прошлые туманные утра)",
-                    confidence=0.8,
-                    evidence=ev + [{"node": "weather_station_01", "param": "humidity_pct", "value": rh}],
-                    plan=["сбросить ошибку инвертора", "проверить, что MPPT снова TRACKING и генерация пошла"],
-                    steps=[
-                        Step(
-                            INV,
-                            "reset_error",
-                            None,
-                            Expect.custom("ошибка сброшена, MPPT отслеживает", lambda s: s.get(f"{INV}.error") is False, [f"{INV}.error", f"{INV}.mppt_state", f"{INV}.pv_power_w"]),
-                            "E09 после просыхания",
-                        )
-                    ],
-                    say=None,
-                    priority=2,
-                    rag_query="E09 ошибка изоляции PV туман reset_error",
-                )
-            ]
-        return [
-            Intent(
-                key="energy:e09_wait",
-                situation=f"E09 (изоляция PV): жду, пока воздух просохнет (влажность "
-                + (f"{rh:.0f} %" if rh is not None else "неизвестна")
-                + f", порог {cfg.humidity_ok_pct:.0f} %)",
-                cause="туман/сырость; сброс сейчас вернёт ошибку",
-                confidence=0.75,
-                evidence=ev + [{"node": "weather_station_01", "param": "humidity_pct", "value": rh}],
-                plan=["не сбрасывать сейчас", "сбросить после просыхания"],
-                priority=3,
-                cooldown_s=900.0,
-            )
-        ]
-
-    # ------------------------------------------------------------------ MPPT
+        return [Intent(
+            key="energy:e09_wait", situation="E09: нарушение изоляции PV",
+            cause="исправность изоляции не подтверждена; погода не доказывает ложность ошибки",
+            confidence=0.8, evidence=ev, plan=["сохранить защиту", "проверка изоляции Оператором"],
+            say="E09: нужна проверка изоляции PV по установленной процедуре. Автоматический сброс запрещён.",
+            priority=2, cooldown_s=1800.0,
+        )]
 
     def _mppt(self, ctx: Ctx) -> list[Intent]:
         st = ctx.state

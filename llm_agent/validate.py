@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from typing import Any, Callable
 
 from .context.catalog import NodeCatalog
-from .schemas import ActionVerdict, ProposedAction
+from .schemas import ActionVerdict, AgentDecision, ProposedAction
 
 HOLD_REASONS_NEED_OPERATOR = {"FILAMENT_RUNOUT"}
 DANGEROUS = {("fire_suppression_01", "manual_start_zone"), ("access_control_01", "lockdown"),
@@ -64,9 +64,8 @@ def resume_requires_cause_cleared(a: ProposedAction, c: Ctx) -> str | None:
         return f"удержание {reason} снимается только после действия Оператора"
     if reason and str(reason).startswith("IL_"):
         il = (c.node("dome_automation_01").get("interlocks") or {}).get(reason) or {}
-        released_in_plan = any(_il_id(x.value) == reason for x in c.planned("dome_automation_01", "reset_interlock"))
-        if il.get("state") == "TRIPPED" and not released_in_plan:
-            return f"интерлок {reason} ещё TRIPPED и в плане нет reset_interlock — resume будет пустым"
+        if il.get("state") != "ARMED":
+            return f"интерлок {reason} не ARMED: reset в плане не является подтверждением снятия причины"
     return None
 
 
@@ -236,3 +235,26 @@ def validate_actions(actions: list[ProposedAction], catalog: NodeCatalog, teleme
             ctx.accepted.append(action)
         verdicts.append(ActionVerdict(action=action, accepted=accepted, reasons=reasons))
     return verdicts
+
+
+def check_classification(decision: AgentDecision, telemetry_age_s: float | None, stale_s: float) -> list[str]:
+    """Согласованность разметки воздействия, которую делает модель (код сам ничего не классифицирует).
+
+    Возвращает замечания для журнала и панели. Достоверность по устаревшему кадру не подтверждается:
+    authenticity сбрасывается в unknown.
+    """
+    issues = []
+    if telemetry_age_s is not None and telemetry_age_s > stale_s and decision.authenticity != "unknown":
+        issues.append(f"authenticity={decision.authenticity} по кадру {telemetry_age_s:.0f} с давности — заменено на unknown")
+        decision.authenticity = "unknown"
+    if decision.impact_kind == "false" and decision.authenticity == "real":
+        issues.append("impact_kind=false при authenticity=real: подтверждённый сигнал не может быть ложным")
+    if decision.false_alarm is True and decision.authenticity == "real":
+        issues.append("false_alarm=true противоречит authenticity=real")
+    if decision.false_alarm is False and decision.authenticity == "suspected_false":
+        issues.append("false_alarm=false противоречит authenticity=suspected_false")
+    if decision.impact_kind == "cascade" and len(decision.causal_chain) < 2:
+        issues.append("impact_kind=cascade без цепочки из двух и более звеньев")
+    if decision.authenticity != "unknown" and not decision.evidence:
+        issues.append(f"authenticity={decision.authenticity} без показаний в evidence")
+    return issues

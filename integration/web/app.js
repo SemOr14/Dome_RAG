@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pretty = value => JSON.stringify(value, null, 2);
 const date = value => value ? new Date(value).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—';
-const labels = {overview:'Обзор системы', charts:'Графики телеметрии', commands:'Управление', agent:'LLM-агент и чат', database:'База данных'};
+const labels = {overview:'Обзор системы', nodes:'Узлы', events:'События', charts:'Графики телеметрии', commands:'Управление', production:'Производство', agent:'LLM-агент и чат', database:'База данных'};
 const state = {page:'overview', runtime:{}, run:'', overview:null, charts:[], dbCursor:0, dbNext:0, dbItems:[], busy:false, commandOperation:null};
 $('token').value = sessionStorage.getItem('dome-api-token') || '';
 
@@ -12,6 +12,7 @@ function toast(message, error=false) {
   clearTimeout(toast.timer); toast.timer=setTimeout(()=>el.classList.add('hidden'),6500);
 }
 async function api(path, options={}) {
+  if(state.exiting && path!=='/control/safety/red')throw new Error('Приложение завершается');
   const headers = {...options.headers};
   if ($('token').value) headers.Authorization='Bearer '+$('token').value;
   if(options.body !== undefined) { headers['Content-Type']='application/json'; options.body=JSON.stringify(options.body); }
@@ -51,7 +52,7 @@ function flatten(value, path='', output={}) {
   return output;
 }
 async function refresh() {
-  if(state.busy)return; state.busy=true;
+  if(state.busy||state.exiting)return; state.busy=true;
   try {
     const runtime=await api('/control/status'); state.runtime=runtime;
     if(!state.run)state.run=runtime.run_id;
@@ -70,16 +71,15 @@ async function refresh() {
     $('notice').textContent=!isActive()?'Вы просматриваете другой запуск. Управление доступно только для текущего.':runtime.last_error?'Ошибка соединения: '+runtime.last_error:runtime.control_enabled?'Реальное управление разрешено настройкой сервера. Каждая команда требует проверок и подтверждения.':'Режим только чтения: команды проходят проверки, но в Купол не отправляются. Подключение выполняется отдельно.';
     $('askAgent').disabled=!runtime.llm_configured || !isActive();
     $('buildPrompt').disabled=!isActive();
-    $('autoAnalysis').checked=runtime.auto_analysis;
-    if(document.activeElement!==$('agentControl'))$('agentControl').checked=!!runtime.agent_control;
-    if(runtime.control_enabled&&!runtime.agent_control)$('modeBadge').textContent='АГЕНТ СОВЕТУЕТ';
+    if(runtime.control_enabled&&runtime.agent_mode!=='autonomous')$('modeBadge').textContent='АГЕНТ СОВЕТУЕТ';
     if(document.activeElement!==$('autoInterval')&&runtime.review_s)$('autoInterval').value=Math.round(runtime.review_s);
     renderOverview(data); renderControls(data); renderDecisions(data); updateSelectors(data);
+    if(window.refreshProductionControl) await window.refreshProductionControl();
     if(state.page==='charts') await refreshCharts();
     $('lastRefresh').textContent='Обновлено '+new Date().toLocaleTimeString('ru-RU');
     $('runtimeDetails').innerHTML=`<p class="tiny muted">Run: <code>${esc(runtime.run_id)}</code><br>Session: <code>${esc(runtime.session_id||'не создана')}</code><br>Роль: ${esc(runtime.role||'не авторизован')}<br>LLM: ${runtime.llm_configured?'ключ настроен':'ключ не настроен'}<br>Решения: ${esc(runtime.brain||'агент не запущен')}</p>`;
     if(state.page==='agent') await loadChat();
-  } catch(error) { $('apiState').textContent='API недоступен'; toast(error.message,true); }
+  } catch(error) { if(!state.exiting){$('apiState').textContent='API недоступен'; toast(error.message,true);} }
   finally {state.busy=false;}
 }
 function renderOverview(data) {
@@ -90,6 +90,7 @@ function renderOverview(data) {
   $('observationTime').textContent=data.nodes.length?'Получено '+date(data.nodes.reduce((a,b)=>a.id>b.id?a:b).ingested_at):'Нет телеметрии';
   renderNodes(data.nodes);
   renderTimeline(data);
+  if(state.page==='nodes'&&window.renderNodesPage)window.renderNodesPage(data);
 }
 // Keep the actual details/pre elements mounted across polling: open state and scroll survive.
 function renderNodes(nodes) {
@@ -128,13 +129,31 @@ function actionStatus(p){
   if(p.dry_run)return ['wait','Не отправлено · только чтение',''];
   return r.success?['good','Принято Куполом','']:['bad','Ошибка Купола',r.error];
 }
+// «НЕ ВЫПОЛНЕНО: a; b. Сообщение агента: «…»» (runner.with_outcome) → список невыполненного и сам текст агента
+function splitOutcome(text){
+  const m=/^НЕ ВЫПОЛНЕНО: ([\s\S]*?)\.(?: Сообщение агента: «([\s\S]*)»)?$/.exec(text||'');
+  return m?{missed:m[1].split('; '),say:m[2]||''}:{missed:[],say:text||''};
+}
+function delivery(p){
+  const r=p.response||{};
+  if(p.rejected)return ['bad','не отправлено: '+(r.error||'Gate')];
+  if(p.dry_run)return ['wait','не отправлено · только чтение'];
+  return r.success?['good','доставлено в чат Купола']:['bad','ошибка доставки: '+(r.error||'')];
+}
+function messageItem(p,time){
+  const {missed,say}=splitOutcome(String(p.request.value?.text??p.request.value??'')),[cls,status]=delivery(p);
+  const head=missed.length?'<span class="badge bad">НЕ ВЫПОЛНЕНО</span>':'';
+  const list=missed.length?`<ul class="plan missed">${missed.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'';
+  return `<div class="event message-event${missed.length?' not-done':''}">${time}<span><span class="badge good">АГЕНТ</span></span><div><b>Сообщение Оператору</b> ${head}${list}${say?`<p class="what">${esc(say)}</p>`:''}<p class="tiny"><span class="dot ${cls==='good'?'good':cls==='bad'?'bad':''}"></span>${esc(status)}</p></div></div>`;
+}
 function timelineItem(e,all){
   const p=e.payload||{},time=`<span class="muted">${date(e.ingested_at)}</span>`;
+  if(e.event_type==='agent_action'&&p.request?.node_id==='meeting_01')return messageItem(p,time);
   if(e.event_type==='agent_action'&&p.request){
     const req=p.request,dec=all.find(x=>x.event_type==='agent_decision'&&x.payload?.seq===p.ref&&x.payload?.run_id===p.run_id)?.payload;
-    const operator=dec?.source==='operator',[cls,status,why]=actionStatus(p),chat=req.node_id==='meeting_01';
-    const what=chat?`Сообщение Оператору: ${esc(req.value?.text||req.value||'')}`:`<code>${esc(req.node_id)}.${esc(req.action)}</code> ${value(req.value)}`;
-    return `<div class="event control ${operator?'by-operator':'by-agent'}">${time}<span><span class="badge ${operator?'wait':'good'}">${operator?'ОПЕРАТОР':'АГЕНТ'}</span></span><div><b>${chat?'Сообщение в чат':'Управляющее воздействие'}</b> <span class="badge ${cls}">${esc(status)}</span><p class="what">${what}</p><p>${esc(why||p.reason||'')}</p></div></div>`;
+    const operator=dec?.source==='operator',[cls,status,why]=actionStatus(p);
+    const what=`<code>${esc(req.node_id)}.${esc(req.action)}</code> ${value(req.value)}`;
+    return `<div class="event control ${operator?'by-operator':'by-agent'}">${time}<span><span class="badge ${operator?'wait':'good'}">${operator?'ОПЕРАТОР':'АГЕНТ'}</span></span><div><b>Управляющее воздействие</b> <span class="badge ${cls}">${esc(status)}</span><p class="what">${what}</p><p>${esc(why||p.reason||'')}</p></div></div>`;
   }
   if(e.event_type==='control_intent'&&e.source==='operator'){
     const c=all.__controls?.find(x=>x.event.event_id===e.event_id),v=c?.validation;
@@ -142,7 +161,8 @@ function timelineItem(e,all){
   }
   if(e.event_type==='agent_decision'){
     const impact={base:'базовое',hidden:'скрытое',cascade:'каскадное',false:'вероятно ложное',unknown:'не определено'};
-    const classification=p.impact_kind?` · ${impact[p.impact_kind]||p.impact_kind}`:'';
+    const signal={real:'сигнал подтверждён',suspected_false:'сигнал, вероятно, ложный'};
+    const classification=(p.impact_kind?` · ${impact[p.impact_kind]||p.impact_kind}`:'')+(signal[p.authenticity]?`, ${signal[p.authenticity]}`:'')+(p.classification_issues?.length?` · замечания к разметке: ${p.classification_issues.join('; ')}`:'');
     const conf=typeof p.confidence==='number'?` · уверенность ${Math.round(p.confidence*100)} %`:'';
     const plan=(p.plan||[]).map(x=>`<li>${esc(x)}</li>`).join(''),ev=(p.evidence||[]).slice(0,4).map(x=>`<li>${esc(x.node||x.detail||'')}${x.param?'.'+esc(x.param):''}${x.value!==undefined?' = '+value(x.value):''}${x.note?' — '+esc(x.note):''}</li>`).join('');
     return `<div class="event decision-event">${time}<span><span class="badge">${esc(SOURCES[p.source]||p.source||'агент')}</span></span><div><b>Решение: ${esc(p.situation||'')}</b><p>Причина: ${esc(p.cause||'—')}${esc(conf+classification)}</p>${p.causal_chain?.length?`<p>${esc(p.causal_chain.join(' → '))}</p>`:''}${plan?`<ul class="plan">${plan}</ul>`:''}${ev?`<details><summary>Основания</summary><ul class="plan">${ev}</ul></details>`:''}${p.rag_refs?.length?`<p class="tiny">RAG: ${esc(p.rag_refs.join(', '))}</p>`:''}</div></div>`;
@@ -151,10 +171,30 @@ function timelineItem(e,all){
   const text=p.summary||p.text||p.reason||p.action||p.event||(typeof p.message==='string'?p.message:p.message?.text)||'';
   return `<div class="event">${time}<span>${esc(who)}</span><div><b>${esc(e.event_type)}</b><p>${esc(text)}</p></div></div>`;
 }
+// Сообщение агента Оператору показывает одна карточка (agent_action); намерение, запрос, ответ Купола и запись
+// message о том же сообщении — служебные дубли (они есть во вкладке «База данных»)
+function chatDuplicate(e){
+  const p=e.payload||{};
+  if(e.event_type==='agent_message')return p.direction==='out';
+  return e.source!=='operator'&&['control_intent','control','control_response'].includes(e.event_type)&&(p.action==='post_message'||p.node_id==='meeting_01');
+}
+function eventKind(e){
+  const p=e.payload||{};
+  if(e.event_type==='agent_action'&&p.request?.node_id==='meeting_01')return 'message';
+  if(e.event_type==='agent_action'||(e.event_type==='control_intent'&&e.source==='operator'))return 'control';
+  if(e.event_type==='agent_decision')return 'decision';
+  return 'other';
+}
 function renderTimeline(data){
   const all=Object.assign([...data.events],{__controls:data.controls});
-  const shown=data.events.filter(e=>!TIMELINE_HIDDEN.has(e.event_type)).slice(0,30);
-  $('timeline').innerHTML=shown.length?shown.map(e=>timelineItem(e,all)).join(''):empty('События ещё не записаны.');
+  const visible=data.events.filter(e=>!TIMELINE_HIDDEN.has(e.event_type)&&!chatDuplicate(e));
+  const item=e=>`<div data-key="${esc(e.event_id||e.id)}">${timelineItem(e,all)}</div>`;
+  $('timelineMini').innerHTML=visible.length?visible.slice(0,5).map(item).join(''):empty('События ещё не записаны.');
+  const kind=$('eventKind').value,needle=$('eventSearch').value.trim().toLowerCase();
+  const found=visible.filter(e=>(kind==='all'||eventKind(e)===kind)&&(!needle||JSON.stringify([e.event_type,e.payload]).toLowerCase().includes(needle)));
+  const shown=found.slice(0,Number($('eventLimit').value)||60);
+  $('eventCount').textContent=`Показано ${shown.length} из ${found.length}`;
+  $('timeline').innerHTML=shown.length?shown.map(item).join(''):empty(visible.length?'По фильтру событий нет.':'События ещё не записаны.');
 }
 function renderControls(data) {
   $('controls').innerHTML=data.controls.length?`<table><thead><tr><th>Время / автор</th><th>Узел / действие</th><th>Проверка БД</th><th>Отправка / Gate</th><th>Ответ Купола</th></tr></thead><tbody>${data.controls.map(c=>{
@@ -171,7 +211,7 @@ function updateSelectors(data) {
   const priorChart=$('chartNode').value;
   selectOptions($('chartNode'),data.nodes,x=>x.node_id,x=>`${x.node_id} · ${nodeName(x.node_id)}`);
   if(priorChart!==$('chartNode').value || !$('chartField').options.length)updateFields().catch(e=>toast(e.message,true));
-  $('sendCommand').disabled=!isActive()||!data.catalogue.length;
+  $('sendCommand').disabled=!isActive()||!data.catalogue.length||state.runtime.profile!=='service';
 }
 function updateActions() {
   const node=state.overview?.catalogue.find(x=>x.node_id===$('commandNode').value);
@@ -191,7 +231,7 @@ function renderDecisions(data) {
     return `<article class="panel decision"><div class="panel-heading"><span class="muted tiny">${date(e.ingested_at)} · ${esc(p.decision_id||e.event_id)}</span>${badge(p.severity||'proposed')}</div><h3>${esc(p.summary||p.text||'Решение агента')}</h3><p class="reason">${esc((p.hypotheses||[]).map(x=>x.description).join('; '))}</p>${p.proposed_controls?.length?`<table><thead><tr><th>Предложение</th><th>Проверка LLM-слоя</th><th></th></tr></thead><tbody>${p.proposed_controls.map((a,i)=>`<tr><td><code>${esc(a.node_id)} / ${esc(a.action)}</code><div>${esc(JSON.stringify(a.value))}</div></td><td>${badge(a.accepted?'accepted':'rejected')}<div class="muted">${esc((a.reasons||[]).join('; '))}</div></td><td><button class="small execute-decision" data-event="${esc(e.event_id)}" data-index="${i}" ${a.accepted&&isActive()?'':'disabled'}>Повторно проверить и выполнить</button></td></tr>`).join('')}</tbody></table>`:'<p class="muted tiny">Управляющих действий не предложено.</p>'}<details><summary>Полная структура решения</summary><pre>${esc(pretty(p))}</pre></details></article>`;
   }).join(''):empty('Решений текущего LLM-слоя пока нет. Запросите анализ новых данных.');
   document.querySelectorAll('.execute-decision').forEach(button=>button.onclick=()=>action(button,async()=>{
-    if(!confirm('Повторно проверить и выполнить действие агента? В живом режиме команда будет отправлена.'))return;
+    if(state.runtime.profile!=='service')throw new Error('Ручное принятие рекомендации доступно только в service');
     button.dataset.operation ||= crypto.randomUUID();
     const result=await api(`/control/decisions/${button.dataset.event}/execute`,{method:'POST',body:{operation_id:button.dataset.operation,action_index:Number(button.dataset.index)}});
     toast(`Результат: ${result.status}. ${result.reason||''}`); await refresh();
@@ -228,8 +268,11 @@ async function refreshCharts() {
   });
   for(const card of existing.values())card.remove();
   $('chartSummary').textContent=`20 основных графиков · аномалий: ${result.anomalies.length} · проверено числовых рядов: ${result.fields_checked} · ${result.source||'данных пока нет'}${result.catching_up?' · обрабатывается накопленная телеметрия':''}`;
-  const kind={base:'Базовое',hidden:'Скрытое',cascade:'Каскадное',false:'Вероятно ложное',unknown:'Не определено'};
-  $('impactSummary').textContent=result.impacts.map(x=>`${kind[x.kind]||x.kind}: ${x.cause}. Проверка: ${x.check}`).join(' · ');
+  // Разделение воздействий делает LLM-агент: показываем его последнюю оценку, код её не вычисляет
+  const kind={base:'базовое',hidden:'скрытое',cascade:'каскадное',false:'ложный сигнал',unknown:'не определено'};
+  const real={real:'сигнал подтверждён',suspected_false:'сигнал, вероятно, ложный',unknown:'достоверность не установлена'};
+  const last=state.overview?.events.find(x=>x.event_type==='agent_decision'&&x.payload?.impact_kind)?.payload;
+  $('impactSummary').textContent=last?`Оценка агента: ${kind[last.impact_kind]||last.impact_kind}, ${real[last.authenticity]||last.authenticity}${last.causal_chain?.length?' · '+last.causal_chain.join(' → '):''}${last.classification_issues?.length?' · замечания: '+last.classification_issues.join('; '):''}`:'';
 }
 function drawChart(canvas, points, note, anomaly=false) {
   const w=canvas.clientWidth||400,h=240,ratio=window.devicePixelRatio||1;
@@ -280,8 +323,10 @@ document.querySelectorAll('nav button').forEach(button=>button.onclick=()=>{
   document.querySelectorAll('nav button').forEach(el=>el.classList.toggle('active',el===button));
   $('heading').textContent=$('pageName').textContent=labels[state.page];
   if(state.page==='charts')refreshCharts().catch(e=>toast(e.message,true));
+  if(state.page==='nodes'&&state.overview&&window.renderNodesPage)window.renderNodesPage(state.overview);
   if(state.page==='database')loadEvents().catch(e=>toast(e.message,true));
   if(state.page==='agent')loadChat().catch(e=>toast(e.message,true));
+  if(state.page==='production' && window.refreshProductionControl)window.refreshProductionControl().catch(e=>toast(e.message,true));
 });
 $('chatForm').onsubmit=event=>{event.preventDefault();action($('chatSend'),async()=>{
   if(!isActive())throw new Error('Выбран другой запуск');
@@ -291,6 +336,8 @@ $('chatForm').onsubmit=event=>{event.preventDefault();action($('chatSend'),async
   if(ok)$('chatText').value='';
   toast(ok?'Требование передано агенту, ответ появится в ленте':`${result.status}: ${result.reason||''}`,!ok);await loadChat();
 });};
+for(const id of ['eventKind','eventLimit','eventSearch'])$(id).addEventListener('input',()=>{if(state.overview)renderTimeline(state.overview);});
+$('allEvents').onclick=()=>document.querySelector('nav button[data-page="events"]').click();
 $('login').onclick=()=>{sessionStorage.setItem('dome-api-token',$('token').value);refresh();};
 $('refresh').onclick=()=>refresh();
 $('runSelect').onchange=async()=>{state.run=$('runSelect').value;state.charts=[];await refresh();if(state.page==='database')loadEvents().catch(e=>toast(e.message,true));};
@@ -316,16 +363,11 @@ for(const [id,path] of [['buildPrompt','prompt'],['askAgent','decide']])$(id).on
   $('llmOutput').textContent=pretty(result);$('promptDetails').open=true;
   await refresh();
 });
-$('applyAgentControl').onclick=()=>action($('applyAgentControl'),async()=>{
-  const on=$('agentControl').checked;
-  if(on&&!confirm('Разрешить агенту отправлять команды в Купол?'))return;
-  await api('/control/agent-control',{method:'POST',body:{enabled:on}});toast(on?'Агент управляет Куполом':'Агент только советует');await refresh();
-});
-$('applyAuto').onclick=()=>action($('applyAuto'),async()=>{await api('/control/auto',{method:'POST',body:{enabled:$('autoAnalysis').checked,interval_s:Number($('autoInterval').value)}});await refresh();});
+$('applyAuto').onclick=()=>action($('applyAuto'),async()=>{await api('/control/auto',{method:'POST',body:{enabled:state.runtime.agent_mode!=='off',interval_s:Number($('autoInterval').value)}});await refresh();});
 $('dbFilters').onsubmit=event=>{event.preventDefault();loadEvents().catch(e=>toast(e.message,true));};
 $('dbNext').onclick=()=>{state.dbCursor=state.dbNext;loadEvents(false).catch(e=>toast(e.message,true));};
 $('find').onclick=()=>action($('find'),async()=>{$('dbDetail').textContent=pretty(await api('/v1/events/'+encodeURIComponent($('findEvent').value.trim())));});
 $('loadAudit').onclick=()=>loadAudit().catch(e=>toast(e.message,true));
 $('export').onclick=()=>{const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([pretty(state.dbItems)],{type:'application/json'}));link.download='dome-events.json';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);};
 refresh();
-setInterval(()=>{if(!document.hidden)refresh();},4000);
+window.panelRefreshTimer=setInterval(()=>{if(!document.hidden)refresh();},4000);

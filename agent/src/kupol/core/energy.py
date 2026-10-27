@@ -119,7 +119,7 @@ def energy_status(state: State, config: AppConfig) -> EnergyStatus | None:
     )
 
 
-def energy_alert(status: EnergyStatus | None, now: datetime, deficit_info_w: float = 400.0) -> Alert | None:
+def energy_alert(status: EnergyStatus | None, now: datetime, deficit_info_w: float = 600.0) -> Alert | None:
     """Тревога по запасу времени (или информационная о заметном разряде).
 
     Args:

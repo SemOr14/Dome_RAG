@@ -8,6 +8,9 @@ limits:
   resume_attempts_max: 2        # третья пустая попытка resume → ALARM 20 мин
   block_interlock_max_min: 30
   message_max_chars: 4000
+  # Следующие два значения подставляются только в текст промпта; исполнение по-прежнему ограничивает код (Gate/to_intent).
+  max_state_changes_per_decision: 1
+  max_suspicions_per_decision: 1
 
 permissions:
   - "Агент выполняет только действия из `controls` каталога узла (describe_nodes — главный источник прав)."

@@ -28,7 +28,8 @@ def test_empty_panel_auth_and_http_audit(tmp_path):
         assert audit["response"]["status"] == 403
 
 
-def test_operator_rejection_is_saved_and_retries_do_not_send(tmp_path):
+def test_operator_rejection_is_saved_and_retries_do_not_send(tmp_path, monkeypatch):
+    monkeypatch.setenv("DEPLOYMENT_PROFILE", "service")  # в competition прямые команды Оператора запрещены
     app = create_app(tmp_path / "commands.sqlite3", token="")
     with TestClient(app) as client:
         body = {

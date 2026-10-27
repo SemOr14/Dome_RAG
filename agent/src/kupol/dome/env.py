@@ -60,7 +60,6 @@ class Settings:
     data_api_token: str = ""
     data_api_run_id: str = ""
     state_dir: str = "state"
-    agent_control: bool = True  # False: агент только советует (его команды в лог), чат и команды Оператора уходят
     brain: str = "llm"  # кто принимает решения: llm (LLM-агент Купола, плейбуки — запасной путь) | rules (только плейбуки)
     sources: dict[str, str] = field(default_factory=dict)
 
@@ -122,7 +121,6 @@ def load_settings(env: Mapping[str, str] | None = None, root: Path | None = None
         data_api_run_id=pick("DATA_API_RUN_ID"),
         state_dir=pick("STATE_DIR", default="state"),
         brain=(pick("AGENT_BRAIN", default="llm") or "llm").strip().lower(),
-        agent_control=_flag(pick("AGENT_CONTROL", default="1")),
         sources=sources,
     )
 

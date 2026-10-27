@@ -47,43 +47,47 @@ def test_cnc_tasks_in_operator_wording(tmp_path: Path) -> None:
 def test_unknown_file_gets_short_answer_with_options(tmp_path: Path) -> None:
     out, mem = run(free_state(), tmp_path, "Запусти lid_v9.gcode")
     assert not acts(out) and "нет на принтере" in (out[0].say or "") and "sensor_case.gcode" in (out[0].say or "")
-    assert not mem["jobs"]
+    assert not mem["active_jobs"]
 
 
-def test_busy_machine_queues_and_starts_after_it_frees(tmp_path: Path) -> None:
+def test_busy_machine_refuses_without_deferred_start(tmp_path: Path) -> None:
     st = free_state()
     set_path(st, "cnc_01.state", "RUNNING")
     set_path(st, "cnc_01.progress_pct", 40.0)
     out, mem = run(st, tmp_path, "Нужен pcb_power_board.nc")
-    assert not acts(out) and "занят" in (out[0].say or "") and mem["jobs"][0]["state"] == "waiting_confirm"
+    assert not acts(out) and "занят" in (out[0].say or "") and not mem["active_jobs"]
     set_path(st, "cnc_01.state", "IDLE")
     ctx = make_ctx(st, tmp_path, now=1100.0, mem=mem)
-    assert TasksPlaybook().step(ctx) == []  # ждём подтверждение, что заготовка закреплена
+    assert TasksPlaybook().step(ctx) == []
     ctx.chat_new = [op(2, "Заготовку закрепила, запускай")]
     out2 = TasksPlaybook().step(ctx)
-    assert acts(out2) == [("cnc_01", "start_job", "pcb_power_board.nc")]
+    assert not acts(out2)  # одно подтверждение не восстанавливает старый запрос
+    ctx.chat_new = [op(3, "Запусти pcb_power_board.nc, заготовка закреплена")]
+    assert acts(TasksPlaybook().step(ctx)) == [("cnc_01", "start_job", "pcb_power_board.nc")]
 
 
-def test_printer_waits_until_bed_is_clear(tmp_path: Path) -> None:
+def test_printer_needs_new_named_request_after_bed_is_clear(tmp_path: Path) -> None:
     st = free_state()
     set_path(st, "printer_3d_01.bed_clear", False)
     out, mem = run(st, tmp_path, "Задание: gear_m1_z24.gcode")
     assert not acts(out) and "деталь" in (out[0].say or "")
     set_path(st, "printer_3d_01.bed_clear", True)
     out2 = TasksPlaybook().step(make_ctx(st, tmp_path, now=1050.0, mem=mem))
-    assert acts(out2) == [("printer_3d_01", "start_job", "gear_m1_z24.gcode")]
+    assert not acts(out2)
+    out3, _ = run(st, tmp_path, "Задание: gear_m1_z24.gcode", mem, mid=2)
+    assert acts(out3) == [("printer_3d_01", "start_job", "gear_m1_z24.gcode")]
 
 
-def test_homing_before_start_when_not_homed(tmp_path: Path) -> None:
+def test_unhomed_request_does_not_create_home_and_start_plan(tmp_path: Path) -> None:
     st = free_state()
     set_path(st, "cnc_01.homed", False)
     out, _ = run(st, tmp_path, "Нужен pcb_power_board.nc")
-    assert acts(out) == [("cnc_01", "home", None)]
+    assert not acts(out) and "координаты не подтверждены" in (out[0].say or "")
 
 
 def test_taken_note_is_not_a_new_task(tmp_path: Path) -> None:
     out, mem = run(free_state(), tmp_path, "Сняла pcb_sensor_hub.nc, стол фрезера свободен.")
-    assert out == [] and not mem["jobs"]
+    assert out == [] and not mem["active_jobs"]
 
 
 def test_job_completion_is_reported_for_cnc(tmp_path: Path) -> None:

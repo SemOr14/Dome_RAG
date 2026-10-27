@@ -5,9 +5,9 @@
   "metric_note": "Hit@5: at least one expected ID in first five. Title-based design cases are easier than independent paraphrases.",
   "datasets": {
     "design_cases": {
-      "cases": 31,
+      "cases": 63,
       "hit_rate_at_5": 1.0,
-      "mean_reciprocal_rank": 0.9516129032258065,
+      "mean_reciprocal_rank": 0.9656084656084657,
       "cases_detail": [
         {
           "id": "E01",
@@ -19,8 +19,8 @@
             "F06",
             "S01",
             "F09",
-            "F05",
-            "F07"
+            "F07",
+            "F05"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 0.5
@@ -33,13 +33,13 @@
           ],
           "retrieved_ids": [
             "F12",
-            "S02",
             "F10",
-            "S16",
+            "S02",
+            "S41",
             "S08"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 0.5
+          "reciprocal_rank": 0.3333333333333333
         },
         {
           "id": "E03",
@@ -49,10 +49,10 @@
           ],
           "retrieved_ids": [
             "S03",
+            "S46",
+            "S42",
             "F32",
-            "S07",
-            "S15",
-            "S04"
+            "S07"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -65,10 +65,10 @@
           ],
           "retrieved_ids": [
             "S04",
-            "F30",
-            "S14",
-            "F11",
-            "F17"
+            "S27",
+            "S47",
+            "S38",
+            "S46"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -81,10 +81,10 @@
           ],
           "retrieved_ids": [
             "S05",
+            "S33",
+            "S43",
             "F19",
-            "F03",
-            "F28",
-            "F22"
+            "S40"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -97,10 +97,10 @@
           ],
           "retrieved_ids": [
             "S06",
-            "F19",
-            "S02",
-            "F22",
-            "F10"
+            "S28",
+            "S08",
+            "S53",
+            "S41"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -114,7 +114,7 @@
           "retrieved_ids": [
             "S07",
             "F32",
-            "S15",
+            "S38",
             "S04",
             "S03"
           ],
@@ -128,14 +128,14 @@
             "S08"
           ],
           "retrieved_ids": [
-            "S08",
             "F10",
-            "S16",
-            "F12",
-            "S15"
+            "S08",
+            "S41",
+            "S42",
+            "S16"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.5
         },
         {
           "id": "E09",
@@ -146,9 +146,9 @@
           "retrieved_ids": [
             "S09",
             "F04",
+            "S26",
             "S18",
-            "S10",
-            "F05"
+            "S10"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -162,9 +162,9 @@
           "retrieved_ids": [
             "S10",
             "F06",
-            "S09",
-            "S01",
-            "F09"
+            "S26",
+            "S36",
+            "S09"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -177,10 +177,10 @@
           ],
           "retrieved_ids": [
             "S11",
+            "S28",
+            "S38",
             "F12",
-            "F24",
-            "S02",
-            "F13"
+            "S40"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -194,9 +194,9 @@
           "retrieved_ids": [
             "S12",
             "F16",
-            "F30",
-            "S13",
-            "F11"
+            "S34",
+            "S31",
+            "S27"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -210,9 +210,9 @@
           "retrieved_ids": [
             "S13",
             "F15",
-            "F16",
-            "F30",
-            "S12"
+            "S27",
+            "S34",
+            "S31"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -226,8 +226,9 @@
           "retrieved_ids": [
             "S14",
             "F11",
-            "S12",
-            "F12"
+            "S27",
+            "S38",
+            "S26"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -240,10 +241,10 @@
           ],
           "retrieved_ids": [
             "S15",
+            "S38",
+            "S48",
             "S16",
-            "S09",
-            "F32",
-            "S04"
+            "S47"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -257,9 +258,9 @@
           "retrieved_ids": [
             "S16",
             "F10",
+            "S41",
             "S08",
-            "F12",
-            "S15"
+            "F12"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -271,14 +272,14 @@
             "S17"
           ],
           "retrieved_ids": [
-            "S17",
             "F31",
-            "F07",
-            "S04",
-            "F17"
+            "S17",
+            "S32",
+            "S27",
+            "S26"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.5
         },
         {
           "id": "E18",
@@ -290,8 +291,8 @@
             "S18",
             "S09",
             "F03",
-            "S11",
-            "F24"
+            "S54",
+            "S11"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -303,14 +304,14 @@
             "S19"
           ],
           "retrieved_ids": [
-            "S20",
             "S19",
+            "S20",
             "F20",
-            "S17",
-            "F32"
+            "S51",
+            "S43"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 0.5
+          "reciprocal_rank": 1.0
         },
         {
           "id": "E20",
@@ -320,10 +321,10 @@
           ],
           "retrieved_ids": [
             "S20",
-            "S07",
-            "S09",
+            "S49",
+            "S34",
             "S17",
-            "S16"
+            "S07"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -336,10 +337,10 @@
           ],
           "retrieved_ids": [
             "S21",
+            "S54",
             "F03",
             "F02",
-            "F05",
-            "S09"
+            "S19"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -354,8 +355,8 @@
             "S22",
             "S14",
             "F20",
-            "S03",
-            "S18"
+            "S53",
+            "S03"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -368,10 +369,10 @@
           ],
           "retrieved_ids": [
             "S23",
-            "S11",
-            "S17",
-            "S12",
-            "S16"
+            "S39",
+            "S50",
+            "S30",
+            "S11"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -384,9 +385,9 @@
           ],
           "retrieved_ids": [
             "S24",
-            "S19",
             "F19",
-            "S12",
+            "S37",
+            "S19",
             "F02"
           ],
           "hit_at_5": true,
@@ -401,10 +402,10 @@
           ],
           "retrieved_ids": [
             "F13",
-            "S11",
             "F12",
-            "S07",
-            "F15"
+            "S11",
+            "S28",
+            "S07"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -417,10 +418,10 @@
           ],
           "retrieved_ids": [
             "F05",
+            "S26",
             "F04",
-            "F08",
-            "F09",
-            "F06"
+            "S36",
+            "S35"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -436,7 +437,7 @@
             "S13",
             "F30",
             "S01",
-            "S02"
+            "S40"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -451,9 +452,9 @@
           "retrieved_ids": [
             "F10",
             "S08",
+            "S41",
             "S02",
-            "S16",
-            "F12"
+            "S16"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -486,7 +487,7 @@
             "F09",
             "F05",
             "F08",
-            "S08"
+            "S31"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -501,8 +502,520 @@
             "F03",
             "S09",
             "S05",
-            "F15",
+            "S54",
             "F24"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E35",
+          "query": "Шина МС-ТЮК: пустые показания бокса и замок не открывается при success",
+          "expected_ids": [
+            "S25"
+          ],
+          "retrieved_ids": [
+            "S25",
+            "F18",
+            "S18",
+            "S36",
+            "S09"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E36",
+          "query": "Удержание фрезера UNDERVOLTAGE при старте нагрева стола принтера",
+          "expected_ids": [
+            "S26"
+          ],
+          "retrieved_ids": [
+            "S26",
+            "S36",
+            "S35",
+            "F05",
+            "S31"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E37",
+          "query": "Фен и вытяжка выбивают линию мастерской (IL_OVERCURRENT)",
+          "expected_ids": [
+            "S27"
+          ],
+          "retrieved_ids": [
+            "S27",
+            "F31",
+            "S31",
+            "F11",
+            "S32"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E38",
+          "query": "Влажность 99 % после шлюза холодным утром и IL_CONDENSATE",
+          "expected_ids": [
+            "S28"
+          ],
+          "retrieved_ids": [
+            "S28",
+            "F13",
+            "S11",
+            "F12",
+            "S29"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E39",
+          "query": "Метеостанция показала +50 °C ночью",
+          "expected_ids": [
+            "S29"
+          ],
+          "retrieved_ids": [
+            "S29",
+            "S37",
+            "S28",
+            "S51",
+            "S44"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E40",
+          "query": "Тревоги системы доступа TAMPER и FORCED без вскрытия",
+          "expected_ids": [
+            "S30"
+          ],
+          "retrieved_ids": [
+            "S30",
+            "S21",
+            "S23",
+            "S39",
+            "S12"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E41",
+          "query": "Растущая утечка на линии фрезера и УЗО посреди фрезеровки",
+          "expected_ids": [
+            "S31"
+          ],
+          "retrieved_ids": [
+            "S31",
+            "F17",
+            "S27",
+            "S49",
+            "F30"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E42",
+          "query": "Вытяжка FabLab раз за разом уходит в MOTOR_OVERHEAT при пайке",
+          "expected_ids": [
+            "S32"
+          ],
+          "retrieved_ids": [
+            "S32",
+            "S27",
+            "S17",
+            "F31",
+            "S39"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E43",
+          "query": "Падение сервиса edge: десятки узлов UNKNOWN одновременно",
+          "expected_ids": [
+            "S33"
+          ],
+          "retrieved_ids": [
+            "S33",
+            "S45",
+            "S19",
+            "S22",
+            "F28"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E44",
+          "query": "Защита линии 1 срабатывает без перегрузки, сброс теряется",
+          "expected_ids": [
+            "S34"
+          ],
+          "retrieved_ids": [
+            "S34",
+            "S49",
+            "S12",
+            "S27",
+            "F16"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E45",
+          "query": "Неисправный вентилятор бокса: рост VOC и удержание IL_VOC_BOX",
+          "expected_ids": [
+            "S35"
+          ],
+          "retrieved_ids": [
+            "S35",
+            "S42",
+            "S39",
+            "S15",
+            "F14"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E46",
+          "query": "Залипший датчик температуры бокса держит замки",
+          "expected_ids": [
+            "S36"
+          ],
+          "retrieved_ids": [
+            "S36",
+            "S44",
+            "S29",
+            "S42",
+            "S28"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E47",
+          "query": "Флюгер метеостанции застыл на одном направлении",
+          "expected_ids": [
+            "S37"
+          ],
+          "retrieved_ids": [
+            "S37",
+            "S29",
+            "F32",
+            "S44",
+            "S51"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E48",
+          "query": "Мгновенный провал SOC 78 → 20 % и сброс нагрузки",
+          "expected_ids": [
+            "S38"
+          ],
+          "retrieved_ids": [
+            "S38",
+            "S15",
+            "S48",
+            "S34",
+            "S14"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E49",
+          "query": "Ложная пожарная тревога FabLab после фрезеровки",
+          "expected_ids": [
+            "S39"
+          ],
+          "retrieved_ids": [
+            "S39",
+            "S23",
+            "S30",
+            "S50",
+            "S53"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E50",
+          "query": "Пачка повторных записей автоматики в одну секунду",
+          "expected_ids": [
+            "S40"
+          ],
+          "retrieved_ids": [
+            "S40",
+            "S05",
+            "S33",
+            "S01",
+            "F27"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E51",
+          "query": "Духота при заниженном показании основного датчика CO2",
+          "expected_ids": [
+            "S41"
+          ],
+          "retrieved_ids": [
+            "S41",
+            "S08",
+            "F10",
+            "S02",
+            "F12"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E52",
+          "query": "Отказ вентилятора инвертора и рост температуры",
+          "expected_ids": [
+            "S42"
+          ],
+          "retrieved_ids": [
+            "S42",
+            "S44",
+            "S35",
+            "S36",
+            "S38"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E53",
+          "query": "Узел «замёрз»: water_filter_01 без обновлений",
+          "expected_ids": [
+            "S43"
+          ],
+          "retrieved_ids": [
+            "S43",
+            "S19",
+            "S47",
+            "S33",
+            "S24"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E54",
+          "query": "Температура сопла 280 °C при мощности нагревателя 27 %",
+          "expected_ids": [
+            "S44"
+          ],
+          "retrieved_ids": [
+            "S44",
+            "S42",
+            "S36",
+            "S29",
+            "F13"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E55",
+          "query": "Деградация оптического канала связи и переход на резерв",
+          "expected_ids": [
+            "S45"
+          ],
+          "retrieved_ids": [
+            "S45",
+            "F10",
+            "S02",
+            "S07",
+            "F30"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E56",
+          "query": "Перегрузка инвертора E07 и двойное отключение шины",
+          "expected_ids": [
+            "S46"
+          ],
+          "retrieved_ids": [
+            "S46",
+            "S34",
+            "S27",
+            "S38",
+            "S08"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E57",
+          "query": "Потеря сети ночью, а дизель не заводится из-за воды в топливе",
+          "expected_ids": [
+            "S47"
+          ],
+          "retrieved_ids": [
+            "S47",
+            "S38",
+            "S32",
+            "S03",
+            "S29"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E58",
+          "query": "BMS начала балансировку при SOC 77 % и остановила заряд",
+          "expected_ids": [
+            "S48"
+          ],
+          "retrieved_ids": [
+            "S48",
+            "S38",
+            "S15",
+            "S26",
+            "S34"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E59",
+          "query": "УЗО освещения срабатывает без утечки",
+          "expected_ids": [
+            "S49"
+          ],
+          "retrieved_ids": [
+            "S49",
+            "S06",
+            "S31",
+            "S34",
+            "S12"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E60",
+          "query": "Настоящий пожар на складе",
+          "expected_ids": [
+            "S50"
+          ],
+          "retrieved_ids": [
+            "S50",
+            "S39",
+            "S23",
+            "S35",
+            "S44"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E61",
+          "query": "Метеостанция без данных: перетёрт кабель питания",
+          "expected_ids": [
+            "S51"
+          ],
+          "retrieved_ids": [
+            "S51",
+            "S31",
+            "S29",
+            "S45",
+            "S37"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E62",
+          "query": "Кратковременный DEGRADED датчика без других признаков",
+          "expected_ids": [
+            "S52"
+          ],
+          "retrieved_ids": [
+            "S52",
+            "S53",
+            "S06",
+            "S28",
+            "S02"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E63",
+          "query": "Кратковременные тревоги сейсмодатчика и датчика радиации",
+          "expected_ids": [
+            "S53"
+          ],
+          "retrieved_ids": [
+            "S53",
+            "S52",
+            "S39",
+            "S06",
+            "S28"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E64",
+          "query": "Команда без ответа: исполнение могло начаться после таймаута",
+          "expected_ids": [
+            "S54"
+          ],
+          "retrieved_ids": [
+            "S54",
+            "F03",
+            "S21",
+            "S09",
+            "S22"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E65",
+          "query": "Тихий брак изделия при нормальном прогрессе",
+          "expected_ids": [
+            "S55"
+          ],
+          "retrieved_ids": [
+            "S55",
+            "S56",
+            "S01",
+            "S26",
+            "S34"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "E66",
+          "query": "Операция не продвигается без явной ошибки",
+          "expected_ids": [
+            "S56"
+          ],
+          "retrieved_ids": [
+            "S56",
+            "S18",
+            "S55",
+            "S03",
+            "S17"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -510,9 +1023,9 @@
       ]
     },
     "paraphrases": {
-      "cases": 20,
+      "cases": 44,
       "hit_rate_at_5": 1.0,
-      "mean_reciprocal_rank": 0.925,
+      "mean_reciprocal_rank": 0.8795454545454546,
       "cases_detail": [
         {
           "id": "P01",
@@ -522,14 +1035,14 @@
             "S01"
           ],
           "retrieved_ids": [
+            "S26",
             "S01",
             "S15",
-            "S09",
-            "S16",
-            "S10"
+            "S56",
+            "S44"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.5
         },
         {
           "id": "P02",
@@ -540,9 +1053,9 @@
           ],
           "retrieved_ids": [
             "F10",
+            "S41",
             "F12",
             "S02",
-            "S16",
             "S08"
           ],
           "hit_at_5": true,
@@ -557,9 +1070,9 @@
           "retrieved_ids": [
             "S03",
             "F32",
+            "S28",
             "S07",
-            "F30",
-            "S04"
+            "F30"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -573,6 +1086,8 @@
           ],
           "retrieved_ids": [
             "S04",
+            "S47",
+            "S25",
             "S18"
           ],
           "hit_at_5": true,
@@ -586,14 +1101,14 @@
             "S05"
           ],
           "retrieved_ids": [
-            "S05",
             "F22",
+            "S05",
             "S02",
-            "F27",
-            "F19"
+            "F19",
+            "F27"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.5
         },
         {
           "id": "P06",
@@ -603,10 +1118,10 @@
           ],
           "retrieved_ids": [
             "S06",
+            "S39",
             "F32",
             "S16",
-            "S07",
-            "S15"
+            "S49"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -621,9 +1136,9 @@
           "retrieved_ids": [
             "S07",
             "F32",
-            "S03",
-            "S15",
-            "S20"
+            "S49",
+            "S51",
+            "S03"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -636,14 +1151,14 @@
             "S09"
           ],
           "retrieved_ids": [
+            "S54",
             "S09",
             "F03",
             "S22",
-            "S24",
-            "F04"
+            "S24"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.5
         },
         {
           "id": "P09",
@@ -656,9 +1171,9 @@
           "retrieved_ids": [
             "F18",
             "F07",
-            "S08",
             "S01",
-            "S09"
+            "S35",
+            "F17"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 0.5
@@ -672,10 +1187,10 @@
           ],
           "retrieved_ids": [
             "F13",
+            "S28",
             "S11",
             "S16",
-            "S15",
-            "F12"
+            "S15"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -690,9 +1205,9 @@
           "retrieved_ids": [
             "S12",
             "F15",
-            "F16",
+            "S31",
             "S13",
-            "S21"
+            "S49"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -706,10 +1221,10 @@
           ],
           "retrieved_ids": [
             "F15",
-            "S13",
+            "S54",
+            "S32",
             "F03",
-            "F04",
-            "F31"
+            "S33"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -722,14 +1237,14 @@
             "S14"
           ],
           "retrieved_ids": [
+            "S31",
             "S14",
-            "F11",
-            "S04",
-            "S12",
-            "F32"
+            "S27",
+            "S49",
+            "F11"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.5
         },
         {
           "id": "P14",
@@ -739,10 +1254,10 @@
           ],
           "retrieved_ids": [
             "S15",
-            "S08",
+            "S48",
+            "S38",
             "F32",
-            "S07",
-            "F15"
+            "S07"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -755,14 +1270,14 @@
             "S17"
           ],
           "retrieved_ids": [
-            "S17",
-            "F31",
-            "S16",
-            "F17",
-            "F13"
+            "S32",
+            "S35",
+            "S50",
+            "S42",
+            "F31"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.2
         },
         {
           "id": "P16",
@@ -774,9 +1289,9 @@
           "retrieved_ids": [
             "S09",
             "S18",
+            "S54",
             "S21",
-            "F03",
-            "S13"
+            "S43"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 0.5
@@ -792,9 +1307,9 @@
           "retrieved_ids": [
             "F28",
             "S21",
-            "S13",
-            "S19",
-            "F04"
+            "S46",
+            "S33",
+            "S43"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -806,14 +1321,14 @@
             "S20"
           ],
           "retrieved_ids": [
+            "S32",
             "S20",
-            "S07",
-            "F04",
-            "S17",
-            "F15"
+            "S47",
+            "S31",
+            "S07"
           ],
           "hit_at_5": true,
-          "reciprocal_rank": 1.0
+          "reciprocal_rank": 0.5
         },
         {
           "id": "P19",
@@ -825,9 +1340,9 @@
           "retrieved_ids": [
             "F29",
             "S22",
+            "S54",
             "F31",
-            "F05",
-            "F01"
+            "F05"
           ],
           "hit_at_5": true,
           "reciprocal_rank": 1.0
@@ -840,14 +1355,403 @@
             "S24"
           ],
           "retrieved_ids": [
-            "F30",
             "S24",
+            "F30",
             "S03",
-            "F19",
+            "S56",
+            "S28"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P21",
+          "query": "Отправил команду открыть замок бокса, ответ success, а он всё равно закрыт. CRC ошибок много",
+          "expected_ids": [
+            "S25"
+          ],
+          "retrieved_ids": [
+            "S25",
+            "F18",
+            "S54",
+            "S36",
             "F03"
           ],
           "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P22",
+          "query": "Фрезер встал на паузу по пониженному напряжению сразу как принтер начал греть стол",
+          "expected_ids": [
+            "S26"
+          ],
+          "retrieved_ids": [
+            "S26",
+            "F05",
+            "S36",
+            "S38",
+            "S44"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P23",
+          "query": "Включила фен на рабочем месте и пропало питание всей мастерской вместе с вытяжкой",
+          "expected_ids": [
+            "S27"
+          ],
+          "retrieved_ids": [
+            "F31",
+            "S27",
+            "S32",
+            "F15",
+            "S46"
+          ],
+          "hit_at_5": true,
           "reciprocal_rank": 0.5
+        },
+        {
+          "id": "P24",
+          "query": "Утром после шлюза датчик показывает влажность 99 процентов, фрезер на паузе по конденсату",
+          "expected_ids": [
+            "S11",
+            "S28"
+          ],
+          "retrieved_ids": [
+            "S28",
+            "F13",
+            "S41",
+            "S11",
+            "S29"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P25",
+          "query": "Ночью уличная температура вдруг плюс пятьдесят",
+          "expected_ids": [
+            "S29"
+          ],
+          "retrieved_ids": [
+            "S29",
+            "S44",
+            "S36",
+            "S42",
+            "S47"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P26",
+          "query": "Ток утечки на линии фрезера растёт уже 17 мА",
+          "expected_ids": [
+            "S31"
+          ],
+          "retrieved_ids": [
+            "S31",
+            "S27",
+            "S45",
+            "S49",
+            "F11"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P27",
+          "query": "Вытяжка снова остановилась по перегреву мотора, паяльником пахнет",
+          "expected_ids": [
+            "S17",
+            "S32"
+          ],
+          "retrieved_ids": [
+            "S32",
+            "S17",
+            "S44",
+            "S27",
+            "F31"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P28",
+          "query": "Почти все узлы разом стали UNKNOWN, на edge упал сервис",
+          "expected_ids": [
+            "S33"
+          ],
+          "retrieved_ids": [
+            "S33",
+            "S45",
+            "S19",
+            "S46",
+            "S43"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P29",
+          "query": "Линия рабочего места отключилась защитой хотя ток обычный 2 ампера",
+          "expected_ids": [
+            "S12",
+            "S34"
+          ],
+          "retrieved_ids": [
+            "S27",
+            "S34",
+            "S12",
+            "S04",
+            "S49"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 0.5
+        },
+        {
+          "id": "P30",
+          "query": "Растёт VOC в боксе, один вентилятор крутится медленно при PWM 40",
+          "expected_ids": [
+            "S35"
+          ],
+          "retrieved_ids": [
+            "S35",
+            "S42",
+            "S08",
+            "S16",
+            "S25"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P31",
+          "query": "Печать закончилась, а замки бокса не открываются, датчик температуры показывает 68 градусов",
+          "expected_ids": [
+            "S36"
+          ],
+          "retrieved_ids": [
+            "S36",
+            "S44",
+            "S29",
+            "S42",
+            "S01"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P32",
+          "query": "Направление ветра не меняется с самого утра",
+          "expected_ids": [
+            "S37"
+          ],
+          "retrieved_ids": [
+            "S37",
+            "S43",
+            "S56",
+            "S16",
+            "S29"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P33",
+          "query": "Заряд батареи за минуту упал с 78 до 20 процентов, автоматика сбросила нагрузку и завела дизель",
+          "expected_ids": [
+            "S38"
+          ],
+          "retrieved_ids": [
+            "S38",
+            "S47",
+            "S48",
+            "S15",
+            "S46"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P34",
+          "query": "Пожарная тревога в FabLab после фрезеровки, CO низкий, второй датчик спокоен",
+          "expected_ids": [
+            "S23",
+            "S39"
+          ],
+          "retrieved_ids": [
+            "S39",
+            "S50",
+            "S23",
+            "S53",
+            "S08"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P35",
+          "query": "Душно, болит голова, основной датчик углекислого газа показывает 99 ppm",
+          "expected_ids": [
+            "S41"
+          ],
+          "retrieved_ids": [
+            "S41",
+            "S08",
+            "S28",
+            "F10",
+            "S39"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P36",
+          "query": "Вентилятор инвертора встал, температура растёт",
+          "expected_ids": [
+            "S42"
+          ],
+          "retrieved_ids": [
+            "S42",
+            "S44",
+            "S36",
+            "S35",
+            "S29"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P37",
+          "query": "Датчик фильтра воды не обновляется с ночи, команды не проходят",
+          "expected_ids": [
+            "S43"
+          ],
+          "retrieved_ids": [
+            "S43",
+            "S47",
+            "S32",
+            "S22",
+            "S41"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P38",
+          "query": "Принтер показывает сопло 280 градусов при малой мощности нагревателя",
+          "expected_ids": [
+            "S44"
+          ],
+          "retrieved_ids": [
+            "S44",
+            "S26",
+            "S46",
+            "S04",
+            "F32"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P39",
+          "query": "Основной канал связи флапает, мощность приёма падает",
+          "expected_ids": [
+            "S45"
+          ],
+          "retrieved_ids": [
+            "S45",
+            "F30",
+            "S02",
+            "S31",
+            "S07"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P40",
+          "query": "Купол погас секунд на тридцать после включения фена, инвертор пишет перегрузку",
+          "expected_ids": [
+            "S46"
+          ],
+          "retrieved_ids": [
+            "S46",
+            "S27",
+            "S49",
+            "S32",
+            "S42"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P41",
+          "query": "Пропала внешняя сеть, дизель не запускается, вода в топливе",
+          "expected_ids": [
+            "S47"
+          ],
+          "retrieved_ids": [
+            "S47",
+            "S38",
+            "S19",
+            "S51",
+            "S32"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P42",
+          "query": "Батарея начала балансировку при заряде 77 процентов, заряд остановился",
+          "expected_ids": [
+            "S48"
+          ],
+          "retrieved_ids": [
+            "S48",
+            "S15",
+            "S38",
+            "S26",
+            "S47"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P43",
+          "query": "Сработало УЗО освещения, утечки нет, в куполе темно",
+          "expected_ids": [
+            "S49"
+          ],
+          "retrieved_ids": [
+            "S49",
+            "S31",
+            "S06",
+            "S12",
+            "S36"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
+        },
+        {
+          "id": "P44",
+          "query": "На складе сработал датчик дыма и задымление растёт",
+          "expected_ids": [
+            "S23",
+            "S50"
+          ],
+          "retrieved_ids": [
+            "S50",
+            "S39",
+            "S35",
+            "S12",
+            "S36"
+          ],
+          "hit_at_5": true,
+          "reciprocal_rank": 1.0
         }
       ]
     }

@@ -49,7 +49,9 @@ def unanswered_operator_messages(recent: list[dict[str, Any]]) -> list[dict[str,
 
 def find_file(st: Any, machine: str, name: str) -> str | None:
     """Имя файла из списка станка (точное, затем без учёта регистра)."""
-    files = [str(f) for f in (st.get(f"{machine}.files", []) or [])]
+    raw = st.get(f"{machine}.files", []) or []
+    files = [f if isinstance(f, str) else f.get("name") for f in raw if isinstance(f, (str, dict))]
+    files = [f for f in files if isinstance(f, str)]
     if name in files:
         return name
     for f in files:
@@ -59,17 +61,36 @@ def find_file(st: Any, machine: str, name: str) -> str | None:
 
 
 class TasksPlaybook(Playbook):
-    """Разбор чата Оператора и ведение очереди заданий."""
+    """Одна явная команда — один немедленный запуск; сохраняется только наблюдение начатого."""
 
     name = "tasks"
 
     def step(self, ctx: Ctx) -> list[Intent]:
-        out: list[Intent] = []
-        jobs: list[dict[str, Any]] = ctx.mem.setdefault("jobs", [])
+        active = ctx.mem.setdefault("active_jobs", {})
+        # Migrate observation of already-started jobs; queued work is never replayed.
+        for job in ctx.mem.pop("jobs", []):
+            if isinstance(job, dict) and job.get("state") in ("starting", "started") and job.get("machine") in TITLE:
+                active.setdefault(job["machine"], job)
+        jobs = list(active.values())
+        out = self._observe_active(ctx, jobs)
+        claimed = set()
         for msg in operator_messages(ctx.chat_new):
-            out += self._handle(ctx, msg, jobs)
-        out += self._advance(ctx, jobs)
-        ctx.mem["jobs"] = [j for j in jobs if j["state"] not in ("done", "failed", "dropped")][-8:]
+            text = str(msg.get("text", ""))
+            files = FILE_RE.findall(text)
+            known = bool(files or CONFIRM_RE.search(text) or (STATUS_RE.search(text) and not ctx.model_answers)
+                         or TAKEN_RE.search(text) or UNLOCK_RE.search(text))
+            if known and isinstance(msg.get("id"), int):
+                ctx.handled_message_ids.add(msg["id"])
+            machine = MACHINE_BY_EXT.get(files[0].rsplit(".", 1)[-1].lower()) if len(files) == 1 else None
+            if machine in claimed and not TAKEN_RE.search(text) and not UNLOCK_RE.search(text):
+                out.append(Intent(key=f"chat:{msg.get('id')}", situation="Повторный запуск в одном кадре",
+                    cause="для станка уже выбран один запуск", confidence=1, plan=["не создавать очередь"],
+                    say="Для этого станка уже обрабатывается один запуск. Повторите запрос после проверки его результата.", cooldown_s=0))
+                continue
+            fresh = self._handle(ctx, msg, jobs)
+            claimed.update(step.node for intent in fresh for step in intent.steps if step.action == "start_job")
+            out += fresh
+        ctx.mem["active_jobs"] = {j["machine"]: j for j in jobs if j.get("state") in ("starting", "started")}
         return out
 
     # ------------------------------------------------------------------ разбор сообщения
@@ -85,15 +106,18 @@ class TasksPlaybook(Playbook):
             return self._taken(ctx, text, mid, files)
         if UNLOCK_RE.search(text):
             return self._unlock(ctx, mid, text)
+        if len(files) > 1:
+            return [Intent(key=f"chat:{mid}", cause="несколько файлов в одной команде", confidence=1.0,
+                evidence=[], plan=["не запускать и не создавать очередь"],
+                say="Укажите один файл для отдельного запуска. Очередь файлов не поддерживается.", **base)]
         if files:
             return self._new_job(ctx, jobs, files[0], confirm, mid, text)
         if confirm:
-            ready = [j for j in jobs if j["state"] == "waiting_confirm"]
-            for j in ready:
-                j["state"] = "queued"
-                j["confirmed"] = True
-            if ready:
-                return [Intent(key=f"chat:{mid}", cause="Оператор подтвердил, что заготовка готова", confidence=0.9, evidence=[{"detail": text[:120]}], plan=["запустить отложенное задание"], **base)]  # type: ignore[arg-type]
+            return [Intent(key=f"chat:{mid}", cause="нет отложенного задания", confidence=1.0, evidence=[],
+                plan=["попросить один файл для отдельного запуска"],
+                say="Отложенных заданий нет. Для запуска укажите одно имя серверного файла новой командой.", **base)]
+        if ctx.model_answers:  # вопросы о состоянии и свободные вопросы отдаём модели: у неё больше данных
+            return []
         if STATUS_RE.search(text):
             return [Intent(key=f"chat:{mid}", cause="вопрос Оператора о состоянии", confidence=0.9, evidence=[], plan=["коротко ответить по данным"], say=self.status_text(ctx), **base)]  # type: ignore[arg-type]
         if len(text) >= 8 and "?" in text:
@@ -106,7 +130,7 @@ class TasksPlaybook(Playbook):
     def _taken(self, ctx: Ctx, text: str, mid: Any, files: list[str]) -> list[Intent]:
         st = ctx.state
         for f in files:  # «Сняла X.nc» — завершение фрезеровки подтверждено Оператором
-            for j in ctx.mem.get("jobs", []):
+            for j in ctx.mem.get("active_jobs", {}).values():
                 if j["file"].lower() == f.lower() and j["state"] in ("started", "done"):
                     j["state"] = "done"
         door = str(st.get(f"{BOX}.doors[0]", "")).upper()
@@ -159,20 +183,27 @@ class TasksPlaybook(Playbook):
         if name is None:
             files = ", ".join(str(f) for f in (st.get(f"{machine}.files", []) or [])[:6]) or "список пуст"
             return [Intent(key=f"chat:{mid}", cause=f"файла нет в списке {title}а", confidence=0.95, evidence=[{"node": machine, "param": "files", "value": files}], plan=["не запускать", "сообщить доступные файлы"], say=f"Файла {raw} нет на {title}е. Доступны: {files}.", **common)]  # type: ignore[arg-type]
-        if any(j["file"] == name and j["state"] in ("queued", "waiting_confirm", "starting", "started") for j in jobs):
-            return []
-        job = {"file": name, "machine": machine, "state": "queued", "msg": mid, "confirmed": confirm, "at": ctx.now}
-        jobs.append(job)
-        # Оператор попросил явно: станок свободен — запускаем сразу. Подтверждение «заготовка закреплена»
-        # нужно только когда фрезер был занят и задание ждёт освобождения.
         free, why = self._free(ctx, machine)
+        if ctx.gate.is_pending(machine):
+            free, why = False, "ожидается проверка предыдущей команды"
+        if st.get(f"{machine}.homed") is not True:
+            free, why = False, "координаты не подтверждены: сначала home и проверка"
         if not free:
-            job["state"] = "waiting_confirm" if machine == "cnc_01" else "queued"
-            tail = " Запущу, когда освободится и напишете, что заготовка закреплена." if machine == "cnc_01" else " Запущу сразу, как станок освободится."
-            return [Intent(key=f"chat:{mid}", cause=f"{title} сейчас не может принять задание: {why}", confidence=0.95, evidence=[{"node": machine, "param": "state", "value": st.get(f"{machine}.state")}], plan=["поставить в очередь", "сообщить Оператору"], say=f"{title.capitalize()} занят ({why}).{tail}", **common)]  # type: ignore[arg-type]
-        return []  # запуск сделает _advance в этом же такте
+            return [Intent(key=f"chat:{mid}", cause=f"{title} сейчас не может принять задание: {why}",
+                confidence=0.95, evidence=[{"node": machine, "param": "state", "value": st.get(f"{machine}.state")}],
+                plan=["не сохранять запрос на будущий запуск"],
+                say=f"{title.capitalize()} занят или не готов ({why}). Задание не поставлено в очередь; после устранения причины повторите команду с именем файла.", **common)]
+        jobs[:] = [j for j in jobs if j.get("machine") != machine]
+        jobs.append({"file": name, "machine": machine, "state": "starting", "msg": mid, "started_at": ctx.now})
+        return [Intent(key=f"job:start:{machine}:{name}:{mid}",
+            situation=f"Одиночный запуск {name} на {title}е", cause="новая явная команда Оператора",
+            confidence=0.95, evidence=[{"node": machine, "param": "state", "value": st.get(f"{machine}.state")}],
+            plan=[f"start_job {name}", "проверить фактический запуск"],
+            steps=[Step(machine, "start_job", name, self._running(machine, name), "задание Оператора")],
+            say=f"Запустил {name} на принтере." if machine == "printer_3d_01" else f"Запустил {name} на фрезере, слежу.",
+            priority=1, cooldown_s=0, rag_query=f"запуск {name} {title}")]
 
-    # ------------------------------------------------------------------ очередь и завершение
+    # ------------------------------------------------------------------ наблюдение начатого задания
 
     @staticmethod
     def _free(ctx: Ctx, machine: str) -> tuple[bool, str]:
@@ -187,51 +218,12 @@ class TasksPlaybook(Playbook):
             return False, "на столе деталь — заберите её (бокс разблокирую)"
         return True, ""
 
-    def _advance(self, ctx: Ctx, jobs: list[dict[str, Any]]) -> list[Intent]:
+    def _observe_active(self, ctx: Ctx, jobs: list[dict[str, Any]]) -> list[Intent]:
         out: list[Intent] = []
         st = ctx.state
         for job in jobs:
             machine, name, title = job["machine"], job["file"], TITLE[job["machine"]]
-            if job["state"] == "queued":
-                free, _why = self._free(ctx, machine)
-                if not free or ctx.gate.is_pending(machine):
-                    continue
-                if st.get(f"{machine}.homed") is False:
-                    out.append(
-                        Intent(
-                            key=f"job:home:{machine}",
-                            situation=f"перед запуском {name} {title} не отъюстирован (homed = false)",
-                            cause="нужен home перед стартом",
-                            confidence=0.85,
-                            evidence=[{"node": machine, "param": "homed", "value": False}],
-                            plan=["home", f"затем запустить {name}"],
-                            steps=[Step(machine, "home", None, Expect.equals(f"{machine}.homed", True, timeout_s=90.0), "перед запуском задания")],
-                            priority=1,
-                            cooldown_s=120.0,
-                        )
-                    )
-                    continue
-                job["state"] = "starting"
-                job["started_at"] = ctx.now
-                eta = st.num(f"{machine}.estimated_time_s")
-                say = f"Запустил {name} на {title}е, слежу." if machine == "cnc_01" else f"Запустил {name} на принтере."
-                out.append(
-                    Intent(
-                        key=f"job:start:{machine}:{name}",
-                        situation=f"запуск задания Оператора: {name} на {title}е (станок свободен, удержаний нет)" + (f", оценка {eta / 60:.0f} мин" if eta else ""),
-                        cause="задание от Оператора",
-                        confidence=0.95,
-                        evidence=[{"node": machine, "param": "state", "value": st.get(f"{machine}.state")}, {"node": machine, "param": "files", "value": name}]
-                        + ([{"node": machine, "param": "bed_clear", "value": st.get(f"{machine}.bed_clear")}] if machine == "printer_3d_01" else []),
-                        plan=[f"start_job {name}", "проверить, что станок перешёл в работу"],
-                        steps=[Step(machine, "start_job", name, self._running(machine, name), "задание Оператора")],
-                        say=say,
-                        priority=1,
-                        cooldown_s=60.0,
-                        rag_query=f"запуск {name} {title}",
-                    )
-                )
-            elif job["state"] in ("starting", "started"):
+            if job["state"] in ("starting", "started"):
                 state = str(st.get(f"{machine}.state", "")).upper()
                 running = state in ("RUNNING", "PRINTING", "HOMING", "BUSY") and str(st.get(f"{machine}.file_name", "")) == name
                 if running:

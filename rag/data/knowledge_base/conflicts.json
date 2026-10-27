@@ -257,8 +257,8 @@
     "id": "C09",
     "title": "История станции и каталог возможных отказов",
     "review_status": "APPROVED",
-    "issue": "K12 содержит шаблон истории и недостаток подтверждённой хронологии, K09 — возможные отказы. Логи предоставлены только за один день.",
-    "proposed_handling": "Сценарии knowledge маркировать document_only, эпизоды логов — historical, дневник — narrative. Не обещать недельное покрытие и не выдавать шаблоны за реальные происшествия.",
+    "issue": "K12 содержит шаблон истории и недостаток подтверждённой хронологии, K09 — возможные отказы. Логи есть за неделю 12–18.10.2026 (WhiteDots/Dome_RAG, 5e1ec48), дневник — одна запись в день и итоги недели.",
+    "proposed_handling": "Сценарии knowledge маркировать document_only, эпизоды логов — historical, дневник — narrative. Причина из дневника — версия экипажа: сверять её с телеметрией. Не выдавать шаблоны за реальные происшествия.",
     "source_refs": [
       {
         "source_id": "K12",
@@ -361,6 +361,28 @@
         "path": "sources/01_API.md",
         "start_line": 200,
         "end_line": 222
+      }
+    ],
+    "disposition": "blocked_as_standalone_operational_advice"
+  },
+  {
+    "id": "C13",
+    "title": "Дневник объясняет провал SOC холодом, телеметрия этого не показывает",
+    "review_status": "APPROVED",
+    "issue": "Дневник 16.10 связывает провал SOC 78 → 20 % (15.10 19:11) с выстыванием техпомещения. В кадрах температура АКБ 19,2 °C, напряжение 26,06–26,11 В не меняется, через 30 минут SOC снова 77 %.",
+    "proposed_handling": "Считать причину неустановленной: вероятнее сбой оценки SOC, чем холод. Решения по SOC сверять с напряжением и током АКБ.",
+    "source_refs": [
+      {
+        "source_id": "BOOK16",
+        "path": "sources/Logs/2026-10-16/logbook.jsonl",
+        "start_line": 1,
+        "end_line": 1
+      },
+      {
+        "source_id": "TEL15",
+        "path": "sources/Logs/2026-10-15/telemetry.jsonl",
+        "start_line": 1151,
+        "end_line": 1153
       }
     ],
     "disposition": "blocked_as_standalone_operational_advice"

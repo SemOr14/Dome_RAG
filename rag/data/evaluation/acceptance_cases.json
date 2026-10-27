@@ -586,5 +586,645 @@
       "Придумать ответ без подходящего источника."
     ],
     "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E35",
+    "query": "Шина МС-ТЮК: пустые показания бокса и замок не открывается при success",
+    "expected_situation_ids": [
+      "S25"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E36",
+    "query": "Удержание фрезера UNDERVOLTAGE при старте нагрева стола принтера",
+    "expected_situation_ids": [
+      "S26"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E37",
+    "query": "Фен и вытяжка выбивают линию мастерской (IL_OVERCURRENT)",
+    "expected_situation_ids": [
+      "S27"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E38",
+    "query": "Влажность 99 % после шлюза холодным утром и IL_CONDENSATE",
+    "expected_situation_ids": [
+      "S28"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E39",
+    "query": "Метеостанция показала +50 °C ночью",
+    "expected_situation_ids": [
+      "S29"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E40",
+    "query": "Тревоги системы доступа TAMPER и FORCED без вскрытия",
+    "expected_situation_ids": [
+      "S30"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E41",
+    "query": "Растущая утечка на линии фрезера и УЗО посреди фрезеровки",
+    "expected_situation_ids": [
+      "S31"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E42",
+    "query": "Вытяжка FabLab раз за разом уходит в MOTOR_OVERHEAT при пайке",
+    "expected_situation_ids": [
+      "S32"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E43",
+    "query": "Падение сервиса edge: десятки узлов UNKNOWN одновременно",
+    "expected_situation_ids": [
+      "S33"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E44",
+    "query": "Защита линии 1 срабатывает без перегрузки, сброс теряется",
+    "expected_situation_ids": [
+      "S34"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E45",
+    "query": "Неисправный вентилятор бокса: рост VOC и удержание IL_VOC_BOX",
+    "expected_situation_ids": [
+      "S35"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E46",
+    "query": "Залипший датчик температуры бокса держит замки",
+    "expected_situation_ids": [
+      "S36"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E47",
+    "query": "Флюгер метеостанции застыл на одном направлении",
+    "expected_situation_ids": [
+      "S37"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E48",
+    "query": "Мгновенный провал SOC 78 → 20 % и сброс нагрузки",
+    "expected_situation_ids": [
+      "S38"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E49",
+    "query": "Ложная пожарная тревога FabLab после фрезеровки",
+    "expected_situation_ids": [
+      "S39"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E50",
+    "query": "Пачка повторных записей автоматики в одну секунду",
+    "expected_situation_ids": [
+      "S40"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E51",
+    "query": "Духота при заниженном показании основного датчика CO2",
+    "expected_situation_ids": [
+      "S41"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E52",
+    "query": "Отказ вентилятора инвертора и рост температуры",
+    "expected_situation_ids": [
+      "S42"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E53",
+    "query": "Узел «замёрз»: water_filter_01 без обновлений",
+    "expected_situation_ids": [
+      "S43"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E54",
+    "query": "Температура сопла 280 °C при мощности нагревателя 27 %",
+    "expected_situation_ids": [
+      "S44"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E55",
+    "query": "Деградация оптического канала связи и переход на резерв",
+    "expected_situation_ids": [
+      "S45"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E56",
+    "query": "Перегрузка инвертора E07 и двойное отключение шины",
+    "expected_situation_ids": [
+      "S46"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E57",
+    "query": "Потеря сети ночью, а дизель не заводится из-за воды в топливе",
+    "expected_situation_ids": [
+      "S47"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E58",
+    "query": "BMS начала балансировку при SOC 77 % и остановила заряд",
+    "expected_situation_ids": [
+      "S48"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E59",
+    "query": "УЗО освещения срабатывает без утечки",
+    "expected_situation_ids": [
+      "S49"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E60",
+    "query": "Настоящий пожар на складе",
+    "expected_situation_ids": [
+      "S50"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E61",
+    "query": "Метеостанция без данных: перетёрт кабель питания",
+    "expected_situation_ids": [
+      "S51"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E62",
+    "query": "Кратковременный DEGRADED датчика без других признаков",
+    "expected_situation_ids": [
+      "S52"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E63",
+    "query": "Кратковременные тревоги сейсмодатчика и датчика радиации",
+    "expected_situation_ids": [
+      "S53"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "historical_episode",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E64",
+    "query": "Команда без ответа: исполнение могло начаться после таймаута",
+    "expected_situation_ids": [
+      "S54"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "documented_possible_situation",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E65",
+    "query": "Тихий брак изделия при нормальном прогрессе",
+    "expected_situation_ids": [
+      "S55"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "documented_possible_situation",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
+  },
+  {
+    "id": "E66",
+    "query": "Операция не продвигается без явной ошибки",
+    "expected_situation_ids": [
+      "S56"
+    ],
+    "required_stage_keys": [
+      "observation",
+      "interpretation",
+      "decision",
+      "verification",
+      "correction"
+    ],
+    "must_not": [
+      "Прошлый эпизод не доказывает ту же причину сейчас.",
+      "success не заменяет verification; не повторять команду вслепую."
+    ],
+    "evidence_class": "documented_possible_situation",
+    "execution_status": "NOT_RUN_NO_RETRIEVER_IMPLEMENTED"
   }
 ]

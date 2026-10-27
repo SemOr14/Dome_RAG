@@ -10,9 +10,11 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+from .diagnostics import diagnostic_anomalies, group_stale
+
 STALE_AFTER_S = 30.0
 LINE_FIELDS = ("line", "name", "state", "voltage_v", "current_a", "power_w", "protection_state",
-               "alarm_code", "lockout_remaining_s", "lockout_reason")
+               "leakage_ma", "alarm_code", "lockout_remaining_s", "lockout_reason")
 CLIMATE_SENSORS = ("climate_sensor_01", "climate_sensor_02", "climate_sensor_03")
 ALARM_FIELDS = ("alarm", "alarm_code", "error_code", "fault_code", "error")
 # null подозрителен только у измерений; у кодов ошибок, причин, зон null — норма
@@ -41,6 +43,9 @@ def _drop_noise(d: dict) -> dict:
 
 def _compact_node(node_id: str, data: dict, key_fields: list[str]) -> dict:
     out: dict[str, Any] = {}
+    for name in ("updated_at", "reading_delay_s"):  # свежесть измерения нужна модели всегда
+        if name in data:
+            out[name] = data[name]
     # online/status показываем только когда они не штатные
     if data.get("online") is False:
         out["online"] = False
@@ -102,7 +107,8 @@ def compact_telemetry(snapshot: dict, catalog: dict[str, dict]) -> TelemetryCont
 
         # Пропавшие показания
         nulls = [f for f in key_fields
-                 if "[]" not in f and f in data and data[f] is None and _MEASUREMENT.search(f)]
+                 if "[]" not in f and f in data and data[f] is None and _MEASUREMENT.search(f)
+                 and not any(w in f for w in ('forecast', 'time_left', 'remaining', 'duration'))]
         if nulls:
             _anomaly(anomalies, hot, node_id, ",".join(nulls), None, "показание пропало (null)")
 
@@ -111,7 +117,8 @@ def compact_telemetry(snapshot: dict, catalog: dict[str, dict]) -> TelemetryCont
 
         for name in ALARM_FIELDS:
             if _is_alarm(data.get(name)):
-                _anomaly(anomalies, hot, node_id, name, data[name], "авария/ошибка узла")
+                code = data.get("alarm_code") or data.get("error_code") or data.get("fault_code")
+                _anomaly(anomalies, hot, node_id, name, data[name], "авария/ошибка узла" + (f": {code}" if code else ""))
                 break
 
         if data.get("hold_level"):
@@ -159,4 +166,9 @@ def compact_telemetry(snapshot: dict, catalog: dict[str, dict]) -> TelemetryCont
         _anomaly(anomalies, hot, "printer_3d_01", "bed_clear", False,
                  "на столе деталь — запуск печати приведёт к BED_COLLISION", extra_hot=["thermal_insulation_01"])
 
+    anomalies += diagnostic_anomalies(nodes_raw)
+    anomalies = group_stale(anomalies, nodes_raw)
+    for a in anomalies:
+        hot.add(a['node'])
+        hot.update(a.get('affected_nodes') or [])
     return TelemetryContext(nodes=nodes, anomalies=anomalies, hot_nodes=hot, timestamp=ts)

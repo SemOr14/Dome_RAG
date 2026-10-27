@@ -148,7 +148,8 @@ def test_dispatcher_over_db_records_trigger_decision_and_verification(api, tmp_p
     dispatcher = Dispatcher(agent, ApiEventFeed(client, RUN), clock=lambda: clock[0])
     [fired] = dispatcher.tick()  # все тревоги кадра — один вызов
     # Сообщение Оператора в БД раньше старта ленты — история, не повод (в живой телеметрии оно в recent_messages)
-    assert {t.kind for t in fired.triggers} == {"alarm", "conflict"}
+    assert {t.kind for t in fired.triggers} == {"alarm", "conflict", "numeric"}
+    assert any("rx_power_dbm" in t.text for t in fired.triggers if t.kind == "numeric")
 
     def stored(event_type):
         return http.get("/v1/events", params={"run_id": RUN, "event_type": event_type}).json()["items"]

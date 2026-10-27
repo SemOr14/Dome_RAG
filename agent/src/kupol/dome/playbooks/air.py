@@ -56,6 +56,16 @@ class Co2Playbook(Playbook):
         il = interlock_state(st, "IL_CO2")
         paused = paused_by(st, "IL_CO2")
 
+        if a.kind == "unknown" and (il == "TRIPPED" or any(v >= c.high_ppm for v in a.values.values())):
+            out.append(Intent(
+                key="co2:unknown", situation="DIAGNOSE: CO2 требует актуальной независимой сверки",
+                cause="недостаточно пригодных текущих измерений; задержанные резервы не опровергают тревогу",
+                confidence=0.0, evidence=[{"node": s, "param": "co2_ppm", "value": v} for s, v in a.values.items()],
+                plan=["сохранить защиту", "получить актуальные независимые измерения"],
+                say="CO2: причину тревоги пока нельзя установить. Защиту сохраняю; нужны актуальные независимые измерения перед продолжением станков.",
+                priority=1, cooldown_s=SAY_REPEAT_S,
+            ))
+
         if a.kind == "false_sensor":
             todo = sorted(a.suspects - a.untrusted)
             primary_bad = primary in a.suspects or primary in a.untrusted
@@ -81,7 +91,7 @@ class Co2Playbook(Playbook):
                 out.append(
                     Intent.from_evidence(
                         a.evidence + [_ev(s, v) for s, v in good.items()],
-                        key=f"co2:distrust:{','.join(todo) or primary}",
+                        key=f"co2:distrust:{','.join(todo)}" if todo else f"co2:primary:{best}",
                         situation=f"{suspect}: CO₂ {a.values.get(suspect, float('nan')):.0f} ppm при {_fmt(good)}; {state_note}",
                         cause=f"ложное показание {suspect} (сбой датчика, не воздух)",
                         confidence=_conf(a),
@@ -97,7 +107,7 @@ class Co2Playbook(Playbook):
 
         if il == "TRIPPED":
             live = {s: v for s, v in a.values.items() if s not in a.untrusted}
-            if live and max(live.values()) < c.recovered_ppm:
+            if len(live) >= 2 and primary in live and max(live.values()) < c.recovered_ppm:
                 out.append(
                     Intent(
                         key="co2:reset_interlock",
@@ -141,7 +151,7 @@ class Co2Playbook(Playbook):
         return [
             Intent.from_evidence(
                 a.evidence,
-                key="co2:real",
+                key=f"co2:real:{steps[0].action}" if steps else "co2:real:stable",
                 situation=f"CO₂ на нескольких датчиках: {_fmt(a.values)}",
                 cause="реальный рост CO₂ (подтверждён независимыми датчиками)",
                 confidence=0.9,
@@ -215,7 +225,7 @@ class CondensatePlaybook(Playbook):
                 out.append(
                     Intent.from_evidence(
                         a.evidence,
-                        key=f"condensate:distrust:{s}",
+                        key=f"condensate:distrust:{s}:{steps[0].value['param']}",
                         situation=f"{s}: RH {a.rh.get(s, float('nan')):.0f} %, запас до точки росы {a.gap.get(s, float('nan')):.1f} °C; остальные RH {_fmt(others)} %",
                         cause=f"ложное показание влажности/точки росы {s}",
                         confidence=0.85,

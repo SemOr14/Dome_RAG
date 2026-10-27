@@ -83,7 +83,7 @@ def err_state(humidity: float | None, code: str = "E09"):  # type: ignore[no-unt
     return st
 
 
-def test_e09_waits_in_fog_and_resets_after_dry(tmp_path: Path) -> None:
+def test_e09_requires_insulation_check_even_after_dry(tmp_path: Path) -> None:
     mem: dict = {}
     fog = err_state(86.0)
     out = EnergyPlaybook().step(make_ctx(fog, tmp_path, now=1000.0, mem=mem))
@@ -93,14 +93,14 @@ def test_e09_waits_in_fog_and_resets_after_dry(tmp_path: Path) -> None:
     dry = err_state(60.0)
     assert not acts(EnergyPlaybook().step(make_ctx(dry, tmp_path, now=1200.0, mem={"error_since": 1100.0})))  # мало ждали
     out = EnergyPlaybook().step(make_ctx(dry, tmp_path, now=2500.0, mem={"error_since": 1000.0}))
-    assert acts(out) == [("solar_inverter_01", "reset_error", None)]
+    assert not acts(out) and out[0].say
 
 
 def test_e09_gives_up_after_repeats_and_other_errors_are_not_reset(tmp_path: Path) -> None:
     dry = err_state(50.0)
     mem = {"error_since": 0.0, "resets": [2000.0, 3000.0 - 1000.0, 2500.0]}
     out = EnergyPlaybook().step(make_ctx(dry, tmp_path, now=3600.0, mem=mem))
-    assert [i.key for i in out] == ["energy:e09_giveup"]
+    assert [i.key for i in out] == ["energy:e09_wait"] and not acts(out)
     other = EnergyPlaybook().step(make_ctx(err_state(50.0, "E07"), tmp_path))
     assert not acts(other) and other[0].say
 

@@ -88,8 +88,33 @@ def state_from(name: str = "quiet", wall: float = 1000.0, **overrides: Any) -> D
     return st
 
 
+def synchronous_snapshot(name: str = "quiet") -> dict[str, Any]:
+    """Synthetic simultaneous measurements on a COPY; original history stays unchanged."""
+    msg = snapshot(name)
+    for node in ("climate_sensor_01", "climate_sensor_02", "climate_sensor_03"):
+        msg["data"]["nodes"][node]["reading_delay_s"] = 0
+    return msg
+
+
+def synchronous_state_from(name: str = "quiet", wall: float = 1000.0, **overrides: Any) -> DomeState:
+    st = DomeState()
+    st.update(synchronous_snapshot(name)["data"], "team", wall)
+    for path, value in overrides.items():
+        set_path(st, path, value)
+    return st
+
+
+def synchronous_seq_state(*names: str, dt: float = 2.0, **overrides: Any) -> DomeState:
+    st = DomeState()
+    for i, name in enumerate(names):
+        st.update(synchronous_snapshot(name)["data"], "team", 1000 + i * dt)
+    for path, value in overrides.items():
+        set_path(st, path, value)
+    return st
+
+
 def set_path(st: DomeState, path: str, value: Any) -> None:
-    """Записать значение по пути в состояние (для сценариев тестов)."""
+    """Записать значение по пути в состояние (для сценариев тестов) — как новый кадр телеметрии."""
     from kupol.dome.state import split_path
 
     parts = split_path(path)
@@ -97,6 +122,7 @@ def set_path(st: DomeState, path: str, value: Any) -> None:
     for part in parts[:-1]:
         current = current[part]
     current[parts[-1]] = value
+    st.updates += 1
 
 
 def make_ctx(st: DomeState, tmp_path: "Path", now: float = 1000.0, mem: dict[str, Any] | None = None, texts: list[str] | None = None) -> Any:

@@ -9,11 +9,12 @@
 from __future__ import annotations
 
 import json
+import os
 import queue
 import threading
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -24,7 +25,7 @@ BATCH = 200
 
 
 def _utc() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 class DataApiRecorder:
@@ -49,7 +50,7 @@ class DataApiRecorder:
             timeout_s: Таймаут HTTP.
             http: Готовый HTTP-клиент (для тестов).
         """
-        self.run_id = run_id or f"agent-{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}-{uuid.uuid4().hex[:6]}"
+        self.run_id = run_id or f"agent-{datetime.now(UTC):%Y%m%dT%H%M%SZ}-{uuid.uuid4().hex[:6]}"
         self._http = http or httpx.Client(base_url=url.rstrip("/"), timeout=timeout_s)
         if token:
             self._http.headers["Authorization"] = f"Bearer {token}"
@@ -61,8 +62,11 @@ class DataApiRecorder:
         self._idle.set()
         self.delivered = 0
         self.last_error = ""
+        self.storage_error = ""
+        self._spool_lock = threading.Lock()
         self._thread = threading.Thread(target=self._worker, name="data-api-recorder", daemon=True)
         self._thread.start()
+        self._queue.put({})  # deliver durable records from the previous process
 
     # ------------------------------------------------------------------ запись
 
@@ -96,12 +100,29 @@ class DataApiRecorder:
             "payload": payload, "raw_text": raw_text, "metadata": metadata or {"recorded_at": _utc()},
         }  # fmt: skip
         self._idle.clear()
+        try:
+            with self._spool_lock:
+                self.outbox.parent.mkdir(parents=True, exist_ok=True)
+                with self.outbox.open("a", encoding="utf-8") as f:
+                    f.write(json.dumps(event, ensure_ascii=False) + "\n")
+                    f.flush()
+                    os.fsync(f.fileno())
+        except OSError as exc:
+            self.storage_error = type(exc).__name__
+            raise
         self._queue.put(event)
         return event["event_id"]
 
     def flush(self, timeout: float = 10.0) -> bool:
         """Дождаться отправки очереди (``False`` — не успели или БД недоступна)."""
-        return self._idle.wait(timeout) and not self._read(self.outbox)
+        if not self._idle.wait(timeout):
+            return False
+        try:
+            with self._spool_lock:
+                return not self._read(self.outbox)
+        except (OSError, ValueError, UnicodeError) as exc:
+            self.storage_error = type(exc).__name__
+            return False
 
     def close(self, timeout: float = 10.0) -> None:
         """Отправить остаток и остановить поток."""
@@ -119,7 +140,11 @@ class DataApiRecorder:
     def _worker(self) -> None:
         stop = False
         while not stop:
-            item = self._queue.get()
+            try:
+                item = self._queue.get(timeout=1.0)
+            except queue.Empty:
+                item = {}
+            self._idle.clear()
             batch: list[dict[str, Any]] = []
             if item is None:
                 stop = True
@@ -134,12 +159,18 @@ class DataApiRecorder:
                     stop = True
                 else:
                     batch.append(item)
-            self._deliver(batch)
+            try:
+                self._deliver(batch)
+            except (OSError, ValueError, UnicodeError) as exc:
+                # Keep the original spool intact for repair; never silently drop a bad tail.
+                self.storage_error = type(exc).__name__
+                time.sleep(0.5)
             if self._queue.empty():
                 self._idle.set()
 
     def _deliver(self, events: list[dict[str, Any]]) -> None:
-        pending = self._read(self.outbox) + events
+        with self._spool_lock:
+            pending = self._read(self.outbox)
         if not pending:
             return
         try:
@@ -147,10 +178,13 @@ class DataApiRecorder:
                 self._post(pending[i : i + 1000])
         except (httpx.HTTPError, OSError) as exc:
             self.last_error = exc.__class__.__name__
-            self._write(self.outbox, pending)
             time.sleep(0.5)  # не долбить недоступную БД; следующая попытка — со следующим событием
             return
-        self._write(self.outbox, [])
+        delivered_ids = {e["event_id"] for e in pending}
+        with self._spool_lock:
+            self._write(self.outbox, [e for e in self._read(self.outbox) if e["event_id"] not in delivered_ids])
+        self.last_error = ""
+        self.storage_error = ""
         self.delivered += len(pending)
 
     def _post(self, batch: list[dict[str, Any]]) -> None:
@@ -164,6 +198,8 @@ class DataApiRecorder:
                 self.rejected.parent.mkdir(parents=True, exist_ok=True)
                 with self.rejected.open("a", encoding="utf-8") as f:
                     f.write(json.dumps({"status": one.status_code, "detail": one.text[:2000], "event": event}, ensure_ascii=False) + "\n")
+                    f.flush()
+                    os.fsync(f.fileno())
             else:
                 one.raise_for_status()
 
@@ -178,4 +214,9 @@ class DataApiRecorder:
         if not events and not path.is_file():
             return
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("".join(json.dumps(e, ensure_ascii=False) + "\n" for e in events), encoding="utf-8")
+        tmp = path.with_suffix(".tmp")
+        with tmp.open("w", encoding="utf-8") as f:
+            f.write("".join(json.dumps(e, ensure_ascii=False) + "\n" for e in events))
+            f.flush()
+            os.fsync(f.fileno())
+        tmp.replace(path)

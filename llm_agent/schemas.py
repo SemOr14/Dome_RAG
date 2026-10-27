@@ -21,8 +21,8 @@ class ProposedAction(BaseModel):
     value: Any = None
     reason: str = ""
     expected: str = Field("", description="что должно измениться в телеметрии")
-    verify_after_s: float = 8.0
-    priority: int = 1
+    verify_after_s: float = Field(8.0, ge=1, le=300, allow_inf_nan=False)
+    priority: int = Field(1, ge=1, le=9)
 
     @field_validator("value")
     @classmethod
@@ -31,15 +31,44 @@ class ProposedAction(BaseModel):
         return None if v in ({}, [], "") else v
 
 
+REQUEST_STATUSES = ("answered", "executing", "already_done", "partial", "refused")
+
+
 class OperatorMessage(BaseModel):
     needed: bool = False
     text: str = ""
     to: str = "operator"
+    # Итог требования Оператора по решению модели; partial/refused помечаются «НЕ ВЫПОЛНЕНО» кодом рантайма
+    request_status: str = ""
 
     @field_validator("text")
     @classmethod
     def _limit(cls, v: str) -> str:
         return v[:4000]
+
+    @field_validator("request_status", mode="before")
+    @classmethod
+    def _status(cls, v: Any) -> str:
+        v = str(v or "").strip().lower()
+        return v if v in REQUEST_STATUSES else ""
+
+
+class HumanEscalation(BaseModel):
+    node_id: str = Field(min_length=1, max_length=200)
+    incident: str = Field(min_length=1, max_length=400)
+    severity: Literal['yellow', 'red'] = 'red'
+    facts: list[Evidence] = Field(default_factory=list)
+    already_done: list[str] = Field(default_factory=list)
+    required_action: str = Field(min_length=1, max_length=1200)
+
+
+class Suspicion(BaseModel):
+    """Подозрительное наблюдение «на будущее»: не повод действовать сейчас, а то, к чему стоит вернуться."""
+    text: str = Field(min_length=1, max_length=500)
+    node_id: str | None = Field(None, max_length=200)
+    param: str | None = Field(None, max_length=200)
+    why: str = Field("", max_length=500, description="почему это подозрительно")
+    check: str = Field("", max_length=300, description="что проверить позже, чтобы подтвердить или снять подозрение")
 
 
 class AgentDecision(BaseModel):
@@ -54,9 +83,37 @@ class AgentDecision(BaseModel):
     evidence: list[Evidence] = []
     actions: list[ProposedAction] = []
     operator_message: OperatorMessage = OperatorMessage()
+    request_human: HumanEscalation | None = None
+    suspicion: Suspicion | None = None  # не более одного за решение
     wait_and_watch: list[str] = []
     rag_refs: list[str] = []
     risks: list[str] = []
+
+    @field_validator("impact_kind", "authenticity", mode="before")
+    @classmethod
+    def _label(cls, v: Any, info: Any) -> str:
+        # Неизвестная метка — «не определено», а не повод отбросить всё решение
+        allowed = ("base", "hidden", "cascade", "false") if info.field_name == "impact_kind" else ("real", "suspected_false")
+        v = str(v or "").strip().lower()
+        return v if v in allowed else "unknown"
+
+    @field_validator("suspicion", mode="before")
+    @classmethod
+    def _one_suspicion(cls, v: Any) -> Any:
+        # Не более одного за решение; пустое или негодное подозрение не должно ронять всё решение
+        if isinstance(v, (list, tuple)):
+            v = v[0] if v else None
+        if isinstance(v, str):
+            v = {"text": v}
+        if not isinstance(v, dict):
+            return None
+        return v if str(v.get("text") or "").strip() else None
+
+    @field_validator("causal_chain", mode="before")
+    @classmethod
+    def _chain(cls, v: Any) -> list[str]:
+        items = [v] if isinstance(v, str) else list(v or [])
+        return [part.strip() for item in items for part in str(item).split("→") if part.strip()]
 
 
 class ActionVerdict(BaseModel):
@@ -88,6 +145,7 @@ class AgentResponse(BaseModel):
     decision_id: str | None = None
     sensor_reads: list[dict] = []
     decision_event_id: str | None = None  # событие decision в БД (если подключена)
+    classification_issues: list[str] = []  # противоречия в разметке impact_kind/authenticity (validate.check_classification)
 
     @property
     def accepted_actions(self) -> list[ProposedAction]:
@@ -103,12 +161,12 @@ def output_schema_example() -> dict:
     return {
         "situation": "кратко: что происходит",
         "cause": "предполагаемая причина",
-        "severity": "info | warning | critical",
+        "severity": "info",
         "confidence": 0.8,
         "impact_kind": "base | hidden | cascade | false | unknown",
         "authenticity": "real | suspected_false | unknown",
-        "causal_chain": ["первопричина → автоматика → зависимое оборудование (если подтверждено)"],
-        "false_alarm": "true | false | null (если не про тревогу)",
+        "causal_chain": ["первопричина", "автоматика или защита", "остановленное оборудование (только подтверждённые звенья)"],
+        "false_alarm": None,
         "evidence": [{"node": "climate_sensor_02", "param": "co2_ppm", "value": 781, "note": "почему важно"}],
         "actions": [{
             "node_id": "dome_automation_01", "action": "set_data_trust",
@@ -116,7 +174,11 @@ def output_schema_example() -> dict:
             "reason": "зачем", "expected": "что проверить в телеметрии после команды",
             "verify_after_s": 8, "priority": 1,
         }],
-        "operator_message": {"needed": False, "text": "", "to": "operator"},
+        "operator_message": {"needed": False, "text": "", "to": "operator",
+                             "request_status": "только на требование Оператора: answered | executing | already_done | "
+                                               "partial | refused; иначе пусто"},
+        "request_human": None,
+        "suspicion": None,  # или {"text": "что подозрительно", "node_id": "...", "param": "...", "why": "...", "check": "что проверить позже"}
         "wait_and_watch": ["что отслеживать дальше"],
         "rag_refs": ["id использованных документов базы знаний"],
         "risks": ["что может пойти не так"],

@@ -1,0 +1,1500 @@
+{
+  "version": "0.2-local-resilience",
+  "status": "engineering_policy_partial_implementation_not_deployed",
+  "source_manifest": {
+    "repository": "https://github.com/SemOr14/Dome_RAG",
+    "github_main_commit_verified": "1136b28432de4fa1be3f633f89299e645f3e4382",
+    "analysis_mode": "offline; no hardware control; no messages sent; GitHub read-only metadata",
+    "inputs": {
+      "Logs\\2026-10-14\\telemetry.jsonl": {
+        "sha256": "69f4555e68c4d2c498941d682c949d9a42912cea6c5e85a23aaecf0d5435f59c",
+        "bytes": 26222188
+      },
+      "Logs\\2026-10-14\\events.jsonl": {
+        "sha256": "3580217ffb9f1a3c4cf87192bcad5afd6f9a069698d780f4d7f1cf05af3fa280",
+        "bytes": 67171
+      },
+      "Logs\\2026-10-14\\logbook.jsonl": {
+        "sha256": "d7ec220c996a5cd6be613c9f15e91f40436a03a4ffb9e3c7d5970c04bcb78e46",
+        "bytes": 3280
+      },
+      "01_API.md": {
+        "sha256": "1935fdb3e5afb546fb30b2f0a8f0207061229185e7deb75974ff6e2798fdb066",
+        "bytes": 57636
+      },
+      "contracts\\event.schema.json": {
+        "sha256": "584b26c0dc8b078e867ba85df89219e34302b95d262419e33525943f692b57cb",
+        "bytes": 1728
+      }
+    }
+  },
+  "does_not_modify_agent_or_contracts": false,
+  "routes": [
+    "ARBITRATE",
+    "CONDITIONAL_CONTROL",
+    "CONDITIONAL_CONTROL_AND_OPERATOR",
+    "DETERMINISTIC_FALLBACK",
+    "DIAGNOSE",
+    "DIAGNOSE_COMMON_CAUSE",
+    "DIAGNOSE_THEN_APPROVED_RECOVERY",
+    "LOCAL_DURABLE_SPOOL",
+    "MONITOR",
+    "PLANNED_CONTROL",
+    "PROTECTIVE_CONTROL",
+    "PROTECT_AND_ESCALATE",
+    "READ_ONLY",
+    "RECONCILE",
+    "RECORD_AND_DIAGNOSE",
+    "RECORD_AND_VETO",
+    "RECORD_ONLY",
+    "TASK_WORKFLOW"
+  ],
+  "global_guards": {
+    "G01": "Текущая подтверждённая роль/смена team, каталог и allowlist; operator_controls не исполняются агентом.",
+    "G02": "Все критические входы присутствуют, конечны, свежи и пригодны по времени/зоне; UNKNOWN не превращается в NORMAL.",
+    "G03": "Разрешённое действие, строгие типы и вложенные диапазоны; integer не bool; проверка NaN/Infinity.",
+    "G04": "Заново проверены физические/технологические предусловия, активные защиты и последствия для зависимых систем.",
+    "G05": "Нет конфликтующей или непрояснённой отправки; назначен единственный владелец ресурса.",
+    "G06": "Намерение устойчиво записано до обычной управляющей отправки; event_id/request/session/incident связаны.",
+    "G07": "Бюджет попыток и переключений доступен, восстановлен после рестарта; дедлайн не основан на неверном clock domain.",
+    "G08": "Есть проверяемый эффект и срок профиля; уже достигнутую цель считать no-op, новые эффекты подтверждать новыми данными."
+  },
+  "recording_is_unconditional": true,
+  "defaults": {
+    "unknown_safety_state": "preserve protection, diagnose and escalate; never declare safe",
+    "physical_control_retries_on_ambiguous_delivery": 0,
+    "dependent_steps_require": "verified prerequisite and re-evaluated guard",
+    "notification_policy": "Meaningful impact or necessary operator action; routine data are recorded silently",
+    "historical_sampling_s": 60,
+    "sampling_warning": "1-minute snapshots do not establish sub-minute physics, transient peaks or continuous condition durations"
+  },
+  "rules": [
+    {
+      "id": "R01",
+      "title": "Штатные события — сохранять без управляющей реакции",
+      "default_route": "RECORD_ONLY",
+      "priority": "P3",
+      "trigger": "Проход GRANTED без тревоги, обычное изменение числовых показаний, ожидаемый переход состояния, подтверждение своего действия.",
+      "required_evidence": [
+        "Нет отдельного признака угрозы или нарушения задачи.",
+        "Событие не конфликтует с активным инцидентом."
+      ],
+      "procedure": [
+        "Сохранить исходную запись и обновить проекцию.",
+        "Связать ответ с запросом; закрыть верификацию только по подходящим данным.",
+        "Не создавать кризис из каждого изменения."
+      ],
+      "forbidden_shortcuts": [
+        "Не вызывать LLM и не тревожить Оператора для каждого journal/change.",
+        "Не удалять сырые повторы вместо дедупликации уведомлений."
+      ],
+      "verification": [
+        "Полный payload сохранён; новых control и сообщений Оператору нет."
+      ],
+      "historical_episodes": [],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R02",
+      "title": "DEGRADED — качество данных, а не автоматический отказ оборудования",
+      "default_route": "MONITOR",
+      "priority": "P2",
+      "trigger": "Изменение sensor_state на DEGRADED без подтверждённого физического нарушения.",
+      "required_evidence": [
+        "status, online, updated_at, время получения.",
+        "Используется ли источник сейчас ПЛК/производственной задачей."
+      ],
+      "procedure": [
+        "Открыть интервал сниженного качества.",
+        "Снизить пригодность его доказательств; при критическом использовании перейти в DIAGNOSE.",
+        "При возвращении OK закрыть интервал только после проверки стабильности."
+      ],
+      "forbidden_shortcuts": [
+        "Не сбрасывать ошибки и не калибровать устройство лишь из-за слова DEGRADED.",
+        "Не считать confidence независимым измерением."
+      ],
+      "verification": [
+        "Оценена актуальность и влияние на текущие решения."
+      ],
+      "historical_episodes": [],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R03",
+      "title": "null, отсутствующее поле и изменение типа",
+      "default_route": "DIAGNOSE",
+      "priority": "P1",
+      "trigger": "Поле стало null, пропало, получило неожиданный тип или NaN/Infinity.",
+      "required_evidence": [
+        "Наличие ключа отдельно от его значения.",
+        "Версия/каталог, предыдущие наблюдения этого поля, источник и частота."
+      ],
+      "procedure": [
+        "Сохранить исходное представление; пометить пригодность поля.",
+        "Всегда-null историческое поле не объявлять новым кризисом.",
+        "Не использовать непригодное поле для команд; искать допустимый резерв."
+      ],
+      "forbidden_shortcuts": [
+        "Не подставлять 0 вместо неизвестной мощности, false вместо неизвестной тревоги или числовую ёмкость по умолчанию как измеренный факт.",
+        "Не считать bool числом."
+      ],
+      "verification": [
+        "Решение учитывает UNKNOWN; поле и причина непригодности сохранены."
+      ],
+      "historical_episodes": [],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R04",
+      "title": "Замороженная телеметрия и общий сбой времени",
+      "default_route": "DIAGNOSE",
+      "priority": "P1",
+      "trigger": "Пакеты приходят, но данные не продвигаются; UNKNOWN/online=false; узел или весь поток отстаёт.",
+      "required_evidence": [
+        "Монотонное время приёма, последовательность кадров, прогресс updated_at.",
+        "Домен часов и clock_offset; качество соседних источников."
+      ],
+      "procedure": [
+        "Отделить потерю канала от физического отказа.",
+        "Запретить решения об отсутствии угрозы на старых данных.",
+        "Сервисное восстановление только по текущему service_actions и утверждённой процедуре; проверить новый поток."
+      ],
+      "forbidden_shortcuts": [
+        "Не считать максимум updated_at среди всех одновременно зависших узлов признаком свежести.",
+        "Не перезапускать общий сервис вслепую."
+      ],
+      "verification": [
+        "Есть несколько новых валидных кадров; время и состояние восстановлены."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R05",
+      "title": "Сопоставление CO₂ с задержками и общей причиной ошибки",
+      "default_route": "DIAGNOSE",
+      "priority": "P1",
+      "trigger": "Один CO₂ выше других, быстрый рост или предполагаемое правило 2 из 3.",
+      "required_evidence": [
+        "Одна зона и единицы.",
+        "reading_delay_s, возраст, sensor_state, online, дрейф и история на соответствующее время.",
+        "Группы общей причины: одна шина/питание/помеха не дают независимые голоса."
+      ],
+      "procedure": [
+        "Сравнивать синхронизированные измерения: задержанный датчик в t сопоставлять с историей другого в t-delay.",
+        "Отдельно оценить текущую среду: историческое согласие не доказывает текущую безопасность.",
+        "При недостатке текущих данных — UNKNOWN; защиту не снимать; разрешённые защитные действия выбирать по текущему контексту."
+      ],
+      "forbidden_shortcuts": [
+        "Не объявлять свежие 2600 ppm ложными только потому, что значения 15/30 минут назад были 700.",
+        "Не называть быстрый скачок безусловно физически невозможным."
+      ],
+      "verification": [
+        "Для вывода указаны интервалы измерения и действительно независимые доказательства."
+      ],
+      "historical_episodes": [
+        "DAY-05"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R06",
+      "title": "Подтверждённая неисправность основного CO₂ и восстановление",
+      "default_route": "CONDITIONAL_CONTROL",
+      "priority": "P1",
+      "trigger": "Есть достаточные доказательства ошибки конкретного CO₂; источник выбран ПЛК или уже вызвал удержание.",
+      "required_evidence": [
+        "Пройдены R05 и проверка текущей среды.",
+        "Есть подходящий здоровый резерв; права set_data_trust/set_primary_sensor/reset_interlock известны.",
+        "Установлен активный incident_id и текущий IL_CO2."
+      ],
+      "procedure": [
+        "Пометить только доказанно ошибочный параметр.",
+        "Дождаться новой телеметрии с точной пометкой.",
+        "Выбрать проверенный резерв и подтвердить выбор.",
+        "При устранённом условии снять только IL_CO2 и подтвердить ARMED.",
+        "Отдельно продолжить нужный станок, проверить состояние и прогресс."
+      ],
+      "forbidden_shortcuts": [
+        "Не лишать интерлок последнего пригодного источника.",
+        "Не отправлять всю цепочку сразу и не продолжать её после отказа шага.",
+        "Не считать ложный сигнал отсутствием реального простоя."
+      ],
+      "verification": [
+        "Подтверждены доверие/выбор источника, ARMED, снятие hold и продолжение реального задания."
+      ],
+      "historical_episodes": [
+        "DAY-05"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R07",
+      "title": "Вероятный реальный рост CO₂",
+      "default_route": "PROTECTIVE_CONTROL",
+      "priority": "P0",
+      "trigger": "Текущие пригодные источники/наблюдения подтверждают рост; либо высокая опасность не опровергнута.",
+      "required_evidence": [
+        "Свежие данные и состояние приточки, доступные режимы, шторм/дым/герметизация."
+      ],
+      "procedure": [
+        "Сохранить причину и доказательства.",
+        "По разрешённому сценарию восстановить приток/подходящий режим; не конфликтовать со штормом или дымом.",
+        "При отсутствии расхода запросить физическую проверку; дать краткое значимое сообщение.",
+        "Resume только после подтверждённого восстановления среды и разрешения удержания."
+      ],
+      "forbidden_shortcuts": [
+        "Не снимать защиту, чтобы улучшить метрику простоя.",
+        "Не блокировать автоматику по спокойным задержанным датчикам."
+      ],
+      "verification": [
+        "Не только speed_pct, но фактический расход, отсутствие relevant alarm и устойчивая динамика CO₂."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R08",
+      "title": "Риск конденсата",
+      "default_route": "DIAGNOSE",
+      "priority": "P1",
+      "trigger": "IL_CONDENSATE, высокая RH или малый запас до точки росы.",
+      "required_evidence": [
+        "Сопоставимые RH/T/Tросы, свежесть, зоны, независимые наблюдения."
+      ],
+      "procedure": [
+        "Считать риск возможным до проверки.",
+        "При доказанной ошибке одного параметра — точечная пометка; при реальном/неясном риске сохранить удержание и выполнить допустимую процедуру осмотра/просушки."
+      ],
+      "forbidden_shortcuts": [
+        "Не объявлять RH=99% ложной лишь потому, что температура воздуха не падала.",
+        "Не игнорировать температуру поверхностей и общий отказ источников."
+      ],
+      "verification": [
+        "Условие исчезло по пригодным данным; только затем interlock recovery и resume."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R09",
+      "title": "Ложный COMPLETED webhook",
+      "default_route": "RECORD_AND_VETO",
+      "priority": "P1",
+      "trigger": "webhook_state=COMPLETED, но state/real_state=PRINTING, прогресс или Z изменяются, задание не окончено.",
+      "required_evidence": [
+        "Свежие state/real_state, progress_pct, file_name, Z и последовательность кадров."
+      ],
+      "procedure": [
+        "Записать расхождение и сомнительность конкретного канала статуса.",
+        "Оставить печать в работе; запретить разблокировку бокса и объявление готовности.",
+        "Если Оператор уже направлен за деталью — немедленно исправить сообщение."
+      ],
+      "forbidden_shortcuts": [
+        "Не открывать бокс, не перезапускать принтер и не отменять правильную печать ради согласования флагов."
+      ],
+      "verification": [
+        "Бокс остаётся закрытым; завершение позже подтверждено несколькими подходящими признаками."
+      ],
+      "historical_episodes": [
+        "DAY-04"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R10",
+      "title": "Штатное завершение, охлаждение и выдача детали",
+      "default_route": "TASK_WORKFLOW",
+      "priority": "P2",
+      "trigger": "Подтверждённое завершение задания и запрос на получение детали.",
+      "required_evidence": [
+        "Идентичность задания, отсутствие движения/печати, прогресс, термосостояние по утверждённой процедуре, дверь/замок."
+      ],
+      "procedure": [
+        "Записать завершение как рабочий этап.",
+        "Разблокировать конкретный замок только после всех предпосылок; проверить замок.",
+        "Получить релевантное сообщение Оператора о снятии детали, проверить дверь и состояние стола.",
+        "Новое задание запускать только после повторной проверки готовности."
+      ],
+      "forbidden_shortcuts": [
+        "Открытая дверь/bed_clear в модели не доказывают физическое удаление детали.",
+        "Горячий стол и небезопасный доступ не разрешаются голосованием статусов."
+      ],
+      "verification": [
+        "Задание, деталь и действие Оператора связаны; нет нового запуска на занятый стол."
+      ],
+      "historical_episodes": [
+        "DAY-06"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R11",
+      "title": "E09 и другие ошибки инвертора",
+      "default_route": "DIAGNOSE_THEN_APPROVED_RECOVERY",
+      "priority": "P1",
+      "trigger": "error=true, error_code=E09 или иной код; генерация/MPPT меняются.",
+      "required_evidence": [
+        "Текущий код и состояние; погодные данные лишь косвенные.",
+        "Действующая разрешённая процедура диагностики электрической части и восстановления."
+      ],
+      "procedure": [
+        "Оценить влияние на питание и сохранить ошибку.",
+        "Не объявлять изоляцию ложной по сходству с прошлым туманом.",
+        "Сброс допустим только после выполненной процедуры устранения/подтверждения допустимости; отсутствие данных не заменяет это условие.",
+        "После допуска — один ограниченный шаг с проверкой ошибки, MPPT и генерации при наличии освещения."
+      ],
+      "forbidden_shortcuts": [
+        "Не делать reset_error по одному таймеру или пропавшему датчику влажности.",
+        "Не повторять до успеха."
+      ],
+      "verification": [
+        "Новые данные подтверждают ожидаемый режим без повторной ошибки; при повторе — остановить попытки и эскалировать."
+      ],
+      "historical_episodes": [
+        "DAY-01"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R12",
+      "title": "Низкая генерация без доказательства отказа",
+      "default_route": "MONITOR",
+      "priority": "P2",
+      "trigger": "PV/ветер дают мало или ноль.",
+      "required_evidence": [
+        "Время окружения, освещённость/ветер, состояние источника, MPPT, ошибки и нагрузка."
+      ],
+      "procedure": [
+        "Отделить ночь/штиль/ограничение генерации от отказа.",
+        "Записать естественные изменения без восстановления исправного оборудования.",
+        "При несогласованности — диагностика, не автоматическое включение канала."
+      ],
+      "forbidden_shortcuts": [
+        "Не лечить ночь командой enable_mppt.",
+        "Не включать ветер при штормовом запрете."
+      ],
+      "verification": [
+        "Отклонение объяснено наблюдаемыми условиями либо открыта проверяемая гипотеза."
+      ],
+      "historical_episodes": [],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R13",
+      "title": "Нежелательное потребление резервной линии",
+      "default_route": "CONDITIONAL_CONTROL_AND_OPERATOR",
+      "priority": "P1",
+      "trigger": "На линии есть устойчивое потребление, несовместимое с подтверждённым назначением.",
+      "required_evidence": [
+        "Текущая карта нагрузок и отсутствие разрешённой нагрузки.",
+        "Мощность, ток, состояние, утечка; пригодность измерений; последствия изоляции."
+      ],
+      "procedure": [
+        "Зафиксировать подозрение, не подменять его диагнозом утечки.",
+        "Если линия не критична и изоляция разрешена, выключить один раз и проверить эффект.",
+        "Физический осмотр/ремонт — уполномоченному Оператору/специалисту.",
+        "Возврат только по релевантному результату осмотра и проверенной процедуре."
+      ],
+      "forbidden_shortcuts": [
+        "Не считать линию 8 пустой навсегда по одному прошлому дню.",
+        "Не давать агенту право ремонтировать силовой клеммник."
+      ],
+      "verification": [
+        "Проверены линия и последствия, после восстановления — нормальное фактическое потребление."
+      ],
+      "historical_episodes": [
+        "DAY-02"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R14",
+      "title": "Срабатывание защиты, перегрузка, перенапряжение",
+      "default_route": "PROTECT_AND_ESCALATE",
+      "priority": "P0",
+      "trigger": "TRIPPED/RCD_TRIP, IL_OVERCURRENT/IL_OVERVOLT/IL_INV_OVERLOAD или связанные аварии.",
+      "required_evidence": [
+        "Точная линия/узел и причина, реальная нагрузка, зависимые потребители, текущий интерлок."
+      ],
+      "procedure": [
+        "Различить аппаратную и программную защиту.",
+        "Сохранить состояние, проверить причину и передать допустимую физическую проверку.",
+        "Возврат питания — после доказанного устранения причины по утверждённой процедуре."
+      ],
+      "forbidden_shortcuts": [
+        "Нулевой ток уже отключённой линии не доказывает устранение неисправности.",
+        "Не включать автоматически по истечении 180 секунд и не циклировать реле."
+      ],
+      "verification": [
+        "Условие устранено, возврат разрешён; новая телеметрия подтверждает питание без повторной аварии."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R15",
+      "title": "Энергетическое планирование",
+      "default_route": "PLANNED_CONTROL",
+      "priority": "P1",
+      "trigger": "Ожидаемый дефицит или снижение SOC угрожают задаче, но авария не подтверждена.",
+      "required_evidence": [
+        "Потоки инвертора, SOC/напряжение/ёмкость с отметкой достоверности, доступность сети/дизеля, производственный план."
+      ],
+      "procedure": [
+        "Строить интервальный прогноз с неопределённостью, не точную цифру из неизвестной ёмкости.",
+        "Использовать гистерезис и единственного владельца режима.",
+        "GRID_ONLY только при доступной сети; дизель только по разрешённым предпосылкам.",
+        "Учесть L1 и вытяжку: экономия не должна сделать пайку небезопасной."
+      ],
+      "forbidden_shortcuts": [
+        "Не переносить SOC 34/35/70/77 из одного дня как доказанные универсальные уставки.",
+        "Не приравнивать солнечную мощность минус восемь линий к полному энергобалансу."
+      ],
+      "verification": [
+        "Проверены выбранный источник, реальные потоки и сохранение критических потребителей."
+      ],
+      "historical_episodes": [
+        "DAY-03",
+        "DAY-08"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R16",
+      "title": "Мигание света и общий шум датчиков",
+      "default_route": "DIAGNOSE_COMMON_CAUSE",
+      "priority": "P1",
+      "trigger": "Неожиданные переключения света и/или согласованные помехи датчиков.",
+      "required_evidence": [
+        "Время переходов реле, данные датчиков с исходной частотой, общие шины/питание, сообщение Оператора."
+      ],
+      "procedure": [
+        "Открыть гипотезу общей причины; временная корреляция не доказывает причинность.",
+        "Не калибровать все датчики для лечения общего источника помех.",
+        "При разрешённой пробе сначала подтвердить аварийный свет, затем изолировать некритичное освещение; один владелец и бюджет воздействий.",
+        "Сравнить пред/после с учётом тренда и частоты; при неопределённости — только сообщение/запись гипотезы."
+      ],
+      "forbidden_shortcuts": [
+        "Не считать три коррелированных датчика тремя независимыми голосами.",
+        "Не повторять переключения скрытого неисправного контроллера своими командами.",
+        "Не считать минутную телеметрию достаточной для доказательства секундных помех."
+      ],
+      "verification": [
+        "Независимо подтверждены освещение, динамика помех и отсутствие вредных последствий; гипотеза не повышается до факта без основания."
+      ],
+      "historical_episodes": [
+        "DAY-07"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R17",
+      "title": "Дым и квитирование с защитным эффектом",
+      "default_route": "PROTECT_AND_ESCALATE",
+      "priority": "P0",
+      "trigger": "Тревога дыма/IL_SMOKE хотя бы в одной зоне.",
+      "required_evidence": [
+        "Точная зона, event_id, текущий эпизод, свежие подходящие источники и уполномоченное подтверждение."
+      ],
+      "procedure": [
+        "По умолчанию считать угрозу неразрешённой.",
+        "Дать краткое сообщение; сохранить защитную реакцию.",
+        "Квитирование, отменяющее автоматическое пожаротушение, не является обычной отметкой о прочтении: допускается только отдельным разрешённым сценарием с сильным подтверждением ложности конкретного события/зоны."
+      ],
+      "forbidden_shortcuts": [
+        "Не квитировать all; не брать последнее событие другой зоны.",
+        "Нормальные CO/VOC одного прибора не доказывают отсутствия пожара в другой зоне.",
+        "Фраза «ложная тревога» без привязки к событию не снимает все тревоги."
+      ],
+      "verification": [
+        "Сверены zone/event_id и актуальные защитные состояния; неизвестность не выдаётся за безопасность."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R18",
+      "title": "Шторм, герметизация и конфликт защитных режимов",
+      "default_route": "PROTECT_AND_ESCALATE",
+      "priority": "P0",
+      "trigger": "IL_STORM, сильный ветер или защитная герметизация.",
+      "required_evidence": [
+        "Текущий штормовой режим, качество метеоданных, клапаны, приточка и связь с другими угрозами."
+      ],
+      "procedure": [
+        "Не конкурировать с защитой командой включения ветра/открытия клапанов.",
+        "При конфликте с CO₂/дымом передать разрешение конфликта уполномоченному сценарию/человеку."
+      ],
+      "forbidden_shortcuts": [
+        "Не использовать типовую команду FRESH_AIR без учёта других активных интерлоков."
+      ],
+      "verification": [
+        "После подтверждённого завершения угрозы — контролируемое восстановление, без автоматической инверсии всех команд."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R19",
+      "title": "Вода, фильтр, охлаждение, связь — команды по физическому эффекту",
+      "default_route": "DIAGNOSE",
+      "priority": "P1",
+      "trigger": "ON без расхода/вращения, тревога фильтра/охлаждения, деградация сети.",
+      "required_evidence": [
+        "Потребность в работе, спрос, режим, расход/давление/RPM/ошибка и действительные права."
+      ],
+      "procedure": [
+        "Различить ожидание и неисправность: ON и running=false могут быть штатны.",
+        "При влиянии на задачу применить только проверенный профиль узла; для ненаблюдённого режима не выдумывать автоматику."
+      ],
+      "forbidden_shortcuts": [
+        "Не выводить гидравлическую/сетевую топологию из названий.",
+        "Не промывать, переключать фильтр или перезагружать сервис без оценки последствий."
+      ],
+      "verification": [
+        "Проверен нужный физический эффект, а не только флаг включения."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R20",
+      "title": "Таймаут отправки — результат неизвестен",
+      "default_route": "RECONCILE",
+      "priority": "P1",
+      "trigger": "Нет ответа на control или соединение оборвалось после возможной отправки.",
+      "required_evidence": [
+        "Сохранённые intent_id/request_id/session_id и состояние до команды."
+      ],
+      "procedure": [
+        "Пометить DELIVERY_UNKNOWN.",
+        "Не повторять неидемпотентное действие.",
+        "После восстановления прав/телеметрии сопоставить задание, файл, счётчики, реальный эффект; затем принять новое решение."
+      ],
+      "forbidden_shortcuts": [
+        "Не повторять start_job, transfer_fuel, reset_protection или физически значимое действие как обычный HTTP retry.",
+        "request_id не считать серверным ключом идемпотентности без контракта."
+      ],
+      "verification": [
+        "Исходная операция примирена с наблюдениями или передана человеку как неизвестная."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R21",
+      "title": "Команда принята, эффекта нет",
+      "default_route": "RECONCILE",
+      "priority": "P1",
+      "trigger": "ACK_ACCEPTED, но свежая пригодная телеметрия не подтверждает эффект в срок профиля.",
+      "required_evidence": [
+        "Новые кадры после отправки, период обновления и допустимое время узла, канал команды и наблюдения."
+      ],
+      "procedure": [
+        "Зафиксировать NO_EFFECT/UNKNOWN, прекратить повтор.",
+        "Проверить исполнитель, связь, режим/блокировки и независимый физический признак.",
+        "Для коллизий шины сначала диагностировать период/CRC; не увеличивать частоту опроса."
+      ],
+      "forbidden_shortcuts": [
+        "Не лечить потерянную запись шквалом одинаковых команд.",
+        "Не подтверждать эффект кадром, существовавшим до отправки."
+      ],
+      "verification": [
+        "Есть новая причинно релевантная проверка или явная эскалация."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R22",
+      "title": "Перезапуск и незавершённые операции",
+      "default_route": "RECONCILE",
+      "priority": "P1",
+      "trigger": "Запуск/перезапуск процесса, восстановление после падения.",
+      "required_evidence": [
+        "Журнал намерений, неопределённые отправки, подтверждённые задания и счётчики ограничений."
+      ],
+      "procedure": [
+        "Сначала авторизоваться, получить каталог и свежую картину; до этого READ_ONLY.",
+        "Восстановить блокировки ресурсов, попытки resume, переключения линий, checkpoint чата.",
+        "Примирить незавершённое; не заново исполнять старые задачи."
+      ],
+      "forbidden_shortcuts": [
+        "Не обнулять бюджеты повторов после рестарта.",
+        "Не сериализовать монотонные timestamps как переносимое абсолютное время без привязки к запуску."
+      ],
+      "verification": [
+        "Каждая незавершённая операция получила явный новый статус без повторной физической отправки вслепую."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R23",
+      "title": "Guest, отзыв сессии и смена команды",
+      "default_route": "READ_ONLY",
+      "priority": "P1",
+      "trigger": "Нет свежей авторизации team, session_revoked, новая сессия или устаревший каталог.",
+      "required_evidence": [
+        "Новая session_id/роль/команда и версия каталога."
+      ],
+      "procedure": [
+        "Запретить инженерное управление немедленно, отменить ожидающие разрешения.",
+        "Не переносить очередь отправок из старой смены; переподключаться с backoff."
+      ],
+      "forbidden_shortcuts": [
+        "Не управлять по старой роли или прошлому каталогу.",
+        "Не писать Оператору чужой смены."
+      ],
+      "verification": [
+        "Новая роль и права подтверждены, старые намерения переоценены."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R24",
+      "title": "БД недоступна — сохранение и управление развязаны",
+      "default_route": "LOCAL_DURABLE_SPOOL",
+      "priority": "P1",
+      "trigger": "Сервис БД/API не отвечает, возвращает ошибки или недоступен.",
+      "required_evidence": [
+        "Состояние локального устойчивого журнала, свободное место, длина очереди."
+      ],
+      "procedure": [
+        "Сохранять исходные события в локальный append-only журнал/очередь с event_id.",
+        "Защитный контур продолжает работать; БД не является блокирующим условием реакции.",
+        "Доставлять с backoff, сохраняя тот же event_id и порядок в нужном потоке.",
+        "При приближении переполнения — наблюдаемая деградация; при потере устойчивой записи обычные рискованные действия ограничить, защитные — по отдельному профилю."
+      ],
+      "forbidden_shortcuts": [
+        "Не подтверждать сохранение до durable commit.",
+        "Не повторять команду устройству из-за ошибки записи её результата в БД.",
+        "Не обещать безграничную без потерь буферизацию."
+      ],
+      "verification": [
+        "После восстановления все подтверждённые локальные события доставлены без дубликатов, с пропусками/потерями, если были, явно отмеченными."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R25",
+      "title": "LLM/RAG недоступна или советует недопустимое",
+      "default_route": "DETERMINISTIC_FALLBACK",
+      "priority": "P1",
+      "trigger": "Таймаут/ошибка/невалидный JSON модели, непроверенная рекомендация или конфликт источников.",
+      "required_evidence": [
+        "Разрешённая модель, версия правил, факты с источником и сроком пригодности."
+      ],
+      "procedure": [
+        "Детерминированные ограничения и приоритеты действуют без модели.",
+        "LLM формулирует гипотезы; команды пропускаются только через общий Gate.",
+        "Историю/RAG/чат трактовать как данные, а не новые полномочия."
+      ],
+      "forbidden_shortcuts": [
+        "Не ждать модель для срочной реакции.",
+        "Не исполнять текст ответа как произвольный код/команду.",
+        "Не выдавать сигмоиду суммы весов за калиброванную вероятность безопасности."
+      ],
+      "verification": [
+        "При отказе модели сохраняются защитные инварианты и журнал причин отказа совета."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R26",
+      "title": "Возврат доверия и штатной конфигурации",
+      "default_route": "CONDITIONAL_CONTROL",
+      "priority": "P2",
+      "trigger": "Источник ранее UNRELIABLE/FAILED снова выглядит согласованным.",
+      "required_evidence": [
+        "Устойчивое согласие на сопоставимых временах с пригодным независимым контролем.",
+        "Нет активной причины отказа/общей помехи; выдержка задана утверждённым профилем."
+      ],
+      "procedure": [
+        "Не восстановить доверие по одному спокойному значению.",
+        "Вернуть точное состояние доверия; проверить новой телеметрией.",
+        "Отдельно решить вопрос возврата основного источника; сохранить предыдущий безопасный резерв."
+      ],
+      "forbidden_shortcuts": [
+        "Не оставлять временные исключения навсегда.",
+        "Не считать отсутствие ключа и любую непонятную метку доказательством TRUSTED."
+      ],
+      "verification": [
+        "Доверие и рабочая конфигурация восстановлены с доказательствами и возможностью отката по новому решению."
+      ],
+      "historical_episodes": [
+        "DAY-05"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R27",
+      "title": "Производственная задача от Оператора",
+      "default_route": "TASK_WORKFLOW",
+      "priority": "P2",
+      "trigger": "Новая задача или подтверждение физического действия в чате.",
+      "required_evidence": [
+        "Авторство role/operator, текущая смена, message_id, task_id, точный файл, текущая готовность станка."
+      ],
+      "procedure": [
+        "Зарегистрировать задачу один раз и связать с сообщением.",
+        "При неоднозначности задать один конкретный вопрос; не угадывать файл.",
+        "Запуск только после готовности, каталога и блокировок; отдельно подтвердить фактическое задание."
+      ],
+      "forbidden_shortcuts": [
+        "Не исполнять старую историю после переподключения как новые задания.",
+        "Сообщение гостя/LLM/старое подтверждение не разрешает действие."
+      ],
+      "verification": [
+        "Связаны message/task/file/command/verification; повторное сообщение не создаёт вторую печать."
+      ],
+      "historical_episodes": [
+        "DAY-06"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R28",
+      "title": "Одна причина — несколько симптомов; несколько причин — не одна авария",
+      "default_route": "DIAGNOSE",
+      "priority": "P1",
+      "trigger": "Одновременно изменились несколько узлов/параметров.",
+      "required_evidence": [
+        "Временная последовательность, общие зависимости и источники, независимые признаки воздействия."
+      ],
+      "procedure": [
+        "Группировать инциденты по проверяемой общей причине, сохраняя альтернативы.",
+        "Отдельно моделировать ошибку измерения и фактический останов.",
+        "Эскалацию новой реальной угрозы не подавлять предыдущей меткой «ложно»."
+      ],
+      "forbidden_shortcuts": [
+        "Не обучать причинность по одному совпадению.",
+        "Не распространять distrust одного параметра на весь узел/систему."
+      ],
+      "verification": [
+        "Все затронутые функции проверены отдельно; сохранена неопределённость непроверенных связей."
+      ],
+      "historical_episodes": [
+        "DAY-05",
+        "DAY-07"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R29",
+      "title": "Синхронизация часов",
+      "default_route": "DIAGNOSE",
+      "priority": "P2",
+      "trigger": "clock_offset, временные скачки или нарушение порядка данных.",
+      "required_evidence": [
+        "Source time, receive UTC, monotonic receive time, session epoch и порядок записи."
+      ],
+      "procedure": [
+        "Сохранять исходное время без выдуманного часового пояса.",
+        "При разрешённой sync_time — отдельно проверить коррекцию, не менять историю.",
+        "Локальные интервалы и защитные бюджеты не должны исчезать при NTP-скачке."
+      ],
+      "forbidden_shortcuts": [
+        "Не вычислять свежесть разных доменов времени прямым вычитанием.",
+        "Не сортировать всю историю только по потенциально неверному source_timestamp."
+      ],
+      "verification": [
+        "Порядок и интервалы устойчивы к скачкам; исходные значения сохранены."
+      ],
+      "historical_episodes": [
+        "DAY-08"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R30",
+      "title": "Неизвестные поля, действия и новые типы событий",
+      "default_route": "RECORD_AND_DIAGNOSE",
+      "priority": "P1",
+      "trigger": "Получена новая структура, событие или неизвестный параметр.",
+      "required_evidence": [
+        "Исходный JSON, текущий каталог, схема контракта хранения."
+      ],
+      "procedure": [
+        "Сохранить полностью, не отбрасывать неизвестные поля payload.",
+        "Контроль только по валидированному подмножеству; новое действие не добавлять в allowlist автоматически."
+      ],
+      "forbidden_shortcuts": [
+        "Не применять универсальный any:true к управляющим аргументам.",
+        "Не терять неизвестный вход или невалидный raw_text из-за ошибки парсера."
+      ],
+      "verification": [
+        "Запись доступна для анализа; нет команд по нераспознанной семантике."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R31",
+      "title": "Ошибка прошлого агента не является эталоном",
+      "default_route": "RECORD_AND_DIAGNOSE",
+      "priority": "P2",
+      "trigger": "История/RAG содержит команду и success=true, но результат был ошибочным или неопределённым.",
+      "required_evidence": [
+        "Последующие состояния и сообщения, разметка качества примера, полнота наблюдений."
+      ],
+      "procedure": [
+        "Сохранить пример как negative/unknown, а не successful_recovery.",
+        "При онлайн-решении не пользоваться будущим исходом эпизода.",
+        "Исторические удачные случаи — гипотезы для проверки, не разрешение копировать действия."
+      ],
+      "forbidden_shortcuts": [
+        "Не повышать trust рекомендации потому, что API принял такую же команду в прошлом."
+      ],
+      "verification": [
+        "Рекомендация содержит ограничения применимости и источник результата."
+      ],
+      "historical_episodes": [
+        "DAY-04",
+        "DAY-07"
+      ],
+      "coverage": "observed",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    },
+    {
+      "id": "R32",
+      "title": "Арбитраж намерений и ресурсные блокировки",
+      "default_route": "ARBITRATE",
+      "priority": "P1",
+      "trigger": "Несколько правил/LLM одновременно меняют один ресурс или зависимые ресурсы.",
+      "required_evidence": [
+        "Владение ресурсом, версия состояния, активные угрозы и незавершённые команды."
+      ],
+      "procedure": [
+        "Один исполнитель на ресурс; сериализация несовместимых команд.",
+        "Безопасность и контроль неопределённости выше оптимизации/нового задания.",
+        "Зависимые шаги — только после verified; при новом событии предусловия пересчитываются."
+      ],
+      "forbidden_shortcuts": [
+        "Не отправлять одновременно line_on и line_off, разные режимы вентиляции, либо resume вместе с неустранённым hold.",
+        "Не решать конфликт приоритетов только порядком списка плейбуков."
+      ],
+      "verification": [
+        "Каждая команда имеет владельца, свежие предусловия и прослеживаемое завершение."
+      ],
+      "historical_episodes": [],
+      "coverage": "not_observed_this_day",
+      "guard_ids": [
+        "G01",
+        "G02",
+        "G03",
+        "G04",
+        "G05",
+        "G06",
+        "G07",
+        "G08"
+      ],
+      "on_insufficient_evidence": "DIAGNOSE; for unresolved safety hazards preserve protection and escalate; never infer NORMAL from missing data",
+      "persist": [
+        "raw inputs",
+        "incident_id and hypothesis revision",
+        "decision and evidence refs",
+        "commands and replies if any",
+        "verification or explicit unknown result"
+      ],
+      "guard_scope": "Guards apply before any proposed control, not before ingestion, recording or diagnosis. All input records are preserved regardless of role or route."
+    }
+  ],
+  "implementation_base": {
+    "branch": "agent/llm-layer",
+    "commit": "2e0c0350952ea251a98a35c1597433e1acac2f99"
+  },
+  "implementation_note": "Agent and prompt changes present locally; DB/API and shared contracts reused unchanged. Not all policy rules are independent implemented controllers. See README and test_results."
+}

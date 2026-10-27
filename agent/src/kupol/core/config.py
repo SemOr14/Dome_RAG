@@ -259,7 +259,7 @@ class QualityConfig(_Cfg):
 class EnergyConfig(_Cfg):
     """Параметры энергосистемы."""
 
-    deficit_info_w: float = Field(default=400.0, ge=0)  # разряд АКБ мощнее — информационная тревога energy_deficit
+    deficit_info_w: float = Field(default=600.0, ge=0)  # разряд АКБ мощнее — информационная тревога energy_deficit
     battery_capacity_wh: float = Field(gt=0)
     soc_min_pct: float = Field(ge=0, le=100)  # ниже этого заряда разряжать нельзя
     inverter_limit_w: float = Field(gt=0)

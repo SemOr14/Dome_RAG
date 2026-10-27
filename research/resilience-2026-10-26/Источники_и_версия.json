@@ -1,0 +1,27 @@
+{
+  "repository": "https://github.com/SemOr14/Dome_RAG",
+  "github_main_commit_verified": "1136b28432de4fa1be3f633f89299e645f3e4382",
+  "analysis_mode": "offline; no hardware control; no messages sent; GitHub read-only metadata",
+  "inputs": {
+    "Logs\\2026-10-14\\telemetry.jsonl": {
+      "sha256": "69f4555e68c4d2c498941d682c949d9a42912cea6c5e85a23aaecf0d5435f59c",
+      "bytes": 26222188
+    },
+    "Logs\\2026-10-14\\events.jsonl": {
+      "sha256": "3580217ffb9f1a3c4cf87192bcad5afd6f9a069698d780f4d7f1cf05af3fa280",
+      "bytes": 67171
+    },
+    "Logs\\2026-10-14\\logbook.jsonl": {
+      "sha256": "d7ec220c996a5cd6be613c9f15e91f40436a03a4ffb9e3c7d5970c04bcb78e46",
+      "bytes": 3280
+    },
+    "01_API.md": {
+      "sha256": "1935fdb3e5afb546fb30b2f0a8f0207061229185e7deb75974ff6e2798fdb066",
+      "bytes": 57636
+    },
+    "contracts\\event.schema.json": {
+      "sha256": "584b26c0dc8b078e867ba85df89219e34302b95d262419e33525943f692b57cb",
+      "bytes": 1728
+    }
+  }
+}

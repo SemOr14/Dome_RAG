@@ -19,7 +19,9 @@ from dataclasses import dataclass, field
 from .agent import DomeLLMAgent
 from .prompt_builder import _dome_time
 from .schemas import AgentResponse
-from .triggers import OperatorWatch, TelemetryWatch, Trigger, command_triggers
+from .triggers import OperatorWatch, TelemetryWatch, Trigger, command_triggers, telemetry_age
+from .event_watch import EventWatch
+from .patterns import DiagnosticPatterns, MARK as PATTERNS_MARK, END_MARK as PATTERNS_END
 
 MAX_LISTED = 12  # поводов в тексте одного вызова; остальные — списком узлов
 
@@ -68,11 +70,14 @@ class Dispatcher:
         self.state_file = s.state_dir / "dispatcher_state.json"
         saved = self._load_state()
         self.telemetry = TelemetryWatch(s.trigger_stale_s, s.trigger_stall_s)
+        self.source_events = EventWatch()
+        self.patterns = DiagnosticPatterns(s.trigger_stale_s)
         self.operator = OperatorWatch(saved.get("operator_last_id", 0))
         self.pending: dict[str, _Pending] = {}
         self.fired_at: dict[str, float] = {}  # ключ ситуации -> когда по ней звали модель
         self.checks: list[_Check] = []
         self.last_call: float | None = None
+        self.external_verification = False  # Runner/Gate owns actual command verification
         self.busy = False  # вызов модели идёт: новые поводы копятся, второй вызов не начинается
         self.last_review = clock()
         self.stats = {"calls": 0, "llm_failures": 0, "suppressed": 0, "unverified": 0, "triggers": 0}
@@ -116,7 +121,8 @@ class Dispatcher:
             self.finish(fired, self.decide(fired))
         return [fired]
 
-    def poll(self, chat: list[dict] | None = None) -> Fired | None:
+    def poll(self, chat: list[dict] | None = None, *, handled_operator_ids=None,
+             source_events: list[dict] | None = None) -> Fired | None:
         """Собрать поводы; если пора звать модель — вернуть объединённый вызов (модель здесь не вызывается).
 
         chat — сообщения meeting_message.message, полученные вызывающим кодом напрямую из WebSocket.
@@ -124,8 +130,10 @@ class Dispatcher:
         now = self.clock()
         snapshot = self.agent.telemetry.latest()
         found = self.telemetry.observe(snapshot, self.agent.catalog.by_id, now)
-        found += self.operator.from_snapshot(snapshot)
-        found += self.operator.messages(chat or [])
+        found += self.source_events.from_snapshot(snapshot)
+        found += self.source_events.observe(source_events or [], snapshot)
+        found += self.operator.from_snapshot(snapshot, handled_ids=handled_operator_ids)
+        found += self.operator.messages(chat or [], handled_ids=handled_operator_ids)
         if self.feed is not None:
             try:
                 events = self.feed.poll()
@@ -133,27 +141,35 @@ class Dispatcher:
                 print(f"события БД не прочитаны ({type(exc).__name__})", file=sys.stderr)
                 events = []
             found += command_triggers(events)
+            found += self.source_events.observe(events, snapshot)
             msgs = {}
             for ev in events:
                 if ev["event_type"] == "meeting_message" and isinstance(ev["payload"], dict):
                     msg = ev["payload"].get("message")
                     if isinstance(msg, dict) and isinstance(msg.get("id"), int):
                         msgs[msg["id"]] = (msg, ev["event_id"])
-            found += self.operator.messages([m for m, _ in msgs.values()], {i: e for i, (_, e) in msgs.items()})
-        found += self._due_checks(snapshot, now)
+            found += self.operator.messages([m for m, _ in msgs.values()], {i: e for i, (_, e) in msgs.items()}, handled_ids=handled_operator_ids)
+        if not self.external_verification:
+            found += self._due_checks(snapshot, now)
         if self.settings.trigger_review_s and now - self.last_review >= self.settings.trigger_review_s \
-                and "review" not in self.pending:
-            found.append(Trigger("review", "review", "Плановый обзор (120-секундный обход по умолчанию): сверь все узлы, "
-                                                     "свежесть, пары датчиков, энергобаланс, защиту, прогресс и результаты команд. "
-                                                     "Отдели ложные, скрытые, каскадные и базовые воздействия; "
-                                                     "без свежих данных нельзя подтверждать эффект. Если штатно — действий и сообщений не нужно"))
+                and not self.pending:
+            found.append(Trigger("review", "review", "Плановый обзор: оцени состояние купола и риски на ближайшее "
+                                                     "время. Если всё штатно — действий не нужно"))
+        active = self.telemetry.active | self.telemetry.numeric_active
+        active |= {f'tracking|{node}|{field}' for node, field in self.telemetry.target_active}
+        active |= {f"{node}|stall|{(snapshot.get('nodes', {}).get(node) or {}).get('file_name')}" for node in self.telemetry.stalled}
+        pattern_snapshot = dict(snapshot)
+        if self.telemetry.frame_stale and self.telemetry.frame_since is not None:
+            pattern_snapshot['telemetry_age_s'] = max(snapshot.get('telemetry_age_s') or 0, now - self.telemetry.frame_since)
+        for plan in self.patterns.observe(pattern_snapshot, found, active, self.agent.catalog.by_id, now):
+            self.agent.events.emit('diagnostic_pattern', plan)
         for trig in found:
             self._add(trig, now)
         self._save_state()
 
         if self.busy:
             return None
-        batch = self._ready(now)
+        batch = self._ready(now, snapshot)
         if not batch:
             return None
         return self._begin(batch, snapshot, now)
@@ -165,7 +181,7 @@ class Dispatcher:
     def _add(self, trig: Trigger, now: float) -> None:
         self.stats["triggers"] += 1
         last = self.fired_at.get(trig.key)
-        if last is not None and now - last < self.settings.trigger_cooldown_s and trig.kind not in ("verification", "review"):
+        if last is not None and now - last < self.settings.trigger_cooldown_s and trig.kind != "verification":
             self.stats["suppressed"] += 1  # та же ситуация недавно уже оценивалась
             return
         if trig.key in self.pending:  # повтор той же ситуации до вызова — объединяем
@@ -176,21 +192,27 @@ class Dispatcher:
             return
         self.pending[trig.key] = _Pending(trig)
 
-    def _ready(self, now: float) -> list[_Pending]:
+    def _ready(self, now: float, snapshot: dict) -> list[_Pending]:
         if self.last_call is not None and now - self.last_call < self.settings.trigger_min_interval_s:
             return []
         ready = [p for p in self.pending.values() if p.not_before <= now]
+        if telemetry_age(snapshot, self.settings.trigger_stale_s) is not None:
+            # Проверять результат по устаревшему кадру нельзя: проверка ждёт свежих данных в очереди
+            ready = [p for p in ready if p.trigger.kind != "verification"]
         return sorted(ready, key=lambda p: p.trigger.priority)
 
     def _begin(self, batch: list[_Pending], snapshot: dict, now: float) -> Fired:
         triggers = [p.trigger for p in batch]
         text = self.compose(triggers)
+        plans = self.patterns.plans()
+        if plans:
+            text += '\n\n' + PATTERNS_MARK + ' (только проверка и наблюдения, не разрешение на управление):\n'
+            text += json.dumps(plans, ensure_ascii=False, default=str) + '\n' + PATTERNS_END
         kinds = sorted({t.kind for t in triggers})
         fired = Fired(triggers, text, nodes=set().union(*(t.nodes for t in triggers)),
                       purpose=f"диспетчер: {', '.join(kinds)}", snapshot=snapshot, batch=batch)
         self.last_call = now
-        if any(t.kind == "review" for t in triggers):
-            self.last_review = now
+        self.last_review = now
         if self.dry_run:
             for p in batch:
                 self._done(p.trigger, now)
@@ -232,7 +254,8 @@ class Dispatcher:
             if trig.kind == "verification":
                 self._verification_event(trig.meta, "reassessed", "результат оценён моделью по новым данным",
                                          response)
-        self._schedule_check(response, snapshot, now)
+        if not self.external_verification:
+            self._schedule_check(response, snapshot, now)
 
     def _done(self, trig: Trigger, now: float) -> None:
         self.pending.pop(trig.key, None)

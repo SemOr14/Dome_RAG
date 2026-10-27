@@ -14,6 +14,14 @@ ROOT = Path(__file__).resolve().parent.parent
 T0 = datetime(2026, 10, 27, 10, 0, 0, tzinfo=UTC)
 
 
+@pytest.fixture(autouse=True)
+def _control_policy(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Тесты рантайма идут с полным управлением (как service + autonomous); режимы и профили проверяют отдельные тесты."""
+    for name, value in (("AGENT_MODE", "autonomous"), ("DOME_API_SCOPE", "full"), ("DEPLOYMENT_PROFILE", "service"),
+                        ("ALGORITHMS_ENABLED", "1")):
+        monkeypatch.setenv(name, value)
+
+
 @pytest.fixture(scope="session")
 def config() -> AppConfig:
     """Боевой `config.yaml` из корня репозитория (проверяет и его валидность)."""

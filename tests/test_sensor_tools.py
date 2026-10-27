@@ -224,3 +224,19 @@ def test_nonfinite_metadata_never_breaks_tool_json_serialization():
     assert result['node_updated_at'] is None and result['timestamp'] is None
     assert result['fresh'] is None
     json.dumps(result, allow_nan=False)
+
+
+def test_merged_sensor_reads_keep_classification_checks_and_prompt_boundaries(tmp_path):
+    decision = {'situation': 'Проверка объединения', 'actions': [], 'impact_kind': 'cascade',
+                'authenticity': 'real', 'false_alarm': True, 'causal_chain': []}
+    a = agent(tmp_path, [tool_result(call()), final_result(json.dumps(decision))])
+    response = a.decide('Проверь датчик')
+    assert response.ok and len(response.sensor_reads) == 1
+    assert response.classification_issues
+    payload = a.decision_payload(response)
+    assert payload['classification_issues'] == response.classification_issues
+    assert len(payload['sensor_read_event_ids']) == 1
+    system = a._llm.calls[0][0][0]['content']
+    assert '<untrusted' in system and 'ключи, токены' in system
+    assert 'read_sensor' in system and 'ТРЁХ обращений' in system
+    assert 'не более 1 команды' in system

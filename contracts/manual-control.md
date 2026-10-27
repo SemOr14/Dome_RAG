@@ -26,3 +26,11 @@
    `payload = {intent_event_id, status: sent|dry_run|rejected|failed|skipped, reason, decision_seq, action_seq, response}`,
    `request_id` — команды в Купол. Ответ Купола — `control_response` с тем же `request_id`, проверка эффекта —
    `agent_verification`.
+
+## Дополнение production-control-v1
+
+Прямые ручные воздействия доступны только в серверном профиле service вне смены. В competition
+Runner отклоняет этот путь независимо от результатов проверки БД и confirmed=true. Новые намерения
+несут metadata.actor=operator, metadata.policy_epoch и metadata.agent_mode; старая ревизия не исполняется.
+Подтверждение не обходит каталог, свежесть, состояние, ограничения движения и Gate. После жёлтой
+дополнительного latch/reset нет: применяются обычные правила конкретной команды.

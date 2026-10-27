@@ -12,7 +12,7 @@ import copy
 from collections.abc import Callable
 from typing import Any
 
-from tests.dome_helpers import snapshot
+from tests.dome_helpers import synchronous_snapshot as snapshot
 
 MACHINES = ("printer_3d_01", "cnc_01")
 UNTRUSTED = ("UNRELIABLE", "FAILED")
@@ -140,9 +140,12 @@ class World:
     def _chat_post(self, value: Any) -> dict[str, Any]:
         text = value.get("text") if isinstance(value, dict) else str(value)
         self.posted.append(str(text))
+        name = value.get("name") if isinstance(value, dict) and value.get("name") else "agent"
         self._msg_id += 1
-        self.chat.append({"id": self._msg_id, "time": self.t, "sender": {"role": "team", "team": 1, "name": "agent"}, "to": "operator", "text": str(text)})
-        return {"success": True}
+        # Как настоящий Купол: имя отправителя из команды, само сообщение — в ответе
+        msg = {"id": self._msg_id, "time": self.t, "sender": {"role": "team", "team": 1, "name": name}, "to": "operator", "text": str(text)}
+        self.chat.append(msg)
+        return {"success": True, "message": dict(msg)}
 
     def operator_says(self, text: str | None) -> dict[str, Any] | None:
         """Сообщение Оператора в чат (``None`` — только служебная отметка)."""
@@ -246,6 +249,23 @@ class World:
         if action == "set_lock":
             box = self.nodes["thermal_insulation_01"]
             box["locks"][value["lock"]] = "LOCKED" if value["locked"] else "UNLOCKED"
+        return None
+
+    def _do_supply_ventilation_01(self, action: str, value: Any) -> dict[str, Any] | None:
+        node = self.nodes["supply_ventilation_01"]
+        if action == "set_speed":
+            node["speed_pct"] = value
+        elif action == "set_mode":
+            node["mode"] = value
+        elif action == "turn_on":
+            node["state"] = "ON"
+        elif action == "reset_alarm":
+            node["alarm"] = False
+        return None
+
+    def _do_fume_extraction_01(self, action: str, value: Any) -> dict[str, Any] | None:
+        if action == "turn_on":
+            self.nodes["fume_extraction_01"]["enabled"] = True
         return None
 
     def _do_smoke_detector_01(self, action: str, value: Any) -> dict[str, Any] | None:

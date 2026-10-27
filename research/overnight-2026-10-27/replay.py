@@ -5,14 +5,13 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from llm_agent.monitoring import NumericMonitor, assess_impacts
+from llm_agent.monitoring import NumericMonitor
 
 
 def replay(root):
     days = []
     for path in sorted(root.glob('*/telemetry.jsonl')):
         monitor = NumericMonitor()
-        kinds = Counter()
         thresholds = Counter()
         frames = 0
         digest = hashlib.sha256()
@@ -27,10 +26,9 @@ def replay(root):
                 for finding in findings:
                     if finding['note'].startswith('Вне рабочего диапазона'):
                         thresholds[f"{finding['node']}.{finding['field']}"] += 1
-                kinds.update(a['kind'] for a in assess_impacts({'nodes': nodes, 'timestamp': stamp}))
         days.append({'day': path.parent.name, 'frames': frames, 'sha256': digest.hexdigest(),
                      'numeric_fields': len(monitor.baselines), 'distinct_numeric_values_checked': monitor.values_seen,
-                     'assessment_candidates': dict(kinds), 'threshold_frames': dict(thresholds)})
+                     'threshold_frames': dict(thresholds)})
         print(path.parent.name, frames, 'frames', flush=True)
     return {'source_repository': 'https://github.com/WhiteDots/Dome_RAG',
             'source_commit': '5e1ec4854ddcccb12efc5f0b4a9bfd94fa190438',

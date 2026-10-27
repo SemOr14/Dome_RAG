@@ -13,6 +13,7 @@ from pydantic import ValidationError
 from .config import Settings
 from .context.catalog import NodeCatalog
 from .context.graph import InfluenceGraph
+from .context.hierarchy import Hierarchy
 from .llm_client import DeepSeekClient
 from .prompt_builder import BuiltPrompt, PromptBuilder
 from .rag.base import NullRetriever, Retriever
@@ -22,9 +23,9 @@ from .schemas import AgentDecision, AgentResponse, LLMCallInfo, ProposedAction
 from .storage.base import (CatalogRepo, ControlChecker, DecisionJournalRepo, EventSink, NullEventSink,
                            TelemetryRepo)
 from .storage.data_api import (ApiCatalogRepo, ApiControlChecker, ApiDecisionJournalRepo, ApiEventSink,
-                               ApiTelemetryRepo, DataApiClient)
+                               ApiTelemetryRepo, DataApiClient, impact_text)
 from .storage.file_store import FileCatalogRepo, FileDecisionJournalRepo, FileTelemetryRepo
-from .validate import validate_actions
+from .validate import check_classification, validate_actions
 from .sensor_tools import MAX_SENSOR_READS, SENSOR_TOOL, SensorSession
 
 _FENCE = re.compile(r"^```(?:json)?\s*|\s*```$", re.MULTILINE)
@@ -71,7 +72,9 @@ class DomeLLMAgent:
         self.builder = PromptBuilder(
             settings.prompt_dir, self.catalog, InfluenceGraph.load(settings.data_dir / "influence_graph.yaml"),
             self.hard_rules, retriever or NullRetriever(), journal_limit=settings.journal_limit,
-            rag_k=settings.rag_k, graph_depth=settings.graph_depth)
+            rag_k=settings.rag_k, graph_depth=settings.graph_depth, stale_s=settings.trigger_stale_s,
+            hierarchy=Hierarchy.load(settings.data_dir / "node_hierarchy.yaml"),
+            scenario_hints=PromptBuilder.load_hints(settings.data_dir / "scenario_hints.yaml"))
         self._llm = llm
 
     @classmethod
@@ -194,9 +197,10 @@ class DomeLLMAgent:
             info.ok, info.error = True, None
             info.prompt_tokens, info.completion_tokens, info.latency_ms = prompt_tokens, completion_tokens, latency
             verdicts = self._validate(decision, prompt)
+            issues = check_classification(decision, prompt.stats.get("telemetry_age_s"), self.settings.trigger_stale_s)
             response = AgentResponse(ok=True, decision=decision, verdicts=verdicts, llm_call=info,
                                      raw_text=raw, rag_used=[d.id for d in prompt.rag_docs],
-                                     decision_id=f"decision-{call_id}", sensor_reads=sensor_reads)
+                                     decision_id=f"decision-{call_id}", sensor_reads=sensor_reads, classification_issues=issues)
             response.decision_event_id = self.events.emit(
                 "decision", self.decision_payload(response, prompt.dome_time),
                 metadata={"llm_request_id": request_id})
@@ -218,7 +222,7 @@ class DomeLLMAgent:
         meta = {"decision_id": response.decision_id, "decision_event_id": response.decision_event_id}
         for v in response.verdicts:
             v.server_check = self.control_checker.check(v.action.node_id, v.action.action, v.action.value, meta)
-            if v.server_check["status"] == "rejected":
+            if v.server_check["status"] != "accepted":
                 v.accepted = False
                 v.reasons += [f"БД/API: {r}" for r in v.server_check["reasons"]]
 
@@ -241,14 +245,15 @@ class DomeLLMAgent:
         accepted = [f"{a.node_id}.{a.action}" for a in response.accepted_actions]
         return {
             "actor": "agent", "kind": "decision", "dome_time": dome_time, "source": "llm",
-            "text": f"{d.situation}; причина: {d.cause}; план: {', '.join(accepted) or 'наблюдать'}",
+            "text": f"{d.situation}; причина: {d.cause}; {impact_text(d.impact_kind, d.authenticity, d.causal_chain, response.classification_issues)}; "
+                    f"план: {', '.join(accepted) or 'наблюдать'}",
             "decision_id": response.decision_id,
             "observation_event_ids": list(getattr(self.telemetry, "event_ids", [])),
             "sensor_read_event_ids": [r["event_id"] for r in response.sensor_reads if r.get("event_id")],
             "summary": d.situation,
             "hypotheses": [{"description": d.cause, "confidence": d.confidence}] if d.cause else [],
             "impact_kind": d.impact_kind, "authenticity": d.authenticity, "causal_chain": d.causal_chain,
-            "false_alarm": d.false_alarm, "severity": d.severity, "confidence": d.confidence,
+            "classification_issues": response.classification_issues, "false_alarm": d.false_alarm, "severity": d.severity, "confidence": d.confidence,
             "proposed_controls": [{"node_id": v.action.node_id, "action": v.action.action, "value": v.action.value,
                                    "accepted": v.accepted, "reasons": v.reasons} for v in response.verdicts],
             "needs_operator": d.operator_message.needed,
