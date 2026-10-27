@@ -13,6 +13,8 @@ from collections import deque
 from collections.abc import Iterator
 from typing import Any
 
+from kupol.dome.forecast import Forecaster
+
 SKIP_KEYS = {"recent_messages", "passage_events", "events", "files", "services", "last_probe"}
 MAX_DEPTH = 4
 _PATH_TOKEN = re.compile(r"([^.\[\]]+)|\[(\d+)\]")
@@ -63,6 +65,7 @@ class DomeState:
         self._stale_age_s = stale_age_s
         self._series: dict[str, deque[tuple[float, float]]] = {}
         self._progress_wall: dict[str, float] = {}
+        self.forecaster = Forecaster()  # прогноз времени до порогов (заряд АКБ, топливо, климат)
 
     # ------------------------------------------------------------------ запись
 
@@ -88,6 +91,8 @@ class DomeState:
                         if dq is None:
                             dq = self._series[path] = deque(maxlen=self._history_len)
                         dq.append((wall, num))
+        if isinstance(nodes, dict):
+            self.forecaster.observe(nodes, wall)
         gt = data.get("game_time")
         if isinstance(gt, dict):
             self.game_time = gt

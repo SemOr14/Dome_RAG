@@ -112,3 +112,14 @@ edges:
   # --- Безопасность ---
   - {from: fire_suppression_01, to: workstation, relation: degrades, effect: "пуск тушения в FABLAB останавливает работу Оператора"}
   - {from: access_control_01, to: workstation, relation: controls, effect: "lockdown блокирует двери FABLAB"}
+
+  # --- Дополнено по knowledge/02_station §13, 04_telemetry §10–§13 и 01_API §7 (прототип, см. node_hierarchy.yaml) ---
+  - {from: weather_station_01, to: solar_panels_01, relation: degrades, effect: "облачность, туман, влажность снаружи → падение генерации (E09 при ошибке изоляции)"}
+  - {from: weather_station_01, to: wind_turbine_01, relation: measures, effect: "скорость ветра: генерация и порог шторма IL_STORM"}
+  - {from: smart_panel_01, to: solar_inverter_01, relation: degrades, effect: "суммарная нагрузка линий (total_power_w) разряжает АКБ; включение станков меняет баланс энергии"}
+  - {from: thermal_insulation_01, to: IL_VOC_BOX, relation: measures, effect: "VOC внутри бокса; hold_reason=IL_VOC_BOX в списке причин удержания (условие в API не описано)"}
+  - {from: IL_VOC_BOX, to: printer_3d_01, relation: holds, effect: "удержание печати по воздуху бокса"}
+  - {from: network_link_01, to: printer_3d_01, relation: degrades, effect: "потеря канала → status=UNKNOWN, команды отклоняются; печать на самом принтере может идти"}
+  - {from: network_link_01, to: cnc_01, relation: degrades, effect: "то же для ЧПУ"}
+  - {from: network_link_01, to: thermal_insulation_01, relation: degrades, effect: "шина опроса стенда: poll_interval_ms < 500 → коллизии, команды записи теряются без ошибки"}
+  - {from: edge_compute_01, to: network_link_01, relation: degrades, effect: "перегрузка/перегрев edge: задержка телеметрии и команд у всех узлов сразу"}

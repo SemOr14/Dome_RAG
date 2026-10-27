@@ -1,0 +1,132 @@
+# Прототип иерархии узлов Купола. Составлен по 01_API.md (§7–§8), dome_sandbox_nodes.md и knowledge/
+# (02_station §13, 04_telemetry §10–§13). Дополняет граф влияний (influence_graph.yaml): тот отвечает на
+# «что на что влияет», этот — «кто от кого зависит и как данные доходят до агента». Редактируется свободно,
+# агент читает файл при каждом запуске.
+#
+# Надёжность разделов:
+#   power   — по документации (01_API §7.4, «Назначение линий»): питание узлов линиями щитка.
+#   systems — группировка по полю «Система» каталога и реестру узлов.
+#   data    — ПРОТОТИП. Документация прямо говорит, что точная топология сети «определяется конфигурацией»
+#             (knowledge/04_telemetry §10–§11); здесь собран логичный путь данных. Не доказательство причины.
+# Вершины как в influence_graph.yaml: line:N — линия щитка, IL_* — интерлок, workstation — рабочее место.
+
+systems:
+  energy:      {title: "Энергетика",             nodes: [solar_panels_01, wind_turbine_01, battery_01, solar_inverter_01, dizel_1, fuel_tank_01]}
+  power_dist:  {title: "Электроснабжение",       nodes: [smart_panel_01]}
+  production:  {title: "Производство (FabLab)",  nodes: [printer_3d_01, cnc_01, material_inventory_01, equipment_cooling_01, fume_extraction_01]}
+  mstyuk:      {title: "МС-ТЮК (боксы)",         nodes: [thermal_insulation_01, thermal_insulation_02]}
+  climate:     {title: "Климат и воздух",        nodes: [climate_sensor_01, climate_sensor_02, climate_sensor_03, air_quality_sensor_01, supply_ventilation_01, dome_sealing_01]}
+  safety:      {title: "Безопасность",           nodes: [smoke_detector_01, smoke_detector_02, fire_suppression_01, access_control_01, radiation_sensor_01, chem_sensor_01]}
+  environment: {title: "Внешняя среда",          nodes: [weather_station_01, seysmo_01]}
+  water:       {title: "Вода",                   nodes: [water_pump_01, water_filter_01, water_tank_01]}
+  comms:       {title: "Связь и вычисления",     nodes: [network_link_01, radio_01, backup_comms_01, edge_compute_01]}
+  automation:  {title: "Автоматика",             nodes: [dome_automation_01, meeting_01]}
+
+# Роль узла в цепочке: source — источник, storage — накопитель, distribution — распределение, consumer — потребитель,
+# sensor — датчик, actuator — исполнитель, protection — защита, link — канал, compute — вычисление, supervisor — надзор
+roles:
+  solar_panels_01: source
+  wind_turbine_01: source
+  dizel_1: source
+  fuel_tank_01: storage
+  battery_01: storage
+  solar_inverter_01: distribution
+  smart_panel_01: distribution
+  printer_3d_01: consumer
+  cnc_01: consumer
+  fume_extraction_01: actuator
+  equipment_cooling_01: actuator
+  material_inventory_01: sensor
+  thermal_insulation_01: consumer
+  thermal_insulation_02: consumer
+  climate_sensor_01: sensor
+  climate_sensor_02: sensor
+  climate_sensor_03: sensor
+  air_quality_sensor_01: sensor
+  supply_ventilation_01: actuator
+  dome_sealing_01: actuator
+  smoke_detector_01: sensor
+  smoke_detector_02: sensor
+  fire_suppression_01: protection
+  access_control_01: protection
+  radiation_sensor_01: sensor
+  chem_sensor_01: sensor
+  weather_station_01: sensor
+  seysmo_01: sensor
+  water_pump_01: actuator
+  water_filter_01: actuator
+  water_tank_01: storage
+  network_link_01: link
+  radio_01: link
+  backup_comms_01: link
+  edge_compute_01: compute
+  dome_automation_01: supervisor
+  meeting_01: link
+
+# Питание: потребитель -> [от чего питается]. Несколько источников — резервирование или сложение мощности.
+power:
+  solar_inverter_01: [solar_panels_01, wind_turbine_01, battery_01, dizel_1]
+  dizel_1: [fuel_tank_01]
+  smart_panel_01: [solar_inverter_01]
+  "line:1": [smart_panel_01]
+  "line:2": [smart_panel_01]
+  "line:3": [smart_panel_01]
+  "line:4": [smart_panel_01]
+  "line:5": [smart_panel_01]
+  "line:6": [smart_panel_01]
+  "line:7": [smart_panel_01]
+  "line:8": [smart_panel_01]
+  workstation: ["line:1"]
+  fume_extraction_01: ["line:1"]
+  thermal_insulation_01: ["line:2"]
+  printer_3d_01: ["line:3"]
+  cnc_01: ["line:4"]
+  thermal_insulation_02: ["line:5"]
+  lighting: ["line:6", "line:7"]
+# Узлы без описанного питания в документации (не выдумывай линию): датчики климата, дыма, метеостанция, водная
+# группа, охлаждение, склад, вентиляция, герметизация, связь. Отсутствие данных не равно «не зависит от питания».
+power_unknown: [equipment_cooling_01, material_inventory_01, supply_ventilation_01, dome_sealing_01, climate_sensor_01,
+                climate_sensor_02, climate_sensor_03, air_quality_sensor_01, smoke_detector_01, smoke_detector_02,
+                fire_suppression_01, access_control_01, radiation_sensor_01, chem_sensor_01, weather_station_01,
+                seysmo_01, water_pump_01, water_filter_01, water_tank_01, network_link_01, radio_01, backup_comms_01,
+                edge_compute_01]
+
+# Физическая вложенность: внутри чего находится
+inside:
+  printer_3d_01: thermal_insulation_01   # бокс ФабЛаб; не открывать во время печати
+  climate_sensor_01: FABLAB
+  smoke_detector_01: FABLAB
+  smoke_detector_02: STORAGE
+
+# Путь данных (ПРОТОТИП): потомок -> через что его телеметрия и команды доходят до агента.
+# Центр: API организаторов <- edge_compute_01 (сервер приложений/Raspberry) <- network_link_01 (локальная сеть)
+data:
+  edge_compute_01: dome_api
+  network_link_01: edge_compute_01
+  backup_comms_01: network_link_01   # резерв при деградации основного канала
+  radio_01: network_link_01
+  dome_automation_01: network_link_01
+  smart_panel_01: network_link_01    # panel_link_state: без связи данные щитка заморожены
+  printer_3d_01: network_link_01
+  cnc_01: network_link_01
+  thermal_insulation_01: network_link_01   # шина опроса: poll_interval_ms, crc_errors
+  thermal_insulation_02: network_link_01
+  climate_sensor_01: network_link_01
+  climate_sensor_02: network_link_01
+  climate_sensor_03: network_link_01
+  weather_station_01: network_link_01
+  solar_inverter_01: network_link_01
+  battery_01: solar_inverter_01      # SOC АКБ дублируется инвертором: не независимые источники
+  solar_panels_01: solar_inverter_01
+  wind_turbine_01: network_link_01
+  dizel_1: network_link_01
+  fuel_tank_01: network_link_01
+  meeting_01: dome_api               # песочница-чат: доступна и гостевому ключу
+# Остальные узлы (виртуальные и датчики без описанного канала) — под network_link_01 по умолчанию.
+data_default: network_link_01
+
+# Пояснение для модели: что из иерархии следует и чего не следует
+notes:
+  - "Потеря питания линии объясняет offline/UNKNOWN только узлов на этой линии; общий сбой многих узлов сначала ищи выше — в шине инвертора, щитке, network_link_01 или edge_compute_01."
+  - "Узлы без описанного питания (power_unknown) нельзя объяснять отключением линии: источник не известен."
+  - "Путь данных — прототип: потеря канала не доказывает остановку оборудования, а работающий канал не гарантирует достоверность."

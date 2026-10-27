@@ -13,6 +13,8 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from .context.catalog import NodeCatalog
 from .context.graph import InfluenceGraph, format_edge
+from .context.hierarchy import Hierarchy
+from .context.peers import compare_peers, peer_lines
 from .context.telemetry import TelemetryContext, compact_telemetry
 from .rag.base import RagDoc, Retriever
 from .schemas import output_schema_example
@@ -48,12 +50,14 @@ class PromptBuilder:
     def __init__(self, prompt_dir: Path, catalog: NodeCatalog, graph: InfluenceGraph, hard_rules: dict,
                  retriever: Retriever, *, team_name: str = "команда 1", journal_limit: int = 15,
                  rag_k: int = 3, graph_depth: int = 1, stale_s: float = 30.0,
-                 system_template: str = "system.md.j2", user_template: str = "user.md.j2"):
+                 system_template: str = "system.md.j2", user_template: str = "user.md.j2",
+                 hierarchy: Hierarchy | None = None):
         self.env = Environment(loader=FileSystemLoader(str(prompt_dir)), undefined=StrictUndefined,
                                trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
         self.env.filters["tojson"] = _tojson
         self.catalog = catalog
         self.graph = graph
+        self.hierarchy = hierarchy or Hierarchy()
         self.hard_rules = hard_rules
         self.retriever = retriever
         self.team_name = team_name
@@ -96,18 +100,22 @@ class PromptBuilder:
         except Exception:  # RAG не должен ронять агента
             rag_docs = []
         dome_time = _dome_time(snapshot.get("game_time"))
+        peers = peer_lines(compare_peers(snapshot, tctx.anomalies, self.catalog.by_id))
 
         system = self.env.get_template(self.system_template).render(
-            hard_rules=self.hard_rules, output_schema=output_schema_example(), team_name=self.team_name)
+            hard_rules=self.hard_rules, output_schema=output_schema_example(), team_name=self.team_name,
+            hierarchy=self.hierarchy.outline())
         user = self.env.get_template(self.user_template).render(
             trigger=trigger, dome_time=dome_time, game_time=snapshot.get("game_time"),
             observed_at=snapshot.get("observed_at"), telemetry_age_s=snapshot.get("telemetry_age_s"), stale_s=self.stale_s,
             telemetry=tctx.nodes, anomalies=tctx.anomalies, catalog=self.catalog.for_prompt(),
-            graph_edges=edges, journal=journal, rag_docs=rag_docs)
+            graph_edges=edges, journal=journal, rag_docs=rag_docs,
+            forecasts=snapshot.get("forecasts") or [], peers=peers,
+            hierarchy_focus=self.hierarchy.context(seeds), suspicions=snapshot.get("suspicions") or [])
 
         stats = {"system_chars": len(system), "user_chars": len(user),
                  "approx_tokens": (len(system) + len(user)) // 3, "anomalies": len(tctx.anomalies),
-                 "graph_edges": len(edges), "journal": len(journal), "rag_docs": [d.id for d in rag_docs],
+                 "graph_edges": len(edges), "peer_rows": len(peers), "hierarchy_focus": len(self.hierarchy.context(seeds)), "journal": len(journal), "rag_docs": [d.id for d in rag_docs],
                  "telemetry_age_s": snapshot.get("telemetry_age_s")}
         return BuiltPrompt(messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
                            telemetry=tctx, rag_docs=rag_docs, journal=journal, dome_time=dome_time, stats=stats)

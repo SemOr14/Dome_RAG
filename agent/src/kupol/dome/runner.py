@@ -55,6 +55,7 @@ if TYPE_CHECKING:  # LLM-слой нужен только в режиме AGENT_
 
 AGENT_NAME = "kupol-dome"
 STALE_TELEMETRY_S = 20.0
+FORECAST_EVERY_S = 60.0  # как часто прогнозы пишутся в БД
 STATE_SAVE_EVERY_S = 10.0
 CATALOG_RETRY_S = 30.0
 OPERATOR_TEXTS_KEEP_S = 1800.0
@@ -183,6 +184,7 @@ class Runner:
         self._chat_ready = False
         self._history_message_ids = set()
         self._last_observation = 0.0
+        self._last_forecast = 0.0
         self._last_anomalies: frozenset[str] = frozenset()
         self._last_save = 0.0
         self._last_catalog_try = 0.0
@@ -291,6 +293,17 @@ class Runner:
 
     # ------------------------------------------------------------------ такт
 
+    def _record_forecast(self, now: float) -> None:
+        """Прогнозы важных параметров — в БД событием ``forecast`` раз в ``FORECAST_EVERY_S`` секунд."""
+        if self.recorder is None or now - self._last_forecast < FORECAST_EVERY_S:
+            return
+        items = self.state.forecaster.compute(self.state.nodes)
+        if not items:
+            return
+        self._last_forecast = now
+        self.recorder.event("forecast", {"items": items, "dome_time": self.log.dome_time, "basis": "линейный тренд, часы реального времени"},
+                            session_id=self.client.session_id, metadata={"dome_time": self.log.dome_time})
+
     async def tick(self) -> None:
         """Обработать новую телеметрию."""
         msg = self.client.telemetry
@@ -300,6 +313,7 @@ class Runner:
         data = msg.get("data") or {}
         self.state.update(data, str(msg.get("role") or self.client.role), now)
         self.log.set_dome_time(data.get("game_time"))
+        self._record_forecast(now)
         self._refresh_catalog()
         chat_new = self._collect_chat(now)
         await self._ensure_catalog(now)
