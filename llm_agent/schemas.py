@@ -21,8 +21,8 @@ class ProposedAction(BaseModel):
     value: Any = None
     reason: str = ""
     expected: str = Field("", description="что должно измениться в телеметрии")
-    verify_after_s: float = 8.0
-    priority: int = 1
+    verify_after_s: float = Field(8.0, ge=1, le=300, allow_inf_nan=False)
+    priority: int = Field(1, ge=1, le=9)
 
     @field_validator("value")
     @classmethod
@@ -53,6 +53,15 @@ class OperatorMessage(BaseModel):
         return v if v in REQUEST_STATUSES else ""
 
 
+class HumanEscalation(BaseModel):
+    node_id: str = Field(min_length=1, max_length=200)
+    incident: str = Field(min_length=1, max_length=400)
+    severity: Literal['yellow', 'red'] = 'red'
+    facts: list[Evidence] = Field(default_factory=list)
+    already_done: list[str] = Field(default_factory=list)
+    required_action: str = Field(min_length=1, max_length=1200)
+
+
 class AgentDecision(BaseModel):
     situation: str
     cause: str = ""
@@ -65,6 +74,7 @@ class AgentDecision(BaseModel):
     evidence: list[Evidence] = []
     actions: list[ProposedAction] = []
     operator_message: OperatorMessage = OperatorMessage()
+    request_human: HumanEscalation | None = None
     wait_and_watch: list[str] = []
     rag_refs: list[str] = []
     risks: list[str] = []
@@ -128,12 +138,12 @@ def output_schema_example() -> dict:
     return {
         "situation": "кратко: что происходит",
         "cause": "предполагаемая причина",
-        "severity": "info | warning | critical",
+        "severity": "info",
         "confidence": 0.8,
         "impact_kind": "base | hidden | cascade | false | unknown",
         "authenticity": "real | suspected_false | unknown",
         "causal_chain": ["первопричина", "автоматика или защита", "остановленное оборудование (только подтверждённые звенья)"],
-        "false_alarm": "true | false | null (если не про тревогу)",
+        "false_alarm": None,
         "evidence": [{"node": "climate_sensor_02", "param": "co2_ppm", "value": 781, "note": "почему важно"}],
         "actions": [{
             "node_id": "dome_automation_01", "action": "set_data_trust",
@@ -144,6 +154,7 @@ def output_schema_example() -> dict:
         "operator_message": {"needed": False, "text": "", "to": "operator",
                              "request_status": "только на требование Оператора: answered | executing | already_done | "
                                                "partial | refused; иначе пусто"},
+        "request_human": None,
         "wait_and_watch": ["что отслеживать дальше"],
         "rag_refs": ["id использованных документов базы знаний"],
         "risks": ["что может пойти не так"],

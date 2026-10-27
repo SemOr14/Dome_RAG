@@ -1,4 +1,4 @@
-"""Тесты сверок источников на снимках из журнала купола 14.10."""
+"""Synthetic simultaneous-source checks. Historical delays: test_dome_resilience."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from kupol.dome.checks import (
 )
 from kupol.dome.config import load_dome_config
 from kupol.dome.state import DomeState
-from tests.dome_helpers import set_path, snapshot, state_from
+from tests.dome_helpers import set_path, synchronous_snapshot as snapshot, synchronous_state_from as state_from
 
 CHECKS = load_dome_config(Path(__file__).resolve().parents[1] / "dome.yaml").checks
 
@@ -42,7 +42,7 @@ def test_false_spike_on_primary_sensor_is_detected_at_once() -> None:
     assert a.spikes == {"climate_sensor_01"} and "climate_sensor_01" in a.outliers
     assert set(a.good()) == {"climate_sensor_02", "climate_sensor_03"}
     assert p_real(a.evidence) < 0.1
-    assert independent_sources(a.evidence, "false") >= 2
+    assert independent_sources(a.evidence, "false") == 1  # same physical sensor, two checks
 
 
 def test_persistent_outlier_without_spike_still_false() -> None:

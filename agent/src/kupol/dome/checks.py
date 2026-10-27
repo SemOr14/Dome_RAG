@@ -13,6 +13,7 @@ from typing import Any, Literal
 
 from kupol.dome.config import ChecksCfg
 from kupol.dome.state import DomeState
+from kupol.dome.evidence import measurement_usable
 
 Supports = Literal["real", "false"]
 SENSORS = ("climate_sensor_01", "climate_sensor_02", "climate_sensor_03")
@@ -51,7 +52,7 @@ def p_real(evidence: list[Ev], scale: float = SCALE) -> float:
 
 def independent_sources(evidence: list[Ev], supports: Supports) -> int:
     """Число различных независимых источников свидетельств заданной стороны."""
-    return len({e.source for e in evidence if e.supports == supports and e.weight > 0})
+    return len({e.node or e.source for e in evidence if e.supports == supports and e.weight > 0})
 
 
 def trust_map(state: DomeState) -> dict[str, str]:
@@ -106,7 +107,7 @@ def assess_co2(state: DomeState, cfg: ChecksCfg) -> Co2Assessment:
     a = Co2Assessment()
     for s in c.sensors:
         v = state.num(f"{s}.co2_ppm")
-        if v is None or state.is_frozen(s):
+        if v is None or not measurement_usable(state, s):
             continue
         a.values[s] = v
         if is_untrusted(state, s, "co2_ppm"):
@@ -127,10 +128,12 @@ def assess_co2(state: DomeState, cfg: ChecksCfg) -> Co2Assessment:
     good = a.good()
     if good:
         a.reference = statistics.median(good.values())
-    if a.suspects and good:
+    if a.suspects and len(good) >= 2:
         a.kind = "false_sensor"
         return a
-    non_susp = {s: v for s, v in a.values.items() if s not in a.suspects}
+    if len(a.values) < 2 or a.suspects:
+        a.kind = "unknown"
+    non_susp = {s: v for s, v in a.values.items() if s not in a.suspects and s not in a.untrusted}
     if non_susp and statistics.median(non_susp.values()) >= c.high_ppm:
         agreeing = [s for s, v in non_susp.items() if v >= c.high_ppm]
         a.kind = "real" if len(agreeing) >= 2 else "unknown"
@@ -161,7 +164,7 @@ def assess_condensate(state: DomeState, cfg: ChecksCfg) -> HumidityAssessment:
     c = cfg.condensate
     a = HumidityAssessment()
     for s in SENSORS:
-        if state.is_frozen(s):
+        if not measurement_usable(state, s):
             continue
         rh = state.num(f"{s}.humidity_pct")
         t = state.num(f"{s}.temperature_c")
@@ -173,6 +176,8 @@ def assess_condensate(state: DomeState, cfg: ChecksCfg) -> HumidityAssessment:
     hot = [s for s in a.rh if a.trigger(s, c.rh_interlock_pct, c.dew_gap_c)]
     calm = [s for s in a.rh if s not in hot]
     if not hot:
+        if len(a.rh) < 2:
+            a.kind = "unknown"
         return a
     for s in hot:
         a.evidence.append(Ev(f"sensor:{s}", "real", 0.5, f"{s}: RH {a.rh.get(s, float('nan')):.0f} %, запас до точки росы {a.gap.get(s, float('nan')):.1f} °C", s, "humidity_pct", a.rh.get(s)))

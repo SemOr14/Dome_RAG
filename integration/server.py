@@ -5,6 +5,7 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
+from typing import Literal
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from fastapi import HTTPException, Query, Request
@@ -30,7 +31,7 @@ class CommandIn(BaseModel):
     action: str = Field(min_length=1, max_length=200)
     value: Any = None
     reason: str = Field(default="Команда человека из веб-панели", max_length=2000)
-    confirmed: bool = False  # галка подтверждения: Gate не применяет политику агента и защитные правила
+    confirmed: bool = False  # совместимое поле; все политики и защитные правила сохраняются
 
 
 class AnalysisIn(BaseModel):
@@ -57,6 +58,11 @@ class AutoIn(BaseModel):
     interval_s: int = Field(default=180, ge=30, le=3600)
 
 
+class ModeIn(BaseModel):
+    agent_mode: Literal['off', 'recommendation', 'autonomous']
+    algorithms_enabled: bool | None = None
+
+
 def create_app(db_path=None, token=None):
     from llm_agent.config import Settings as LLMSettings
 
@@ -70,6 +76,12 @@ def create_app(db_path=None, token=None):
     chart_feed = ChartFeed(app.state.store)
     hub = Hub(app.state.store)
     app.state.hub = hub
+    from integration.production import install_production_routes
+    from integration.incident_routes import install_incident_routes
+    from integration.safety import install_safety_routes
+    install_production_routes(app, hub)
+    install_incident_routes(app, hub)
+    install_safety_routes(app, hub)
     secrets = [hub.settings.dome_key, hub.settings.deepseek_key]
     app.state.store.redactor.secrets = (
         *app.state.store.redactor.secrets,
@@ -148,13 +160,16 @@ def create_app(db_path=None, token=None):
     async def decide(body: AnalysisIn):
         return await hub.analyze(body.trigger)
 
-    @app.post("/control/agent-control")
-    def agent_control(body: ToggleIn):
-        return hub.set_agent_control(body.enabled)
-
     @app.post("/control/auto")
     async def auto(body: AutoIn):
         return await hub.set_auto(body.enabled, body.interval_s)
+
+    @app.post('/control/mode')
+    async def mode(body: ModeIn):
+        algorithms = True if body.agent_mode != 'off' else body.algorithms_enabled
+        if algorithms is None:
+            raise HTTPException(422, 'Для off укажите algorithms_enabled')
+        return hub.set_mode(body.agent_mode, algorithms)
 
     @app.post("/control/decisions/{event_id}/execute")
     async def execute(event_id: UUID, body: ExecuteIn):
@@ -167,6 +182,8 @@ def create_app(db_path=None, token=None):
         ):
             raise HTTPException(404, "Решение текущего агента не найдено")
         actions = decision["payload"].get("proposed_controls", [])
+        if (decision.get('metadata') or {}).get('policy_epoch') != hub.policy.policy_epoch:
+            raise HTTPException(409, 'Рекомендация устарела после смены режима; запросите новый анализ')
         if body.action_index >= len(actions):
             raise HTTPException(422, "Действие не найдено")
         action = actions[body.action_index]

@@ -73,6 +73,7 @@ class Dispatcher:
         self.fired_at: dict[str, float] = {}  # ключ ситуации -> когда по ней звали модель
         self.checks: list[_Check] = []
         self.last_call: float | None = None
+        self.external_verification = False  # Runner/Gate owns actual command verification
         self.busy = False  # вызов модели идёт: новые поводы копятся, второй вызов не начинается
         self.last_review = clock()
         self.stats = {"calls": 0, "llm_failures": 0, "suppressed": 0, "unverified": 0, "triggers": 0}
@@ -116,7 +117,7 @@ class Dispatcher:
             self.finish(fired, self.decide(fired))
         return [fired]
 
-    def poll(self, chat: list[dict] | None = None) -> Fired | None:
+    def poll(self, chat: list[dict] | None = None, *, handled_operator_ids=None) -> Fired | None:
         """Собрать поводы; если пора звать модель — вернуть объединённый вызов (модель здесь не вызывается).
 
         chat — сообщения meeting_message.message, полученные вызывающим кодом напрямую из WebSocket.
@@ -124,8 +125,8 @@ class Dispatcher:
         now = self.clock()
         snapshot = self.agent.telemetry.latest()
         found = self.telemetry.observe(snapshot, self.agent.catalog.by_id, now)
-        found += self.operator.from_snapshot(snapshot)
-        found += self.operator.messages(chat or [])
+        found += self.operator.from_snapshot(snapshot, handled_ids=handled_operator_ids)
+        found += self.operator.messages(chat or [], handled_ids=handled_operator_ids)
         if self.feed is not None:
             try:
                 events = self.feed.poll()
@@ -139,8 +140,9 @@ class Dispatcher:
                     msg = ev["payload"].get("message")
                     if isinstance(msg, dict) and isinstance(msg.get("id"), int):
                         msgs[msg["id"]] = (msg, ev["event_id"])
-            found += self.operator.messages([m for m, _ in msgs.values()], {i: e for i, (_, e) in msgs.items()})
-        found += self._due_checks(snapshot, now)
+            found += self.operator.messages([m for m, _ in msgs.values()], {i: e for i, (_, e) in msgs.items()}, handled_ids=handled_operator_ids)
+        if not self.external_verification:
+            found += self._due_checks(snapshot, now)
         if self.settings.trigger_review_s and now - self.last_review >= self.settings.trigger_review_s \
                 and not self.pending:
             found.append(Trigger("review", "review", "Плановый обзор: оцени состояние купола и риски на ближайшее "
@@ -232,7 +234,8 @@ class Dispatcher:
             if trig.kind == "verification":
                 self._verification_event(trig.meta, "reassessed", "результат оценён моделью по новым данным",
                                          response)
-        self._schedule_check(response, snapshot, now)
+        if not self.external_verification:
+            self._schedule_check(response, snapshot, now)
 
     def _done(self, trig: Trigger, now: float) -> None:
         self.pending.pop(trig.key, None)

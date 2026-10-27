@@ -54,6 +54,8 @@ class Intent:
     rag_refs: list[str] = field(default_factory=list)  # источники RAG, на которые опирается решение модели
     say_always: bool = False  # ответ на требование Оператора: отправить и при отказе части шагов (с пояснением)
     refused: list[str] = field(default_factory=list)  # действия, отклонённые до Gate (LLM-слой, сервер БД), с причинами
+    human_escalation: dict[str, Any] | None = None
+    deferred: list[str] = field(default_factory=list)  # принятые шаги модели, отложенные до нового решения по телеметрии
 
     @classmethod
     def from_evidence(cls, evidence: list[Ev], **kw: Any) -> Intent:
@@ -72,6 +74,8 @@ class Ctx:
     now: float  # Unix-время
     operator_texts: Callable[[float], list[str]] = field(default=lambda since: [])  # сообщения Оператора за период (с)
     chat_new: list[dict[str, Any]] = field(default_factory=list)  # новые сообщения чата (meeting_message.message)
+    handled_message_ids: set[int] = field(default_factory=set)
+    model_answers: bool = False  # модель работает параллельно и сама отвечает на вопросы Оператора
 
 
 class Playbook:

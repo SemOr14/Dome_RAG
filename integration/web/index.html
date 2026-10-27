@@ -3,8 +3,13 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Купол · Центр управления</title>
-  <link rel="stylesheet" href="/ui/style.css?v=5">
-  <script src="/ui/app.js?v=5" defer></script>
+  <link rel="stylesheet" href="/ui/style.css?v=6">
+  <script src="/ui/app.js?v=6" defer></script>
+  <script src="/ui/agent-modes.js" defer></script>
+  <script src="/ui/incident-center.js" defer></script>
+  <script src="/ui/production.js" defer></script>
+  <script src="/ui/safety-controls.js" defer></script>
+  <script src="/ui/production-control.js" defer></script>
 </head>
 <body>
 <aside>
@@ -14,6 +19,7 @@
     <button data-page="overview" class="active">◈ <span>Обзор системы</span></button>
     <button data-page="charts">∿ <span>Графики</span></button>
     <button data-page="commands">⇄ <span>Управление</span></button>
+    <button data-page="production">⚙ <span>Производство</span></button>
     <button data-page="agent">◇ <span>LLM-агент и чат</span></button>
     <button data-page="database">▤ <span>База данных</span></button>
   </nav>
@@ -31,6 +37,15 @@
     <div class="header-actions"><span id="modeBadge" class="badge">ТОЛЬКО ЧТЕНИЕ</span><span id="connectionBadge" class="badge muted">НЕТ СОЕДИНЕНИЯ</span><button id="refresh" class="secondary" title="Обновить">Обновить ↻</button></div>
   </header>
   <main>
+    <div class="control-bar panel" aria-label="Режимы и остановка приложения">
+      <div class="mode-controls"><button id="recommendationMode" class="secondary">Рекомендательный</button><button id="autonomousMode" class="secondary">Автономный</button>
+        <details id="offMenu" class="off-menu"><summary>Выключить ▾</summary><div class="off-menu-items"><button id="aiOff" class="secondary">Только ИИ-агент</button><button id="allOff" class="secondary">ИИ-агент и алгоритмы</button></div></details>
+      </div>
+      <span id="policyStatus" class="tiny muted" aria-live="polite">Загрузка режима…</span>
+      <div class="auto-row"><label>Плановый обзор, с<input id="autoInterval" type="number" min="30" max="3600" value="180"></label><button id="applyAuto" class="secondary">Применить</button></div>
+      <div class="safety-controls"><button id="yellowStop" class="yellow-button" title="ИИ и алгоритмы off; однократное отключение второстепенных нагрузок в service">⚠ Ручное управление</button><button id="redStop" class="red-button" title="Полный выход из приложения. Оборудование продолжает работу по правилам Купола">■ Завершить приложение</button></div>
+    </div>
+    <details id="incidentCenter" class="panel incident-center"><summary id="incidentSummary">Уведомления · 0</summary><div id="incidentList"></div></details>
     <div class="page-heading"><div><div class="eyebrow">ТЕЛЕМЕТРИЯ · ДЕЙСТВИЯ · РЕШЕНИЯ</div><h1 id="heading">Обзор системы</h1><p id="subtitle">Состояние узлов и последние события выбранного запуска.</p></div><div class="connection-actions"><button id="connect">Подключить Купол</button><button id="disconnect" class="secondary">Отключить</button></div></div>
     <div id="notice" class="notice">База создаётся пустой. Подключение и команды не запускаются автоматически.</div>
     <section id="page-overview" class="page">
@@ -47,6 +62,11 @@
       <p id="impactSummary" class="tiny"></p>
       <div id="charts" class="chart-grid"></div>
     </section>
+    <section id="page-production" class="page hidden">
+      <p class="muted">Один выбранный серверный файл → отдельный запуск. Прямое ручное управление доступно в сервисном профиле вне смены.</p>
+      <div id="productionCards" class="production-grid"></div>
+      <p class="tiny muted">Пауза и отмена не предоставляются API Купола. Красная кнопка завершает наше приложение; состояние оборудования определяет сервер Купола.</p>
+    </section>
     <section id="page-commands" class="page hidden">
       <div class="two-col"><form id="commandForm" class="panel">
         <div class="panel-heading"><h2>Команда человека</h2><span class="badge">OPERATOR</span></div>
@@ -57,7 +77,7 @@
         <label>Причина<input id="commandReason" maxlength="2000" value="Команда человека из веб-панели"></label>
         <label class="checkbox"><input id="confirmControl" type="checkbox">Подтверждаю проверку и отправку этой команды, если разрешён живой режим</label>
         <button id="sendCommand" class="full">Проверить и выполнить</button>
-        <p class="tiny muted">Сначала запись попытки в БД и проверка сервера (каталог, значение, свежесть). Подтверждённая команда идёт в Купол без политики агента и защитных правил Gate — ответственность на вас. В режиме «только чтение» отправки нет. Физические действия Оператора через API не исполняются.</p>
+        <p class="tiny muted">Все команды, включая подтверждённые человеком, проходят проверки профиля, каталога, параметров, свежести и защитных правил Gate. Прямые команды доступны только в service вне смены. Принятый ответ ещё не подтверждает физический результат.</p>
         <pre id="commandResult" class="hidden"></pre>
       </form><div class="panel"><h2>Цепочка воздействия</h2><div class="steps"><div><b>01</b><span>Намерение<small>Автор, параметры и причина</small></span></div><div><b>02</b><span>Проверки<small>Права, параметры, состояние, Gate</small></span></div><div><b>03</b><span>Ответ Купола<small>Принято / отклонено / ожидается</small></span></div><div><b>04</b><span>Проверка эффекта<small>Отдельное событие verification</small></span></div></div><p class="muted">Принятие команды сервером ещё не подтверждает её выполнение.</p><div id="runtimeDetails"></div></div></div>
       <div class="section-heading"><h2>Действия человека и агента</h2><span class="muted">Локальный допуск и ответ сервера — отдельно</span></div>
@@ -73,7 +93,6 @@
         <label>Задача или наблюдение<textarea id="trigger" rows="3">Оцени актуальную телеметрию, объясни отклонения и предложи проверяемые действия.</textarea></label>
         <div class="form-row"><button id="buildPrompt" class="secondary">Показать промпт</button><button id="askAgent">Запросить решение</button><span class="muted tiny">Разовый запрос: решение записывается, команды не исполняются</span></div>
         <details id="promptDetails"><summary>Промпт и структурированный результат</summary><pre id="llmOutput">Пока нет запроса.</pre></details>
-        <div class="auto-row"><label class="checkbox"><input id="agentControl" type="checkbox">Агент управляет Куполом (иначе — только сообщения и рекомендации; ваши команды уходят всегда)</label><button id="applyAgentControl" class="secondary">Применить</button></div><div class="auto-row"><label class="checkbox"><input id="autoAnalysis" type="checkbox">Автономные решения LLM-агента (иначе — плейбуки); команды идут через Gate</label><label>Плановый обзор, с<input id="autoInterval" type="number" min="30" max="3600" value="180"></label><button id="applyAuto" class="secondary">Применить</button></div>
       </div>
       <div class="section-heading"><h2>Решения и предложения агента</h2><span class="muted">Автономные решения агент исполняет сам; кнопка — ручное подтверждение разового решения</span></div><div id="decisions"></div>
     </section>

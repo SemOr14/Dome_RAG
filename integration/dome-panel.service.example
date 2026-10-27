@@ -1,0 +1,12 @@
+[Unit]
+Description=Dome local panel
+[Service]
+Type=simple
+WorkingDirectory=/opt/Dome_RAG
+ExecStart=/usr/bin/python3 run_panel.py
+Restart=on-failure
+RestartPreventExitStatus=77
+SuccessExitStatus=77
+KillMode=control-group
+[Install]
+WantedBy=default.target

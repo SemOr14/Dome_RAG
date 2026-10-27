@@ -17,6 +17,7 @@ from .context.telemetry import TelemetryContext, compact_telemetry
 from .rag.base import RagDoc, Retriever
 from .schemas import output_schema_example
 
+ALGORITHMS_MARK = "Алгоритмы (плейбуки)"  # с этих слов в тексте повода начинается раздел о работе плейбуков
 LISTED = re.compile(r"^\d+\. \[(\w+)\] ")  # строка повода в объединённом тексте диспетчера
 
 
@@ -70,7 +71,7 @@ class PromptBuilder:
     def rag_query(self, trigger: str, tctx: TelemetryContext) -> str:
         # Поиск по существу повода: числовые гипотезы и обзор не заслоняют срочные поводы, а одинаковые
         # строки (десятки узлов UNKNOWN разом) идут в запрос один раз
-        lines = trigger.splitlines()
+        lines = trigger.split(ALGORITHMS_MARK)[0].splitlines()  # раздел «Алгоритмы» в запрос к RAG не входит
         listed = [line for line in lines if LISTED.match(line)]
         urgent = [line for line in listed if LISTED.match(line).group(1) not in ("numeric", "review")]
         seen: set[str] = set()

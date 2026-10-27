@@ -188,7 +188,7 @@ class DomeLLMAgent:
         meta = {"decision_id": response.decision_id, "decision_event_id": response.decision_event_id}
         for v in response.verdicts:
             v.server_check = self.control_checker.check(v.action.node_id, v.action.action, v.action.value, meta)
-            if v.server_check["status"] == "rejected":
+            if v.server_check["status"] != "accepted":
                 v.accepted = False
                 v.reasons += [f"БД/API: {r}" for r in v.server_check["reasons"]]
 

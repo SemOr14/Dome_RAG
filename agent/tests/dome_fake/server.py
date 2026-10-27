@@ -61,7 +61,12 @@ class FakeDome:
 
     async def push(self, data: dict[str, Any]) -> None:
         """Послать телеметрию всем подключённым (пошаговый режим, ``period_s=None``)."""
-        await self.broadcast({"type": "telemetry", "timestamp": 0.0, "role": self.role, "data": data})
+        await self.broadcast({"type": "telemetry", "timestamp": self._stamp(data), "role": self.role, "data": data})
+
+    @staticmethod
+    def _stamp(data: dict[str, Any]) -> float:
+        return max((n["updated_at"] for n in data.get("nodes", {}).values()
+                    if isinstance(n, dict) and isinstance(n.get("updated_at"), (int, float))), default=0.0)
 
     async def revoke_all(self) -> None:
         """``session_revoked`` + закрытие с кодом 4403."""
@@ -122,5 +127,5 @@ class FakeDome:
         with contextlib.suppress(ConnectionClosed, asyncio.CancelledError):
             while True:
                 data = self.telemetry_fn()
-                await ws.send(json.dumps({"type": "telemetry", "timestamp": 0.0, "role": self.role, "data": data}, ensure_ascii=False))
+                await ws.send(json.dumps({"type": "telemetry", "timestamp": self._stamp(data), "role": self.role, "data": data}, ensure_ascii=False))
                 await asyncio.sleep(self.period_s or 1.0)

@@ -13,15 +13,19 @@
 from __future__ import annotations
 
 import time
+import asyncio
+from uuid import uuid4
 from collections import deque
 from collections.abc import Awaitable, Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Literal
 
 from kupol.dome.agentlog import AgentLog
 from kupol.dome.catalog import Catalog
-from kupol.dome.client import DomeError
+from kupol.dome.client import DomeError, PolicyRejected
+from kupol.dome.control import SEND_GUARD, COMMAND_ACTOR
 from kupol.dome.config import DomeConfig
+from kupol.dome.evidence import finite_number, measurement_usable
 from kupol.dome.state import DomeState
 
 OPERATOR_NAME = "Агент Штаба"
@@ -30,8 +34,7 @@ MACHINES = ("printer_3d_01", "cnc_01")
 LINE_ACTIONS = ("line_on", "line_off")
 CLIMATE_PARAMS = ("co2_ppm", "humidity_pct", "dew_point_c", "temperature_c")
 
-GateStatus = Literal["sent", "dry_run", "rejected", "failed"]
-AGENT_CONTROL_OFF = "управление агента выключено: только рекомендация"
+GateStatus = Literal["sent", "dry_run", "rejected", "failed", "ambiguous"]
 SendFn = Callable[[str, str, Any], Awaitable[dict[str, Any]]]
 
 
@@ -75,8 +78,12 @@ class Cmd:
     reason: str = ""
     ref: int | None = None  # seq записи decision
     expect: Expect | None = None
-    confirmed: bool = False  # человек подтвердил ручную команду: только роль и каталог, без политики и защитных правил
-    actor: str = "agent"  # agent | operator: при выключенном управлении агента его команды не отправляются
+    confirmed: bool = False  # подтверждение не отменяет ни одной проверки
+    actor: str = 'algorithm'
+    policy_epoch: int | None = None
+    operation_id: str | None = None
+    recovery_owner: str | None = None
+    operator_requested: bool = False
 
     @property
     def key(self) -> str:
@@ -105,7 +112,21 @@ class Pending:
     action_seq: int
     deadline: float
     sent_at: float
-    frames: int = 0  # DomeState.updates на момент отправки: эффект подтверждает только более поздний кадр
+    updates: int = 0
+    node_updated_at: Any = None
+    verified: bool | None = None
+    job_file: str | None = None
+    job_progress: float | None = None
+
+
+def continued_job(node: str, original: Expect, file_name: Any, progress: Any) -> Expect:
+    def check(st: DomeState) -> bool:
+        current = st.num(f"{node}.progress_pct")
+        return (original.check(st) and st.get(f"{node}.file_name") == file_name
+                and finite_number(progress) and current is not None and current > progress)
+    return Expect.custom(f"{node}: то же задание работает, прогресс увеличился", check,
+                         [f"{node}.state", f"{node}.file_name", f"{node}.progress_pct"],
+                         max(original.timeout_s or 0, 45.0))
 
 
 @dataclass
@@ -128,12 +149,16 @@ def check_value(spec: dict[str, Any], value: Any) -> str | None:
         return None if value is None else "значение не ожидается"
     if spec.get("any"):
         return None
+    if spec.get("type") == "boolean":
+        return None if isinstance(value, bool) else "нужен bool"
+    if spec.get("type") == "integer" and (isinstance(value, bool) or not isinstance(value, int)):
+        return "нужно целое число"
     if "enum" in spec:
         allowed = [str(v) for v in spec["enum"]]
         return None if str(value) in allowed else f"допустимо только {allowed}"
     if "range" in spec:
         lo, hi = spec["range"]
-        if isinstance(value, bool) or not isinstance(value, (int, float)) or not lo <= value <= hi:
+        if not finite_number(value) or not lo <= value <= hi:
             return f"допустим диапазон {lo}..{hi}"
         return None
     if spec.get("line"):
@@ -142,6 +167,9 @@ def check_value(spec: dict[str, Any], value: Any) -> str | None:
     if "object" in spec:
         if not isinstance(value, dict) or any(k not in value for k in spec["object"]):
             return f"нужен объект с ключами {spec['object']}"
+        for key, rule in spec.get("properties", {}).items():
+            if key in value and (bad := check_value(rule, value[key])):
+                return f"{key}: {bad}"
         return None
     return "неизвестная спецификация значения"
 
@@ -182,16 +210,43 @@ class Gate:
         self._send = send
         self.can_control = can_control and not dry_run
         self.dry_run = dry_run
-        self.agent_control = True  # False: команды агента — только в лог (чат и команды Оператора отправляются)
         self._clock = clock
         self.agent_name = agent_name
         self.pending: list[Pending] = []
+        self.policy = None
+        self._dispatch_locks: dict[str, asyncio.Lock] = {}
         self.max_telemetry_age_s: float | None = None  # команды не отправляем, если телеметрия старше (None — не проверять)
         self._line_switches: dict[int, deque[float]] = {}
         self._chat_times: deque[float] = deque()
         self._failed_until: dict[str, float] = {}
         self._resume_attempts: dict[str, int] = {}
         self.stats = {"sent": 0, "dry_run": 0, "rejected": 0, "failed": 0, "verified": 0, "no_effect": 0, "unverified": 0}
+        self.checkpoint: Callable[[], bool] | None = None
+
+    def export_runtime(self) -> dict[str, Any]:
+        return {"resume_attempts": dict(self._resume_attempts),
+                "line_switches": {str(k): list(v) for k, v in self._line_switches.items()},
+                "pending": [{"node": p.cmd.node_id, "action": p.cmd.action, "value": p.cmd.value,
+                             "ref": p.cmd.ref, "seq": p.action_seq, "deadline": p.deadline,
+                             "sent_at": p.sent_at, "job_file": p.job_file,
+                             "job_progress": p.job_progress} for p in self.pending]}
+
+    def import_runtime(self, data: dict[str, Any]) -> None:
+        from kupol.dome.expects import expect_for
+        self._resume_attempts = {str(k): int(v) for k, v in data.get("resume_attempts", {}).items()}
+        self._line_switches = {int(k): deque(float(t) for t in v) for k, v in data.get("line_switches", {}).items()}
+        for p in data.get("pending", []):
+            ref = self._log.write("decision", situation="RECONCILE: неизвестен итог команды до перезапуска",
+                                  cause="перезапуск", confidence=0.0, evidence=[{"previous_action_seq": p["seq"]}],
+                                  plan=["проверить эффект без повторной отправки"], source="rules")
+            cmd = Cmd(p["node"], p["action"], p.get("value"), ref=ref,
+                      expect=expect_for(p["node"], p["action"], p.get("value")))
+            if cmd.action == "resume":
+                cmd.expect = continued_job(cmd.node_id, cmd.expect, p.get("job_file"), p.get("job_progress"))
+            seq = self._log.write("action", ref=ref, request=self._request(cmd, cmd.action),
+                                  response={"success": None, "delivery": "unknown_after_restart"})
+            self.pending.append(Pending(cmd, seq, float(p["deadline"]), float(p["sent_at"]),
+                                        job_file=p.get("job_file"), job_progress=p.get("job_progress")))
 
     # ------------------------------------------------------------------ публичный API
 
@@ -217,47 +272,79 @@ class Gate:
         return self._resume_attempts.get(f"{node_id}:{reason}", 0)
 
     async def submit(self, cmd: Cmd) -> GateResult:
+        if self.policy is not None and cmd.policy_epoch is None:
+            cmd.policy_epoch = self.policy.policy_epoch
+        cmd.operation_id = cmd.operation_id or str(uuid4())
+        lock = self._dispatch_locks.setdefault(cmd.node_id, asyncio.Lock())
+        async with lock:
+            return await self._submit(cmd)
+
+    async def _submit(self, cmd: Cmd) -> GateResult:
         """Проверить и (если разрешено) отправить команду."""
+        canonical = self._catalog().resolve(cmd.node_id, cmd.action)
+        if canonical is not None:
+            cmd.action = canonical  # aliases share locks, retry budgets and reconciliation
         reason = self._reject_reason(cmd)
         if reason is not None:
             return self._reject(cmd, reason)
         canonical = self._catalog().resolve(cmd.node_id, cmd.action) or cmd.action
+        if canonical == "resume" and cmd.expect is not None:
+            cmd.expect = continued_job(cmd.node_id, cmd.expect, self._state.get(f"{cmd.node_id}.file_name"),
+                                       self._state.num(f"{cmd.node_id}.progress_pct"))
         request = self._request(cmd, canonical)
         if not self.can_control:
             self.stats["dry_run"] += 1
             self._note_attempt(cmd, canonical)
             seq = self._log.write(
                 "action", ref=cmd.ref, request=request, response={"success": None, "skipped": "dry_run" if self.dry_run else "управление выключено"},
-                dry_run=True, reason=cmd.reason,
+                dry_run=True, reason=cmd.reason, **self._audit(cmd),
             )
             return GateResult("dry_run", "в сеть не отправлено", None, seq)
-        if not self.agent_control and cmd.actor == "agent" and cmd.node_id != "meeting_01":
-            self.stats["dry_run"] += 1
-            seq = self._log.write(
-                "action", ref=cmd.ref, request=request, response={"success": None, "skipped": AGENT_CONTROL_OFF},
-                dry_run=True, reason=cmd.reason,
-            )  # fmt: skip
-            return GateResult("dry_run", AGENT_CONTROL_OFF, None, seq)
+        # Persist intent and retry budgets BEFORE any network side effect.
+        seq = self._log.write("observation", ref=cmd.ref, summary="намерение сохранено перед отправкой",
+                              metrics={"request": request, "delivery": "prepared"}, anomalies=[], **self._audit(cmd))
+        self._note_attempt(cmd, canonical)
+        self._arm(cmd, seq)
+        if self.checkpoint is not None and not self.checkpoint():
+            self.pending = [p for p in self.pending if p.action_seq != seq]
+            return self._reject(cmd, "не удалось сохранить намерение: управление приостановлено")
         try:
-            response = await self._send(cmd.node_id, canonical, cmd.value)
+            guard_token = SEND_GUARD.set(lambda: self._transport_reason(cmd))
+            actor_token = COMMAND_ACTOR.set(cmd.actor)
+            try:
+                response = await self._send(cmd.node_id, canonical, cmd.value)
+            finally:
+                SEND_GUARD.reset(guard_token)
+                COMMAND_ACTOR.reset(actor_token)
+        except PolicyRejected as exc:
+            self.pending = [p for p in self.pending if p.cmd is not cmd]
+            if canonical == 'resume':
+                key = f'{cmd.node_id}:{self._state.get(cmd.node_id + ".hold_reason")}'
+                self._resume_attempts[key] = max(0, self._resume_attempts.get(key, 0) - 1)
+            return self._reject(cmd, str(exc))
         except DomeError as exc:
             self.stats["failed"] += 1
-            seq = self._log.write("action", ref=cmd.ref, request=request, response={"success": False, "error": str(exc)}, reason=cmd.reason)
+            seq = self._log.write("action", ref=cmd.ref, request=request, response={"success": False, "error": str(exc)}, reason=cmd.reason, **self._audit(cmd))
             # Состояние неизвестно: повтор вслепую запрещён — ставим на проверку, если есть чем.
-            self._arm(cmd, seq)
-            return GateResult("failed", str(exc), None, seq)
+            self._failed_until[cmd.key] = self._clock() + self._cfg.policy.no_effect_cooldown_s
+            for p in self.pending:
+                if p.cmd is cmd:
+                    p.action_seq = seq
+            return GateResult("ambiguous", str(exc), None, seq)
         ok = bool(response.get("success"))
         seq = self._log.write(
             "action", ref=cmd.ref, request=request,
             response={"success": ok, "error": response.get("error"), "mode": response.get("mode"), "request_id": response.get("request_id")},
-            reason=cmd.reason,
+            reason=cmd.reason, **self._audit(cmd),
         )  # fmt: skip
-        self._note_attempt(cmd, canonical)
+        for p in self.pending:
+            if p.cmd is cmd:
+                p.action_seq = seq
         if not ok:
+            self.pending = [p for p in self.pending if p.cmd is not cmd]
             self.stats["failed"] += 1
             return GateResult("failed", str(response.get("error", "")), response, seq)
         self.stats["sent"] += 1
-        self._arm(cmd, seq)
         return GateResult("sent", "", response, seq)
 
     def check_pending(self) -> list[Pending]:
@@ -265,7 +352,10 @@ class Gate:
         done: list[Pending] = []
         now = self._clock()
         for node in MACHINES:  # станок снова работает — следующая остановка считается новым эпизодом
-            if self._state.get(f"{node}.hold_reason") is None and str(self._state.get(f"{node}.state", "")).upper() not in ("PAUSED", "ALARM"):
+            points = self._state.series(f"{node}.progress_pct", 60.0)
+            progressed = len(points) >= 2 and points[-1][1] > points[0][1]
+            if (progressed and not self.is_pending(node, "resume") and self._state.get(f"{node}.hold_reason") is None
+                    and str(self._state.get(f"{node}.state", "")).upper() in ("PRINTING", "RUNNING")):
                 for key in [k for k in self._resume_attempts if k.startswith(f"{node}:")]:
                     del self._resume_attempts[key]
         for p in list(self.pending):
@@ -273,7 +363,9 @@ class Gate:
             if exp is None:
                 self.pending.remove(p)
                 continue
-            fresh = self._state.updates > p.frames  # кадр, пришедший после отправки
+            stamp = self._state.node(p.cmd.node_id).get("updated_at")
+            fresh = (self._state.updates > p.updates and finite_number(stamp)
+                     and stamp != p.node_updated_at and not self._state.is_frozen(p.cmd.node_id))
             if fresh and exp.check(self._state):
                 ok = True
             elif now >= p.deadline:
@@ -281,6 +373,7 @@ class Gate:
             else:
                 continue
             self.pending.remove(p)
+            p.verified = ok
             done.append(p)
             self.stats["verified" if ok else "no_effect" if fresh else "unverified"] += 1
             if not ok and fresh:  # без новых данных отсутствие эффекта не доказано: команду не блокируем
@@ -288,6 +381,7 @@ class Gate:
             self._log.write(
                 "verification", ref=p.action_seq, expected=exp.description, observed=exp.observe(self._state), ok=ok,
                 waited_s=round(now - p.sent_at, 1), **({} if fresh else {"no_data": True}),
+                **self._audit(p.cmd),
             )  # fmt: skip
         return done
 
@@ -297,7 +391,7 @@ class Gate:
         self.stats["rejected"] += 1
         seq = self._log.write(
             "action", ref=cmd.ref, request=self._request(cmd, cmd.action), response={"success": False, "error": f"Gate: {reason}"},
-            rejected=True, reason=cmd.reason,
+            rejected=True, reason=cmd.reason, **self._audit(cmd),
         )  # fmt: skip
         return GateResult("rejected", reason, None, seq)
 
@@ -308,12 +402,20 @@ class Gate:
             req["value"] = cmd.value
         return req
 
+    def _audit(self, cmd):
+        return {'operation_id': cmd.operation_id, 'actor': cmd.actor, 'policy_epoch': cmd.policy_epoch,
+                'agent_mode': self.policy.agent_mode if self.policy else None, 'causal_ref': cmd.ref}
+
     def _reject_reason(self, cmd: Cmd) -> str | None:
+        if self.policy is not None:
+            bad = self.policy.reject(cmd.actor, cmd.policy_epoch, cmd.node_id, cmd.action)
+            if bad:
+                return bad
         if cmd.ref is None:
             return "команда без решения (нет ref на decision)"
-        if self._state.role and self._state.role != "team":
+        if self._state.role != "team":
             return f"роль соединения '{self._state.role}': управление недоступно"
-        if not cmd.confirmed and self.max_telemetry_age_s is not None and self._state.wall and self._clock() - self._state.wall > self.max_telemetry_age_s:
+        if self.max_telemetry_age_s is not None and (not self._state.wall or self._clock() - self._state.wall > self.max_telemetry_age_s):
             return f"телеметрия устарела (> {self.max_telemetry_age_s:g} с): решаем по неизвестному состоянию нельзя"
         catalog = self._catalog()
         if not catalog:
@@ -323,8 +425,6 @@ class Gate:
             if catalog.is_operator_only(cmd.node_id, cmd.action):
                 return "физическое действие Оператора: агент может только попросить"
             return f"действие '{cmd.action}' недоступно узлу {cmd.node_id} по describe_nodes"
-        if cmd.confirmed:
-            return None  # ответственность за команду на человеке, подтвердившем её в панели
         allowed = self._cfg.policy.allowed
         spec = (allowed.get(cmd.node_id) or {}).get(canonical)
         if spec is None:
@@ -338,6 +438,8 @@ class Gate:
             return self._chat_reason(cmd)
         if self.is_pending(cmd.node_id, canonical) and any(p.cmd.key == cmd.key for p in self.pending):
             return "такая же команда ещё ожидает проверки результата"
+        if self.is_pending(cmd.node_id):
+            return "узел ожидает проверки предыдущей команды; требуется новый кадр"
         if self.recently_failed(cmd.key):
             return "такая же команда недавно не дала эффекта: повтор вслепую запрещён"
         if canonical in LINE_ACTIONS:
@@ -345,6 +447,20 @@ class Gate:
             if bad:
                 return bad
         return self._state_reason(cmd, canonical)
+
+    def _transport_reason(self, cmd: Cmd) -> str | None:
+        """Recheck after limiter wait, immediately before writing to the socket."""
+        if getattr(self, 'dispatch_guard', None) and (bad := self.dispatch_guard(cmd)):
+            return bad
+        if self.policy is not None:
+            bad = self.policy.reject(cmd.actor, cmd.policy_epoch, cmd.node_id, cmd.action)
+            if bad:
+                return bad
+        if self._state.role != 'team' or self._catalog().resolve(cmd.node_id, cmd.action) is None:
+            return 'Права или каталог изменились перед отправкой'
+        if self.max_telemetry_age_s is not None and (not self._state.wall or self._clock() - self._state.wall > self.max_telemetry_age_s):
+            return 'Телеметрия устарела перед отправкой'
+        return self._state_reason(cmd, cmd.action)
 
     def _chat_reason(self, cmd: Cmd) -> str | None:
         value = cmd.value if isinstance(cmd.value, dict) else {}
@@ -398,15 +514,60 @@ class Gate:
             return
         now = self._clock()
         timeout = cmd.expect.timeout_s or self._cfg.runtime.verify_timeout_s
-        self.pending.append(Pending(cmd, seq, now + timeout, now, self._state.updates))
+        self.pending.append(Pending(cmd, seq, now + timeout, now, self._state.updates,
+                                    self._state.node(cmd.node_id).get("updated_at"),
+                                    job_file=self._state.get(f"{cmd.node_id}.file_name"),
+                                    job_progress=self._state.num(f"{cmd.node_id}.progress_pct")))
 
     # ------------------------------------------------------------------ защитные правила по состоянию
 
     def _state_reason(self, cmd: Cmd, canonical: str) -> str | None:
         st = self._state
         node, value = cmd.node_id, cmd.value
+        smoke = any(st.get(f'{d}.smoke_detected') is True or str(st.get(f'{d}.alarm_state', '')).upper() in ('ALARM', 'SMOKE')
+                    for d in ('smoke_detector_01', 'smoke_detector_02'))
+        if (node in MACHINES and canonical in ('start_job', 'resume', 'home', 'move')) or (node == 'smart_panel_01' and canonical == 'line_on' and _line_number(value) in (1, 2, 3, 4, 5)):
+            if smoke or st.get('dome_automation_01.interlocks.IL_SMOKE.state') == 'TRIPPED':
+                return 'Дым/IL_SMOKE: включение питания и движение запрещены до устранения причины'
+        if node != "meeting_01" and canonical != "reconnect" and (not st.has(node) or st.is_frozen(node) or st.get(f"{node}.online") is False):
+            return "нет актуального состояния целевого узла"
+        if node != "meeting_01" and canonical != "reconnect" and not finite_number(st.get(f"{node}.updated_at")):
+            return "неизвестно время измерения целевого узла"
+        if node == "solar_inverter_01" and canonical == "reset_error" and st.get(f"{node}.error_code") == "E09":
+            return "E09: исправность изоляции не подтверждается текущим API; нужна проверка Оператора"
+        if node == "dome_automation_01" and canonical == "reset_interlock" and value == "IL_OVERCURRENT":
+            return "устранение перегрузки не подтверждено; таймер не даёт допуска на повторное включение"
+        if node == "dome_automation_01" and canonical == "acknowledge":
+            event_id = value.get("event_id") if isinstance(value, dict) else value
+            events = st.get("dome_automation_01.events", []) or []
+            event = next((e for e in events if isinstance(e, dict) and str(e.get("event_id")) == str(event_id)), None)
+            if not event or event.get("interlock") == "IL_SMOKE":
+                return "нет проверенного подтверждения текущего события и зоны; отменять пожарную реакцию нельзя"
+        if node in ("smoke_detector_01", "smoke_detector_02") and canonical == "reset_alarm":
+            if not measurement_usable(st, node) or st.get(f"{node}.smoke_detected") is not False:
+                return "отсутствие дыма не подтверждено актуальным измерением"
+        if node == "dome_automation_01" and canonical == "reset_interlock" and value in ("IL_CO2", "IL_CONDENSATE"):
+            from kupol.dome.checks import assess_co2, assess_condensate
+            if value == "IL_CO2":
+                a = assess_co2(st, self._cfg.checks)
+                good = a.good()
+                primary = st.get("dome_automation_01.primary_co2_sensor")
+                if len(good) < 2 or primary not in good or max(good.values()) >= self._cfg.checks.co2.recovered_ppm:
+                    return "IL_CO2: нет двух актуальных согласованных безопасных источников"
+            else:
+                from kupol.dome.checks import is_untrusted
+                a = assess_condensate(st, self._cfg.checks)
+                live = [s for s in a.rh if not is_untrusted(st, s, "humidity_pct")]
+                if len(live) < 2 or any(s not in a.gap or a.trigger(s, self._cfg.checks.condensate.rh_interlock_pct,
+                                                                self._cfg.checks.condensate.dew_gap_c) for s in live):
+                    return "IL_CONDENSATE: безопасные условия не подтверждены актуальными источниками"
         if node in MACHINES and canonical == "resume":
-            return self._resume_reason(node)
+            explicit_operator_request = cmd.actor == 'operator' or (cmd.actor == 'agent' and cmd.operator_requested)
+            if not explicit_operator_request and not st.get(f'{node}.hold_reason'):
+                return 'Ручная/неизвестная пауза автоматически не возобновляется'
+            if node == 'printer_3d_01' and not explicit_operator_request and cmd.recovery_owner != 'printer_supervisor':
+                return 'Автоматическое восстановление принтера принадлежит серверному supervisor'
+            return self._resume_reason(node, prepared=any(p.cmd is cmd for p in self.pending))
         if node in MACHINES and canonical == "start_job":
             return self._start_job_reason(node, value)
         if node == "thermal_insulation_01" and canonical == "set_lock":
@@ -415,12 +576,15 @@ class Gate:
                 if printer_state in ("PRINTING", "PAUSED") or str(st.get("printer_3d_01.real_state", "")).upper() == "PRINTING":
                     return "принтер печатает: бокс открывать нельзя"
                 bed = st.num("printer_3d_01.bed_temp_c")
+                if bed is None or printer_state not in ("IDLE", "COMPLETED"):
+                    return "не подтверждены завершение работы и безопасная температура стола"
                 if bed is not None and bed >= self._cfg.checks.printer.cool_bed_c:
                     return f"стол ещё горячий ({bed:.0f} °C)"
             return None
         if node == "dome_automation_01" and canonical == "reset_interlock" and value == "IL_SMOKE":
             for det in ("smoke_detector_01", "smoke_detector_02"):
-                if st.get(f"{det}.smoke_detected") is True or str(st.get(f"{det}.alarm_state", "NORMAL")).upper() != "NORMAL":
+                if (not measurement_usable(st, det) or st.get(f"{det}.smoke_detected") is not False
+                        or str(st.get(f"{det}.alarm_state", "")).upper() != "NORMAL"):
                     return f"{det} ещё в тревоге: IL_SMOKE не снимаем"
             return None
         if node == "dome_automation_01" and canonical == "set_data_trust":
@@ -429,11 +593,11 @@ class Gate:
             trust = st.get("dome_automation_01.data_trust", {}) or {}
             if str(trust.get(f"{value}.co2_ppm", "")).upper() in ("UNRELIABLE", "FAILED"):
                 return f"датчик {value} помечен недостоверным"
-            if st.is_frozen(str(value)):
-                return f"данные {value} устарели"
+            if not measurement_usable(st, str(value)):
+                return f"данные {value} устарели, задержаны или недостоверны"
         return None
 
-    def _resume_reason(self, node: str) -> str | None:
+    def _resume_reason(self, node: str, prepared: bool = False) -> str | None:
         st = self._state
         level = st.get(f"{node}.hold_level")
         reason = st.get(f"{node}.hold_reason")
@@ -441,6 +605,12 @@ class Gate:
             return "станок заблокирован (ALARM): команды отклоняются сервером"
         if str(st.get(f"{node}.state", "")).upper() not in ("PAUSED", "ALARM") and not st.get(f"{node}.paused"):
             return "станок не на паузе"
+        if not isinstance(st.get(f"{node}.file_name"), str) or not st.get(f"{node}.file_name"):
+            return "не установлено активное задание: нужна сверка, resume запрещён"
+        if st.get(f"{node}.homed") is not True:
+            return "не подтверждены координаты станка после остановки"
+        if st.num(f"{node}.progress_pct") is None:
+            return "неизвестен прогресс активного задания"
         if reason in ("BED_COLLISION", "FILAMENT_RUNOUT"):
             return f"причина {reason} устраняется Оператором, resume бесполезен"
         if reason is not None:
@@ -448,13 +618,19 @@ class Gate:
                 il = st.get(f"dome_automation_01.interlocks.{reason}.state")
                 if il != "ARMED":
                     return f"интерлок {reason} в состоянии {il}: причина не снята"
+                if reason == "IL_CO2":
+                    from kupol.dome.checks import assess_co2
+                    a = assess_co2(st, self._cfg.checks)
+                    good = a.good()
+                    if len(good) < 2 or max(good.values()) >= self._cfg.checks.co2.recovered_ppm:
+                        return "CO2: актуальные безопасные измерения не подтверждены"
             elif reason == "UNDERVOLTAGE":
                 v = st.num("smart_panel_01.bus_voltage_v")
                 if v is None or v < 200:
                     return "напряжение шины не восстановилось"
             else:
                 return f"причина удержания {reason} не распознана: resume не отправляем"
-            if self.resume_attempts(node, str(reason)) >= max(1, self._cfg.policy.resume_max_attempts):
+            if self.resume_attempts(node, str(reason)) - int(prepared) >= max(1, self._cfg.policy.resume_max_attempts):
                 return f"resume по причине {reason} уже пробовали {self.resume_attempts(node, str(reason))} раз"
         if int(st.get(f"{node}.resume_attempts", 0) or 0) >= 2:
             return "сервер уже насчитал 2 попытки resume: третья даст ALARM на 20 минут"
@@ -466,13 +642,15 @@ class Gate:
         if not isinstance(name, str) or not name:
             return "не указано имя файла"
         files = st.get(f"{node}.files", []) or []
-        if name not in files:
+        if name not in {f.get('name') if isinstance(f, dict) else f for f in files if isinstance(f, (str, dict))}:
             return f"файла {name} нет в списке станка"
         if st.get(f"{node}.hold_level") or float(st.get(f"{node}.lockout_remaining_s", 0) or 0) > 0:
             return "станок удержан сервером"
         state = str(st.get(f"{node}.state", "")).upper()
         if state not in ("IDLE", "COMPLETED"):
             return f"станок занят (state = {state})"
+        if st.get(f"{node}.homed") is not True:
+            return "координаты станка неизвестны: сначала разрешённая процедура home и проверка"
         if node == "printer_3d_01" and st.get("printer_3d_01.bed_clear") is not True:
             return "стол принтера занят деталью (bed_clear != true): будет BED_COLLISION"
         return None
@@ -489,7 +667,8 @@ class Gate:
         if trust != "TRUSTED" and node in self._cfg.checks.co2.sensors and param in CLIMATE_PARAMS:
             same = [s for s in self._cfg.checks.co2.sensors if s != node]
             data_trust = self._state.get("dome_automation_01.data_trust", {}) or {}
-            bad = [s for s in same if str(data_trust.get(f"{s}.{param}", "")).upper() in ("UNRELIABLE", "FAILED")]
+            bad = [s for s in same if str(data_trust.get(f"{s}.{param}", "")).upper() in ("UNRELIABLE", "FAILED")
+                   or not measurement_usable(self._state, s) or self._state.num(f"{s}.{param}") is None]
             if len(bad) >= len(same):
                 return f"это последний доверенный датчик ({param}): интерлок остался бы без источника"
         return None

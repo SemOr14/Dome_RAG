@@ -47,8 +47,8 @@ policy:
       start_job: { any: true }
       resume: {}
     thermal_insulation_01:
-      set_lock: { object: [lock, locked] }
-      set_fan_pwm: { object: [fan, pwm] }
+      set_lock: { object: [lock, locked], properties: {lock: {type: integer, range: [0, 1]}, locked: {type: boolean}} }
+      set_fan_pwm: { object: [fan, pwm], properties: {fan: {type: integer, range: [0, 5]}, pwm: {type: integer, range: [0, 255]}} }
     climate_sensor_02:
       recalibrate: {}
     climate_sensor_03:
@@ -93,6 +93,7 @@ policy:
   line_switch_limit: { max_switches: 2, window_s: 120 }
   # Повторять одну и ту же команду без проверки результата нельзя; после «нет эффекта» пауза:
   no_effect_cooldown_s: 120
+  algorithm_hold_s: 30            # столько секунд после команды плейбука модель по этому узлу только советует
   # resume: сколько попыток на одну причину удержания (сервер блокирует станок после 3 пустых).
   resume_max_attempts: 1
 

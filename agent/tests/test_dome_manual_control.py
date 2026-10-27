@@ -56,7 +56,8 @@ class DbHarness(Harness):
         event = {"event_id": str(uuid.uuid4()), "run_id": "run-manual", "session_id": self.runner.client.session_id,
                  "source": "operator", "channel": "websocket", "direction": "internal", "event_type": "control_intent",
                  "request_id": payload["request_id"], "node_id": node, "payload": payload,
-                 "metadata": {"operator": "Оператор", "reason": "проверка вручную"}}
+                 "metadata": {"operator": "Оператор", "reason": "проверка вручную",
+                              "policy_epoch": self.runner.policy.policy_epoch}}
         return self.http.post("/v1/controls/validate", json=event).json()
 
     def dispatches(self) -> list[dict]:
@@ -67,15 +68,6 @@ def test_operator_command_goes_through_gate_to_dome(tmp_path: Path) -> None:
     async def scenario() -> None:
         w = World()
         start_work(w)
-        frame = w.telemetry
-
-        def telemetry() -> dict:  # сервер сверяет updated_at с timestamp кадра, у эмулятора он 0.0
-            data = frame()
-            for body in data["nodes"].values():
-                body["updated_at"] = 0.0
-            return data
-
-        w.telemetry = telemetry  # type: ignore[method-assign]
         with testclient.TestClient(create_app(tmp_path / "db.sqlite3", token=TOKEN)) as http:
             http.headers["Authorization"] = f"Bearer {TOKEN}"
             async with DbHarness(tmp_path, w, http) as h:
@@ -104,7 +96,7 @@ def test_operator_command_goes_through_gate_to_dome(tmp_path: Path) -> None:
     run(scenario())
 
 
-def test_confirmed_command_bypasses_agent_policy_only_when_confirmed(tmp_path: Path) -> None:
+def test_confirmed_command_does_not_bypass_policy(tmp_path: Path) -> None:
     async def scenario() -> None:
         w = World()
         start_work(w)
@@ -116,13 +108,14 @@ def test_confirmed_command_bypasses_agent_policy_only_when_confirmed(tmp_path: P
 
                 def item(confirmed: bool) -> dict:
                     payload = {"type": "control", "node_id": "solar_panels_01", "action": "disable_all_mppt"}
-                    return {"event": {"event_id": str(uuid.uuid4()), "payload": payload, "metadata": {"confirmed": confirmed}},
+                    return {"event": {"event_id": str(uuid.uuid4()), "payload": payload,
+                                      "metadata": {"confirmed": confirmed, "policy_epoch": h.runner.policy.policy_epoch}},
                             "validation": {"status": "accepted"}}
 
                 plain = await h.runner.manual_command(item(False))  # нет в политике dome.yaml
                 assert plain is not None and plain.status == "rejected" and "политикой" in plain.reason
-                confirmed = await h.runner.manual_command(item(True))
-                assert confirmed is not None and confirmed.status == "sent", confirmed.reason
-                assert [m["action"] for m in h.sent()] == ["disable_all_mppt"]
+                confirmed = await h.runner.manual_command(item(True))  # подтверждение не отменяет ни одной проверки Gate
+                assert confirmed is not None and confirmed.status == "rejected" and "политикой" in confirmed.reason
+                assert not h.sent()
 
     run(scenario())

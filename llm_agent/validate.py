@@ -64,9 +64,8 @@ def resume_requires_cause_cleared(a: ProposedAction, c: Ctx) -> str | None:
         return f"удержание {reason} снимается только после действия Оператора"
     if reason and str(reason).startswith("IL_"):
         il = (c.node("dome_automation_01").get("interlocks") or {}).get(reason) or {}
-        released_in_plan = any(_il_id(x.value) == reason for x in c.planned("dome_automation_01", "reset_interlock"))
-        if il.get("state") == "TRIPPED" and not released_in_plan:
-            return f"интерлок {reason} ещё TRIPPED и в плане нет reset_interlock — resume будет пустым"
+        if il.get("state") != "ARMED":
+            return f"интерлок {reason} не ARMED: reset в плане не является подтверждением снятия причины"
     return None
 
 

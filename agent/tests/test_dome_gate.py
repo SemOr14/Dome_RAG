@@ -14,7 +14,7 @@ from kupol.dome.client import RequestTimeout
 from kupol.dome.config import load_dome_config
 from kupol.dome.gate import Cmd, Expect, Gate
 from kupol.dome.state import DomeState
-from tests.dome_helpers import catalog, set_path, state_from
+from tests.dome_helpers import catalog, set_path, synchronous_state_from as state_from
 
 CFG = load_dome_config(Path(__file__).resolve().parents[1] / "dome.yaml")
 
@@ -133,6 +133,7 @@ def test_verification_ok_and_failure_with_cooldown(rig: Rig) -> None:
     assert rig.gate.check_pending() == []  # ещё ждём
     rig.t += 25  # время вышло: кадры приходят, линия не выключилась
     rig.state.updates += 1
+    rig.state.nodes["smart_panel_01"]["updated_at"] += 1
     done = rig.gate.check_pending()
     assert len(done) == 1
     ver = rig.records("verification")[-1]
@@ -145,6 +146,9 @@ def test_verification_ok_and_failure_with_cooldown(rig: Rig) -> None:
 def test_verification_success_when_state_changes(rig: Rig) -> None:
     r = rig.go("smart_panel_01", "line_off", 8, expect=Expect.equals("smart_panel_01.lines[7].state", "OFF"))
     set_path(rig.state, "smart_panel_01.lines[7].state", "OFF")
+    nodes = __import__("copy").deepcopy(rig.state.nodes)
+    nodes["smart_panel_01"]["updated_at"] += 1
+    rig.state.update({"nodes": nodes}, "team", rig.t + 1)
     rig.gate.check_pending()
     ver = rig.records("verification")[-1]
     assert ver["ok"] is True and ver["ref"] == r.action_seq
@@ -167,7 +171,7 @@ def test_no_fresh_frame_means_unverified_not_confirmed(rig: Rig) -> None:
 def test_timeout_leaves_command_pending_not_repeated(rig: Rig) -> None:
     rig.reply = RequestTimeout("нет ответа")
     r = rig.go("smart_panel_01", "line_off", 7, expect=Expect.equals("smart_panel_01.lines[6].state", "OFF"))
-    assert r.status == "failed" and rig.gate.is_pending("smart_panel_01", "line_off")
+    assert r.status == "ambiguous" and rig.gate.is_pending("smart_panel_01", "line_off")  # ответа нет: итог неизвестен
     assert "ожидает проверки" in rig.go("smart_panel_01", "line_off", 7).reason
 
 
@@ -206,7 +210,7 @@ def test_resume_refused_while_interlock_tripped_and_allowed_after(tmp_path: Path
     set_path(rig.state, "dome_automation_01.interlocks.IL_CO2.state", "ARMED")
     assert rig.go("cnc_01", "resume").status == "sent"
     rig.t += 5
-    assert rig.go("printer_3d_01", "resume").ok  # у каждого станка свой счётчик попыток
+    assert "supervisor" in rig.go("printer_3d_01", "resume").reason  # принтер возобновляет только серверный supervisor
 
 
 def test_resume_one_attempt_per_cause(tmp_path: Path) -> None:

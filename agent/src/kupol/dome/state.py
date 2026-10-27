@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import re
+import math
 from collections import deque
 from collections.abc import Iterator
 from typing import Any
@@ -31,7 +32,7 @@ def flatten_numbers(value: Any, prefix: str = "", depth: int = 0) -> Iterator[tu
         return
     if isinstance(value, bool):
         return
-    if isinstance(value, (int, float)):
+    if isinstance(value, (int, float)) and math.isfinite(value):
         yield prefix, float(value)
     elif isinstance(value, dict):
         for key, item in value.items():
@@ -61,6 +62,7 @@ class DomeState:
         self._history_len = history_len
         self._stale_age_s = stale_age_s
         self._series: dict[str, deque[tuple[float, float]]] = {}
+        self._progress_wall: dict[str, float] = {}
 
     # ------------------------------------------------------------------ запись
 
@@ -77,6 +79,9 @@ class DomeState:
             # Обновляем узлы, пришедшие в снимке; пропавший узел остаётся с прежним временем.
             for node_id, body in nodes.items():
                 if isinstance(body, dict):
+                    previous = self.nodes.get(node_id)
+                    if previous is None or body.get("updated_at") != previous.get("updated_at"):
+                        self._progress_wall[node_id] = wall
                     self.nodes[node_id] = body
                     for path, num in flatten_numbers(body, node_id):
                         dq = self._series.get(path)
@@ -120,7 +125,7 @@ class DomeState:
     def num(self, path: str) -> float | None:
         """Числовое значение по пути (``None`` для не числа и ``bool``)."""
         value = self.get(path)
-        if isinstance(value, bool) or not isinstance(value, (int, float)):
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
             return None
         return float(value)
 
@@ -149,6 +154,7 @@ class DomeState:
             float(n["updated_at"])
             for node_id, n in self.nodes.items()
             if node_id != "meeting_01" and isinstance(n.get("updated_at"), (int, float))
+            and not isinstance(n["updated_at"], bool) and math.isfinite(n["updated_at"])
         ]
         return max(values) if values else None
 
@@ -156,7 +162,8 @@ class DomeState:
         """На сколько секунд часов купола отстаёт узел от самого свежего (``None`` — неизвестно)."""
         node = self.nodes.get(node_id)
         newest = self.newest_update()
-        if not node or newest is None or not isinstance(node.get("updated_at"), (int, float)):
+        if (not node or newest is None or isinstance(node.get("updated_at"), bool)
+                or not isinstance(node.get("updated_at"), (int, float)) or not math.isfinite(node["updated_at"])):
             return None
         return max(0.0, newest - float(node["updated_at"]))
 
@@ -165,7 +172,10 @@ class DomeState:
         node = self.nodes.get(node_id)
         if not node:
             return False
-        if str(node.get("status", "")).upper() == "UNKNOWN":
+        if str(node.get("status", "")).upper() == "UNKNOWN" or node.get("online") is False:
+            return True
+        progressed = self._progress_wall.get(node_id)
+        if progressed is not None and self.wall - progressed > self._stale_age_s:
             return True
         age = self.age_s(node_id)
         return age is not None and age > self._stale_age_s

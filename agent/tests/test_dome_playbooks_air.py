@@ -6,7 +6,7 @@ from pathlib import Path
 
 from kupol.dome.playbooks.air import Co2Playbook, CondensatePlaybook
 from kupol.dome.playbooks.machines import ResumePlaybook, SmokePlaybook
-from tests.dome_helpers import make_ctx, seq_state, set_path, state_from
+from tests.dome_helpers import make_ctx, synchronous_seq_state as seq_state, set_path, synchronous_state_from as state_from
 
 
 def actions(intents: list) -> list[tuple[str, str, object]]:  # type: ignore[type-arg]

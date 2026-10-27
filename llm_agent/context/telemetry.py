@@ -41,6 +41,9 @@ def _drop_noise(d: dict) -> dict:
 
 def _compact_node(node_id: str, data: dict, key_fields: list[str]) -> dict:
     out: dict[str, Any] = {}
+    for name in ("updated_at", "reading_delay_s"):  # свежесть измерения нужна модели всегда
+        if name in data:
+            out[name] = data[name]
     # online/status показываем только когда они не штатные
     if data.get("online") is False:
         out["online"] = False

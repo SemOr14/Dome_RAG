@@ -42,6 +42,7 @@ class PolicyCfg(_Cfg):
     allowed: dict[str, dict[str, dict[str, Any]]] = Field(default_factory=dict)
     line_switch_limit: LineSwitchLimit = LineSwitchLimit()
     no_effect_cooldown_s: float = Field(default=120.0, ge=0)
+    algorithm_hold_s: float = Field(default=30.0, ge=0)  # узел, которым занят плейбук, команды модели не исполняются
     resume_max_attempts: int = Field(default=1, ge=0)
 
 
@@ -70,6 +71,7 @@ class SmokeCfg(_Cfg):
 
 class PrinterCfg(_Cfg):
     cool_bed_c: float = 40.0
+    stall_timeout_s: float | None = Field(default=None, gt=15)
 
 
 class EnergyCfg(_Cfg):

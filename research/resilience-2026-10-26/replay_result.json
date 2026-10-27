@@ -1,0 +1,26 @@
+{
+  "upstream_base": "2e0c0350952ea251a98a35c1597433e1acac2f99",
+  "mode": "modified local code, chronological pure diagnostics only",
+  "source": "Logs/2026-10-14/telemetry.jsonl",
+  "source_sha256": "69f4555e68c4d2c498941d682c949d9a42912cea6c5e85a23aaecf0d5435f59c",
+  "samples": 1440,
+  "sample_counts": {
+    "co2": {
+      "unknown": 1440
+    },
+    "condensate": {
+      "unknown": 1440
+    },
+    "webhook_discrepancy": {
+      "False": 1430,
+      "True": 10
+    }
+  },
+  "limitations": [
+    "No closed-loop or counterfactual effects",
+    "No future logbook supplied to current decisions",
+    "Historical delays and types preserved",
+    "Unknown is not proof of a real or false crisis",
+    "No hardware or actual DeepSeek calls"
+  ]
+}

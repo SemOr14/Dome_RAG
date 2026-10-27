@@ -20,6 +20,7 @@ import websockets
 from websockets.exceptions import ConnectionClosed, InvalidHandshake
 
 from kupol.dome.config import RuntimeCfg
+from kupol.dome.control import SEND_GUARD, COMMAND_ACTOR
 from kupol.dome.datalog import DataApiRecorder
 
 AUTH_TIMEOUT_S = 10.0
@@ -41,22 +42,43 @@ class RequestTimeout(DomeError):
     """Ответ на запрос не пришёл вовремя."""
 
 
+class PolicyRejected(DomeError):
+    """Cancelled before send; unlike an in-flight timeout, delivery is known not to occur."""
+
+
 class RateLimiter:
     """Не чаще ``rate`` отправок в секунду (равномерные интервалы между отправками)."""
 
     def __init__(self, rate_per_s: float) -> None:
-        self._gap = 1.0 / rate_per_s
+        self._gap = 1.0 / min(rate_per_s, 5.0)
         self._next = 0.0
         self._lock = asyncio.Lock()
+        self._queue = []
+        self._condition = asyncio.Condition()
+        self._ticket = 0
 
-    async def wait(self) -> None:
-        async with self._lock:
-            now = time.monotonic()
-            delay = self._next - now
-            if delay > 0:
-                await asyncio.sleep(delay)
-                now = time.monotonic()
-            self._next = now + self._gap
+    async def wait(self, urgent=False) -> None:
+        async with self._condition:
+            self._ticket += 1
+            ticket = (0 if urgent else 1, self._ticket)
+            self._queue.append(ticket)
+            try:
+                while True:
+                    delay = self._next - time.monotonic()
+                    if ticket == min(self._queue) and delay <= 0:
+                        self._queue.remove(ticket)
+                        # Ordinary requests leave capacity for emergency traffic.
+                        self._next = time.monotonic() + max(self._gap, .2 if urgent else .25)
+                        self._condition.notify_all()
+                        return
+                    try:
+                        await asyncio.wait_for(self._condition.wait(), max(.01, delay))
+                    except asyncio.TimeoutError:
+                        pass
+            finally:
+                if ticket in self._queue:
+                    self._queue.remove(ticket)
+                self._condition.notify_all()
 
 
 class DomeClient:
@@ -95,6 +117,7 @@ class DomeClient:
         self.catalog_message: dict[str, Any] | None = None
         self.connect_count = 0
         self._auth_error = ""
+        self.policy = None
 
     # ------------------------------------------------------------------ управление жизнью
 
@@ -204,6 +227,9 @@ class DomeClient:
     def _drop_connection(self, reason: str) -> None:
         self.connected = False
         self._ws = None
+        self.role = ''
+        self.catalog_message = None
+        self.telemetry = None
         for fut in self._pending.values():
             if not fut.done():
                 fut.set_exception(NotConnected("соединение закрыто"))
@@ -216,8 +242,9 @@ class DomeClient:
         try:
             text = raw.decode("utf-8", "replace") if isinstance(raw, bytes) else raw
             self.recorder.frame(direction, msg, self.session_id, text)
-        except Exception:  # noqa: BLE001 - журнал БД не должен ронять связь
-            pass
+        except Exception as exc:  # noqa: BLE001
+            if direction == "outbound" and isinstance(msg, dict) and msg.get("type") == "control":
+                raise DomeError("команда не сохранена в журнал; отправка запрещена") from exc
 
     def _emit(self, event: str, **details: Any) -> None:
         if self.recorder is not None:
@@ -249,7 +276,14 @@ class DomeClient:
         fut: asyncio.Future[dict[str, Any]] = asyncio.get_running_loop().create_future()
         self._pending[rid] = fut
         try:
-            await self._limiter.wait()
+            await self._limiter.wait(urgent=COMMAND_ACTOR.get() == 'safety')
+            if self._stop.is_set() or (self.policy and self.policy.operating_state == 'shutting_down'):
+                raise PolicyRejected('Приложение останавливается')
+            guard = SEND_GUARD.get()
+            if type_ == 'control' and self.policy is not None and guard is None:
+                raise PolicyRejected('Команды разрешены только через Gate')
+            if guard and (bad := guard()):
+                raise PolicyRejected(bad)
             msg = {"type": type_, "request_id": rid, **fields}
             self._record("outbound", msg)
             await ws.send(json.dumps(msg, ensure_ascii=False))

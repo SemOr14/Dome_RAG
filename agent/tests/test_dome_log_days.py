@@ -122,7 +122,8 @@ class DayHarness(Harness):
                                   llm=self.llm, llm_settings=lst, clock=self.world.clock)
             return self.brain
 
-        self.runner = Runner(st, cfg, self.log, clock=self.world.clock, brain=factory)
+        self.runner = Runner(st, cfg, self.log, clock=self.world.clock, brain=factory,
+                             playbooks=[])  # проверяем путь модели и RAG отдельно от плейбуков
         self._task = asyncio.create_task(self.runner.run())
         await self.until(lambda: self.runner is not None and self.runner.client.connected and bool(self.runner.client.catalog_message))
         return self
@@ -157,7 +158,8 @@ def check_run(h: DayHarness, operator: dict[str, str]) -> None:
     """Общее для всех прогонов: заглушка не предлагает команд, на каждое сообщение Оператора есть ответ,
     разметка из карточек RAG проходит проверку согласованности без замечаний."""
     assert h.sent() == []
-    assert h.world.posted == ["Вижу, разбираюсь."] * len(operator)
+    chat = [m for m in h.world.posted if not m.startswith(("[RED]", "[YELLOW]"))]  # без вызовов человека по инцидентам
+    assert chat == ["Вижу, разбираюсь."] * len(operator)
     decisions = [r for r in h.records("decision") if r.get("source") in ("llm", "mixed")]
     assert decisions and all(r["impact_kind"] in ("base", "hidden", "cascade", "false", "unknown") for r in decisions)
     assert not [r for r in decisions if r.get("classification_issues")]

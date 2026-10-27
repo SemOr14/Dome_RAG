@@ -30,10 +30,13 @@ from kupol.dome.env import Settings
 from kupol.dome.expects import expect_for
 from kupol.dome.playbooks.base import Intent, Step
 from kupol.dome.state import DomeState
+from kupol.dome.control import DECISION_POLICY_EPOCH
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 FAILURES_TO_FALLBACK = 3  # сбоев модели подряд, после которых решения временно отдаются плейбукам
 FALLBACK_S = 300.0
+AGENT_FAILURE_WINDOW_S = 600.0  # столько секунд считаем сбои собственных команд модели
+AGENT_FAILURES_BEFORE_HUMAN = 3  # больше сбоев за окно — вызов человека вместо нового разбора моделью
 SEVERITY_PRIORITY = {"critical": 1, "warning": 3, "info": 5}
 REQUEST_MISSED = {"refused": "агент отказался выполнять", "partial": "выполнено только частично"}
 JOURNAL_KINDS = ("decision", "action", "verification", "message")
@@ -52,9 +55,22 @@ from llm_agent import Settings as LlmSettings  # noqa: E402
 from llm_agent.agent import make_retriever  # noqa: E402
 from llm_agent.context.catalog import NodeCatalog  # noqa: E402
 from llm_agent.dispatcher import Dispatcher, Fired  # noqa: E402
-from llm_agent.triggers import Trigger, gate_action_trigger, gate_verification_trigger, telemetry_age  # noqa: E402
+from llm_agent.prompt_builder import ALGORITHMS_MARK  # noqa: E402
+from llm_agent.triggers import (  # noqa: E402
+    Trigger,
+    gate_action_trigger,
+    gate_rejection_trigger,
+    gate_verification_trigger,
+    playbook_failure_trigger,
+    telemetry_age,
+)
 from llm_agent.schemas import AgentResponse, LLMCallInfo, ProposedAction  # noqa: E402
 from llm_agent.storage.data_api import ApiControlChecker, DataApiClient, journal_record  # noqa: E402
+
+ALGORITHMS_HEADER = (
+    "\n\n" + ALGORITHMS_MARK + " работают параллельно с тобой и действуют по своим узлам первыми; твои команды по "
+    "узлам, занятым алгоритмом, будут отложены. Что они делают сейчас:\n"
+)
 
 Execute = Callable[[Intent], Awaitable[None]]
 
@@ -108,12 +124,16 @@ class LogJournal:
 class _Sink:
     """События LLM-слоя (llm_request/llm_response/decision/verification) — в БД через рекордер агента."""
 
-    def __init__(self, recorder: DataApiRecorder | None, session: Callable[[], str | None], journal: LogJournal) -> None:
+    def __init__(self, recorder: DataApiRecorder | None, session: Callable[[], str | None], journal: LogJournal, policy=lambda: None) -> None:
         self.recorder = recorder
         self.session = session
         self.journal = journal
+        self.policy = policy
 
     def emit(self, event_type: str, payload: Any, **kwargs: Any) -> str:
+        policy = self.policy()
+        if policy is not None:
+            kwargs['metadata'] = {**kwargs.get('metadata', {}), 'policy_epoch': DECISION_POLICY_EPOCH.get() if DECISION_POLICY_EPOCH.get() is not None else policy.policy_epoch, 'agent_mode': policy.agent_mode}
         if event_type == "verification":
             self.journal.append({"actor": "agent", "kind": "verification", **payload})
         if self.recorder is None:
@@ -154,15 +174,26 @@ def to_intent(response: AgentResponse, fired: Fired, stale_s: float = 30.0) -> I
     assert d is not None
     steps: list[Step] = []
     plan: list[str] = []
+    blocked = False
+    deferred: list[str] = []
     for v in response.verdicts:
         a: ProposedAction = v.action
         if a.node_id == "meeting_01" and a.action == "post_message":
             continue
+        if d.request_human is not None and d.request_human.severity == 'red':
+            plan.append(f'Заблокировано до человека: {a.node_id}.{a.action}')
+            continue
         label = f"{a.node_id}.{a.action}({_value(a.value)})"
-        if v.accepted:
-            steps.append(Step(a.node_id, a.action, a.value, expect_for(a.node_id, a.action, a.value), (a.reason or d.cause)[:200]))
+        if v.accepted and not blocked and not steps:
+            exp = expect_for(a.node_id, a.action, a.value)
+            exp.timeout_s = max(exp.timeout_s or 0, a.verify_after_s)
+            steps.append(Step(a.node_id, a.action, a.value, exp, (a.reason or d.cause)[:200]))
             plan.append(f"{label}: {a.reason}" + (f" → ожидаем {a.expected}" if a.expected else ""))
+        elif v.accepted:
+            plan.append(f"отложить до нового решения по телеметрии: {label}")
+            deferred.append(label)
         else:
+            blocked = True
             plan.append(f"не делать {label}: {'; '.join(v.reasons)}")
     plan += [f"наблюдать: {w}" for w in d.wait_and_watch]
     say = d.operator_message.text.strip() if d.operator_message.needed and d.operator_message.text.strip() else None
@@ -188,6 +219,7 @@ def to_intent(response: AgentResponse, fired: Fired, stale_s: float = 30.0) -> I
         classification_issues=list(response.classification_issues),
         cooldown_s=0.0, source="mixed" if d.rag_refs else "llm", rag_refs=list(d.rag_refs),
         say_always=operator, refused=refused,
+        human_escalation=d.request_human.model_dump(mode='json') if d.request_human else None, deferred=deferred,
     )  # fmt: skip
 
 
@@ -224,17 +256,22 @@ class LlmBrain:
             checker = _SessionChecker(ApiControlChecker(client, recorder.run_id, ""), session)
         self.agent = DomeLLMAgent(
             s, StateTelemetry(state, frame, clock), self.journal, _Catalog([]), retriever=make_retriever(s), llm=llm,
-            events=_Sink(recorder, session, self.journal), control_checker=checker,
+            events=_Sink(recorder, session, self.journal, lambda: self.policy), control_checker=checker,
         )  # fmt: skip
         self.dispatcher = Dispatcher(self.agent, clock=clock)
+        self.dispatcher.external_verification = True
         self.task: asyncio.Task[None] | None = None
         self.failures = 0
         self.down_until = 0.0
         self.calls = 0
-        self.agent_control: Callable[[], bool] = lambda: True  # рантайм подставляет флаг Gate
+        self.policy: Any = None  # рантайм подставляет ControlPolicy
         self.no_effect_cooldown_s = 120.0  # рантайм подставляет policy.no_effect_cooldown_s
         self._actions: dict[int, dict[str, Any]] = {}  # seq записи action → запись (для поводов по verification)
         self._timed_out: set[int] = set()
+        self._feedback_cases: dict[Any, Trigger] = {}
+        self._continue: dict[str, list[str]] = {}  # «узел.действие» выполненного шага -> отложенные шаги того же решения
+        self._agent_failures: deque[float] = deque(maxlen=20)
+        self.on_human: Callable[[Any], None] = lambda trigger: None
 
     @property
     def model(self) -> str:
@@ -255,22 +292,80 @@ class LlmBrain:
 
     def on_log(self, kind: str, rec: dict[str, Any]) -> None:
         self.journal.on_log(kind, rec)
-        if kind == "action" and isinstance(rec.get("seq"), int):
-            self._actions[rec["seq"]] = rec
+        trigger = None
+        if kind == 'action' and isinstance(rec.get('seq'), int):
+            self._actions[rec['seq']] = rec
             if len(self._actions) > 500:
-                self._actions.pop(next(iter(self._actions)))
-            if (trig := gate_action_trigger(rec)) is not None:  # отказ Купола или нет ответа — модель оценивает сразу
-                if "|timeout|" in trig.key:
-                    self._timed_out.add(rec["seq"])
-                self.dispatcher.submit(trig)
-        elif kind == "verification":
-            ref = rec.get("ref")
-            if not isinstance(ref, int):
-                return
-            trig = gate_verification_trigger(rec, self._actions.get(ref), ref in self._timed_out, self.no_effect_cooldown_s)
-            self._timed_out.discard(ref)
-            if trig is not None:  # нет эффекта или итог после таймаута — по факту проверки Gate
-                self.dispatcher.submit(trig)
+                first = next(iter(self._actions))
+                self._actions.pop(first)
+                self._timed_out.discard(first)
+            trigger = gate_action_trigger(rec) or gate_rejection_trigger(rec)
+            if trigger is not None and '|timeout|' in trigger.key:
+                self._timed_out.add(rec['seq'])
+        elif kind == 'verification':
+            action = self._actions.get(rec.get('ref'), {})
+            trigger = gate_verification_trigger(rec, action, rec.get('ref') in self._timed_out, self.no_effect_cooldown_s)
+            self._timed_out.discard(rec.get('ref'))
+            trigger = trigger or self._continuation(rec, action)
+            rec = {**action, **rec, 'request': action.get('request', {})}
+        if trigger is not None:
+            req = rec.get('request') or {}
+            if req.get('node_id') == 'meeting_01':
+                return  # delivery errors must never create recursive chat/LLM traffic
+            trigger.meta.update(node_id=req.get('node_id'), action=req.get('action'), actor=rec.get('actor', 'algorithm'),
+                                policy_epoch=rec.get('policy_epoch'), pipeline_feedback=True)
+            self.review_failure(trigger)
+
+    def review_failure(self, trigger):
+        policy = getattr(self, 'policy', None)
+        epoch = policy.policy_epoch if policy else None
+        if policy and (policy.operating_state == 'shutting_down' or trigger.meta.get('policy_epoch') not in (None, epoch)):
+            return
+        trigger.meta.setdefault('policy_epoch', epoch)
+        identity = (epoch, trigger.key)
+        if identity in self._feedback_cases:
+            return
+        self._feedback_cases[identity] = trigger
+        if len(self._feedback_cases) > 1000:
+            self._feedback_cases.pop(next(iter(self._feedback_cases)))
+        can_analyze = self.healthy and (not policy or policy.agent_mode != 'off')
+        if trigger.meta.get('actor') == 'agent' and trigger.kind != 'verification':
+            # Ошибку собственной команды модель разбирает сама, но не по кругу: частые сбои идут человеку
+            now = self.clock()
+            self._agent_failures.append(now)
+            if sum(1 for t in self._agent_failures if now - t < AGENT_FAILURE_WINDOW_S) > AGENT_FAILURES_BEFORE_HUMAN:
+                can_analyze = False
+        if trigger.kind == 'verification':
+            if can_analyze:
+                self.dispatcher.submit(trigger)
+        elif can_analyze:
+            self.dispatcher.submit(trigger)
+        else:
+            self.on_human(trigger)
+
+    def _continuation(self, rec: dict[str, Any], action: dict[str, Any]) -> Trigger | None:
+        """Шаг модели подтверждён Gate по телеметрии: вернуть её к отложенным шагам решения (новое решение по свежим данным)."""
+        req = action.get('request') or {}
+        if rec.get('ok') is not True or action.get('actor') != 'agent':
+            return None
+        if req.get('node_id') == 'meeting_01':
+            return None
+        rest = self._continue.pop(f"{req.get('node_id')}.{req.get('action')}", [])
+        node = req.get('node_id')
+        later = f" Отложено в этом решении: {'; '.join(rest)}." if rest else ""
+        return Trigger("verification", f"command|continue|{rec.get('run_id')}|{rec.get('ref')}",
+                       f"Проверка результата: шаг {req.get('node_id')}.{req.get('action')} подтверждён по телеметрии "
+                       f"({rec.get('observed')}).{later} Реши по свежим данным, нужен ли следующий шаг",
+                       {node} if node else set(), meta={"action_seq": rec.get("ref")})
+
+    def playbook_failed(self, name, error):
+        self.review_failure(playbook_failure_trigger(name, error))
+
+    def playbook_recovered(self, name):
+        for identity, trigger in list(self._feedback_cases.items()):
+            if trigger.meta.get('playbook') == name:
+                self.dispatcher.pending.pop(trigger.key, None)
+                self._feedback_cases.pop(identity)
 
     def operator_request(self, text: str, event_id: str | None = None) -> None:
         """Требование Оператора из веб-панели: срочный повод для модели, ответ — рекомендация Оператору."""
@@ -287,23 +382,34 @@ class LlmBrain:
         if ids:
             self.dispatcher.operator.last_id = max(self.dispatcher.operator.last_id, *ids)
 
-    def step(self, chat_new: list[dict[str, Any]], execute: Execute) -> None:
-        """Такт: найти поводы; если пора — запустить вызов модели в фоне (результат исполнит ``execute``)."""
-        fired = self.dispatcher.poll(chat_new)
+    def step(self, chat_new: list[dict[str, Any]], execute: Execute, *, algorithms: list[str] | None = None,
+             handled_operator_ids: set[int] | None = None) -> None:
+        """Такт: найти поводы; если пора — запустить вызов модели в фоне (результат исполнит ``execute``).
+
+        Поводы по узлам, которые ведут плейбуки, не отбрасываются: модель видит всё, а ``algorithms`` — строки
+        «что сделал или ждёт алгоритм» — добавляются к запросу отдельным разделом.
+        """
+        fired = self.dispatcher.poll(chat_new, handled_operator_ids=handled_operator_ids)
         if fired is not None:
+            if algorithms:
+                fired.text += ALGORITHMS_HEADER + "\n".join(f"- {line}" for line in algorithms)
             self.task = asyncio.create_task(self._call(fired, execute))
 
     async def _call(self, fired: Fired, execute: Execute) -> None:
         started = time.monotonic()
-        advisory = not self.agent_control()
+        policy = self.policy
+        advisory = policy is not None and policy.agent_mode != "autonomous"
         if advisory:
             fired.text += ADVISORY
+        token = DECISION_POLICY_EPOCH.set(policy.policy_epoch if policy is not None else None)
         try:
             response = await asyncio.to_thread(self.dispatcher.decide, fired)
         except Exception as exc:  # noqa: BLE001 - сбой модели — это «нет решения», не остановка агента
             response = AgentResponse(ok=False, llm_call=LLMCallInfo(model=self.model, purpose=fired.purpose, ok=False,
                                                                     error=repr(exc)[:300],
                                                                     latency_ms=int((time.monotonic() - started) * 1000)))
+        finally:
+            DECISION_POLICY_EPOCH.reset(token)
         self.dispatcher.finish(fired, response)
         # Таймер проверки модели не нужен: каждую отправленную команду проверяет Gate по телеметрии, а отказ, таймаут,
         # отсутствие эффекта и итог после таймаута приходят поводами из on_log. Таймер срабатывал раньше Gate.
@@ -317,6 +423,10 @@ class LlmBrain:
             response=(response.raw_text or "")[:4000] or None,
         )  # fmt: skip
         if not response.ok or response.decision is None:
+            for trigger in fired.triggers:
+                if trigger.kind != 'verification' and (trigger.meta.get('pipeline_feedback') or trigger.meta.get('playbook')):
+                    self.dispatcher.pending.pop(trigger.key, None)
+                    self.on_human(trigger)
             self.failures += 1
             if self.failures >= FAILURES_TO_FALLBACK:
                 self.down_until = self.clock() + FALLBACK_S
@@ -325,9 +435,21 @@ class LlmBrain:
             return
         self.failures = 0
         try:
-            await execute(to_intent(response, fired, self.settings.trigger_stale_s))
+            intent = to_intent(response, fired, self.settings.trigger_stale_s)
+            if intent.steps:
+                self._continue[f"{intent.steps[0].node}.{intent.steps[0].action}"] = intent.deferred
+            if (not intent.steps or advisory) and not intent.human_escalation:
+                for trigger in fired.triggers:
+                    # Локальный отказ Gate Купола не касался: оценка модели его закрывает. Остальные сбои без нового шага — человеку
+                    local = trigger.meta.get('local_rejection')
+                    if trigger.kind != 'verification' and not local and (trigger.meta.get('pipeline_feedback') or trigger.meta.get('playbook')):
+                        self.on_human(trigger)
+            await execute(intent)
         except Exception as exc:  # noqa: BLE001 - фоновая задача: ошибка исполнения не должна потеряться
             self.log.write("error", where="llm_brain.execute", error=repr(exc))
+            for trigger in fired.triggers:
+                if trigger.kind != 'verification' and (trigger.meta.get('pipeline_feedback') or trigger.meta.get('playbook')):
+                    self.on_human(trigger)
 
     async def close(self) -> None:
         if self.task is not None and not self.task.done():
