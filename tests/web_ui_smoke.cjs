@@ -21,7 +21,7 @@ w.fetch=async(url,options={})=>{
 };
 const wait=async(fn)=>{for(let i=0;i<50;i++){if(fn())return;await new Promise(r=>setTimeout(r,10));}throw Error('DOM timeout');};
 (async()=>{
- w.eval(['integration/web/app.js','integration/web/agent-modes.js','integration/web/incident-center.js','integration/web/production.js','integration/web/safety-controls.js','integration/web/production-control.js'].map(file=>fs.readFileSync(file,'utf8')).join('\n'));
+ w.eval(['integration/web/ui-state.js','integration/web/app.js','integration/web/nodes.js','integration/web/agent-modes.js','integration/web/incident-center.js','integration/web/production.js','integration/web/safety-controls.js','integration/web/production-control.js'].map(file=>fs.readFileSync(file,'utf8')).join('\n'));
  await wait(()=>w.document.getElementById('policyStatus').textContent.includes('Рекомендательный'));
  w.document.querySelector('nav button[data-page=production]').click();
  await wait(()=>w.document.querySelectorAll('.production-card').length===2);

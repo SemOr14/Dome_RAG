@@ -1,0 +1,235 @@
+[
+ {
+  "category": "power",
+  "code_name": "battery",
+  "control_aliases": {},
+  "controls": [],
+  "node_id": "battery_01",
+  "operator_controls": [],
+  "queries": [],
+  "service_actions": [
+   "reconnect"
+  ],
+  "system": "Энергетика",
+  "title": "Аккумуляторная батарея (АКБ)"
+ },
+ {
+  "category": "power",
+  "code_name": "smart_panel",
+  "control_aliases": {
+   "line_off": [
+    "disable_line"
+   ],
+   "line_on": [
+    "enable_line"
+   ],
+   "reset_line_error": [],
+   "reset_protection": []
+  },
+  "controls": [
+   "line_off",
+   "line_on",
+   "reset_line_error",
+   "reset_protection"
+  ],
+  "node_id": "smart_panel_01",
+  "operator_controls": [
+   "inspect_line",
+   "set_workstation"
+  ],
+  "queries": [],
+  "service_actions": [
+   "reconnect"
+  ],
+  "system": "Электроснабжение",
+  "title": "Умный щиток на 8 линий"
+ },
+ {
+  "category": "production",
+  "code_name": "printer_3d",
+  "control_aliases": {
+   "delete_file": [],
+   "home": [],
+   "move": [
+    "move_axes",
+    "jog"
+   ],
+   "resume": [],
+   "set_speed": [
+    "set_print_speed"
+   ],
+   "start_job": [
+    "start_print",
+    "print_file"
+   ],
+   "upload_file": [
+    "upload"
+   ]
+  },
+  "controls": [
+   "delete_file",
+   "home",
+   "move",
+   "resume",
+   "set_speed",
+   "start_job",
+   "upload_file"
+  ],
+  "node_id": "printer_3d_01",
+  "operator_controls": [
+   "remove_part"
+  ],
+  "queries": [
+   "list_files"
+  ],
+  "service_actions": [
+   "reconnect"
+  ],
+  "system": "Производство",
+  "title": "3D-принтер Anycubic Kobra 2 Pro"
+ },
+ {
+  "category": "production",
+  "code_name": "cnc",
+  "control_aliases": {
+   "home": [
+    "$h"
+   ],
+   "move": [
+    "jog"
+   ],
+   "probe_z": [],
+   "resume": [
+    "cycle_start",
+    "~"
+   ],
+   "set_zero": [
+    "zero"
+   ],
+   "start_job": []
+  },
+  "controls": [
+   "home",
+   "move",
+   "probe_z",
+   "resume",
+   "set_zero",
+   "start_job"
+  ],
+  "node_id": "cnc_01",
+  "operator_controls": [],
+  "queries": [
+   "list_files"
+  ],
+  "service_actions": [
+   "reconnect"
+  ],
+  "system": "Производство",
+  "title": "ЧПУ-фрезер Lunyee 3018 Pro Max"
+ },
+ {
+  "category": "climate",
+  "code_name": "climate_sensor",
+  "control_aliases": {},
+  "controls": [],
+  "node_id": "climate_sensor_01",
+  "operator_controls": [],
+  "queries": [],
+  "service_actions": [
+   "reconnect"
+  ],
+  "system": "Климат",
+  "title": "Датчик климата"
+ },
+ {
+  "category": "ventilation",
+  "code_name": "supply_ventilation",
+  "control_aliases": {
+   "reset_alarm": [],
+   "set_mode": [],
+   "set_speed": [],
+   "turn_off": [
+    "off",
+    "stop",
+    "disable"
+   ],
+   "turn_on": [
+    "on",
+    "start",
+    "enable"
+   ]
+  },
+  "controls": [
+   "reset_alarm",
+   "set_mode",
+   "set_speed",
+   "turn_off",
+   "turn_on"
+  ],
+  "node_id": "supply_ventilation_01",
+  "operator_controls": [],
+  "queries": [],
+  "service_actions": [
+   "reconnect"
+  ],
+  "system": "Вентиляция",
+  "title": "Приточная вентиляция / рекуператор"
+ },
+ {
+  "category": "automation",
+  "code_name": "dome_automation",
+  "control_aliases": {
+   "acknowledge": [
+    "ack"
+   ],
+   "block_interlock": [],
+   "reset_interlock": [
+    "release_interlock"
+   ],
+   "set_data_trust": [],
+   "set_diesel_autostart": [],
+   "set_primary_sensor": [],
+   "set_ventilation_auto": [],
+   "unblock_interlock": []
+  },
+  "controls": [
+   "acknowledge",
+   "block_interlock",
+   "reset_interlock",
+   "set_data_trust",
+   "set_diesel_autostart",
+   "set_primary_sensor",
+   "set_ventilation_auto",
+   "unblock_interlock"
+  ],
+  "node_id": "dome_automation_01",
+  "operator_controls": [],
+  "queries": [],
+  "service_actions": [
+   "reconnect"
+  ],
+  "system": "Автоматика",
+  "title": "Автоматика купола (ПЛК)"
+ },
+ {
+  "category": "sandbox",
+  "code_name": "meeting",
+  "control_aliases": {
+   "post_message": [
+    "post",
+    "send_message"
+   ]
+  },
+  "controls": [
+   "post_message"
+  ],
+  "node_id": "meeting_01",
+  "operator_controls": [],
+  "queries": [
+   "read_messages"
+  ],
+  "service_actions": [],
+  "system": "Песочница",
+  "title": "Песочница"
+ }
+]

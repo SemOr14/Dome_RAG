@@ -3,7 +3,7 @@ const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pretty = value => JSON.stringify(value, null, 2);
 const date = value => value ? new Date(value).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—';
-const labels = {overview:'Обзор системы', charts:'Графики телеметрии', commands:'Управление', production:'Производство', agent:'LLM-агент и чат', database:'База данных'};
+const labels = {overview:'Обзор системы', nodes:'Узлы', events:'События', charts:'Графики телеметрии', commands:'Управление', production:'Производство', agent:'LLM-агент и чат', database:'База данных'};
 const state = {page:'overview', runtime:{}, run:'', overview:null, charts:[], dbCursor:0, dbNext:0, dbItems:[], busy:false, commandOperation:null};
 $('token').value = sessionStorage.getItem('dome-api-token') || '';
 
@@ -90,6 +90,7 @@ function renderOverview(data) {
   $('observationTime').textContent=data.nodes.length?'Получено '+date(data.nodes.reduce((a,b)=>a.id>b.id?a:b).ingested_at):'Нет телеметрии';
   renderNodes(data.nodes);
   renderTimeline(data);
+  if(state.page==='nodes'&&window.renderNodesPage)window.renderNodesPage(data);
 }
 // Keep the actual details/pre elements mounted across polling: open state and scroll survive.
 function renderNodes(nodes) {
@@ -177,10 +178,23 @@ function chatDuplicate(e){
   if(e.event_type==='agent_message')return p.direction==='out';
   return e.source!=='operator'&&['control_intent','control','control_response'].includes(e.event_type)&&(p.action==='post_message'||p.node_id==='meeting_01');
 }
+function eventKind(e){
+  const p=e.payload||{};
+  if(e.event_type==='agent_action'&&p.request?.node_id==='meeting_01')return 'message';
+  if(e.event_type==='agent_action'||(e.event_type==='control_intent'&&e.source==='operator'))return 'control';
+  if(e.event_type==='agent_decision')return 'decision';
+  return 'other';
+}
 function renderTimeline(data){
   const all=Object.assign([...data.events],{__controls:data.controls});
-  const shown=data.events.filter(e=>!TIMELINE_HIDDEN.has(e.event_type)&&!chatDuplicate(e)).slice(0,30);
-  $('timeline').innerHTML=shown.length?shown.map(e=>timelineItem(e,all)).join(''):empty('События ещё не записаны.');
+  const visible=data.events.filter(e=>!TIMELINE_HIDDEN.has(e.event_type)&&!chatDuplicate(e));
+  const item=e=>`<div data-key="${esc(e.event_id||e.id)}">${timelineItem(e,all)}</div>`;
+  $('timelineMini').innerHTML=visible.length?visible.slice(0,5).map(item).join(''):empty('События ещё не записаны.');
+  const kind=$('eventKind').value,needle=$('eventSearch').value.trim().toLowerCase();
+  const found=visible.filter(e=>(kind==='all'||eventKind(e)===kind)&&(!needle||JSON.stringify([e.event_type,e.payload]).toLowerCase().includes(needle)));
+  const shown=found.slice(0,Number($('eventLimit').value)||60);
+  $('eventCount').textContent=`Показано ${shown.length} из ${found.length}`;
+  $('timeline').innerHTML=shown.length?shown.map(item).join(''):empty(visible.length?'По фильтру событий нет.':'События ещё не записаны.');
 }
 function renderControls(data) {
   $('controls').innerHTML=data.controls.length?`<table><thead><tr><th>Время / автор</th><th>Узел / действие</th><th>Проверка БД</th><th>Отправка / Gate</th><th>Ответ Купола</th></tr></thead><tbody>${data.controls.map(c=>{
@@ -309,6 +323,7 @@ document.querySelectorAll('nav button').forEach(button=>button.onclick=()=>{
   document.querySelectorAll('nav button').forEach(el=>el.classList.toggle('active',el===button));
   $('heading').textContent=$('pageName').textContent=labels[state.page];
   if(state.page==='charts')refreshCharts().catch(e=>toast(e.message,true));
+  if(state.page==='nodes'&&state.overview&&window.renderNodesPage)window.renderNodesPage(state.overview);
   if(state.page==='database')loadEvents().catch(e=>toast(e.message,true));
   if(state.page==='agent')loadChat().catch(e=>toast(e.message,true));
   if(state.page==='production' && window.refreshProductionControl)window.refreshProductionControl().catch(e=>toast(e.message,true));
@@ -321,6 +336,8 @@ $('chatForm').onsubmit=event=>{event.preventDefault();action($('chatSend'),async
   if(ok)$('chatText').value='';
   toast(ok?'Требование передано агенту, ответ появится в ленте':`${result.status}: ${result.reason||''}`,!ok);await loadChat();
 });};
+for(const id of ['eventKind','eventLimit','eventSearch'])$(id).addEventListener('input',()=>{if(state.overview)renderTimeline(state.overview);});
+$('allEvents').onclick=()=>document.querySelector('nav button[data-page="events"]').click();
 $('login').onclick=()=>{sessionStorage.setItem('dome-api-token',$('token').value);refresh();};
 $('refresh').onclick=()=>refresh();
 $('runSelect').onchange=async()=>{state.run=$('runSelect').value;state.charts=[];await refresh();if(state.page==='database')loadEvents().catch(e=>toast(e.message,true));};

@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Купол · Центр управления</title>
-  <link rel="stylesheet" href="/ui/style.css?v=6">
-  <script src="/ui/app.js?v=6" defer></script>
+  <link rel="stylesheet" href="/ui/style.css?v=7">
+  <script src="/ui/ui-state.js?v=7" defer></script>
+  <script src="/ui/app.js?v=7" defer></script>
+  <script src="/ui/nodes.js?v=7" defer></script>
   <script src="/ui/agent-modes.js" defer></script>
   <script src="/ui/incident-center.js" defer></script>
   <script src="/ui/production.js" defer></script>
@@ -17,6 +19,8 @@
   <div class="aside-label">РАБОЧЕЕ ПРОСТРАНСТВО</div>
   <nav aria-label="Разделы">
     <button data-page="overview" class="active">◈ <span>Обзор системы</span></button>
+    <button data-page="nodes">▦ <span>Узлы</span></button>
+    <button data-page="events">☰ <span>События</span></button>
     <button data-page="charts">∿ <span>Графики</span></button>
     <button data-page="commands">⇄ <span>Управление</span></button>
     <button data-page="production">⚙ <span>Производство</span></button>
@@ -52,8 +56,29 @@
       <div class="metrics" id="metrics"></div>
       <div class="section-heading"><h2>Узлы Купола</h2><span id="observationTime" class="muted"></span></div>
       <div id="nodes" class="node-grid"></div>
-      <div class="section-heading"><h2>Последние события</h2><span class="muted">Агент и человек · полный журнал в базе</span></div>
+      <div class="section-heading"><h2>Последние события</h2><button id="allEvents" class="secondary small">Все события →</button></div>
+      <div id="timelineMini" class="panel"></div>
+    </section>
+    <section id="page-events" class="page hidden">
+      <div class="panel form-row wrap events-filter">
+        <label>Показывать<select id="eventKind"><option value="all">Все события</option><option value="decision">Решения агента</option><option value="control">Управляющие воздействия</option><option value="message">Сообщения Оператору</option><option value="other">Прочее</option></select></label>
+        <label>Сколько<select id="eventLimit"><option>30</option><option selected>60</option><option>150</option><option>300</option></select></label>
+        <label class="grow">Поиск по тексту<input id="eventSearch" placeholder="узел, действие, причина…"></label>
+        <span id="eventCount" class="muted tiny" role="status"></span>
+      </div>
+      <p class="muted tiny">Агент и человек. Служебные записи вызова модели и дубли решений скрыты, полный журнал — на вкладке «База данных».</p>
       <div id="timeline" class="panel"></div>
+    </section>
+    <section id="page-nodes" class="page hidden">
+      <div class="panel form-row wrap nodes-filter">
+        <label class="grow">Найти узел<input id="nodeSearch" placeholder="node_id, название или группа"></label>
+        <label class="checkbox"><input id="nodeProblems" type="checkbox">Только с проблемами</label>
+        <label class="checkbox"><input id="nodeWithControls" type="checkbox">Только с воздействиями</label>
+        <button id="nodeGroupsOpen" class="secondary small" type="button">Раскрыть группы</button><button id="nodeGroupsClose" class="secondary small" type="button">Свернуть группы</button>
+      </div>
+      <p id="nodesNote" class="muted tiny"></p>
+      <div id="nodeEmpty" class="empty">Телеметрии пока нет.</div>
+      <div id="nodeGroups"></div>
     </section>
     <section id="page-charts" class="page hidden">
       <div class="panel form-row"><label>Узел<select id="chartNode"></select></label><label class="grow">Параметр<select id="chartField"></select></label><button id="addChart">Добавить график</button></div>
