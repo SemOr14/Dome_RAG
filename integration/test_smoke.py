@@ -91,7 +91,7 @@ def test_current_llm_prompt_response_and_decision_use_storage_api(
             llm_module,
             "DeepSeekClient",
             lambda settings: SimpleNamespace(
-                chat=lambda messages: LLMResult(
+                chat=lambda messages, **kwargs: LLMResult(
                     ok=True,
                     text=json.dumps(
                         {

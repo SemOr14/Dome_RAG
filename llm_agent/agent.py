@@ -6,6 +6,7 @@ import json
 import re
 import sys
 import uuid
+from typing import Any
 
 from pydantic import ValidationError
 
@@ -24,6 +25,7 @@ from .storage.data_api import (ApiCatalogRepo, ApiControlChecker, ApiDecisionJou
                                ApiTelemetryRepo, DataApiClient)
 from .storage.file_store import FileCatalogRepo, FileDecisionJournalRepo, FileTelemetryRepo
 from .validate import validate_actions
+from .sensor_tools import MAX_SENSOR_READS, SENSOR_TOOL, SensorSession
 
 _FENCE = re.compile(r"^```(?:json)?\s*|\s*```$", re.MULTILINE)
 
@@ -86,8 +88,11 @@ class DomeLLMAgent:
     @classmethod
     def from_data_api(cls, settings: Settings, client: DataApiClient | None = None) -> "DomeLLMAgent":
         """Сборка на сервисе БД/API: телеметрия, каталог и журнал запуска; весь обмен с LLM пишется в БД."""
-        client = client or DataApiClient(settings.data_api_url, settings.data_api_token,
-                                         settings.data_api_timeout_s, settings.state_dir)
+        if client is None:
+            if not settings.data_api_url:
+                raise ValueError("Для API-источника нужен DATA_API_URL или готовый клиент")
+            client = DataApiClient(settings.data_api_url, settings.data_api_token,
+                                   settings.data_api_timeout_s, settings.state_dir)
         run_id = settings.data_api_run_id or client.latest_run_id()
         if not run_id:
             raise RuntimeError("В БД нет ни одного запуска: задайте DATA_API_RUN_ID или запишите телеметрию")
@@ -129,15 +134,19 @@ class DomeLLMAgent:
         prompt_tokens = completion_tokens = latency = 0
 
         call_id = f"llm-{uuid.uuid4().hex[:12]}"
-        for attempt in range(2):  # вторая попытка — только если модель вернула невалидный JSON
+        sensors = SensorSession(self.telemetry, lambda: self.catalog)
+        sensor_reads: list[dict[str, Any]] = []
+        json_failures = 0
+        for attempt in range(MAX_SENSOR_READS + 2):  # <=3 tool rounds, final answer and one JSON repair
             request_id = f"{call_id}-{attempt + 1}"
+            tools = [SENSOR_TOOL] if sensors.remaining else None
             self.events.emit("llm_request", {
                 "messages": messages, "model": self.settings.model,
                 "parameters": {"temperature": self.settings.temperature, "max_tokens": self.settings.max_tokens,
                                "response_format": "json_object"},
-                "response_schema": "AgentDecision", "purpose": info.purpose},
+                "tools": tools or [], "response_schema": "AgentDecision", "purpose": info.purpose},
                 channel="llm", direction="outbound", request_id=request_id)
-            result = self.llm.chat(messages)
+            result = self.llm.chat(messages, tools=tools)
             info.attempts += result.attempts
             prompt_tokens += result.prompt_tokens or 0
             completion_tokens += result.completion_tokens or 0
@@ -149,12 +158,34 @@ class DomeLLMAgent:
                 info.error = result.error
                 self._llm_response(request_id, result.model, None, None, usage, result.error)
                 break
+            if result.tool_calls:
+                self._llm_response(request_id, result.model, result.text, None, usage, None, result.tool_calls)
+                if not tools:
+                    info.error = "модель запросила инструмент после исчерпания лимита чтений"
+                    break
+                messages.append({"role": "assistant", "content": result.text, "tool_calls": result.tool_calls})
+                for call in result.tool_calls:
+                    reading = sensors.execute(call)
+                    event_id = self.events.emit("sensor_read", {
+                        "llm_call_id": call_id, "tool_call_id": call.get("id"), "index": len(sensor_reads) + 1,
+                        "request": call.get("function"), "result": reading,
+                    }, metadata={"llm_request_id": request_id})
+                    sensor_reads.append({"event_id": event_id, "tool_call_id": call.get("id"),
+                                         "node_id": reading.get("node_id"), "ok": reading["ok"], "error": reading.get("error")})
+                    messages.append({"role": "tool", "tool_call_id": call.get("id"),
+                                     "content": json.dumps(reading, ensure_ascii=False, allow_nan=False)})
+                if not sensors.remaining:
+                    messages.append({"role": "user", "content": "Лимит трёх обращений к датчикам исчерпан. Верни окончательное решение JSON по уже полученным данным."})
+                continue
             raw = result.text or ""
             try:
                 decision = parse_decision(raw)
             except (ValueError, ValidationError) as exc:
                 info.error = f"невалидный ответ: {exc}"[:500]
                 self._llm_response(request_id, result.model, raw, None, usage, f"parse_error: {info.error}")
+                json_failures += 1
+                if json_failures >= 2:
+                    break
                 messages += [{"role": "assistant", "content": raw},
                              {"role": "user", "content": f"Ответ не прошёл проверку: {info.error}. "
                                                          "Верни только один JSON-объект строго по формату."}]
@@ -165,7 +196,7 @@ class DomeLLMAgent:
             verdicts = self._validate(decision, prompt)
             response = AgentResponse(ok=True, decision=decision, verdicts=verdicts, llm_call=info,
                                      raw_text=raw, rag_used=[d.id for d in prompt.rag_docs],
-                                     decision_id=f"decision-{call_id}")
+                                     decision_id=f"decision-{call_id}", sensor_reads=sensor_reads)
             response.decision_event_id = self.events.emit(
                 "decision", self.decision_payload(response, prompt.dome_time),
                 metadata={"llm_request_id": request_id})
@@ -173,11 +204,11 @@ class DomeLLMAgent:
             return response
 
         info.prompt_tokens, info.completion_tokens, info.latency_ms = prompt_tokens, completion_tokens, latency
-        return AgentResponse(ok=False, llm_call=info, raw_text=raw, rag_used=[d.id for d in prompt.rag_docs])
+        return AgentResponse(ok=False, llm_call=info, raw_text=raw, rag_used=[d.id for d in prompt.rag_docs], sensor_reads=sensor_reads)
 
-    def _llm_response(self, request_id: str, model: str, raw, parsed, usage: dict, error) -> None:
+    def _llm_response(self, request_id: str, model: str, raw, parsed, usage: dict, error, tool_calls=None) -> None:
         self.events.emit("llm_response", {"model": model, "raw_response": raw, "parsed_output": parsed,
-                                          "usage": usage, "error": error},
+                                          "usage": usage, "error": error, "tool_calls": tool_calls or []},
                          source="llm", channel="llm", direction="inbound", request_id=request_id)
 
     def _server_check(self, response: AgentResponse) -> None:
@@ -213,6 +244,7 @@ class DomeLLMAgent:
             "text": f"{d.situation}; причина: {d.cause}; план: {', '.join(accepted) or 'наблюдать'}",
             "decision_id": response.decision_id,
             "observation_event_ids": list(getattr(self.telemetry, "event_ids", [])),
+            "sensor_read_event_ids": [r["event_id"] for r in response.sensor_reads if r.get("event_id")],
             "summary": d.situation,
             "hypotheses": [{"description": d.cause, "confidence": d.confidence}] if d.cause else [],
             "impact_kind": d.impact_kind, "authenticity": d.authenticity, "causal_chain": d.causal_chain,

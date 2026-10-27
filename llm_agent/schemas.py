@@ -86,6 +86,7 @@ class AgentResponse(BaseModel):
     raw_text: str | None = None
     rag_used: list[str] = []
     decision_id: str | None = None
+    sensor_reads: list[dict] = []
     decision_event_id: str | None = None  # событие decision в БД (если подключена)
 
     @property
