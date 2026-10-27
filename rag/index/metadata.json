@@ -2,23 +2,22 @@
   "version": 1,
   "fingerprint": {
     "knowledge_base/faq_curated.json": "58e18f268ee97f1016c553d71e20b4fb5a2e400814458e2044f815d9bba2d163",
-    "knowledge_base/situations.json": "babde47835eee3b3d5de86e0bf9ef3602da689b361381dbf092a5188d99ca524",
-    "knowledge_base/operational_scenarios.json": "4b03f29d76279e918ec2640134350ffbe1c9c90cd81393dc89fcaaf56d7a1f20",
-    "knowledge_base/conflicts.json": "13b0e3577c58af6bdb2d5841606fc373c6fbfbbd863243fa4e3f58db554deb04",
+    "knowledge_base/situations.json": "b721d2b7184cf0a508d3e9aeac1ea7437c0a92bd336e57cf0c344c22594a43dd",
+    "knowledge_base/conflicts.json": "6f5e8bef3bd5c274317f957bf1f095172824d64f67085e49916a2dc641cf6a12",
     "knowledge_base/api_constraints.json": "464eae8d6743bdddc5d38a98d01f9ac36ec523c262e22adf14e42cfd018cb499",
-    "sources/register.json": "c5b0f694d26f4d61f1d5c85c8e5b39ea725fc06583af8151ea3346dad8816cc8",
+    "sources/register.json": "443ad4a9ddf7811c30ce8fa4ae4435e46b96855e04cb66b9e6bb326fc563fc55",
     "sources/sections.json": "8a30ea6043b1394cab2ae38dce3c8a792868752c4f893e950d7a8429ad5e8f6c",
-    "APPROVAL.json": "954839faf927586ec011e459b9fd7074ca1aee91f1520c5f12c908f24a1d9bd1"
+    "APPROVAL.json": "4ce0a5259ada0011678a94eae784f5e669f6faeb5e0a01beffb77963d147fcee"
   },
-  "approved_records": 80,
+  "approved_records": 88,
   "reference_records": 670,
   "semantic": true,
   "raw_reference_policy": "search-only; never used as standalone operational answers",
   "semantic_model": {
     "name": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
     "dimension": 384,
-    "segments": 424,
-    "vector_sha256": "34aa702bca1fb901b111929ae16e859806af2d994826e9ddb3692c1e9d47bdda",
+    "segments": 539,
+    "vector_sha256": "ed4c6087d1681b93c8654ab3c00aa22a6d82131b23999cb41804deccd255fcde",
     "cache_artifacts": {
       "models/models--Qdrant--paraphrase-multilingual-MiniLM-L12-v2-onnx-Q/files_metadata.json": "e47fe8b189dade1f9e0f777fade2d0bab566278d7c7fbb6fef93b8c7f6fb6b98",
       "models/models--Qdrant--paraphrase-multilingual-MiniLM-L12-v2-onnx-Q/trees/faf4aa4225822f3bc6376869cb1164e8e3feedd0.json": "292c0104b22e003fa965c11359baa62dff4ac112eebf8daab679cc9c41d33258",

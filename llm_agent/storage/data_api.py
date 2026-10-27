@@ -169,6 +169,16 @@ class ApiCatalogRepo:
         return self.fallback.nodes() if self.fallback else []
 
 
+def impact_text(kind, authenticity, chain, issues=None) -> str:
+    """Разметка воздействия в журнале промпта: модель видит свою прошлую оценку эпизода и замечания к ней."""
+    text = f"разметка: {kind or 'unknown'}/{authenticity or 'unknown'}"
+    if chain:
+        text += f" ({' → '.join(chain)})"
+    if issues:
+        text += f", замечания: {'; '.join(issues)}"
+    return text
+
+
 def journal_record(ev: dict) -> dict:
     """Событие БД → запись журнала в формате DecisionJournalRepo.recent()."""
     p = ev["payload"] if isinstance(ev["payload"], dict) else {}
@@ -177,7 +187,9 @@ def journal_record(ev: dict) -> dict:
     rec = {"ts": ev.get("ingested_at"), "dome_time": meta.get("dome_time") or p.get("dome_time"),
            "actor": p.get("actor") if ev["source"] == "import" else ev["source"], "kind": kind}
     if kind == "agent_decision":
-        rec["text"] = f"{p.get('situation')}; причина: {p.get('cause')}; план: {p.get('plan') or 'наблюдать'}"
+        rec["text"] = (f"{p.get('situation')}; причина: {p.get('cause')}; "
+                       f"{impact_text(p.get('impact_kind'), p.get('authenticity'), p.get('causal_chain'), p.get('classification_issues'))}; "
+                       f"план: {p.get('plan') or 'наблюдать'}")
         src = p.get("source")
         rec["actor"] = "operator" if src == "operator" else f"agent:{src}" if src else rec["actor"]
     elif kind == "agent_action":

@@ -362,6 +362,7 @@ class Runner:
         fields: dict[str, Any] = {
             "situation": intent.situation, "cause": intent.cause, "confidence": intent.confidence, "evidence": intent.evidence,
             "impact_kind": intent.impact_kind, "authenticity": intent.authenticity, "causal_chain": intent.causal_chain,
+            **({"classification_issues": intent.classification_issues} if intent.classification_issues else {}),
             "plan": intent.plan, "source": "mixed" if refs and intent.source == "rules" else intent.source, "priority": intent.priority,
         }  # fmt: skip
         if refs or intent.rag_refs:

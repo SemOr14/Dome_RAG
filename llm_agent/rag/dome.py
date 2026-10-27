@@ -66,8 +66,11 @@ class DomeRagRetriever:
                     lines.append(f"{title}: " + " ".join(items))
             if p.get("open_questions"):
                 lines.append("Открытые вопросы: " + " ".join(p["open_questions"]))
-            if p.get("origin"):  # оперативный сценарий: logs — признаки из истории, docs — документация, synthetic — придуман
-                lines.append(f"Класс воздействия: {p['impact_kind']}; основание: {p['origin']} ({p['reference']})")
+            impact = p.get("impact") or {}
+            if impact.get("kind", "unknown") != "unknown":  # разметка эпизода — пример для impact_kind/authenticity модели
+                chain = " → ".join(impact.get("causal_chain") or [])
+                lines.append(f"Разметка: impact_kind={impact['kind']}, authenticity={impact.get('authenticity', 'unknown')}"
+                             + (f"; цепочка: {chain}" if chain else ""))
         else:
             lines.append(p["answer"])
         for cid in record["conflict_ids"]:

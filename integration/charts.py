@@ -2,10 +2,9 @@
 import math
 from collections import OrderedDict, deque
 from threading import Lock
-from statistics import median
 
 from data_api.codec import loads
-from llm_agent.monitoring import NumericMonitor, assess_impacts, leaves
+from llm_agent.monitoring import NumericMonitor, leaves
 
 DEFAULT_CHARTS = [
     ('solar_panels_01', 'power_w', 'Солнечная генерация', 'Вт'),
@@ -42,10 +41,10 @@ class ChartFeed:
             latest = conn.execute("SELECT id,session_id,source,channel FROM events WHERE run_id=? AND event_type='telemetry' "
                                   "AND EXISTS (SELECT 1 FROM node_snapshots n WHERE n.event_row_id=events.id) ORDER BY id DESC LIMIT 1", (run_id,)).fetchone()
             if latest is None:
-                return self._result({}, NumericMonitor(), {}, None, run_id)
+                return self._result({}, NumericMonitor(), None, run_id)
             key = (run_id, latest['session_id'], latest['source'], latest['channel'])
             if key not in self.streams:
-                self.streams[key] = {'cursor': 0, 'monitor': NumericMonitor(), 'series': {}, 'snapshot': {}}
+                self.streams[key] = {'cursor': 0, 'monitor': NumericMonitor(), 'series': {}}
                 if len(self.streams) > 8:
                     self.streams.popitem(last=False)
             stream = self.streams[key]
@@ -60,7 +59,7 @@ class ChartFeed:
                 payload = event['payload']
                 data = payload.get('data', payload)
                 nodes = data.get('nodes') or {}
-                snapshot = {'nodes': nodes, 'timestamp': payload.get('timestamp') or event.get('source_timestamp')}
+                stamp = payload.get('timestamp') or event.get('source_timestamp')
                 stream['monitor'].observe(nodes, row['id'])
                 series = stream['series']
                 for node, body in nodes.items():
@@ -74,35 +73,20 @@ class ChartFeed:
                         if type(value) not in (int, float) or not math.isfinite(value):
                             value = None
                         series.setdefault((node, field), deque(maxlen=240)).append(
-                            {'id': row['id'], 'received_at': row['ingested_at'], 'source_timestamp': snapshot['timestamp'], 'value': value})
-                stream['snapshot'] = snapshot
+                            {'id': row['id'], 'received_at': row['ingested_at'], 'source_timestamp': stamp, 'value': value})
                 stream['cursor'] = row['id']
-            result = self._result(stream['series'], stream['monitor'], stream['snapshot'], key, run_id)
+            result = self._result(stream['series'], stream['monitor'], key, run_id)
             result['catching_up'] = stream['cursor'] < latest['id']
             return result
 
     @staticmethod
-    def _result(series, monitor, snapshot, key, run_id):
+    def _result(series, monitor, key, run_id):
         anomalies = {(a['node'], a['field']): a for a in monitor.active.values()}
-        impacts = assess_impacts(snapshot)
-        # A conflict or interlock can be abnormal even when the numeric value itself is in range.
-        for impact in impacts:
-            targets = []
-            if impact['kind'] == 'false':
-                values = impact['evidence']
-                center = median(values.values())
-                targets = [(n, 'co2_ppm') for n, v in values.items() if abs(v - center) > 400]
-            elif impact['kind'] in ('hidden', 'cascade'):
-                targets = [(n, 'progress_pct') for n in impact['nodes'] if n in ('printer_3d_01', 'cnc_01')]
-            for n, f in targets:
-                points = series.get((n, f), [])
-                anomalies.setdefault((n, f), {'node': n, 'field': f, 'value': points[-1]['value'] if points else None,
-                                             'note': impact['cause'], 'kind': 'candidate', 'frame': points[-1]['id'] if points else None})
         defaults = {(n, f) for n, f, _, _ in DEFAULT_CHARTS}
         specs = [(*k, f'{k[0]} · {k[1]}', '') for k in sorted(anomalies) if k not in defaults] + DEFAULT_CHARTS
         items = [{'node': n, 'field': f, 'title': title, 'unit': unit, 'points': list(series.get((n, f), [])),
                   'anomaly': anomalies.get((n, f)), 'default': (n, f) in defaults} for n, f, title, unit in specs]
         items.sort(key=lambda x: x['anomaly'] is None)
-        return {'items': items, 'anomalies': list(anomalies.values()), 'impacts': impacts,
+        return {'items': items, 'anomalies': list(anomalies.values()),
                 'run_id': run_id, 'session_id': key[1] if key else None, 'source': key[2] if key else None, 'channel': key[3] if key else None,
                 'fields_checked': len(monitor.baselines), 'values_checked': monitor.values_seen}

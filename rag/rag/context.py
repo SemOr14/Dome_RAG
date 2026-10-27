@@ -78,6 +78,7 @@ def record_payload(record):
                            ('correction','on_failed_or_uncertain')]:
             out[key] = p[key][field]
         out['evidence_class'] = p['evidence_class']
+        out['impact'] = p.get('impact')
         out['historical_window'] = p['historical_window']
         out['open_questions'] = p['open_questions']
     return out
@@ -88,13 +89,21 @@ def excerpt(reference, nodes):
     path = source_path(reference)
     lines = path.read_text(encoding='utf-8-sig').splitlines()
     text = '\n'.join(lines[reference['start_line']-1:reference['end_line']])
-    historical = reference['source_id'] in {'TEL','EVT','BOOK'}
-    if reference['source_id']=='TEL':
+    # Журналы дней: TEL/EVT/BOOK — 14.10, TEL12/EVT12/BOOK12 и т. д. — остальные дни недели
+    historical = reference['source_id'].rstrip('0123456789') in {'TEL','EVT','BOOK'}
+    if reference['source_id'].rstrip('0123456789')=='TEL':
         row = json.loads(text)
         wanted = nodes or set(row['nodes'])
         fields = {'state','real_state','webhook_state','progress_pct','z_mm','bed_clear','hold_reason',
                   'co2_ppm','temperature_c','humidity_pct','updated_at','clock_offset_s','power_w','pv_power_w',
-                  'error_code','alarm_code','resume_attempts','lockout_remaining_s','primary_co2_sensor'}
+                  'error_code','alarm_code','resume_attempts','lockout_remaining_s','primary_co2_sensor',
+                  'lines','bus_voltage_v','dew_point_c','crc_errors','poll_interval_ms','locks','fans_pwm','fans_rpm',
+                  'voc_index','dust_adc','soc_pct','voltage_v','load_power_w','inverter_temp_c','fan_state',
+                  'fan_current_a','balancing_state','battery_charge_blocked','cell_voltage_delta_mv',
+                  'water_content_ppm','fuel_quality','rx_power_dbm','link_flaps','active_path','free_memory_pct',
+                  'services','nozzle_temp_c','nozzle_target_c','heater_power_pct','bed_temp_c','smoke_detected',
+                  'obscuration_pct','alarm_state','co_ppm','wind_direction_deg','data_available','sensor_state',
+                  'motor_state','airflow_m3_h','speed_pct','filter_clog_pct','dose_rate_usv_h','event_type'}
         projected = {ident:{k:v for k,v in node.items() if k in fields}
                      for ident,node in row['nodes'].items() if ident in wanted}
         text = json.dumps(dict(ts=row['ts'], nodes=projected), ensure_ascii=False)

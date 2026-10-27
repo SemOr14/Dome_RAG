@@ -160,7 +160,8 @@ function timelineItem(e,all){
   }
   if(e.event_type==='agent_decision'){
     const impact={base:'базовое',hidden:'скрытое',cascade:'каскадное',false:'вероятно ложное',unknown:'не определено'};
-    const classification=p.impact_kind?` · ${impact[p.impact_kind]||p.impact_kind}`:'';
+    const signal={real:'сигнал подтверждён',suspected_false:'сигнал, вероятно, ложный'};
+    const classification=(p.impact_kind?` · ${impact[p.impact_kind]||p.impact_kind}`:'')+(signal[p.authenticity]?`, ${signal[p.authenticity]}`:'')+(p.classification_issues?.length?` · замечания к разметке: ${p.classification_issues.join('; ')}`:'');
     const conf=typeof p.confidence==='number'?` · уверенность ${Math.round(p.confidence*100)} %`:'';
     const plan=(p.plan||[]).map(x=>`<li>${esc(x)}</li>`).join(''),ev=(p.evidence||[]).slice(0,4).map(x=>`<li>${esc(x.node||x.detail||'')}${x.param?'.'+esc(x.param):''}${x.value!==undefined?' = '+value(x.value):''}${x.note?' — '+esc(x.note):''}</li>`).join('');
     return `<div class="event decision-event">${time}<span><span class="badge">${esc(SOURCES[p.source]||p.source||'агент')}</span></span><div><b>Решение: ${esc(p.situation||'')}</b><p>Причина: ${esc(p.cause||'—')}${esc(conf+classification)}</p>${p.causal_chain?.length?`<p>${esc(p.causal_chain.join(' → '))}</p>`:''}${plan?`<ul class="plan">${plan}</ul>`:''}${ev?`<details><summary>Основания</summary><ul class="plan">${ev}</ul></details>`:''}${p.rag_refs?.length?`<p class="tiny">RAG: ${esc(p.rag_refs.join(', '))}</p>`:''}</div></div>`;
@@ -253,8 +254,11 @@ async function refreshCharts() {
   });
   for(const card of existing.values())card.remove();
   $('chartSummary').textContent=`20 основных графиков · аномалий: ${result.anomalies.length} · проверено числовых рядов: ${result.fields_checked} · ${result.source||'данных пока нет'}${result.catching_up?' · обрабатывается накопленная телеметрия':''}`;
-  const kind={base:'Базовое',hidden:'Скрытое',cascade:'Каскадное',false:'Вероятно ложное',unknown:'Не определено'};
-  $('impactSummary').textContent=result.impacts.map(x=>`${kind[x.kind]||x.kind}: ${x.cause}. Проверка: ${x.check}`).join(' · ');
+  // Разделение воздействий делает LLM-агент: показываем его последнюю оценку, код её не вычисляет
+  const kind={base:'базовое',hidden:'скрытое',cascade:'каскадное',false:'ложный сигнал',unknown:'не определено'};
+  const real={real:'сигнал подтверждён',suspected_false:'сигнал, вероятно, ложный',unknown:'достоверность не установлена'};
+  const last=state.overview?.events.find(x=>x.event_type==='agent_decision'&&x.payload?.impact_kind)?.payload;
+  $('impactSummary').textContent=last?`Оценка агента: ${kind[last.impact_kind]||last.impact_kind}, ${real[last.authenticity]||last.authenticity}${last.causal_chain?.length?' · '+last.causal_chain.join(' → '):''}${last.classification_issues?.length?' · замечания: '+last.classification_issues.join('; '):''}`:'';
 }
 function drawChart(canvas, points, note, anomaly=false) {
   const w=canvas.clientWidth||400,h=240,ratio=window.devicePixelRatio||1;

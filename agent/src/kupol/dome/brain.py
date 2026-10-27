@@ -185,6 +185,7 @@ def to_intent(response: AgentResponse, fired: Fired, stale_s: float = 30.0) -> I
         evidence=[e.model_dump(exclude_none=True) for e in d.evidence] or [{"trigger": t.text[:300]} for t in fired.triggers],
         plan=plan or ["наблюдать"], steps=steps, say=say, priority=SEVERITY_PRIORITY.get(d.severity, 5),
         impact_kind=d.impact_kind, authenticity=d.authenticity, causal_chain=list(d.causal_chain),
+        classification_issues=list(response.classification_issues),
         cooldown_s=0.0, source="mixed" if d.rag_refs else "llm", rag_refs=list(d.rag_refs),
         say_always=operator, refused=refused,
     )  # fmt: skip

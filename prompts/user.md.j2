@@ -1,6 +1,6 @@
 {#- Пользовательская часть промпта: живой контекст купола. Секции можно переставлять, удалять и
     добавлять. Доступно: trigger, game_time, telemetry, anomalies, catalog, graph_edges, journal,
-    rag_docs, dome_time, observed_at, telemetry_age_s, stale_s, impacts. Фильтр tojson сериализует данные компактно. -#}
+    rag_docs, dome_time, observed_at, telemetry_age_s, stale_s. Фильтр tojson сериализует данные компактно. -#}
 # Повод для анализа
 {{ trigger }}
 
@@ -21,9 +21,6 @@
 {% else %}
 - не обнаружено
 {% endif %}
-
-# Разделение воздействий (кодом, гипотезы требуют проверки)
-{{ impacts | tojson }}
 
 # Телеметрия (ключевые поля по узлам)
 ```json

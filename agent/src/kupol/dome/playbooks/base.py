@@ -49,6 +49,7 @@ class Intent:
     impact_kind: str = "unknown"
     authenticity: str = "unknown"
     causal_chain: list[str] = field(default_factory=list)
+    classification_issues: list[str] = field(default_factory=list)  # противоречия в разметке модели (llm_agent.validate)
     source: str = "rules"  # rules | llm | rag | mixed (поле source записи decision)
     rag_refs: list[str] = field(default_factory=list)  # источники RAG, на которые опирается решение модели
     say_always: bool = False  # ответ на требование Оператора: отправить и при отказе части шагов (с пояснением)

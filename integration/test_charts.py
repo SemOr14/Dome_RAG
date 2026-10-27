@@ -61,17 +61,14 @@ def test_custom_series_can_select_exact_source_and_session(tmp_path):
         assert [p['value'] for p in client.get(path+'&source=dome&session_id=s2&channel=websocket').json()['items']] == [20]
 
 
-def test_pair_conflict_and_cascade_promote_relevant_charts_before_calibration(tmp_path):
+def test_charts_do_not_classify_impacts_in_code(tmp_path):
+    # Разделение воздействий делает LLM-агент; графики поднимают только числовые предупреждения
     app = create_app(tmp_path / 'impacts.sqlite3', token='')
     nodes = {f'climate_sensor_0{i}': {'online': True, 'status': 'OK', 'updated_at': 1, 'co2_ppm': v}
-             for i, v in enumerate((1250, 800, 810), 1)}
-    nodes['dome_automation_01'] = {'interlocks': {'IL_CO2': {'state': 'TRIPPED'}}}
-    nodes['cnc_01'] = {'hold_reason': 'IL_CO2', 'progress_pct': 30}
+             for i, v in enumerate((1600, 800, 810), 1)}
     app.state.store.append([envelope('run', 'telemetry', {'timestamp': 1, 'data': {'nodes': nodes}},
                             source='dome', session_id='test', channel='websocket', direction='inbound')])
     with TestClient(app) as client:
         data = client.get('/control/charts?run_id=run').json()
-        flagged = {(c['node'], c['field']) for c in data['items'] if c['anomaly']}
-        assert ('climate_sensor_01', 'co2_ppm') in flagged
-        assert ('cnc_01', 'progress_pct') in flagged
-        assert {x['kind'] for x in data['impacts']} == {'false', 'cascade'}
+        assert 'impacts' not in data
+        assert {(c['node'], c['field']) for c in data['items'] if c['anomaly']} == {('climate_sensor_01', 'co2_ppm')}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -15,7 +16,8 @@ from .context.graph import InfluenceGraph, format_edge
 from .context.telemetry import TelemetryContext, compact_telemetry
 from .rag.base import RagDoc, Retriever
 from .schemas import output_schema_example
-from .monitoring import assess_impacts
+
+LISTED = re.compile(r"^\d+\. \[(\w+)\] ")  # строка повода в объединённом тексте диспетчера
 
 
 def _tojson(value: Any, indent: int | None = None) -> str:
@@ -66,8 +68,22 @@ class PromptBuilder:
         return yaml.safe_load(path.read_text(encoding="utf-8")) if path.is_file() else {}
 
     def rag_query(self, trigger: str, tctx: TelemetryContext) -> str:
-        parts = [trigger] + [f"{a['node']} {a.get('param') or ''} {a['note']}" for a in tctx.anomalies]
-        return " ".join(parts)
+        # Поиск по существу повода: числовые гипотезы и обзор не заслоняют срочные поводы, а одинаковые
+        # строки (десятки узлов UNKNOWN разом) идут в запрос один раз
+        lines = trigger.splitlines()
+        listed = [line for line in lines if LISTED.match(line)]
+        urgent = [line for line in listed if LISTED.match(line).group(1) not in ("numeric", "review")]
+        seen: set[str] = set()
+        parts = []
+        for line in urgent if urgent else lines:
+            key = LISTED.sub("", line).split(":", 1)[-1]
+            if key not in seen:
+                seen.add(key)
+                parts.append(line)
+        notes: dict[str, list[str]] = {}
+        for a in tctx.anomalies:
+            notes.setdefault(a["note"], []).append(f"{a['node']} {a.get('param') or ''}".strip())
+        return " ".join(parts + [f"{' '.join(where[:3])} {note}" for note, where in notes.items()])
 
     def build(self, trigger: str, snapshot: dict, journal: list[dict], focus_nodes: set[str] | None = None) -> BuiltPrompt:
         tctx = compact_telemetry(snapshot, self.catalog.by_id)
@@ -79,18 +95,18 @@ class PromptBuilder:
         except Exception:  # RAG не должен ронять агента
             rag_docs = []
         dome_time = _dome_time(snapshot.get("game_time"))
-        impacts = assess_impacts(snapshot)
 
         system = self.env.get_template(self.system_template).render(
             hard_rules=self.hard_rules, output_schema=output_schema_example(), team_name=self.team_name)
         user = self.env.get_template(self.user_template).render(
-            impacts=impacts, trigger=trigger, dome_time=dome_time, game_time=snapshot.get("game_time"),
+            trigger=trigger, dome_time=dome_time, game_time=snapshot.get("game_time"),
             observed_at=snapshot.get("observed_at"), telemetry_age_s=snapshot.get("telemetry_age_s"), stale_s=self.stale_s,
             telemetry=tctx.nodes, anomalies=tctx.anomalies, catalog=self.catalog.for_prompt(),
             graph_edges=edges, journal=journal, rag_docs=rag_docs)
 
         stats = {"system_chars": len(system), "user_chars": len(user),
                  "approx_tokens": (len(system) + len(user)) // 3, "anomalies": len(tctx.anomalies),
-                 "graph_edges": len(edges), "journal": len(journal), "rag_docs": [d.id for d in rag_docs]}
+                 "graph_edges": len(edges), "journal": len(journal), "rag_docs": [d.id for d in rag_docs],
+                 "telemetry_age_s": snapshot.get("telemetry_age_s")}
         return BuiltPrompt(messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
                            telemetry=tctx, rag_docs=rag_docs, journal=journal, dome_time=dome_time, stats=stats)

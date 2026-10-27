@@ -21,9 +21,9 @@ from .schemas import AgentDecision, AgentResponse, LLMCallInfo, ProposedAction
 from .storage.base import (CatalogRepo, ControlChecker, DecisionJournalRepo, EventSink, NullEventSink,
                            TelemetryRepo)
 from .storage.data_api import (ApiCatalogRepo, ApiControlChecker, ApiDecisionJournalRepo, ApiEventSink,
-                               ApiTelemetryRepo, DataApiClient)
+                               ApiTelemetryRepo, DataApiClient, impact_text)
 from .storage.file_store import FileCatalogRepo, FileDecisionJournalRepo, FileTelemetryRepo
-from .validate import validate_actions
+from .validate import check_classification, validate_actions
 
 _FENCE = re.compile(r"^```(?:json)?\s*|\s*```$", re.MULTILINE)
 
@@ -163,9 +163,10 @@ class DomeLLMAgent:
             info.ok, info.error = True, None
             info.prompt_tokens, info.completion_tokens, info.latency_ms = prompt_tokens, completion_tokens, latency
             verdicts = self._validate(decision, prompt)
+            issues = check_classification(decision, prompt.stats.get("telemetry_age_s"), self.settings.trigger_stale_s)
             response = AgentResponse(ok=True, decision=decision, verdicts=verdicts, llm_call=info,
                                      raw_text=raw, rag_used=[d.id for d in prompt.rag_docs],
-                                     decision_id=f"decision-{call_id}")
+                                     decision_id=f"decision-{call_id}", classification_issues=issues)
             response.decision_event_id = self.events.emit(
                 "decision", self.decision_payload(response, prompt.dome_time),
                 metadata={"llm_request_id": request_id})
@@ -210,13 +211,14 @@ class DomeLLMAgent:
         accepted = [f"{a.node_id}.{a.action}" for a in response.accepted_actions]
         return {
             "actor": "agent", "kind": "decision", "dome_time": dome_time, "source": "llm",
-            "text": f"{d.situation}; причина: {d.cause}; план: {', '.join(accepted) or 'наблюдать'}",
+            "text": f"{d.situation}; причина: {d.cause}; {impact_text(d.impact_kind, d.authenticity, d.causal_chain, response.classification_issues)}; "
+                    f"план: {', '.join(accepted) or 'наблюдать'}",
             "decision_id": response.decision_id,
             "observation_event_ids": list(getattr(self.telemetry, "event_ids", [])),
             "summary": d.situation,
             "hypotheses": [{"description": d.cause, "confidence": d.confidence}] if d.cause else [],
             "impact_kind": d.impact_kind, "authenticity": d.authenticity, "causal_chain": d.causal_chain,
-            "false_alarm": d.false_alarm, "severity": d.severity, "confidence": d.confidence,
+            "classification_issues": response.classification_issues, "false_alarm": d.false_alarm, "severity": d.severity, "confidence": d.confidence,
             "proposed_controls": [{"node_id": v.action.node_id, "action": v.action.action, "value": v.action.value,
                                    "accepted": v.accepted, "reasons": v.reasons} for v in response.verdicts],
             "needs_operator": d.operator_message.needed,

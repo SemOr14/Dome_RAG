@@ -187,5 +187,167 @@
     "line_count": 1,
     "sha256": "d7ec220c996a5cd6be613c9f15e91f40436a03a4ffb9e3c7d5970c04bcb78e46",
     "current_state_evidence": false
+  },
+  {
+    "source_id": "TEL12",
+    "path": "sources/Logs/2026-10-12/telemetry.jsonl",
+    "kind": "historical_telemetry",
+    "scope": "recorded_day_2026-10-12",
+    "line_count": 1440,
+    "sha256": "34f7f54878562ab904fea4da2dfadd18a91417884bb1d35b15de3ffa8ebb129b",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "EVT12",
+    "path": "sources/Logs/2026-10-12/events.jsonl",
+    "kind": "historical_events",
+    "scope": "recorded_day_2026-10-12",
+    "line_count": 263,
+    "sha256": "2aac58c453aebb89c74033f5dae26aaa398569f9d7baac4e8c0ede2258f3c4f8",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "BOOK12",
+    "path": "sources/Logs/2026-10-12/logbook.jsonl",
+    "kind": "historical_logbook",
+    "scope": "recorded_day_2026-10-12",
+    "line_count": 1,
+    "sha256": "152824e6cba2ce6598202edfda0018610888cac583012c71627c68cc343e7df5",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "TEL13",
+    "path": "sources/Logs/2026-10-13/telemetry.jsonl",
+    "kind": "historical_telemetry",
+    "scope": "recorded_day_2026-10-13",
+    "line_count": 1440,
+    "sha256": "0e0d39c8fcf535f966e452c85bdad4146964669d8909b5c7e1eabc4601d7d586",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "EVT13",
+    "path": "sources/Logs/2026-10-13/events.jsonl",
+    "kind": "historical_events",
+    "scope": "recorded_day_2026-10-13",
+    "line_count": 367,
+    "sha256": "380783761105f058de6d17a451aa57df8b7ee10f23f399dfc49ec4d8a0c6f865",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "BOOK13",
+    "path": "sources/Logs/2026-10-13/logbook.jsonl",
+    "kind": "historical_logbook",
+    "scope": "recorded_day_2026-10-13",
+    "line_count": 1,
+    "sha256": "9b0132321282c50409f15db8fadfe41f51cf385ebf30a54e9299e506319713b9",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "TEL15",
+    "path": "sources/Logs/2026-10-15/telemetry.jsonl",
+    "kind": "historical_telemetry",
+    "scope": "recorded_day_2026-10-15",
+    "line_count": 1440,
+    "sha256": "c66757c91eb454087c237355a894f1639c05ef9929077c1379453f8cf387c20d",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "EVT15",
+    "path": "sources/Logs/2026-10-15/events.jsonl",
+    "kind": "historical_events",
+    "scope": "recorded_day_2026-10-15",
+    "line_count": 328,
+    "sha256": "057faae05831530e6a88a5a897e8e79ceb2231649c1f5d1a3dacbfb74504c488",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "BOOK15",
+    "path": "sources/Logs/2026-10-15/logbook.jsonl",
+    "kind": "historical_logbook",
+    "scope": "recorded_day_2026-10-15",
+    "line_count": 1,
+    "sha256": "c88c02f3a8bc9b1cba8b81f9c6c64170950ed7af8a14e9a338ce005c11eaf996",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "TEL16",
+    "path": "sources/Logs/2026-10-16/telemetry.jsonl",
+    "kind": "historical_telemetry",
+    "scope": "recorded_day_2026-10-16",
+    "line_count": 1440,
+    "sha256": "63d6ac6d04f6a436d12603c48a4a74fce264e3052e61e20642ebced3621b493d",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "EVT16",
+    "path": "sources/Logs/2026-10-16/events.jsonl",
+    "kind": "historical_events",
+    "scope": "recorded_day_2026-10-16",
+    "line_count": 361,
+    "sha256": "957f5a53aa8ff73e9d31168b6807ee0fac56b8ac45dcb82afcb5cfb880eabd4a",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "BOOK16",
+    "path": "sources/Logs/2026-10-16/logbook.jsonl",
+    "kind": "historical_logbook",
+    "scope": "recorded_day_2026-10-16",
+    "line_count": 1,
+    "sha256": "f362ed1a7e740dea95a71bb4b456c182e67f149f8629d9e2065ea6dc021bac22",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "TEL17",
+    "path": "sources/Logs/2026-10-17/telemetry.jsonl",
+    "kind": "historical_telemetry",
+    "scope": "recorded_day_2026-10-17",
+    "line_count": 1440,
+    "sha256": "32b0726f4caa80607703daf3a9ca2521d9059e6cd02070b68aaee64d64495cda",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "EVT17",
+    "path": "sources/Logs/2026-10-17/events.jsonl",
+    "kind": "historical_events",
+    "scope": "recorded_day_2026-10-17",
+    "line_count": 558,
+    "sha256": "5a42e802508c03c3c4b808c204c7ace06892ade12f28c79e6bf97ad5cad356b9",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "BOOK17",
+    "path": "sources/Logs/2026-10-17/logbook.jsonl",
+    "kind": "historical_logbook",
+    "scope": "recorded_day_2026-10-17",
+    "line_count": 1,
+    "sha256": "222c6193bed7bcffdee940b349f3834ce4db68bd230210d7981e4223cb313e38",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "TEL18",
+    "path": "sources/Logs/2026-10-18/telemetry.jsonl",
+    "kind": "historical_telemetry",
+    "scope": "recorded_day_2026-10-18",
+    "line_count": 1440,
+    "sha256": "5b9d9ade36bdf1f133cc177c0fdc89dd12102392660df03a29de9787b19bcb5b",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "EVT18",
+    "path": "sources/Logs/2026-10-18/events.jsonl",
+    "kind": "historical_events",
+    "scope": "recorded_day_2026-10-18",
+    "line_count": 274,
+    "sha256": "3678e9089d45c4e55719603fff1dffada35ea034fd3e6281c75aee58739b6033",
+    "current_state_evidence": false
+  },
+  {
+    "source_id": "BOOK18",
+    "path": "sources/Logs/2026-10-18/logbook.jsonl",
+    "kind": "historical_logbook",
+    "scope": "recorded_day_2026-10-18",
+    "line_count": 2,
+    "sha256": "098630df530f8db51c9c3245ae4094ed55deccfeef5f327e942158c63754fd83",
+    "current_state_evidence": false
   }
 ]

@@ -69,6 +69,20 @@ class AgentDecision(BaseModel):
     rag_refs: list[str] = []
     risks: list[str] = []
 
+    @field_validator("impact_kind", "authenticity", mode="before")
+    @classmethod
+    def _label(cls, v: Any, info: Any) -> str:
+        # Неизвестная метка — «не определено», а не повод отбросить всё решение
+        allowed = ("base", "hidden", "cascade", "false") if info.field_name == "impact_kind" else ("real", "suspected_false")
+        v = str(v or "").strip().lower()
+        return v if v in allowed else "unknown"
+
+    @field_validator("causal_chain", mode="before")
+    @classmethod
+    def _chain(cls, v: Any) -> list[str]:
+        items = [v] if isinstance(v, str) else list(v or [])
+        return [part.strip() for item in items for part in str(item).split("→") if part.strip()]
+
 
 class ActionVerdict(BaseModel):
     action: ProposedAction
@@ -98,6 +112,7 @@ class AgentResponse(BaseModel):
     rag_used: list[str] = []
     decision_id: str | None = None
     decision_event_id: str | None = None  # событие decision в БД (если подключена)
+    classification_issues: list[str] = []  # противоречия в разметке impact_kind/authenticity (validate.check_classification)
 
     @property
     def accepted_actions(self) -> list[ProposedAction]:
@@ -117,7 +132,7 @@ def output_schema_example() -> dict:
         "confidence": 0.8,
         "impact_kind": "base | hidden | cascade | false | unknown",
         "authenticity": "real | suspected_false | unknown",
-        "causal_chain": ["первопричина → автоматика → зависимое оборудование (если подтверждено)"],
+        "causal_chain": ["первопричина", "автоматика или защита", "остановленное оборудование (только подтверждённые звенья)"],
         "false_alarm": "true | false | null (если не про тревогу)",
         "evidence": [{"node": "climate_sensor_02", "param": "co2_ppm", "value": 781, "note": "почему важно"}],
         "actions": [{
