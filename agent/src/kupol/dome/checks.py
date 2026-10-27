@@ -13,7 +13,7 @@ from typing import Any, Literal
 
 from kupol.dome.config import ChecksCfg
 from kupol.dome.state import DomeState
-from kupol.dome.evidence import measurement_usable
+from kupol.dome.evidence import measurement_usable, independent_group
 
 Supports = Literal["real", "false"]
 SENSORS = ("climate_sensor_01", "climate_sensor_02", "climate_sensor_03")
@@ -128,7 +128,7 @@ def assess_co2(state: DomeState, cfg: ChecksCfg) -> Co2Assessment:
     good = a.good()
     if good:
         a.reference = statistics.median(good.values())
-    if a.suspects and len(good) >= 2:
+    if a.suspects and all(independent_group(state, good, target=s) for s in a.suspects):
         a.kind = "false_sensor"
         return a
     if len(a.values) < 2 or a.suspects:
@@ -174,14 +174,15 @@ def assess_condensate(state: DomeState, cfg: ChecksCfg) -> HumidityAssessment:
         if t is not None and dew is not None:
             a.gap[s] = t - dew
     hot = [s for s in a.rh if a.trigger(s, c.rh_interlock_pct, c.dew_gap_c)]
-    calm = [s for s in a.rh if s not in hot]
+    calm = [s for s in a.rh if s not in hot and s in a.gap
+            and not is_untrusted(state, s, "humidity_pct") and not is_untrusted(state, s, "dew_point_c")]
     if not hot:
-        if len(a.rh) < 2:
+        if len(a.rh) < 2 or any(s not in a.gap for s in a.rh):
             a.kind = "unknown"
         return a
     for s in hot:
         a.evidence.append(Ev(f"sensor:{s}", "real", 0.5, f"{s}: RH {a.rh.get(s, float('nan')):.0f} %, запас до точки росы {a.gap.get(s, float('nan')):.1f} °C", s, "humidity_pct", a.rh.get(s)))
-    if len(calm) >= 2 and len(hot) == 1:
+    if len(hot) == 1 and independent_group(state, calm, target=hot[0]):
         a.bad = set(hot)
         a.kind = "false_sensor"
         a.evidence.append(Ev("cross_sensors", "false", 0.9, f"остальные датчики спокойны: RH {', '.join(f'{a.rh[x]:.0f}' for x in calm)} %", hot[0], "humidity_pct"))
@@ -302,11 +303,11 @@ class EnergyAssessment:
 
     soc: float | None
     mode: str
-    pv_w: float
-    load_w: float
-    battery_w: float  # > 0 заряд, < 0 разряд (как в телеметрии инвертора)
+    pv_w: float | None
+    load_w: float | None
+    battery_w: float | None  # > 0 заряд, < 0 разряд (как в телеметрии инвертора)
     grid_ok: bool
-    capacity_wh: float
+    capacity_wh: float | None
     t_left_h: float | None  # до критического SOC при текущем разряде
 
 
@@ -316,14 +317,32 @@ def assess_energy(state: DomeState, cfg: ChecksCfg) -> EnergyAssessment:
     soc = state.num(f"{inv}.battery_soc_pct")
     if soc is None:
         soc = state.num("battery_01.soc_pct")
-    pv = state.num(f"{inv}.pv_power_w") or 0.0
-    load = state.num(f"{inv}.load_power_w") or 0.0
-    batt = state.num(f"{inv}.battery_power_w") or 0.0
-    cap_kwh = state.num(f"{inv}.battery_capacity_kwh") or state.num("battery_01.nominal_capacity_kwh") or 2.5
-    cap_wh = cap_kwh * 1000.0
-    discharge = -batt if batt < 0 else 0.0
+    pv = state.num(f"{inv}.pv_power_w")
+    load = state.num(f"{inv}.load_power_w")
+    batt = state.num(f"{inv}.battery_power_w")
+    cap_kwh = state.num(f"{inv}.battery_capacity_kwh") or state.num("battery_01.nominal_capacity_kwh")
+    cap_wh = cap_kwh * 1000.0 if cap_kwh is not None and cap_kwh > 0 else None
+    discharge = -batt if batt is not None and batt < 0 else 0.0
     t_left = None
-    if soc is not None and discharge > 20:
+    if soc is not None and cap_wh is not None and discharge > 20:
         t_left = max(0.0, (soc - cfg.energy.soc_critical_pct) / 100.0 * cap_wh / discharge)
     grid_ok = str(state.get(f"{inv}.grid_state", "")).upper() == "AVAILABLE"
     return EnergyAssessment(soc, str(state.get(f"{inv}.mode", "")).upper(), pv, load, batt, grid_ok, cap_wh, t_left)
+
+
+def co2_recovery_safe(state: DomeState, cfg: ChecksCfg) -> bool:
+    a = assess_co2(state, cfg)
+    good = a.good()
+    return (independent_group(state, good) and not a.suspects - a.untrusted
+            and state.get('dome_automation_01.primary_co2_sensor') in good
+            and max(good.values()) < cfg.co2.recovered_ppm
+            and max(good.values()) - min(good.values()) <= cfg.co2.agree_diff_ppm)
+
+
+def condensate_recovery_safe(state: DomeState, cfg: ChecksCfg) -> bool:
+    a = assess_condensate(state, cfg)
+    good = [s for s in a.rh if not is_untrusted(state, s, 'humidity_pct')
+            and not is_untrusted(state, s, 'dew_point_c')]
+    return (independent_group(state, good)
+            and all(s in a.gap and not a.trigger(s, cfg.condensate.rh_interlock_pct,
+                                               cfg.condensate.dew_gap_c) for s in good))

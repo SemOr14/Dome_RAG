@@ -1,7 +1,7 @@
 """Устройства и связь: аварии вентиляции/насоса/охлаждения, замёрзшие узлы, время, канал связи.
 
-Сброс аварии — не чаще раза в 5 минут и не более ``reset_max_per_hour`` в час на устройство; после
-сброса при необходимости включаем устройство. Вытяжку при перегреве двигателя сначала чистит Оператор.
+Авария неизвестной причины передаётся Оператору. Таймер, сброс флага и просьба об осмотре
+не дают допуска на сброс или повторное включение.
 """
 
 from __future__ import annotations
@@ -35,83 +35,29 @@ def _is_on(ctx: Ctx, node: str, field: str) -> bool:
 
 
 class AlarmPlaybook(Playbook):
-    """Авария устройства: сброс с ограничениями, затем включение."""
+    """Unknown physical defects need inspection; reset is not a repair."""
 
     name = "alarms"
 
     def step(self, ctx: Ctx) -> list[Intent]:
-        st = ctx.state
-        out: list[Intent] = []
-        for node, (title, field) in ALARM_NODES.items():
-            if not st.has(node):
+        out = []
+        for node, (title, _) in ALARM_NODES.items():
+            if ctx.state.get(f'{node}.alarm') is not True:
                 continue
-            history = [t for t in ctx.mem.get(node, []) if ctx.now - t <= HOUR_S]
-            ctx.mem[node] = history
-            code = st.get(f"{node}.alarm_code")
-            if st.get(f"{node}.alarm") is True:
-                if history and ctx.now - history[-1] < RESET_GAP_S:
-                    continue
-                ev = [{"node": node, "param": "alarm_code", "value": code}]
-                if len(history) >= ctx.cfg.checks.inverter.reset_max_per_hour:
-                    out.append(
-                        Intent(
-                            key=f"alarm:giveup:{node}",
-                            situation=f"{title}: авария {code} повторяется ({len(history)} сброса за час)",
-                            cause="сброс не помогает",
-                            confidence=0.8,
-                            evidence=ev,
-                            plan=["больше не сбрасывать", "сообщить Оператору"],
-                            say=f"{title.capitalize()}: авария {code} возвращается после сброса — нужна проверка на месте.",
-                            priority=2,
-                            cooldown_s=3600.0,
-                        )
-                    )
-                    continue
-                if node == "fume_extraction_01" and str(code).upper().startswith("MOTOR") and not history:
-                    history.append(ctx.now)  # первая реакция — просьба почистить фильтр, потом сброс
-                    out.append(
-                        Intent(
-                            key="alarm:fume_filter",
-                            situation=f"вытяжка: авария {code}",
-                            cause="перегрев двигателя (засорён фильтр), линия 1 может быть заблокирована тепловой защитой",
-                            confidence=0.8,
-                            evidence=ev,
-                            plan=["попросить Оператора почистить фильтр", "после остывания сбросить аварию"],
-                            say="Вытяжка отключилась от перегрева двигателя — продуйте/почистите фильтр, потом скажите. Работу с пайкой лучше приостановить.",
-                            priority=1,
-                            cooldown_s=900.0,
-                        )
-                    )
-                    continue
-                history.append(ctx.now)
-                out.append(
-                    Intent(
-                        key=f"alarm:reset:{node}",
-                        situation=f"{title}: авария {code}",
-                        cause="сбой устройства; пробуем штатный сброс (с проверкой результата)",
-                        confidence=0.7,
-                        evidence=ev,
-                        plan=["reset_alarm", "включить устройство, если оно выключено"],
-                        steps=[Step(node, "reset_alarm", None, Expect.equals(f"{node}.alarm", False), f"авария {code}")],
-                        priority=2,
-                        cooldown_s=RESET_GAP_S,
-                        rag_query=f"{title} авария {code} сброс",
-                    )
-                )
-            elif history and ctx.now - history[-1] < 120 and not _is_on(ctx, node, field):
-                out.append(
-                    Intent(
-                        key=f"alarm:turn_on:{node}",
-                        situation=f"{title}: авария сброшена, устройство выключено",
-                        cause="после сброса аварии устройство нужно включить",
-                        confidence=0.8,
-                        evidence=[{"node": node, "param": field, "value": st.get(f"{node}.{field}")}],
-                        plan=["turn_on"],
-                        steps=[Step(node, "turn_on", None, _on_expect(node, field), "после сброса аварии")],
-                        priority=2,
-                        cooldown_s=120.0,
-                    )
-                )
+            code = ctx.state.get(f'{node}.alarm_code')
+            facts = [{'node': node, 'param': 'alarm_code', 'value': code},
+                     {'node': node, 'param': 'alarm', 'value': True}]
+            action = ('Проверьте фильтр, температуру двигателя и охлаждение; устраните выявленный дефект'
+                      if node == 'fume_extraction_01' else
+                      'Проверьте питание, кабели, механическую часть и охлаждение; установите и устраните причину')
+            out.append(Intent(
+                key=f'alarm:inspect:{node}:{code}', situation=f'{title}: авария {code}',
+                cause='причина и безопасность повторного включения не подтверждены', confidence=0.0,
+                evidence=facts, plan=['сохранить защиту', 'диагностика причины', 'проверка Оператора'],
+                human_escalation=dict(node_id=node, incident=f'Авария {code}', severity='yellow',
+                    facts=facts, already_done=['Автоматический сброс и повторное включение не выполнялись'],
+                    required_action=action + '. Сброс — только по разрешённой процедуре с проверкой результата.'),
+                priority=1, cooldown_s=900.0))
         return out
 
 
@@ -162,7 +108,7 @@ class ClockPlaybook(Playbook):
                 confidence=0.85,
                 evidence=[{"node": "edge_compute_01", "param": "clock_offset_s", "value": off}],
                 plan=["sync_time"],
-                steps=[Step("edge_compute_01", "sync_time", None, Expect.custom("часы синхронизированы", lambda s: abs(s.num("edge_compute_01.clock_offset_s") or 0.0) < 1.0, ["edge_compute_01.clock_offset_s"]), "рассинхрон времени")],
+                steps=[Step("edge_compute_01", "sync_time", None, Expect.custom("часы синхронизированы", lambda s: s.num("edge_compute_01.clock_offset_s") is not None and abs(s.num("edge_compute_01.clock_offset_s")) < 1.0, ["edge_compute_01.clock_offset_s"]), "рассинхрон времени")],
                 priority=4,
                 cooldown_s=600.0,
             )

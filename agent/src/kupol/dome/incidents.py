@@ -47,13 +47,34 @@ class IncidentCenter:
             self._save(item)
         return item
 
-    def resolve(self, key):
+    def observe_recovery(self, key):
+        """Record symptom recovery while keeping cause/risk/follow-up review open."""
+        item = self.items.get(self.active.get(key))
+        if item is not None and not item.facts.get('recovery_observed'):
+            item.facts.update(recovery_observed=True, root_cause_status='unverified',
+                              closure_requires='Проверка причины, зависимостей, остаточных рисков и последующих действий')
+            self._save(item)
+
+    def resolve(self, key, *, review=None):
+        """Only a documented review can close the incident; telemetry is insufficient."""
+        if not isinstance(review, dict) or not all(review.get(k) is True for k in
+                ('state_verified', 'dependencies_verified', 'cause_resolved')):
+            return False
+        if not isinstance(review.get('evidence'), list) or not review['evidence']:
+            return False
+        if not all(isinstance(review.get(k), list) for k in ('residual_risks', 'follow_up')):
+            return False
+        if not isinstance(review.get('reviewed_by'), str) or not review['reviewed_by'].strip():
+            return False
         item = self.items.get(self.active.get(key))
         if item is not None:
+            item.facts['closure_review'] = review
             item.status = 'resolved'
             item.current = True
             self.active.pop(key, None)
             self._save(item)
+            return True
+        return False
 
     def acknowledge(self, incident_id):
         item = self.items[incident_id]
@@ -86,7 +107,7 @@ def classify_live(st, cfg, center: IncidentCenter, now):
         center.open('telemetry:stale', 'yellow', 'telemetry', 'Нет свежей телеметрии',
                     'Проверьте подключение; управление по старым данным заблокировано', {'received_at': st.wall})
         return
-    center.resolve('telemetry:stale')
+    center.observe_recovery('telemetry:stale')
     for node, body in st.nodes.items():
         key = 'availability:' + node
         if st.is_frozen(node) or body.get('online') is False:
@@ -98,7 +119,7 @@ def classify_live(st, cfg, center: IncidentCenter, now):
                         'Проверьте узел и связь; результат задания неизвестен' if active else 'Проверьте доступность узла',
                         {'state': body.get('state'), 'measured_at': body.get('updated_at'), 'active_job': active})
             continue
-        center.resolve(key)
+        center.observe_recovery(key)
         if node.startswith('smoke_detector_'):
             key = 'smoke:' + node
             alarm = body.get('smoke_detected') is True or str(body.get('alarm_state', '')).upper() in ('ALARM', 'SMOKE')
@@ -106,7 +127,7 @@ def classify_live(st, cfg, center: IncidentCenter, now):
                 center.open(key, 'red', node, 'Сработал датчик дыма',
                             'Проверьте зону; не обходите пожарную защиту', {'alarm_state': body.get('alarm_state'), 'danger_token': 'smoke'})
             elif body.get('smoke_detected') is False:
-                center.resolve(key)
+                center.observe_recovery(key)
         if node in ('printer_3d_01', 'cnc_01'):
             reason = body.get('hold_reason')
             key = 'machine:' + node
@@ -118,4 +139,4 @@ def classify_live(st, cfg, center: IncidentCenter, now):
                 center.open(key, 'yellow', node, str(reason), 'Устранить причину и проверить новый кадр перед resume',
                             {'hold_reason': reason, 'measured_at': body.get('updated_at')})
             elif str(body.get('state', '')).upper() in ('IDLE', 'PRINTING', 'RUNNING', 'COMPLETED'):
-                center.resolve(key)
+                center.observe_recovery(key)

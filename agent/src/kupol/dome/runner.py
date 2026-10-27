@@ -308,7 +308,7 @@ class Runner:
         for pending in completed:
             self.printer_supervisor.verification(pending)
             if pending.verified:
-                self.incidents.resolve('action:' + pending.cmd.node_id + ':' + pending.cmd.action)
+                self.incidents.observe_recovery('action:' + pending.cmd.node_id + ':' + pending.cmd.action)
             elif self.brain is None:
                 self._human_review(SimpleNamespace(key='no_effect', nodes={pending.cmd.node_id},
                     text='Фактический эффект команды не подтверждён', meta={'node_id': pending.cmd.node_id,

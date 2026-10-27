@@ -33,10 +33,11 @@ def frame(st, stamp, state='PRINTING', reason=None, progress=20, elapsed=100, po
             'hold_reason': reason, 'hold_level': 'WARNING' if reason else None, 'resume_attempts': 0, 'bed_clear': True},
         'cnc_01': {'online': True, 'updated_at': stamp, 'state': 'IDLE', 'spindle_rpm': 0},
         'smart_panel_01': {'online': True, 'updated_at': stamp, 'lines': [{'line': 3, 'state': power}]},
-        'dome_automation_01': {'online': True, 'updated_at': stamp, 'interlocks': {'IL_CO2': {'state': 'ARMED', 'pending_s': 0}}},
+        'dome_automation_01': {'online': True, 'updated_at': stamp, 'primary_co2_sensor': 'climate_sensor_01', 'interlocks': {'IL_CO2': {'state': 'ARMED', 'pending_s': 0}}},
     }
     for i in (1, 2, 3):
-        nodes[f'climate_sensor_0{i}'] = {'online': True, 'status': 'OK', 'updated_at': stamp, 'co2_ppm': 800, 'reading_delay_s': 0}
+        nodes[f'climate_sensor_0{i}'] = {'online': True, 'status': 'OK', 'updated_at': stamp, 'co2_ppm': 800, 'reading_delay_s': 0,
+            'zone': 'synthetic-room', 'failure_domain': f'synthetic-domain:{i}'}
     st.update({'nodes': nodes}, 'team', stamp)
 
 
