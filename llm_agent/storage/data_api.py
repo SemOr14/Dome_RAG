@@ -266,7 +266,8 @@ class ApiEventFeed:
     Без сохранённых курсоров начинает с конца истории: старые события не повод вызывать модель.
     """
 
-    TYPES = ("control_response", "request_timeout", "meeting_message", "agent_verification")
+    TYPES = ("control_response", "request_timeout", "meeting_message", "agent_verification",
+             "change", "state_change", "node_change", "automation")
 
     def __init__(self, client: DataApiClient, run_id: str, cursors: dict[str, int] | None = None):
         self.client = client

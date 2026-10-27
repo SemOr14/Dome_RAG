@@ -185,9 +185,8 @@ def test_monday_tuesday_lock_bus_degraded_sensor_access_alarm_and_fan_motor(tmp_
         async with DayHarness(tmp_path, ReplayWorld(frames)) as h:
             await h.play(operator)
             hit, miss = outcome(h, expected)
-            # S08 доходит, только когда о духоте пишет Оператор: по одной телеметрии рост CO₂ при FAN_MOTOR не узнаётся
-            assert hit == {"S52", "synthetic false CO2", "S30", "S08b"}
-            assert miss == {"S25a", "S25b", "S08a"}  # пробелы: шина МС-ТЮК, начало аварии притока
+            assert hit == set(expected)
+            assert miss == set()
             check_run(h, operator)
 
     run(scenario())
@@ -206,8 +205,10 @@ def test_wednesday_seven_episodes_of_one_day(tmp_path: Path) -> None:
         async with DayHarness(tmp_path, ReplayWorld(frames)) as h:
             await h.play(operator)
             hit, miss = outcome(h, expected)
-            assert hit == {"S03", "S02", "S06", "S05", "S07"}
-            assert miss == {"S04", "S01"}  # пробелы: фантомная нагрузка линии 8, ложное завершение по webhook
+            # Line 8 already consumes power in the initial S03 window. Its unchanged
+            # evidence may be covered there, without requiring another model call.
+            assert hit | ({"S04"} if "S04" in h.reached().get("S03", set()) else set()) == set(expected)
+            assert miss <= {"S04"}
             check_run(h, operator)
 
     run(scenario())
@@ -223,8 +224,27 @@ def test_end_of_week_radiation_seismic_access_and_synthetic_leak(tmp_path: Path)
         async with DayHarness(tmp_path, ReplayWorld(frames)) as h:
             await h.play(operator)
             hit, miss = outcome(h, expected)
-            assert hit == {"S53a", "S30b", "S53b"}
-            assert miss == {"synthetic leak"}  # пробел: рост leakage_ma не становится поводом раньше УЗО
+            assert hit == set(expected)
+            assert miss == set()
             check_run(h, operator)
+
+    run(scenario())
+
+
+def test_short_trip_received_over_websocket_reaches_model_without_telemetry_trip(tmp_path: Path) -> None:
+    frames = window('15', '11:29', '11:32', 'short protection event')
+
+    async def scenario() -> None:
+        async with DayHarness(tmp_path, ReplayWorld(frames)) as h:
+            await h.step()
+            await h.until(lambda: h.brain.task is None or h.brain.task.done())
+            # The minute frames contain ON; only the source event carries the trip.
+            await h.dome.broadcast({'type': 'change', 'node_id': 'smart_panel_01',
+                                    'param': 'lines[0].state', 'from': 'ON', 'to': 'TRIPPED'})
+            await h.until(lambda: not h.runner.client.source_events.empty())
+            await h.play()
+            assert any('Короткое событие' in reason and 'TRIPPED' in reason for _, reason, _ in h.llm.calls)
+            assert any('S34' in ids for _, _, ids in h.llm.calls)
+            assert not h.sent()
 
     run(scenario())

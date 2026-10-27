@@ -81,10 +81,50 @@ class PromptBuilder:
             if key not in seen:
                 seen.add(key)
                 parts.append(line)
-        notes: dict[str, list[str]] = {}
-        for a in tctx.anomalies:
-            notes.setdefault(a["note"], []).append(f"{a['node']} {a.get('param') or ''}".strip())
-        return " ".join(parts + [f"{' '.join(where[:3])} {note}" for note, where in notes.items()])
+        # Full telemetry still goes to the model. Retrieval follows the actual new
+        # evidence, rather than all persistent alarms elsewhere in the dome.
+        return " ".join(parts)
+
+    def retrieve(self, trigger: str, tctx: TelemetryContext) -> list[RagDoc]:
+        """Retrieve per independent reason; one verbose fault cannot consume every slot."""
+        raw = trigger.split(ALGORITHMS_MARK)[0].split('\n\nРежим:')[0]
+        listed = [line for line in raw.splitlines() if LISTED.match(line)]
+        urgent = [line for line in listed if LISTED.match(line).group(1) not in ('numeric', 'review')]
+        queries = [LISTED.sub('', line) for line in (urgent or listed)] or [self.rag_query(raw, tctx)]
+        # An operator's short question needs the current contradiction as context.
+        if 'Оператор' in raw:
+            queries = [f"{a['node']}.{a.get('param')}: {a.get('value')!r}: {a['note']}"
+                       for a in tctx.anomalies if a.get('kind') in ('conflict', 'alarm')] + queries
+        queries = list(dict.fromkeys(q.strip() for q in queries if q.strip()))[:12]
+        batches = [self.retriever.search(self.query_context(q, tctx)[:4000], self.rag_k) for q in queries]
+        docs, seen = [], set()
+        for rank in range(self.rag_k):
+            for batch in batches:
+                if rank < len(batch) and batch[rank].id not in seen:
+                    docs.append(batch[rank]); seen.add(batch[rank].id)
+                    if len(docs) >= self.rag_k:
+                        return docs
+        return docs
+
+    @staticmethod
+    def query_context(query: str, tctx: TelemetryContext) -> str:
+        """Attach the measurements behind an interlock, rather than unrelated alarms."""
+        evidence = []
+        fields = ()
+        if 'IL_CONDENSATE' in query:
+            fields = ('humidity_pct', 'temperature_c', 'dew_point_c')
+        elif 'IL_CO2' in query:
+            fields = ('co2_ppm',)
+        if fields:
+            for node in ('climate_sensor_01', 'climate_sensor_02', 'climate_sensor_03'):
+                body = tctx.nodes.get(node) or {}
+                evidence.append(node + ' ' + ' '.join(f'{f}={body[f]}' for f in fields if f in body))
+        if 'IL_SMOKE' in query:
+            for node in ('smoke_detector_01', 'smoke_detector_02', 'air_quality_sensor_01'):
+                body = tctx.nodes.get(node) or {}
+                evidence.append(node + ' ' + ' '.join(f'{f}={body[f]}' for f in
+                    ('smoke_detected', 'obscuration_pct', 'alarm_state', 'co_ppm') if f in body))
+        return query + ('\nСвязанные измерения: ' + '; '.join(evidence) if evidence else '')
 
     def build(self, trigger: str, snapshot: dict, journal: list[dict], focus_nodes: set[str] | None = None) -> BuiltPrompt:
         tctx = compact_telemetry(snapshot, self.catalog.by_id)
@@ -92,7 +132,7 @@ class PromptBuilder:
         edges = [format_edge(e) for e in self.graph.subgraph(seeds, self.graph_depth)]
         journal = journal[-self.journal_limit:]
         try:
-            rag_docs = self.retriever.search(self.rag_query(trigger, tctx), self.rag_k)
+            rag_docs = self.retrieve(trigger, tctx)
         except Exception:  # RAG не должен ронять агента
             rag_docs = []
         dome_time = _dome_time(snapshot.get("game_time"))
@@ -104,6 +144,11 @@ class PromptBuilder:
             observed_at=snapshot.get("observed_at"), telemetry_age_s=snapshot.get("telemetry_age_s"), stale_s=self.stale_s,
             telemetry=tctx.nodes, anomalies=tctx.anomalies, catalog=self.catalog.for_prompt(),
             graph_edges=edges, journal=journal, rag_docs=rag_docs)
+        user += ('\n\nКарточки RAG — примеры и возможные аналогии, а не диагноз текущего сбоя. '
+                 'Проверь совпадение характерных признаков и противоречащие данные. Новая аномалия может '
+                 'не иметь карточки: опиши фактические сигналы, оставь неподтверждённую причину неизвестной, '
+                 'запроси недостающие проверки или помощь человека. Не копируй историческую причину и разметку '
+                 'только из-за похожего названия или высокого места в поиске.')
 
         stats = {"system_chars": len(system), "user_chars": len(user),
                  "approx_tokens": (len(system) + len(user)) // 3, "anomalies": len(tctx.anomalies),

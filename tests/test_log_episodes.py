@@ -2,7 +2,7 @@
 
 Для каждого эпизода через диспетчер прогоняются 30 настоящих кадров телеметрии до него и два после
 (rag/data/sources/Logs). Проверяется, что агент заметил эпизод и что в промпт попала его карточка RAG.
-Эпизоды, которые агент пока не распознаёт, отмечены xfail с причиной: это список того, что улучшать.
+Короткие события подаются из исходного events.jsonl; учитывается и раннее обнаружение в окне прогрева.
 Отдельно — проверки разметки воздействия, которую делает модель, и правила «только свежие данные».
 """
 
@@ -51,7 +51,7 @@ class Live:
 
 
 def replay(tmp_path, day, line):
-    """Кадры минута за минутой; возвращает (номер кадра, поводы, карточки RAG в промпте) у самого эпизода."""
+    """Кадры и события по времени; раннее обнаружение в 30-минутном окне также считается попаданием."""
     settings = Settings(deepseek_api_key=None, rag_backend="dome", rag_semantic=False, rag_k=5,
                         state_dir=tmp_path / "state", trigger_review_s=0)
     telemetry = Live()
@@ -62,37 +62,45 @@ def replay(tmp_path, day, line):
     clock = Clock()
     dispatcher = Dispatcher(agent, clock=clock)
     calls = []
+    source_events = [json.loads(row) for row in (LOGS / f"2026-10-{day}/events.jsonl").read_text(encoding="utf-8").splitlines()]
+    previous_time = None
+    class Feed:
+        events = []
+        def poll(self):
+            batch, self.events = self.events, []
+            return batch
+    dispatcher.feed = Feed()
     for n, snapshot in frames(day, line - WINDOW, line + 2):
         telemetry.snapshot = snapshot
+        current_time = snapshot['observed_at']
+        dispatcher.feed.events = [dict(event_id=f"logs-{day}-{i}", event_type=e['kind'], payload=e)
+                                  for i, e in enumerate(source_events)
+                                  if previous_time is not None and previous_time < e['ts'] <= current_time]
+        previous_time = current_time
         clock.t += 60
         for fired in dispatcher.tick():
-            if n >= line - 3:
+            if n >= line - WINDOW:
                 calls.append((n, fired.triggers, re.findall(r"^## \[(S\d\d|F\d\d)\]", llm.calls[-1], re.M)))
     return calls
 
 
-def gap(reason):
-    return pytest.mark.xfail(strict=True, reason=reason)
-
-
-NO_TRIGGER = "агент не замечает эпизод: ни одного повода"
-WRONG_CARD = "повод есть, но RAG приносит другие карточки"
 EPISODES = [
     ("S27", "12", 973), ("S28", "13", 402), ("S31", "13", 632), ("S35", "15", 848), ("S36", "15", 1006),
     ("S38", "15", 1153), ("S41", "16", 875), ("S43", "17", 241), ("S46", "17", 843), ("S47", "17", 1382),
     ("S50", "18", 904), ("S51", "18", 811),
-    pytest.param("S26", "12", 833, marks=gap(WRONG_CARD + " (просадка шины между кадрами не видна)")),
-    pytest.param("S29", "13", 126, marks=gap(NO_TRIGGER + " (+50 °C без порога для метеостанции)")),
-    pytest.param("S32", "13", 867, marks=gap(WRONG_CARD)),
-    pytest.param("S33", "13", 981, marks=gap(WRONG_CARD + " (массовый UNKNOWN)")),
-    pytest.param("S34", "15", 691, marks=gap(NO_TRIGGER + " (срабатывание короче шага кадров, видно только в событиях)")),
-    pytest.param("S37", "15", 1381, marks=gap(NO_TRIGGER + " (застывшее значение не детектируется)")),
-    pytest.param("S39", "16", 731, marks=gap(WRONG_CARD)),
-    pytest.param("S42", "16", 1179, marks=gap(WRONG_CARD + " (fan_state FAULT не становится срочным поводом)")),
-    pytest.param("S44", "17", 593, marks=gap(NO_TRIGGER + " (температура сопла против мощности нагревателя)")),
-    pytest.param("S45", "17", 687, marks=gap(WRONG_CARD + " (массовый UNKNOWN)")),
-    pytest.param("S48", "18", 482, marks=gap(NO_TRIGGER + " (balancing_state и battery_charge_blocked)")),
-    pytest.param("S49", "18", 761, marks=gap(WRONG_CARD)),
+    ("S26", "12", 833),
+    ("S29", "13", 126),
+    ("S32", "13", 867),
+    ("S33", "13", 981),
+    ("S34", "15", 691),
+    ("S37", "15", 1381),
+    ("S39", "16", 731),
+    ("S42", "16", 1179),
+    ("S44", "17", 593),
+    ("S45", "17", 687),
+    ("S48", "18", 482),
+    ("S49", "18", 761),
+
 ]
 
 

@@ -1,0 +1,38 @@
+12.10: новых предупреждений 467, кадров с подсветкой 1189 из 1440
+13.10: новых предупреждений 303, кадров с подсветкой 1414 из 1440
+    S31 УЗО 10:31: smart_panel_01.lines[3].leakage_ma — первая подсветка 10:26
+    S08 рост CO2: climate_sensor_01.co2_ppm — первая подсветка 20:17
+    S29 +50 °C: weather_station_01.temperature_c — первая подсветка 02:01
+14.10: новых предупреждений 299, кадров с подсветкой 1272 из 1440
+15.10: новых предупреждений 331, кадров с подсветкой 1346 из 1440
+    S36 залип 68 °C: thermal_insulation_01.temperature_c[1] — первая подсветка 16:44
+    S38 SOC 20 %: battery_01.soc_pct — первая подсветка 19:11
+    S37 флюгер: weather_station_01.wind_direction_deg — первая подсветка 06:08
+16.10: новых предупреждений 250, кадров с подсветкой 1363 из 1440
+    S41 заниженный CO2: climate_sensor_01.co2_ppm — первая подсветка 13:41
+    S42 вентилятор: solar_inverter_01.fan_current_a — первая подсветка нет
+    S42 температура: solar_inverter_01.inverter_temp_c — первая подсветка нет
+    S47 вода в топливе: fuel_tank_01.water_content_ppm — первая подсветка нет
+17.10: новых предупреждений 331, кадров с подсветкой 1242 из 1440
+    S31 утечка 10:14: smart_panel_01.lines[3].leakage_ma — первая подсветка 10:13
+    S44 сопло 280 °C: printer_3d_01.nozzle_temp_c — первая подсветка 09:42
+    S45 SFP: network_link_01.rx_power_dbm — первая подсветка нет
+18.10: новых предупреждений 271, кадров с подсветкой 1426 из 1440
+    S50 пожар: smoke_detector_02.obscuration_pct — первая подсветка 15:01
+    S48 балансировка: battery_01.cell_voltage_delta_mv — первая подсветка нет
+по типу: {'фон': 1997, 'пропуск': 240, 'предел': 15} | всего: 2252 по рядам: 163
+  189   5844  wind_turbine_01.power_w
+  139   2230  supply_ventilation_01.power_w
+  112   4290  radio_01.bitrate_kbps
+   95   5555  solar_inverter_01.battery_current_a
+   93   5610  battery_01.current_a
+   83    252  water_pump_01.power_w
+   83    252  water_pump_01.motor_current_a
+   83    252  water_pump_01.flow_l_min
+   82   7594  solar_inverter_01.pv_power_w
+   66   7404  battery_01.power_w
+   66   7425  solar_inverter_01.battery_power_w
+   61   3275  weather_station_01.wind_direction_deg
+   44   1227  smart_panel_01.total_current_a
+   31    524  smart_panel_01.lines[0].current_a
+   29   1553  wind_turbine_01.wind_speed_ms

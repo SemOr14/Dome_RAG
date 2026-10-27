@@ -383,13 +383,13 @@ class LlmBrain:
             self.dispatcher.operator.last_id = max(self.dispatcher.operator.last_id, *ids)
 
     def step(self, chat_new: list[dict[str, Any]], execute: Execute, *, algorithms: list[str] | None = None,
-             handled_operator_ids: set[int] | None = None) -> None:
+             handled_operator_ids: set[int] | None = None, source_events: list[dict] | None = None) -> None:
         """Такт: найти поводы; если пора — запустить вызов модели в фоне (результат исполнит ``execute``).
 
         Поводы по узлам, которые ведут плейбуки, не отбрасываются: модель видит всё, а ``algorithms`` — строки
         «что сделал или ждёт алгоритм» — добавляются к запросу отдельным разделом.
         """
-        fired = self.dispatcher.poll(chat_new, handled_operator_ids=handled_operator_ids)
+        fired = self.dispatcher.poll(chat_new, handled_operator_ids=handled_operator_ids, source_events=source_events)
         if fired is not None:
             if algorithms:
                 fired.text += ALGORITHMS_HEADER + "\n".join(f"- {line}" for line in algorithms)

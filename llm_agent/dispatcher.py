@@ -20,6 +20,7 @@ from .agent import DomeLLMAgent
 from .prompt_builder import _dome_time
 from .schemas import AgentResponse
 from .triggers import OperatorWatch, TelemetryWatch, Trigger, command_triggers, telemetry_age
+from .event_watch import EventWatch
 
 MAX_LISTED = 12  # поводов в тексте одного вызова; остальные — списком узлов
 
@@ -68,6 +69,7 @@ class Dispatcher:
         self.state_file = s.state_dir / "dispatcher_state.json"
         saved = self._load_state()
         self.telemetry = TelemetryWatch(s.trigger_stale_s, s.trigger_stall_s)
+        self.source_events = EventWatch()
         self.operator = OperatorWatch(saved.get("operator_last_id", 0))
         self.pending: dict[str, _Pending] = {}
         self.fired_at: dict[str, float] = {}  # ключ ситуации -> когда по ней звали модель
@@ -117,7 +119,8 @@ class Dispatcher:
             self.finish(fired, self.decide(fired))
         return [fired]
 
-    def poll(self, chat: list[dict] | None = None, *, handled_operator_ids=None) -> Fired | None:
+    def poll(self, chat: list[dict] | None = None, *, handled_operator_ids=None,
+             source_events: list[dict] | None = None) -> Fired | None:
         """Собрать поводы; если пора звать модель — вернуть объединённый вызов (модель здесь не вызывается).
 
         chat — сообщения meeting_message.message, полученные вызывающим кодом напрямую из WebSocket.
@@ -125,6 +128,8 @@ class Dispatcher:
         now = self.clock()
         snapshot = self.agent.telemetry.latest()
         found = self.telemetry.observe(snapshot, self.agent.catalog.by_id, now)
+        found += self.source_events.from_snapshot(snapshot)
+        found += self.source_events.observe(source_events or [], snapshot)
         found += self.operator.from_snapshot(snapshot, handled_ids=handled_operator_ids)
         found += self.operator.messages(chat or [], handled_ids=handled_operator_ids)
         if self.feed is not None:
@@ -134,6 +139,7 @@ class Dispatcher:
                 print(f"события БД не прочитаны ({type(exc).__name__})", file=sys.stderr)
                 events = []
             found += command_triggers(events)
+            found += self.source_events.observe(events, snapshot)
             msgs = {}
             for ev in events:
                 if ev["event_type"] == "meeting_message" and isinstance(ev["payload"], dict):
